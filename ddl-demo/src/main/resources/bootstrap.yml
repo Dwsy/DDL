@@ -41,7 +41,23 @@ spring:
 #        group: DDL  # 组, 默认为 DEFAULT_GROUP
         namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
         server-addr: 127.0.0.1:8848
+  zipkin:
+    sender:
+      type: web # 默认是 web
+    base-url: http://localhost:9411/
+#  zipkin:
+#    sender:
+#      type: kafka # 默认是 web
+#    base-url: http://192.168.123.150:9411/
+  main:
+    allow-bean-definition-overriding: true  # 因为将来会引入很多依赖, 难免有重名的 bean
 
+  kafka:
+    bootstrap-servers: 192.168.123.150:9092
+    producer:
+      retries: 3
+    consumer:
+      auto-offset-reset: latest
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092
 #    producer:

@@ -4,14 +4,29 @@ server:
     context-path: /api
 spring:
   application:
-    name: e-commerce-gateway
+    name: ddl-gateway
   cloud:
     nacos:
-
       discovery:
         enabled: true # 如果不想使用 Nacos 进行服务注册和发现, 设置为 false 即可
         server-addr: localhost:8848
         namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
+        metadata:
+          management:
+#            context-path: ${server.servlet.context-path}/actuator
+            context-path: /actuator
+  zipkin:
+    sender:
+      type: web # 默认是 web
+    base-url: http://localhost:9411/
+  main:
+    allow-bean-definition-overriding: true  # 因为将来会引入很多依赖, 难免有重名的 bean
+  kafka:
+    bootstrap-servers: 192.168.123.150:9092
+    producer:
+      retries: 3
+    consumer:
+      auto-offset-reset: latest
 # 这个地方独立配置, 是网关的数据, 代码 GatewayConfig.java 中读取被监听
 nacos:
   gateway:
@@ -20,9 +35,9 @@ nacos:
         data-id: ddl-gateway-router
         group: ddl
 
-    #        metadata:
-    #          management:
-    #            context-path: ${server.servlet.context-path}/actuator
+#            metadata:
+#              management:
+#                context-path: ${server.servlet.context-path}/actuator
 #    sentinel:
 #      eager: true
 #      transport:
@@ -65,18 +80,7 @@ nacos:
   #          uri: 127.0.0.1:8080/user/{id} # 匹配后路由地址
   #          predicates: # 断言, 路径相匹配的进行路由
   #            - Path=/user/{id}
-#  kafka:
-#    bootstrap-servers: 127.0.0.1:9092
-#    producer:
-#      retries: 3
-#    consumer:
-#      auto-offset-reset: latest
-#  zipkin:
-#    sender:
-#      type: kafka # 默认是 web
-#    base-url: http://localhost:9411/
-#  main:
-#    allow-bean-definition-overriding: true  # 因为将来会引入很多依赖, 难免有重名的 bean
+
 
 
 
