@@ -1,0 +1,17 @@
+### 登录
+POST 127.0.0.1:9001/api/ddl/login
+Content-Type: application/json
+
+{
+  "username": "dwsy",
+  "password": "111"
+}
+
+###
+POST 127.0.0.1:9001/api/ddl/register
+Content-Type: application/json
+
+{
+  "username": "steins",
+  "password": "111"
+}

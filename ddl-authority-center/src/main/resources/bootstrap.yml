@@ -1,0 +1,65 @@
+server:
+  port: 7002
+  servlet:
+    context-path: /ddl-authority-center
+
+spring:
+  application:
+    name: ddl-authority-center
+  cloud:
+    nacos:
+      discovery:
+        enabled: true # 如果不想使用 Nacos 进行服务注册和发现, 设置为 false 即可
+        server-addr: localhost:8848 # Nacos 服务器地址
+        # server-addr: 127.0.0.1:8848,127.0.0.1:8849,127.0.0.1:8850 # Nacos 服务器地址
+        namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
+        metadata:
+          management:
+            context-path: ${server.servlet.context-path}/actuator
+  datasource:
+    # 数据源
+    url: jdbc:mysql://localhost:3306/ddl?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 连接池
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 4
+      idle-timeout: 30000
+      connection-timeout: 30000
+      max-lifetime: 45000
+      auto-commit: true
+      pool-name: ImoocEcommerceHikariCP
+#  kafka:
+#    bootstrap-servers: 127.0.0.1:9092
+#    producer:
+#      retries: 3
+#    consumer:
+#      auto-offset-reset: latest
+#  zipkin:
+#    sender:
+#      type: kafka # 默认是 web
+#    base-url: http://127.0.0.1:9411/
+
+# 暴露端点
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: '*'  # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 *, 可以开放所有端点
+#  endpoint:
+#    health:
+#      show-details: always
+mybatis-plus:
+  configuration:
+    # 配置MyBatis日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: delete
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
