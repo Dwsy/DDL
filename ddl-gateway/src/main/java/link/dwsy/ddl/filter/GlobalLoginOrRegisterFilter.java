@@ -97,23 +97,23 @@ public class GlobalLoginOrRegisterFilter implements GlobalFilter, Ordered {
             return response.setComplete();
         }
 
-        // 3. 访问其他的服务, 则鉴权, 校验是否能够从 Token 中解析出用户信息
-        HttpHeaders headers = request.getHeaders();
-        String token = headers.getFirst(Constants.JWT_USER_INFO_KEY);
-        LoginUserInfo loginUserInfo = null;
-
-        try {
-            loginUserInfo = TokenParseUtil.parseUserInfoFromToken(token);
-        } catch (Exception ex) {
-            log.error("parse user info from token error: [{}]", ex.getMessage(), ex);
-        }
-
-        // 获取不到登录用户信息, 返回 401
-        if (null == loginUserInfo) {
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            return response.setComplete();
-        }
-
+//        // 3. 访问其他的服务, 则鉴权, 校验是否能够从 Token 中解析出用户信息
+//        HttpHeaders headers = request.getHeaders();
+//        String token = headers.getFirst(Constants.JWT_USER_INFO_KEY);
+//        LoginUserInfo loginUserInfo = null;
+//
+//        try {
+//            loginUserInfo = TokenParseUtil.parseUserInfoFromToken(token);
+//        } catch (Exception ex) {
+//            log.error("parse user info from token error: [{}]", ex.getMessage(), ex);
+//        }
+//
+//        // 获取不到登录用户信息, 返回 401
+//        if (null == loginUserInfo) {
+//            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+//            return response.setComplete();
+//        }
+//微服务内鉴权
         // 解析通过, 则放行
         return chain.filter(exchange);
     }
