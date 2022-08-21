@@ -1,0 +1,8 @@
+{
+  "timestamp": "2022-08-16T18:26:21.121+00:00",
+  "path": "/api/actuator",
+  "status": 404,
+  "error": "Not Found",
+  "message": null,
+  "requestId": "42c610ab-37"
+}

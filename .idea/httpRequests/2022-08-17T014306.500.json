@@ -1,0 +1,7 @@
+{
+  "timestamp": "2022-08-16T17:43:06.393+00:00",
+  "path": "/api/ddl/register",
+  "status": 500,
+  "error": "Internal Server Error",
+  "requestId": "6ee1f5f6-2"
+}

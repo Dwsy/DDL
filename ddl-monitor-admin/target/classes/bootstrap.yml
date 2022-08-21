@@ -1,0 +1,47 @@
+# Tomcat
+server:
+  port: 7010
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: ddl-monitor
+  profiles:
+    # 环境配置
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        # 服务注册地址
+        server-addr: localhost:8848
+        namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
+        metadata:
+          management:
+            context-path: actuator
+            user.name: admin
+            user.password: admin
+      config:
+        # 配置中心地址
+        server-addr: localhost:8848
+        # 配置文件格式
+        file-extension: yml
+        # 共享配置
+        shared-configs:
+          - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+  security:
+    user:
+      name: "admin"
+      password: "admin"
+  thymeleaf:
+    check-template: false
+    check-template-location: false
+# 暴露端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'  # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 *, 可以开放所有端点
+  endpoint:
+    health:
+      show-details: always
