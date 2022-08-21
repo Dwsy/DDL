@@ -1,8 +1,0 @@
-{
-  "timestamp": "2022-08-16T17:59:21.275+00:00",
-  "path": "/api/dll-demo/test1",
-  "status": 404,
-  "error": "Not Found",
-  "message": null,
-  "requestId": "d5db4098-5"
-}
