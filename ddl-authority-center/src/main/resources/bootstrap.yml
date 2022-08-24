@@ -4,6 +4,28 @@ server:
     context-path: /ddl-authority-center
 
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    database: postgresql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  datasource:
+    # 数据源
+    url: jdbc:postgresql://localhost:5432/ddl?useSSL=false
+    username: postgres
+    password: root
+    #    type: com.zaxxer.hikari.HikariDataSource
+    #    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
   application:
     name: ddl-authority-center
   cloud:
@@ -16,22 +38,16 @@ spring:
         metadata:
           management:
             context-path: ${server.servlet.context-path}/actuator
-  datasource:
-    # 数据源
-    url: jdbc:mysql://localhost:3306/ddl?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
-    username: root
-    password: root
-    type: com.zaxxer.hikari.HikariDataSource
-    driver-class-name: com.mysql.cj.jdbc.Driver
     # 连接池
-    hikari:
-      maximum-pool-size: 8
-      minimum-idle: 4
-      idle-timeout: 30000
-      connection-timeout: 30000
-      max-lifetime: 45000
-      auto-commit: true
-      pool-name: ImoocEcommerceHikariCP
+#    hikari:
+#      maximum-pool-size: 8
+#      minimum-idle: 4
+#      idle-timeout: 30000
+#      connection-timeout: 30000
+#      max-lifetime: 45000
+#      auto-commit: true
+#      pool-name: ImoocEcommerceHikariCP
+
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092
 #    producer:
@@ -52,14 +68,6 @@ spring:
 #  endpoint:
 #    health:
 #      show-details: always
-mybatis-plus:
-  configuration:
-    # 配置MyBatis日志
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  global-config:
-    db-config:
-      id-type: auto
-      logic-delete-field: delete
-      logic-delete-value: 1
-      logic-not-delete-value: 0
+knife4j:
+  enable: true
 

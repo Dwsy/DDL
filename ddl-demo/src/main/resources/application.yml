@@ -1,25 +1,41 @@
 server:
-  port: 8801
-  servlet:
-    context-path: /demo
+  port: 8701
+#  servlet:
+#    context-path: /demo
 
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    database: postgresql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
   datasource:
     # 数据源
-    url: jdbc:mysql://localhost:3306/ddl?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
-    username: root
+    url: jdbc:postgresql://localhost:5432/ddl?useSSL=false
+    username: postgres
     password: root
-    type: com.zaxxer.hikari.HikariDataSource
-    driver-class-name: com.mysql.cj.jdbc.Driver
+#    type: com.zaxxer.hikari.HikariDataSource
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
     # 连接池
-    hikari:
-      maximum-pool-size: 8
-      minimum-idle: 4
-      idle-timeout: 30000
-      connection-timeout: 30000
-      max-lifetime: 45000
-      auto-commit: true
-      pool-name: ImoocEcommerceHikariCP
+#    hikari:
+#      maximum-pool-size: 8
+#      minimum-idle: 4
+#      idle-timeout: 30000
+#      connection-timeout: 30000
+#      max-lifetime: 45000
+#      auto-commit: true
+#      pool-name: ImoocEcommerceHikariCP
+
   application:
     name: ddl-demo # 应用名称也是构成 Nacos 配置管理 dataId 字段的一部分 (当 config.prefix 为空时)
   cloud:
@@ -51,13 +67,14 @@ spring:
 #    base-url: http://192.168.123.150:9411/
   main:
     allow-bean-definition-overriding: true  # 因为将来会引入很多依赖, 难免有重名的 bean
-
-  kafka:
-    bootstrap-servers: 192.168.123.150:9092
-    producer:
-      retries: 3
-    consumer:
-      auto-offset-reset: latest
+knife4j:
+  enable: true
+#  kafka:
+#    bootstrap-servers: 192.168.123.150:9092
+#    producer:
+#      retries: 3
+#    consumer:
+#      auto-offset-reset: latest
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092
 #    producer:
@@ -91,6 +108,7 @@ spring:
 #  okhttp:
 #    enabled: true
   # OpenFeign 集成 Hystrix
+
 #  hystrix:
 #    enabled: true
 

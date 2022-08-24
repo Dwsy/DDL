@@ -1,18 +1,13 @@
 package link.dwsy.ddl.demo;
 
 import link.dwsy.ddl.annotation.IgnoreResponseAdvice;
-import link.dwsy.ddl.demo.mapper.tuserMapper;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @Author Dwsy
@@ -21,28 +16,30 @@ import java.util.List;
 
 // 需要指定扫描包，全局响应才能生效 （高版本spring boot2）
 @SpringBootApplication(scanBasePackages = {"link.dwsy.ddl"})
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 @RestController
-@MapperScan("link.dwsy.ddl.demo.mapper")
+//@MapperScan("link.dwsy.ddl.demo.mapper")
+@EnableJpaAuditing
+@EnableWebMvc
 public class start {
-    public start(DiscoveryClient discoveryClient) {
-        this.discoveryClient = discoveryClient;
-    }
+//    public start(DiscoveryClient discoveryClient) {
+//        this.discoveryClient = discoveryClient;
+//    }
 
     public static void main(String[] args) {
 
         SpringApplication.run(start.class, args);
     }
 
-    private final DiscoveryClient discoveryClient;
+//    private final DiscoveryClient discoveryClient;
 
-    @Resource
-    private tuserMapper tmp;
+//    @Resource
+//    private tuserMapper tmp;
 
-    @GetMapping("/test")
-    public List<ServiceInstance> test() {
-        return discoveryClient.getInstances("ddl-demo");
-    }
+//    @GetMapping("/test")
+//    public List<ServiceInstance> test() {
+//        return discoveryClient.getInstances("ddl-demo");
+//    }
 
     @GetMapping("/test2")
     public String test2() {

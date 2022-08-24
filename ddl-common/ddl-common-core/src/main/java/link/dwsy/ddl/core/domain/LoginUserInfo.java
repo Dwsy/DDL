@@ -21,4 +21,6 @@ public class LoginUserInfo {
      * 用户名
      */
     private String username;
+
+    private int level;
 }
