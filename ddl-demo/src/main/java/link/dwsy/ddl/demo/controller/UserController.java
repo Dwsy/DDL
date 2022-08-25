@@ -1,8 +1,8 @@
 package link.dwsy.ddl.demo.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiImplicitParam;
+//import io.swagger.annotations.ApiOperation;
 
 import link.dwsy.ddl.demo.entity.User;
 import link.dwsy.ddl.demo.repository.UserRepository;
@@ -19,7 +19,7 @@ import java.util.Optional;
  * @Author Dwsy
  * @Date 2022/8/24
  */
-@Api(tags = "TEST 用户")
+//@Api(tags = "TEST 用户")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -29,14 +29,14 @@ public class UserController {
 
 
     @GetMapping("/list")
-    @ApiOperation(value = "getList")
+//    @ApiOperation(value = "getList")
     public List<User> getList(){
         return userRepository.findAll();
     }
 
     @GetMapping("/id")
-    @ApiImplicitParam(name = "id",value  = "用户id",required = true)
-    @ApiOperation(value = "getListById")
+//    @ApiImplicitParam(name = "id",value  = "用户id",required = true)
+//    @ApiOperation(value = "getListById")
     public User getListById(@RequestParam(value = "id") Long id) {
 
         return userRepository.findById(id).get();

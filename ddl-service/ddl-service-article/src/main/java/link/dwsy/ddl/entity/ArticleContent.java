@@ -1,8 +1,11 @@
 package link.dwsy.ddl.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import link.dwsy.ddl.xo.Enum.ArticleState;
+import link.dwsy.ddl.XO.Enum.ArticleState;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.List;
@@ -21,32 +24,44 @@ import java.util.Set;
 @NoArgsConstructor
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer"})
 public class ArticleContent extends BaseEntity {
+    @ManyToOne
+    private User user;
+
     private String title;
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    private String textMd;
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    private String textHtml;
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    private String textPure;
 
-    private String text_md;
-
-    private String text_html;
-
-    private String text_pure;
+    private String summary;
 
     @Enumerated(EnumType.ORDINAL)
     private ArticleState articleState;
 
-    private boolean allow_comment;
+    private boolean allowComment;
 
-    private long view_num = 0;
+    private long viewNum = 0;
 
-    private long collect_num = 0;
+    private long collectNum = 0;
 
     private String banner;
 
     @ManyToMany(
             fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(name = "article_tag_ref",
-            joinColumns = { @JoinColumn(name = "article_content_id") },
-            inverseJoinColumns = { @JoinColumn(name = "article_tag_id") })
+            joinColumns = {@JoinColumn(name = "article_content_id")},
+            inverseJoinColumns = {@JoinColumn(name = "article_tag_id")})
     private Set<ArticleTag> articleTags;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     private ArticleGroup articleGroup;
+
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "articleContent")
+    @Fetch(FetchMode.SUBSELECT)
+    private List<ArticleComment> articleComments;
 }

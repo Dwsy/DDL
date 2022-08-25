@@ -1,6 +1,6 @@
 package link.dwsy.ddl.entity;
 
-import link.dwsy.ddl.xo.Enum.Gender;
+import link.dwsy.ddl.XO.Enum.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,8 +19,10 @@ import java.util.Date;
 public class UserInfo extends BaseEntity {
 
 
-    private String avatar = "default";
+    @OneToOne
+    private User user;
 
+    private String avatar = "default";
 
     private String sign;
 

@@ -30,10 +30,10 @@ public class article_tagTest {
     ArticleGroupRepository articleGroupRepository;
     @Test
     public void saveTag() {
-        ArticleTag t1 = ArticleTag.builder().name("Java").tag_info("info").build();
-        ArticleTag t2 = ArticleTag.builder().name("C++").tag_info("info").build();
-        ArticleTag t3 = ArticleTag.builder().name("Rust").tag_info("info").build();
-        ArticleTag t4 = ArticleTag.builder().name("GO").tag_info("info").build();
+        ArticleTag t1 = ArticleTag.builder().name("Java").tagInfo("info").build();
+        ArticleTag t2 = ArticleTag.builder().name("C++").tagInfo("info").build();
+        ArticleTag t3 = ArticleTag.builder().name("Rust").tagInfo("info").build();
+        ArticleTag t4 = ArticleTag.builder().name("GO").tagInfo("info").build();
         List<ArticleTag> articleTags = Arrays.asList(t1, t2, t3, t4);
         articleTagRepository.saveAll(articleTags);
 
@@ -42,18 +42,18 @@ public class article_tagTest {
 
     }
 
-    @Test
-    public void saveContent() {
-        Long[] tagSid = {65L, 66L};
-        Set<ArticleTag> allById = new HashSet<>(articleTagRepository.findAllById(Arrays.asList(tagSid)));
-        Optional<ArticleGroup> byId = articleGroupRepository.findById(62L);
-        ArticleContent t1 = ArticleContent.builder().text_md("#TEST").title("Title").
-                articleTags(allById).articleGroup(byId.orElse(null)).build();
-        ArticleContent t2 = ArticleContent.builder().text_md("#TEST").title("123Title").
-                articleTags(allById).articleGroup(byId.orElse(null)).build();
-        articleContentRepository.save(t1);
-        articleContentRepository.save(t2);
-    }
+//    @Test
+//    public void saveContent() {
+//        Long[] tagSid = {65L, 66L};
+//        Set<ArticleTag> allById = new HashSet<>(articleTagRepository.findAllById(Arrays.asList(tagSid)));
+//        Optional<ArticleGroup> byId = articleGroupRepository.findById(62L);
+//        ArticleContent t1 = ArticleContent.builder().textMd("#TEST").title("Title").
+//                articleTags(allById).articleGroup(byId.orElse(null)).build();
+//        ArticleContent t2 = ArticleContent.builder().textMd("#TEST").title("123Title").
+//                articleTags(allById).articleGroup(byId.orElse(null)).build();
+//        articleContentRepository.save(t1);
+//        articleContentRepository.save(t2);
+//    }
 
     @Test
     public void getContentList() {

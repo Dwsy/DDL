@@ -1,4 +1,4 @@
-package link.dwsy.ddl.xo.RB;
+package link.dwsy.ddl.XO.RB;
 
 import link.dwsy.ddl.entity.UserInfo;
 import lombok.AllArgsConstructor;

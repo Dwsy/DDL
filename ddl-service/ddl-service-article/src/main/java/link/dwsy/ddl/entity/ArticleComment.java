@@ -2,8 +2,9 @@ package link.dwsy.ddl.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import link.dwsy.ddl.xo.Enum.CommentType;
+import link.dwsy.ddl.XO.Enum.CommentType;
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
@@ -25,20 +26,26 @@ public class ArticleComment extends BaseEntity{
     @OneToOne
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private ArticleContent articleContent;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String text;
 
     private long thumb;
 
-    @OneToOne
-    @JsonIgnore
-    private ArticleComment parentComment;
+//    @OneToOne
+//    @JsonIgnore
+    private long parentCommentId;
 
     @Enumerated(EnumType.ORDINAL)
     private CommentType commentType;
+
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    private String ua;
 
     @Override
     public String toString() {
@@ -47,6 +54,7 @@ public class ArticleComment extends BaseEntity{
                 ", text='" + text + '\'' +
                 ", thumb=" + thumb +
                 ", commentType=" + commentType +
+                ", ua='" + ua + '\'' +
                 '}';
     }
 }

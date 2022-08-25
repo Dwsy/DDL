@@ -1,6 +1,6 @@
 package link.dwsy.ddl;
 
-import link.dwsy.ddl.entity.tuser;
+//import link.dwsy.ddl.entity.tuser;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

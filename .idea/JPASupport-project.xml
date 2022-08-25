@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoGeneratorSettingsState">
+    <option name="moduleName" value="ddl-common" />
+    <option name="moduleNameToSettings">
+      <map>
+        <entry key="ddl-common">
+          <value>
+            <ModuleSettings />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="DatabaseSettingsState">
     <option name="language" value="zh-CN" />
   </component>

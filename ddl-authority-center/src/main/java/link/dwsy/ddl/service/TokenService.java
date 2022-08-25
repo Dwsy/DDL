@@ -1,8 +1,7 @@
 package link.dwsy.ddl.service;
 
-import link.dwsy.ddl.core.domain.UsernameAndPassword;
-import link.dwsy.ddl.xo.RB.UserRB;
-import link.dwsy.ddl.xo.RB.UserRegisterRB;
+import link.dwsy.ddl.XO.RB.UserRB;
+import link.dwsy.ddl.XO.RB.UserRegisterRB;
 
 /**
  * @Author Dwsy

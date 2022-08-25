@@ -1,6 +1,6 @@
 package link.dwsy.ddl.entity;
 
-import link.dwsy.ddl.xo.Enum.Gender;
+import link.dwsy.ddl.XO.Enum.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
@@ -24,11 +25,10 @@ import java.util.Set;
 public class ArticleGroup extends BaseEntity {
     private String name;
 
-
-
     private String info;
     @OneToMany(mappedBy = "articleGroup")
-    private List<ArticleContent> articleContentList;
+    @JsonIgnore
+    private List<ArticleContent> articleContents;
 
     @Override
     public String toString() {

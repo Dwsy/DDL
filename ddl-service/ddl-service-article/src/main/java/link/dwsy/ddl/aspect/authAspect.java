@@ -25,8 +25,8 @@ public class authAspect {
     @Resource
     private UserSupport userSupport;
 
-    @Resource
-    private UserRepository userRepository;
+//    @Resource
+//    private UserRepository userRepository;
     @Pointcut("@annotation(link.dwsy.ddl.annotation.authAnnotation)")
     public void cut() {}
 
@@ -35,9 +35,9 @@ public class authAspect {
     public void doBefore(JoinPoint joinPoint, authAnnotation authAnnotation) throws Throwable {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         Long userId = currentUser.getId();
-        User user = userRepository.findUserByIdAndDeletedIsFalse(userId);
-        if (user.getLevel()<authAnnotation.Level()) {
-            throw new CodeException(4, "权限不足");
-        }
+//        User user = userRepository.findUserByIdAndDeletedIsFalse(userId);
+//        if (user.getLevel()<authAnnotation.Level()) {
+//            throw new CodeException(4, "权限不足");
+//        }
     }
 }

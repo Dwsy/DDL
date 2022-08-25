@@ -1,4 +1,4 @@
-package link.dwsy.ddl.xo.Enum;
+package link.dwsy.ddl.XO.Enum;
 
 public enum Gender {
     MAIL("男"), FMAIL("女");

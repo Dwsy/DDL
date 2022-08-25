@@ -1,5 +1,5 @@
 server:
-  port: 7020
+  port: 17030
 #  servlet:
 #    context-path: /ddl-authority-center
 
