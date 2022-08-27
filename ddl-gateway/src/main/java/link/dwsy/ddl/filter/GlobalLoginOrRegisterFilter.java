@@ -2,8 +2,12 @@ package link.dwsy.ddl.filter;
 
 
 import com.alibaba.fastjson2.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import link.dwsy.ddl.constant.GatewayConstant;
 import link.dwsy.ddl.core.constant.Constants;
+import link.dwsy.ddl.core.constant.TokenConstants;
 import link.dwsy.ddl.core.domain.JwtToken;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.core.domain.UsernameAndPassword;
@@ -23,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -59,62 +64,62 @@ public class GlobalLoginOrRegisterFilter implements GlobalFilter, Ordered {
     /**
      * <h2>登录、注册、鉴权</h2>
      * 1. 如果是登录或注册, 则去授权中心拿到 Token 并返回给客户端
-     * 2. 如果是访问其他的服务, 则鉴权, 没有权限返回 401
+     * 2. 如果是访问其他的服务,如果有token并且鉴权通过后将JWT令牌中的用户信息解析出来，然后存入请求的Header中，
+     *    这样后续服务就不需要解析JWT令牌了，可以直接从请求的Header中获取到用户信息
+     *    {@link LoginUserInfo}
      */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
+        HttpHeaders headers = request.getHeaders();
+        String s = headers.getFirst("loginUserInfo");
+        if(s == null || s.isEmpty()){
+            // 1. 如果是登录
+            if (request.getURI().getPath().contains(GatewayConstant.LOGIN_URI)) {
+                // 去授权中心拿 token
+                String token = getTokenFromAuthorityCenter(
+                        request, GatewayConstant.AUTHORITY_CENTER_TOKEN_URL_FORMAT
+                );
+                // header 中不能设置 null
+                response.getHeaders().add(
+                        Constants.JWT_USER_INFO_KEY,
+                        null == token ? "null" : token
+                );
+                response.setStatusCode(HttpStatus.OK);
+                return response.setComplete();
+            }
 
-        // 1. 如果是登录
-        if (request.getURI().getPath().contains(GatewayConstant.LOGIN_URI)) {
-            // 去授权中心拿 token
-            String token = getTokenFromAuthorityCenter(
-                    request, GatewayConstant.AUTHORITY_CENTER_TOKEN_URL_FORMAT
-            );
-            // header 中不能设置 null
-            response.getHeaders().add(
-                    Constants.JWT_USER_INFO_KEY,
-                    null == token ? "null" : token
-            );
-            response.setStatusCode(HttpStatus.OK);
-            return response.setComplete();
+            // 2. 如果是注册
+            if (request.getURI().getPath().contains(GatewayConstant.REGISTER_URI)) {
+                // 去授权中心拿 token: 先创建用户, 再返回 Token
+                String token = getTokenFromAuthorityCenter(
+                        request,
+                        GatewayConstant.AUTHORITY_CENTER_REGISTER_URL_FORMAT
+                );
+                response.getHeaders().add(
+                        Constants.JWT_USER_INFO_KEY,
+                        null == token ? "null" : token
+                );
+                response.setStatusCode(HttpStatus.OK);
+                return response.setComplete();
+            }
         }
 
-        // 2. 如果是注册
-        if (request.getURI().getPath().contains(GatewayConstant.REGISTER_URI)) {
-            // 去授权中心拿 token: 先创建用户, 再返回 Token
-            String token = getTokenFromAuthorityCenter(
-                    request,
-                    GatewayConstant.AUTHORITY_CENTER_REGISTER_URL_FORMAT
-            );
-            response.getHeaders().add(
-                    Constants.JWT_USER_INFO_KEY,
-                    null == token ? "null" : token
-            );
-            response.setStatusCode(HttpStatus.OK);
-            return response.setComplete();
-        }
+        // 3. 访问其他的服务, 则鉴权, 校验是否能够从 Token 中解析出用户信息后 存入header中
 
-//        // 3. 访问其他的服务, 则鉴权, 校验是否能够从 Token 中解析出用户信息
-//        HttpHeaders headers = request.getHeaders();
-//        String token = headers.getFirst(Constants.JWT_USER_INFO_KEY);
-//        LoginUserInfo loginUserInfo = null;
-//
-//        try {
-//            loginUserInfo = TokenParseUtil.parseUserInfoFromToken(token);
-//        } catch (Exception ex) {
-//            log.error("parse user info from token error: [{}]", ex.getMessage(), ex);
-//        }
-//
-//        // 获取不到登录用户信息, 返回 401
-//        if (null == loginUserInfo) {
-//            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-//            return response.setComplete();
-//        }
-//微服务内鉴权
-        // 解析通过, 则放行
+        String token = headers.getFirst(TokenConstants.AUTHENTICATION);
+        LoginUserInfo loginUserInfo = null;
+        if (token != null) {
+            try {
+                loginUserInfo = TokenParseUtil.parseUserInfoFromToken(token);
+                String loginUserInfoJSON = new ObjectMapper().writeValueAsString(loginUserInfo);
+                headers.add("loginUserInfo",loginUserInfoJSON);
+            } catch (Exception ex) {
+                log.error("parse user info from token error: [{}]", ex.getMessage(), ex);
+            }
+        }
         return chain.filter(exchange);
     }
 

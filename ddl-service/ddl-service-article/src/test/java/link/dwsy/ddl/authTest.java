@@ -1,5 +1,5 @@
 package link.dwsy.ddl;
-import link.dwsy.ddl.annotation.authAnnotation;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class authTest {
 
     @Test
-    @authAnnotation
+    @AuthAnnotation
     public void t() {
         System.out.println("test");
     }

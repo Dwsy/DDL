@@ -43,14 +43,13 @@ spring:
   cloud:
     nacos:
       discovery:
-        enabled: true # 如果不想使用 Nacos 进行服务注册和发现, 设置为 false 即可
+        enabled: false # 如果不想使用 Nacos 进行服务注册和发现, 设置为 false 即可
         server-addr: localhost:8848 # Nacos 服务器地址
         # server-addr: 127.0.0.1:8848,127.0.0.1:8849,127.0.0.1:8850 # Nacos 服务器地址
         namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
         metadata:
           management:
             context-path: ${server.servlet.context-path}/actuator
-
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092
 #    producer:

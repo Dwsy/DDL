@@ -12,6 +12,6 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
 @Component
-public @interface authAnnotation {
+public @interface AuthAnnotation {
     int Level() default 1;
 }

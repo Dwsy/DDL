@@ -6,6 +6,7 @@
         <set>
           <option value="}" />
           <option value="  &quot;password&quot;" />
+          <option value="loginUserInfo" />
         </set>
       </option>
     </inspection_tool>
