@@ -16,7 +16,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 //@EnableDiscoveryClient
 //@EnableDiscoveryClient(autoRegister = false)
 @EnableJpaAuditing
-@EnableWebMvc
 @EnableAspectJAutoProxy
 //@EntityScan("import link.dwsy.ddl.entity")
 public class articleApplication {

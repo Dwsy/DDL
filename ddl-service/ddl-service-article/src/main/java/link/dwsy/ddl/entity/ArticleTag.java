@@ -19,7 +19,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 //@NoArgsConstructor
-@JsonIgnoreProperties(value = { "hibernateLazyInitializer"})
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","createTime","deleted","lastModifiedTime"})
 public class ArticleTag extends BaseEntity {
 
 
@@ -33,7 +33,7 @@ public class ArticleTag extends BaseEntity {
     @ManyToMany(mappedBy = "articleTags",
                 fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<ArticleContent> articleContents;
+    private List<ArticleField> articleFields;
 
     public ArticleTag() {
 

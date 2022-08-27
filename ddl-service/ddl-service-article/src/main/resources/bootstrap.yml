@@ -1,8 +1,12 @@
 server:
-  port: 17030
+  port: 7030
+#  servlet:
+#    encoding:
+#      charset: utf-8
+#      force-response: true
+#      force: true
 #  servlet:
 #    context-path: /ddl-authority-center
-
 spring:
   mvc:
     pathmatch:
@@ -26,6 +30,14 @@ spring:
     #    type: com.zaxxer.hikari.HikariDataSource
     #    driver-class-name: com.mysql.cj.jdbc.Driver
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 4
+      idle-timeout: 30000
+      connection-timeout: 30000
+      max-lifetime: 45000
+      auto-commit: true
+      pool-name: DDLHikariCP
   application:
     name: ddl-authority-center
   cloud:
@@ -38,15 +50,6 @@ spring:
         metadata:
           management:
             context-path: ${server.servlet.context-path}/actuator
-    # 连接池
-#    hikari:
-#      maximum-pool-size: 8
-#      minimum-idle: 4
-#      idle-timeout: 30000
-#      connection-timeout: 30000
-#      max-lifetime: 45000
-#      auto-commit: true
-#      pool-name: ImoocEcommerceHikariCP
 
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092

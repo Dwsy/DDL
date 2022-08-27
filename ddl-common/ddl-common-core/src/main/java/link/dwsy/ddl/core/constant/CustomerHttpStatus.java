@@ -5,7 +5,7 @@ package link.dwsy.ddl.core.constant;
  * 
  * @author ruoyi
  */
-public class HttpStatus
+public class CustomerHttpStatus
 {
     /**
      * 操作成功

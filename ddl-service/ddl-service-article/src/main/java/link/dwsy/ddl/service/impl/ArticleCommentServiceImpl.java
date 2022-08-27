@@ -1,7 +1,7 @@
 package link.dwsy.ddl.service.impl;
 
-import link.dwsy.ddl.XO.CustomER.entity.ArticleCommentCustom;
-import link.dwsy.ddl.XO.CustomER.repository.ArticleCommentRepositoryCustom;
+import link.dwsy.ddl.entity.ArticleComment;
+import link.dwsy.ddl.repository.ArticleCommentRepository;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,15 +17,16 @@ import javax.annotation.Resource;
 @Service
 public class ArticleCommentServiceImpl {
     @Resource
-    private ArticleCommentRepositoryCustom articleCommentRepositoryCustom;
+    private ArticleCommentRepository articleCommentRepository;
 
-    public PageData<ArticleCommentCustom> getByArticleId(long aid, int page, int size) {
+    public PageData<ArticleComment> getByArticleId(long aid, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size);
-        Page<ArticleCommentCustom> parentComment = articleCommentRepositoryCustom.
-                findAllByDeletedIsFalseAndArticleContentIdAndParentCommentId(aid,0L, pageRequest);
-        for (ArticleCommentCustom articleCommentCustom : parentComment) {
-            long pid = articleCommentCustom.getId();
-            articleCommentCustom.setChildComments(articleCommentRepositoryCustom.findAllByDeletedIsFalseAndArticleContentIdAndParentCommentId(aid, pid));
+        Page<ArticleComment> parentComment = articleCommentRepository.
+                findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid,0L, pageRequest);
+//              findAllByDeletedIsFalseAndArticleContentIdAndParentCommentId(aid,0L, pageRequest);
+        for (ArticleComment ArticleComment : parentComment) {
+            long pid = ArticleComment.getId();
+            ArticleComment.setChildComments(articleCommentRepository.findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, pid));
         }
         return new PageData<>(parentComment);
 //        parentComment.stream().map(ArticleCommentCustom::getParentCommentId).map(pid -> articleCommentRepositoryCustom.findAllByDeletedIsFalseAndArticleContentIdAndParentCommentId(aid, pid)).forEach();

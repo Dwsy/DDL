@@ -1,12 +1,15 @@
 package link.dwsy.ddl.service.impl;
 
-import link.dwsy.ddl.XO.CustomER.entity.ArticleContentCustom;
-import link.dwsy.ddl.XO.CustomER.repository.ArticleContentRepositoryCustom;
 import link.dwsy.ddl.XO.Enum.ArticleState;
+import link.dwsy.ddl.XO.VO.fieldVO;
+import link.dwsy.ddl.entity.ArticleField;
+import link.dwsy.ddl.repository.ArticleContentRepository;
+import link.dwsy.ddl.repository.ArticleFieldRepository;
 import link.dwsy.ddl.repository.ArticleGroupRepository;
 import link.dwsy.ddl.repository.ArticleTagRepository;
 import link.dwsy.ddl.service.ArticleContentService;
 import link.dwsy.ddl.util.PageData;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +24,11 @@ public class ArticleContentServiceImpl implements ArticleContentService {
     @Resource
     ArticleTagRepository articleTagRepository;
     @Resource
-    ArticleContentRepositoryCustom articleContentRepositoryCustom;
+    ArticleFieldRepository articleFieldRepository;
     @Resource
     ArticleGroupRepository articleGroupRepository;
+    @Resource
+    ArticleContentRepository articleContentRepository;
 
 //    public PageData<ArticleContent, ArticleContentDTO> getPageList(int page, int size) {
 //        PageRequest pageRequest = PageRequest.of(page-1, size);
@@ -31,14 +36,28 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 //        return new PageData<>(articleContentPage, ArticleContentDTO::convert);
 //    }
 
-    public PageData<ArticleContentCustom> getPageList(int page, int size, ArticleState articleState) {
+    public PageData<fieldVO> getPageList(int page, int size, ArticleState articleState) {
         PageRequest pageRequest = PageRequest.of(page-1, size);
-        PageData<ArticleContentCustom> articleContentCustomPageData = new PageData<>(articleContentRepositoryCustom.findAllByDeletedIsFalseAndArticleState(articleState, pageRequest));
-        return articleContentCustomPageData;
+        Page<fieldVO> fieldVOList = articleFieldRepository.findAllByDeletedIsFalseAndArticleState(articleState, pageRequest);
+        PageData<fieldVO> fieldVOPageData = new PageData<>(fieldVOList);
+        return fieldVOPageData;
     }
 
-    public ArticleContentCustom getArticleById(long id, ArticleState articleState) {
-        ArticleContentCustom Article = articleContentRepositoryCustom.findByIdAndArticleState(id, articleState);
-        return Article;
+    public ArticleField getArticleById(long id, ArticleState articleState) {
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(id,articleState);
+        return af;
+    }
+
+    public String getContent(long id, int type) {
+        if (type == 0) {
+            return articleContentRepository.findByIdAndDeletedIsFalse(id).getTextHtml();
+        }
+        if (type == 1) {
+            return articleContentRepository.findArticleContentByIdAndDeletedIsFalse(id).getTextPure();
+        }
+        if (type == 2) {
+            return articleContentRepository.findArticleContentByDeletedIsFalseAndId(id).getTextMd();
+        }
+        return null;
     }
 }

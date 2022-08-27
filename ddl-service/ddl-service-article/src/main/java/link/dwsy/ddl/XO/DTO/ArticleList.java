@@ -13,21 +13,19 @@ import java.util.Set;
  */
 
 public interface ArticleList {
-    String getTitle();
+//    String getTitle();
 
-
-
-    String getText_html();
+    String getTextHtml();
 
     String getSummary();
 
     ArticleState getArticleState();
 
-    boolean isAllow_comment();
+    boolean isAllowComment();
 
-    long getView_num();
+    long getViewNum();
 
-    long getCollect_num();
+    long getCollectNum();
 
     String getBanner();
 

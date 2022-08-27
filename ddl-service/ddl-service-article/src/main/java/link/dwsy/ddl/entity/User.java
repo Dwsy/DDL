@@ -1,6 +1,8 @@
 package link.dwsy.ddl.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,25 +23,30 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime","articleFields"})
 public class User extends BaseEntity {
 
     private String username;
 
+    @JsonIgnore
     private String password;
 
+    @JsonIgnore
     private String email;
 
+    @JsonIgnore
     private String phone;
 
+    @JsonIgnore
     private String area;
 
-    @OneToOne(cascade = {CascadeType.ALL})
+    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE},orphanRemoval = true)
     private UserInfo userInfo;
 
     private int level = 0;
 
     @OneToMany(mappedBy = "user")
-    private List<ArticleContent> articleContentList;
+    private List<ArticleField> articleFields;
 
     @Override
     public String toString() {

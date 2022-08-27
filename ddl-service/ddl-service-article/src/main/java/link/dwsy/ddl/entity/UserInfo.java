@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,10 +17,11 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","articleContent","lastModifiedTime","user"})
 public class UserInfo extends BaseEntity {
 
 
-    @OneToOne
+    @OneToOne(mappedBy = "userInfo",fetch = FetchType.LAZY)
     private User user;
 
     private String avatar = "default";

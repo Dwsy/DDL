@@ -21,14 +21,14 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"hibernateLazyInitializer"})
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","createTime","deleted","lastModifiedTime"})
 public class ArticleGroup extends BaseEntity {
     private String name;
 
     private String info;
     @OneToMany(mappedBy = "articleGroup")
     @JsonIgnore
-    private List<ArticleContent> articleContents;
+    private List<ArticleField> articleFields;
 
     @Override
     public String toString() {
@@ -38,3 +38,4 @@ public class ArticleGroup extends BaseEntity {
                 '}';
     }
 }
+

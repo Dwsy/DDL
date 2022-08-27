@@ -7,6 +7,8 @@ import lombok.*;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Author Dwsy
@@ -20,25 +22,28 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"hibernateLazyInitializer"})
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer"})
 public class ArticleComment extends BaseEntity{
 
-    @OneToOne
+//    @ManyToOne
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    private ArticleContent articleContent;
+    private ArticleField articleField;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String text;
 
-    private long thumb;
+    private long thumb=0;
 
-//    @OneToOne
-//    @JsonIgnore
-    private long parentCommentId;
+    private long parentCommentId=0;
+
+    @Transient
+    private Set<ArticleComment> childComments;
 
     @Enumerated(EnumType.ORDINAL)
     private CommentType commentType;

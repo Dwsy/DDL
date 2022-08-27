@@ -11,7 +11,13 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.Charset;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Author Dwsy
@@ -41,7 +47,9 @@ public class CommonResponseDataAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     @SuppressWarnings("all")
-    public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+    public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType,
+                                  Class<? extends HttpMessageConverter<?>> aClass,
+                                  ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
 
         // 定义最终的返回对象
         R<Object> response = new R<>();
@@ -67,4 +75,6 @@ public class CommonResponseDataAdvice implements ResponseBodyAdvice<Object> {
         }
         return response;
     }
+
+
 }

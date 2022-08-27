@@ -22,46 +22,27 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"hibernateLazyInitializer"})
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","articleField"})
 public class ArticleContent extends BaseEntity {
-    @ManyToOne
-    private User user;
 
-    private String title;
+    //    @OneToOne(mappedBy = "articleContent", fetch = FetchType.LAZY)
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "article_field_id",referencedColumnName = "id")
+    @Column(name = "article_field_id")
+    private long articleFieldId;
+
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String textMd;
+
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String textHtml;
+
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String textPure;
 
-    private String summary;
-
-    @Enumerated(EnumType.ORDINAL)
-    private ArticleState articleState;
-
-    private boolean allowComment;
-
-    private long viewNum = 0;
-
-    private long collectNum = 0;
-
-    private String banner;
-
-    @ManyToMany(
-            fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinTable(name = "article_tag_ref",
-            joinColumns = {@JoinColumn(name = "article_content_id")},
-            inverseJoinColumns = {@JoinColumn(name = "article_tag_id")})
-    private Set<ArticleTag> articleTags;
-
-    @ManyToOne(cascade = CascadeType.MERGE)
-    private ArticleGroup articleGroup;
-
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "articleContent")
-    @Fetch(FetchMode.SUBSELECT)
-    private List<ArticleComment> articleComments;
+//    @Column(name = "article_field_id")
+//    private Long articleFieldId;
 }

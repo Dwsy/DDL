@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.entity.ArticleContent;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -36,6 +39,7 @@ public class ArticleTagCustom extends BaseEntityCustom {
 
     @ManyToMany(mappedBy = "articleTags",
                 fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
     @JsonIgnore
     private List<ArticleContent> articleContents;
 
