@@ -24,6 +24,7 @@ public class ArticleTag extends BaseEntity {
 
     private String name;
 
+    @Builder.Default
     private int articleNum = 0;
 
     private String tagInfo;

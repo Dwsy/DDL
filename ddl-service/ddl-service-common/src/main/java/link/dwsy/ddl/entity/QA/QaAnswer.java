@@ -42,14 +42,16 @@ public class QaAnswer extends BaseEntity {
 //  回答可能需要贴代码高亮显示用md2html保存
     private String textHtml;
 
+    @Builder.Default
     int upNum = 0;
-
+    @Builder.Default
     int downNum = 0;
 
 
     @Column(name = "parent_user_id")
     private long parentUserId;
 
+    @Builder.Default
     private long parentAnswerId=0;
 
     @Transient

@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.Charset;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -31,18 +32,14 @@ public class CommonResponseDataAdvice implements ResponseBodyAdvice<Object> {
      * <h2>判断是否需要对响应进行处理</h2>
      */
     @Override
-    @SuppressWarnings("all")
+//    @SuppressWarnings("all")
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
 
         if (methodParameter.getDeclaringClass().isAnnotationPresent(IgnoreResponseAdvice.class)) {
             return false;
         }
 
-        if (methodParameter.getMethod().isAnnotationPresent(IgnoreResponseAdvice.class)) {
-            return false;
-        }
-
-        return true;
+        return !Objects.requireNonNull(methodParameter.getMethod()).isAnnotationPresent(IgnoreResponseAdvice.class);
     }
 
     @Override

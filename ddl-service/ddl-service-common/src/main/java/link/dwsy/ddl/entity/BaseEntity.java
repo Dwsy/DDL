@@ -24,9 +24,13 @@ public class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Builder.Default
     private boolean deleted = false;
+
     @CreatedDate
     private Date createTime;
+
     @LastModifiedDate
     private Date lastModifiedTime;
 

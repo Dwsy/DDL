@@ -82,7 +82,7 @@
         SpringBoot应用打包为可执行的jar或war文件, 然后以通常的方式运行SpringBoot应用
      -->
     <build>
-        <finalName>${artifactId}</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

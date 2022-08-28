@@ -35,19 +35,25 @@ public class QaQuestionField extends BaseEntity {
 
     private String summary;
 
+    @Builder.Default
     @Enumerated(EnumType.ORDINAL)
     QuestionState questionState=QuestionState.Ask;
 
+    @Builder.Default
     boolean allow_answer=true;
-
+    @Builder.Default
     int answerNum = 0;
 
+    @Builder.Default
     int views = 0;
 
+    @Builder.Default
     int collect_num = 0;
 
+    @Builder.Default
     int up_num=0;
 
+    @Builder.Default
     int down_num = 0;
 
     @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE},

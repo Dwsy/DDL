@@ -39,8 +39,10 @@ public class ArticleComment extends BaseEntity {
     @Type(type = "org.hibernate.type.TextType")
     private String text;
 
+    @Builder.Default
     int upNum = 0;
 
+    @Builder.Default
     int downNum = 0;
 
 
@@ -48,11 +50,13 @@ public class ArticleComment extends BaseEntity {
     private long parentUserId;
 //    todo 增加字段 待修改
 
+    @Builder.Default
     private long parentCommentId = 0;
 
     @Transient
     private Set<ArticleComment> childComments;
 
+    @Builder.Default
     @Enumerated(EnumType.ORDINAL)
     private CommentType commentType = CommentType.comment;
 

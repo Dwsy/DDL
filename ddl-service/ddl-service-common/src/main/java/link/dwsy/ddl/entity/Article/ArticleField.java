@@ -33,16 +33,22 @@ public class ArticleField extends BaseEntity {
     private String summary;
 
     @Enumerated(EnumType.ORDINAL)
+    @Builder.Default
     private ArticleState articleState=ArticleState.open;
 
+    @Builder.Default
     private boolean allowComment=true;
 
+    @Builder.Default
     private int viewNum = 0;
 
+    @Builder.Default
     private int collectNum = 0;
 
+    @Builder.Default
     int upNum=0;
 
+    @Builder.Default
     int downNum = 0;
 
 

@@ -31,6 +31,7 @@ public class QaTag extends BaseEntity {
 
     private String name;
 
+    @Builder.Default
     private int questionNum = 0;
 
     private String tagInfo;

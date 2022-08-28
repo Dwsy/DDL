@@ -26,6 +26,7 @@ public class UserRegisterRB {
 
     private String email;
 
+    @Builder.Default
     private String area = "+86";
 
     private UserInfo userInfo;

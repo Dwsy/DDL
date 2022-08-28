@@ -12,16 +12,20 @@
     <url>ddl.dwsy.link</url>
     <description>D-DeveloperLink</description>
 
+    <packaging>pom</packaging>
+
     <modules>
         <module>ddl-demo</module>
         <module>ddl-common</module>
+<!--        <module>ddl-common/ddl-common-core</module>-->
+<!--        <module>ddl-common/ddl-common-mvc</module>-->
         <module>ddl-monitor-admin</module>
         <module>ddl-authority-center</module>
         <module>ddl-gateway</module>
         <module>ddl-service</module>
-        <module>ddl-service/ddl-service-common</module>
-        <module>ddl-service/ddl-service-article</module>
-        <module>ddl-service/ddl-service-question</module>
+<!--        <module>ddl-service/ddl-service-common</module>-->
+<!--        <module>ddl-service/ddl-service-article</module>-->
+<!--        <module>ddl-service/ddl-service-question</module>-->
     </modules>
 
     <dependencies>
@@ -206,12 +210,6 @@
             </dependency>
 
 
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.2</version>
-            </dependency>
-
             <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
             <dependency>
                 <groupId>com.baomidou</groupId>
@@ -264,12 +262,7 @@
                 <artifactId>spring-cloud-starter-sleuth</artifactId>
                 <version>3.1.3</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-sleuth -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-sleuth</artifactId>
-                <version>3.1.3</version>
-            </dependency>
+
             <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zipkin -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
@@ -294,73 +287,73 @@
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/hikari-cp/hikari-cp -->
-<!--            <dependency>-->
-<!--                <groupId>hikari-cp</groupId>-->
-<!--                <artifactId>hikari-cp</artifactId>-->
-<!--                <version>2.14.0</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>hikari-cp</groupId>-->
+            <!--                <artifactId>hikari-cp</artifactId>-->
+            <!--                <version>2.14.0</version>-->
+            <!--            </dependency>-->
 
 
             <!--            &lt;!&ndash; 核心模块 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>com.ruoyi</groupId>-->
-<!--                <artifactId>ruoyi-common-core</artifactId>-->
-<!--                <version>${ruoyi.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.ruoyi</groupId>-->
+            <!--                <artifactId>ruoyi-common-core</artifactId>-->
+            <!--                <version>${ruoyi.version}</version>-->
+            <!--            </dependency>-->
 
-<!--            &lt;!&ndash; 接口模块 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>com.ruoyi</groupId>-->
-<!--                <artifactId>ruoyi-common-swagger</artifactId>-->
-<!--                <version>${ruoyi.version}</version>-->
-<!--            </dependency>-->
+            <!--            &lt;!&ndash; 接口模块 &ndash;&gt;-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.ruoyi</groupId>-->
+            <!--                <artifactId>ruoyi-common-swagger</artifactId>-->
+            <!--                <version>${ruoyi.version}</version>-->
+            <!--            </dependency>-->
 
-<!--            &lt;!&ndash; 安全模块 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>com.ruoyi</groupId>-->
-<!--                <artifactId>ruoyi-common-security</artifactId>-->
-<!--                <version>${ruoyi.version}</version>-->
-<!--            </dependency>-->
+            <!--            &lt;!&ndash; 安全模块 &ndash;&gt;-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.ruoyi</groupId>-->
+            <!--                <artifactId>ruoyi-common-security</artifactId>-->
+            <!--                <version>${ruoyi.version}</version>-->
+            <!--            </dependency>-->
 
-<!--            &lt;!&ndash; 权限范围 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>com.ruoyi</groupId>-->
-<!--                <artifactId>ruoyi-common-datascope</artifactId>-->
-<!--                <version>${ruoyi.version}</version>-->
-<!--            </dependency>-->
+            <!--            &lt;!&ndash; 权限范围 &ndash;&gt;-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.ruoyi</groupId>-->
+            <!--                <artifactId>ruoyi-common-datascope</artifactId>-->
+            <!--                <version>${ruoyi.version}</version>-->
+            <!--            </dependency>-->
 
-<!--            &lt;!&ndash; 多数据源 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>com.ruoyi</groupId>-->
-<!--                <artifactId>ruoyi-common-datasource</artifactId>-->
-<!--                <version>${ruoyi.version}</version>-->
-<!--            </dependency>-->
+            <!--            &lt;!&ndash; 多数据源 &ndash;&gt;-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.ruoyi</groupId>-->
+            <!--                <artifactId>ruoyi-common-datasource</artifactId>-->
+            <!--                <version>${ruoyi.version}</version>-->
+            <!--            </dependency>-->
 
-<!--            &lt;!&ndash; 日志记录 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>com.ruoyi</groupId>-->
-<!--                <artifactId>ruoyi-common-log</artifactId>-->
-<!--                <version>${ruoyi.version}</version>-->
-<!--            </dependency>-->
+            <!--            &lt;!&ndash; 日志记录 &ndash;&gt;-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.ruoyi</groupId>-->
+            <!--                <artifactId>ruoyi-common-log</artifactId>-->
+            <!--                <version>${ruoyi.version}</version>-->
+            <!--            </dependency>-->
 
-<!--            &lt;!&ndash; 缓存服务 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>com.ruoyi</groupId>-->
-<!--                <artifactId>ruoyi-common-redis</artifactId>-->
-<!--                <version>${ruoyi.version}</version>-->
-<!--            </dependency>-->
+            <!--            &lt;!&ndash; 缓存服务 &ndash;&gt;-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.ruoyi</groupId>-->
+            <!--                <artifactId>ruoyi-common-redis</artifactId>-->
+            <!--                <version>${ruoyi.version}</version>-->
+            <!--            </dependency>-->
 
-<!--            &lt;!&ndash; 系统接口 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>com.ruoyi</groupId>-->
-<!--                <artifactId>ruoyi-api-system</artifactId>-->
-<!--                <version>${ruoyi.version}</version>-->
-<!--            </dependency>-->
+            <!--            &lt;!&ndash; 系统接口 &ndash;&gt;-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.ruoyi</groupId>-->
+            <!--                <artifactId>ruoyi-api-system</artifactId>-->
+            <!--                <version>${ruoyi.version}</version>-->
+            <!--            </dependency>-->
 
         </dependencies>
     </dependencyManagement>
 
-    <packaging>pom</packaging>
+
 
     <repositories>
         <repository>
@@ -372,6 +365,20 @@
             </releases>
         </repository>
     </repositories>
+
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
 
     <pluginRepositories>
         <pluginRepository>

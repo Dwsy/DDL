@@ -8,6 +8,10 @@ server:
 #  servlet:
 #    context-path: /ddl-authority-center
 spring:
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main/java
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -38,7 +42,7 @@ spring:
       auto-commit: true
       pool-name: DDLHikariCP
   application:
-    name: ddl-authority-center
+    name: ddl-service-question
   cloud:
     nacos:
       discovery:

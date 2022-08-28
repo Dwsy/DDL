@@ -32,7 +32,7 @@ public class fieldContentTest {
         System.out.println(question.getQuestionState());
         System.out.println(question.getAnswerNum());
         System.out.println(question.isAllow_answer());
-        //TODO 枚举 boolean 在使用builder的时候无法使用默认值
+        //枚举 boolean 在使用builder的时候无法使用默认值 需要使用 @Builder.Default
 
     }
     @Resource

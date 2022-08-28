@@ -46,7 +46,7 @@ public class CommentTest {
                 .text("评论测试").articleField(a).commentType(CommentType.comment).ua("user-agent").build();
         articleCommentRepository.save(comment);
     }
-
+//逻辑判断参照qa修改
     @Test
     public void replyComment() {
         User user = new User();

@@ -47,6 +47,7 @@ public class User extends BaseEntity {
     @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE},orphanRemoval = true)
     private UserInfo userInfo;
 
+    @Builder.Default
     private int level = 0;
 
     @OneToMany(mappedBy = "user")

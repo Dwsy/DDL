@@ -14,7 +14,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 //@EnableDiscoveryClient(autoRegister = false)
 @EnableJpaAuditing
 @EnableAspectJAutoProxy
-//@EntityScan("import link.dwsy.ddl.entity")
 public class questionApplication {
     public static void main(String[] args) {
         SpringApplication.run(questionApplication.class, args);

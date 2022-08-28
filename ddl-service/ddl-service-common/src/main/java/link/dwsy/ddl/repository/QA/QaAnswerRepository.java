@@ -23,5 +23,8 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
     @Query(value = "select user_id from qa_answer where id=?1",nativeQuery = true)
     long findUserIdByAnswerId(long aid);
 
+    Page<QaAnswer> findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(long aid, long pid, Pageable pageable);
+    Set<QaAnswer> findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(long aid, long pid);
+
 
 }

@@ -14,7 +14,8 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "article_content")
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

@@ -1,10 +1,7 @@
 package link.dwsy.ddl.entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -18,7 +15,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "users")
 // todo user是关键字要用得加双引号但是jpa并不会。。
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -41,6 +39,7 @@ public class User extends BaseEntity {
     @OneToOne(cascade = {CascadeType.ALL})
     private UserInfo userInfo;
 
+    @Builder.Default
     private int Level = 0;
 //    @CreatedDate
 //    private Date create_time;
