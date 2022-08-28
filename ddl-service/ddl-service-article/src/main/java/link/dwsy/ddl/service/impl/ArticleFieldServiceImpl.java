@@ -1,8 +1,7 @@
 package link.dwsy.ddl.service.impl;
 
-import link.dwsy.ddl.repository.ArticleFieldRepository;
+import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.service.ArticleFieldService;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

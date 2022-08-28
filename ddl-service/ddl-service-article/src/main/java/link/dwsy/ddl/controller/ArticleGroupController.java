@@ -3,14 +3,12 @@ package link.dwsy.ddl.controller;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
-import link.dwsy.ddl.entity.ArticleGroup;
+import link.dwsy.ddl.entity.Article.ArticleGroup;
 import link.dwsy.ddl.service.impl.ArticleGroupServiceImpl;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 /**

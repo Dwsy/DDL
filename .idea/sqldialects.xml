@@ -2,7 +2,7 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/31ccc740-d462-4eed-94a6-b4796c75c8c3/console_1.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-article/src/main/java/link/dwsy/ddl/repository/ArticleTagRepository.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-common/src/main/java/link/dwsy/ddl/repository/Article/ArticleTagRepository.java" dialect="GenericSQL" />
     <file url="PROJECT" dialect="PostgreSQL" />
   </component>
 </project>

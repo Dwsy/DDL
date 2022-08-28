@@ -1,7 +1,7 @@
 package link.dwsy.ddl.controller;
 
-import link.dwsy.ddl.entity.ArticleComment;
-import link.dwsy.ddl.repository.ArticleCommentRepository;
+import link.dwsy.ddl.entity.Article.ArticleComment;
+import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

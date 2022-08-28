@@ -3,16 +3,12 @@ package link.dwsy.ddl.controller;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
-import link.dwsy.ddl.entity.ArticleTag;
+import link.dwsy.ddl.entity.Article.ArticleTag;
 import link.dwsy.ddl.service.impl.ArticleTagServiceImpl;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 /**

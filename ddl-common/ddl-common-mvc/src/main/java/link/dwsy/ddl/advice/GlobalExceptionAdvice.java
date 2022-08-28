@@ -1,5 +1,6 @@
 package link.dwsy.ddl.advice;
 
+import com.alibaba.fastjson2.JSONException;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.domain.R;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author Dwsy
@@ -99,12 +98,17 @@ public class GlobalExceptionAdvice {
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public R<String> ExceptionMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+    public R<String> handlerExceptionMissingServletRequestParameterException(MissingServletRequestParameterException e) {
         return new R<>(R.FAIL, "请求参数错误:MissingServletRequestParameterException");
     }
 
     @ExceptionHandler(value = IncorrectResultSizeDataAccessException.class)
-    public R<String> IncorrectResultSizeDataAccess(IncorrectResultSizeDataAccessException e) {
+    public R<String> handlerIncorrectResultSizeDataAccess(IncorrectResultSizeDataAccessException e) {
         return new R<>(R.FAIL, "服务端错误");
+    }
+
+    @ExceptionHandler(value = JSONException.class)
+    public R<String> handlerJSONException() {
+        return new R<>(R.FAIL, "JSON格式错误");
     }
 }

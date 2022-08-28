@@ -8,7 +8,12 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <modules>
+        <module>ddl-service-common</module>
+        <module>ddl-service-article</module>
+        <module>ddl-service-question</module>
 
+    </modules>
     <artifactId>ddl-service</artifactId>
 
     <properties>

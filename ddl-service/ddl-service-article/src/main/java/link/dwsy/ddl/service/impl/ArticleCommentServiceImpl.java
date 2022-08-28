@@ -1,7 +1,7 @@
 package link.dwsy.ddl.service.impl;
 
-import link.dwsy.ddl.entity.ArticleComment;
-import link.dwsy.ddl.repository.ArticleCommentRepository;
+import link.dwsy.ddl.entity.Article.ArticleComment;
+import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

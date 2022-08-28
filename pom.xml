@@ -21,7 +21,7 @@
         <module>ddl-service</module>
         <module>ddl-service/ddl-service-common</module>
         <module>ddl-service/ddl-service-article</module>
-        <module>ddl-service/ddl-service-template</module>
+        <module>ddl-service/ddl-service-question</module>
     </modules>
 
     <dependencies>
