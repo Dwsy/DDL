@@ -29,6 +29,15 @@
             <artifactId>ddl-service-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.blazebit</groupId>-->
 <!--            <artifactId>blaze-persistence-</artifactId>-->
@@ -100,14 +109,7 @@
 <!--        </dependency>-->
 
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-        </dependency>
+
     </dependencies>
     <properties>
         <blaze-persistence.version>1.6.6</blaze-persistence.version>

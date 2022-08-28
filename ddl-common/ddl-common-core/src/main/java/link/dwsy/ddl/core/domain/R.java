@@ -42,7 +42,11 @@ public class R<T> implements Serializable {
         this.msg = msg;
         this.data = data;
     }
-
+    public R(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
+        this.data = null;
+    }
     public static <T> R<T> ok() {
         return restResult(null, SUCCESS, null);
     }

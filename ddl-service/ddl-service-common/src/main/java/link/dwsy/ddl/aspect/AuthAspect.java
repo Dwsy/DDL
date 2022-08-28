@@ -19,7 +19,7 @@ import javax.annotation.Resource;
  */
 @Component
 @Aspect
-public class authAspect {
+public class AuthAspect {
     @Resource
     private UserSupport userSupport;
 
