@@ -44,6 +44,10 @@ public class ArticleComment extends BaseEntity {
     int downNum = 0;
 
 
+    @Column(name = "parent_user_id")
+    private long parentUserId;
+//    todo 增加字段 待修改
+
     private long parentCommentId = 0;
 
     @Transient

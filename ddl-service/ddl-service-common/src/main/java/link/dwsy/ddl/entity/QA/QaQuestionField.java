@@ -66,7 +66,7 @@ public class QaQuestionField extends BaseEntity {
     @ManyToOne()
     private QaGroup qaGroup;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "questionFieldId")
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "questionField")
     @JsonIgnore
 //    @Fetch(FetchMode.SUBSELECT)
     private List<QaAnswer> qaAnswers;

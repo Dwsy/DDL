@@ -31,9 +31,11 @@ public class QaAnswer extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    private QaQuestionField questionFieldId;
+    private QaQuestionField questionField;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
@@ -44,7 +46,11 @@ public class QaAnswer extends BaseEntity {
 
     int downNum = 0;
 
-    private long parentCommentId=0;
+
+    @Column(name = "parent_user_id")
+    private long parentUserId;
+
+    private long parentAnswerId=0;
 
     @Transient
     private Set<QaAnswer> childQaAnswers;

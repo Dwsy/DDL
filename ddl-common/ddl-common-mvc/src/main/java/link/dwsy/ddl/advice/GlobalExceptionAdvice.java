@@ -1,6 +1,7 @@
 package link.dwsy.ddl.advice;
 
 import com.alibaba.fastjson2.JSONException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.domain.R;
 import lombok.extern.slf4j.Slf4j;
@@ -110,5 +111,10 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(value = JSONException.class)
     public R<String> handlerJSONException() {
         return new R<>(R.FAIL, "JSON格式错误");
+    }
+
+    @ExceptionHandler(value = JsonProcessingException.class)
+    public R<String> handlerJsonProcessingException() {
+        return new R<>(R.FAIL, "JsonProcessingException");
     }
 }

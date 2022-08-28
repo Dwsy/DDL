@@ -30,7 +30,9 @@ public class fieldContentTest {
         System.out.println(question.getQuestionState());
         question = QaQuestionField.builder().title("发起提问").summary("问题简介").build();
         System.out.println(question.getQuestionState());
-        //todo 枚举在使用builder的时候不会赋值
+        System.out.println(question.getAnswerNum());
+        System.out.println(question.isAllow_answer());
+        //TODO 枚举 boolean 在使用builder的时候无法使用默认值
 
     }
     @Resource
