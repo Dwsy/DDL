@@ -4,7 +4,9 @@ import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.service.impl.ArticleCommentServiceImpl;
+import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -23,10 +25,12 @@ public class ArticleCommentController {
     public PageData<ArticleComment> GetCommentById(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @PathVariable("id") Long aid) {
         if (aid < 1 || size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
-
-        return articleCommentService.getByArticleId(aid, page < 1 ? 1 : page, size > 20 ? 20 : size);
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        return articleCommentService.getByArticleId(aid, pageRequest);
     }
 }

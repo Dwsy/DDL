@@ -6,8 +6,9 @@ import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.QA.QaGroup;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.service.impl.QaQuestionGroupServiceImpl;
+import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -28,8 +29,10 @@ public class QaQuestionGroupController {
     QaQuestionGroupServiceImpl qaQuestionGroupService;
 
     @GetMapping("list")
-    public List<QaGroup> GetGroupList() {
-        return qaQuestionGroupService.getGroupList();
+    public List<QaGroup> GetGroupList(
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
+        return qaQuestionGroupService.getGroupList(PRHelper.sort(order, properties));
     }
 
     @GetMapping("question/{id}")
@@ -43,12 +46,9 @@ public class QaQuestionGroupController {
     {
         if (id < 1L || size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
-        Sort sort = Sort.by(Sort.Direction.valueOf(order.toUpperCase()), properties);
         Set<QuestionState> questionStates = new HashSet<>();
         statusStr.forEach(status -> questionStates.add(QuestionState.valueOf(status.toUpperCase())));
-
-        return qaQuestionGroupService.getFieldListByGroupId(id,
-                page < 1 ? 1 : page, size > 20 ? 20 : size,
-                sort, questionStates);
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        return qaQuestionGroupService.getFieldListByGroupId(id,questionStates,pageRequest);
     }
 }

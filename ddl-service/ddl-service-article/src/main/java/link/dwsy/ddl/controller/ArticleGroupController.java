@@ -5,7 +5,9 @@ import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleGroup;
 import link.dwsy.ddl.service.impl.ArticleGroupServiceImpl;
+import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -24,17 +26,23 @@ public class ArticleGroupController {
     ArticleGroupServiceImpl articleGroupService;
 
     @GetMapping()
-    public List<ArticleGroup> GetGroupList() {
-        return articleGroupService.getGroupList();
+    public List<ArticleGroup> GetTagList(
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
+
+        return articleGroupService.getGroupList(PRHelper.sort(order, properties));
     }
 
     @GetMapping("article/{id}")
     public PageData<fieldVO> GetFieldListByGroupId(
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
-            @RequestParam(required = false, defaultValue = "8", name = "size") int size) {
+            @RequestParam(required = false, defaultValue = "8", name = "size") int size,
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
         if (id < 0L || size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
-        return articleGroupService.getFieldListByGroupId(id,page < 1 ? 1 : page, size > 20 ? 20 : size);
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        return articleGroupService.getFieldListByGroupId(id,pageRequest);
     }
 }

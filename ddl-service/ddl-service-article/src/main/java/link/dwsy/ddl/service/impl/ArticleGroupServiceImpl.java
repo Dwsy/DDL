@@ -9,6 +9,7 @@ import link.dwsy.ddl.service.ArticleGroupService;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -27,14 +28,14 @@ public class ArticleGroupServiceImpl implements ArticleGroupService {
     @Resource
     ArticleFieldRepository articleFieldRepository;
 
-    public PageData<fieldVO> getFieldListByGroupId(Long gid, int page, int size) {
+    public PageData<fieldVO> getFieldListByGroupId(Long gid,PageRequest pageRequest) {
         Page<fieldVO> fieldVO = articleFieldRepository
                 .findAllByDeletedIsFalseAndArticleGroupIdAndArticleState
-                        (gid, ArticleState.open, PageRequest.of(page-1, size));
+                        (gid, ArticleState.open, pageRequest);
         return new PageData<>(fieldVO);
     }
 
-    public List<ArticleGroup> getGroupList() {
-        return articleGroupRepository.findAllByDeletedIsFalse();
+    public List<ArticleGroup> getGroupList(Sort sort) {
+        return articleGroupRepository.findAllByDeletedIsFalse(sort);
     }
 }

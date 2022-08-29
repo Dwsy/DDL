@@ -3,11 +3,7 @@ package link.dwsy.ddl.service.impl;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.entity.Article.ArticleField;
-import link.dwsy.ddl.entity.QA.QaQuestionContent;
-import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
-import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
-import link.dwsy.ddl.repository.Article.ArticleTagRepository;
 import link.dwsy.ddl.repository.QA.QaContentRepository;
 import link.dwsy.ddl.service.QuestionContentService;
 import link.dwsy.ddl.util.PageData;
@@ -23,25 +19,13 @@ import javax.annotation.Resource;
  */
 @Service
 public class QuestionContentServiceImpl implements QuestionContentService {
-    @Resource
-    ArticleTagRepository articleTagRepository;
+
     @Resource
     ArticleFieldRepository articleFieldRepository;
-    @Resource
-    ArticleGroupRepository articleGroupRepository;
-    @Resource
-    ArticleContentRepository articleContentRepository;
 
     @Resource
     QaContentRepository qaContentRepository;
 
-
-
-//    public PageData<ArticleContent, ArticleContentDTO> getPageList(int page, int size) {
-//        PageRequest pageRequest = PageRequest.of(page-1, size);
-//        Page<ArticleContent> articleContentPage = articleContentRepository.findAllByDeletedIsFalseOrDeletedIsNull(pageRequest);
-//        return new PageData<>(articleContentPage, ArticleContentDTO::convert);
-//    }
 
     public PageData<fieldVO> getPageList(int page, int size, ArticleState articleState) {
         PageRequest pageRequest = PageRequest.of(page-1, size);

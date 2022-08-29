@@ -36,8 +36,8 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 //        return new PageData<>(articleContentPage, ArticleContentDTO::convert);
 //    }
 
-    public PageData<fieldVO> getPageList(int page, int size, ArticleState articleState) {
-        PageRequest pageRequest = PageRequest.of(page-1, size);
+    public PageData<fieldVO> getPageList(PageRequest pageRequest, ArticleState articleState) {
+
         Page<fieldVO> fieldVOList = articleFieldRepository.findAllByDeletedIsFalseAndArticleState(articleState, pageRequest);
         PageData<fieldVO> fieldVOPageData = new PageData<>(fieldVOList);
         return fieldVOPageData;

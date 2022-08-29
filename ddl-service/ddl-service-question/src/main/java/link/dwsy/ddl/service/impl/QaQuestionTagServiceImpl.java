@@ -30,17 +30,17 @@ public class QaQuestionTagServiceImpl implements QaQuestionTagService {
 
     @Resource
     QaFieldRepository qaFieldRepository;
-    public List<QaTag> getTagList() {
+    public List<QaTag> getTagList(Sort sort) {
 
-        return qaQuestionTagRepository.findAllByDeletedIsFalse();
+        return qaQuestionTagRepository.findByDeletedFalse(sort);
 
     }
 
-    public PageData<QaQuestionField> getQuestionListById(Long id, int page, int size, Set<QuestionState> questionStates, Sort sort) {
+    public PageData<QaQuestionField> getQuestionListById(Long id, Set<QuestionState> questionStates, PageRequest pageRequest ) {
         Collection<Long> ids = qaQuestionTagRepository.findQuestionContentIdListById(id);
 
         Page<QaQuestionField> questionFields = qaFieldRepository
-                .findByDeletedFalseAndIdInAndQuestionStateIn(ids, questionStates,PageRequest.of(page - 1, size, sort));
+                .findByDeletedFalseAndIdInAndQuestionStateIn(ids, questionStates,pageRequest);
         return new PageData<>(questionFields);
     }
 }

@@ -6,8 +6,9 @@ import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.service.impl.QaQuestionFieldServiceImpl;
 import link.dwsy.ddl.service.impl.QuestionContentServiceImpl;
+import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -43,10 +44,13 @@ public class QaQuestionFieldController {
             ) {
         if (size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
-        Sort sort = Sort.by(Sort.Direction.valueOf(order.toUpperCase()), properties);
+
         Set<QuestionState> questionStates = new HashSet<>();
+
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+
         statusStr.forEach(status -> questionStates.add(QuestionState.valueOf(status.toUpperCase())));
-        return qaQuestionFieldService.getPageList(page < 1 ? 1 : page, size > 20 ? 20 : size, questionStates,sort);
+        return qaQuestionFieldService.getPageList(questionStates,pageRequest);
     }
 
     @GetMapping("field/{id}")

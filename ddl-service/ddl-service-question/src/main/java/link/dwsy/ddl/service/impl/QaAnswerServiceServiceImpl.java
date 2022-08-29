@@ -7,7 +7,6 @@ import link.dwsy.ddl.service.QaAnswerService;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,9 +24,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     @Resource
     private QaAnswerRepository qaAnswerRepository;
 
-    public PageData<QaAnswer> getByQuestionId(long qid, int page, int size, Sort sort) {
-//        , Sort.by(Sort.Direction.ASC,"id")
-        PageRequest pageRequest = PageRequest.of(page - 1, size, sort);
+    public PageData<QaAnswer> getByQuestionId(long qid,PageRequest pageRequest) {
         Page<QaAnswer> QaAnswerData = qaAnswerRepository
                 .findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(qid, 0L, pageRequest);
         for (QaAnswer qaAnswer : QaAnswerData) {

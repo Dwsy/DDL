@@ -9,6 +9,7 @@ import link.dwsy.ddl.service.ArticleTagService;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -27,18 +28,18 @@ public class ArticleTagServiceImpl implements ArticleTagService {
 
     @Resource
     ArticleFieldRepository articleFieldRepository;
-    public List<ArticleTag> getTagList() {
+    public List<ArticleTag> getTagList(Sort sort) {
 
-        return articleTagRepository.findAllByDeletedIsFalse();
+        return articleTagRepository.findAllByDeletedIsFalse(sort);
 
     }
 
-    public PageData<fieldVO> getArticleListById(Long id, int page, int size) {
-        long[] ids = articleTagRepository.findArticleContentIdListById(1L);
+    public PageData<fieldVO> getArticleListById(Long id, PageRequest pageRequest) {
+        long[] ids = articleTagRepository.findArticleContentIdListById(id);
 
         Page<fieldVO> fieldVOList = articleFieldRepository
                 .findAllByIdInAndDeletedIsFalseAndArticleState
-                        (ids, ArticleState.open, PageRequest.of(page-1, size));
+                        (ids, ArticleState.open, pageRequest);
         return new PageData<>(fieldVOList);
 
 

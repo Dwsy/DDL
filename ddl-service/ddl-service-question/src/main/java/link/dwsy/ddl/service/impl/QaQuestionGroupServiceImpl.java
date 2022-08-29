@@ -3,8 +3,6 @@ package link.dwsy.ddl.service.impl;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.entity.QA.QaGroup;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
-import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
-import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
 import link.dwsy.ddl.repository.QA.QaFieldRepository;
 import link.dwsy.ddl.repository.QA.QaGroupRepository;
 import link.dwsy.ddl.service.QaQuestionGroupService;
@@ -26,10 +24,6 @@ import java.util.Set;
 @Service
 public class QaQuestionGroupServiceImpl implements QaQuestionGroupService {
 
-    @Resource
-    ArticleGroupRepository articleGroupRepository;
-    @Resource
-    ArticleFieldRepository articleFieldRepository;
 
     @Resource
     QaGroupRepository qaGroupRepository;
@@ -37,19 +31,15 @@ public class QaQuestionGroupServiceImpl implements QaQuestionGroupService {
     @Resource
     QaFieldRepository qaFieldRepository;
 
-    public PageData<QaQuestionField> getFieldListByGroupId(Long gid, int page, int size ,
-                                                           Sort sort,
-                                                           Set<QuestionState> questionStates) {
-        System.out.println("hahha");
-//        PageRequest.of(page - 1, size, sort)
+    public PageData<QaQuestionField> getFieldListByGroupId(Long gid, Set<QuestionState> questionStates,PageRequest pageRequest) {
         Page<QaQuestionField> questionFieldPage = qaFieldRepository.
                 findByDeletedFalseAndQaGroupIdAndQuestionStateIn
-                        (gid, questionStates, PageRequest.of(page - 1, size, sort));
+                        (gid, questionStates, pageRequest);
 
         return new PageData<>(questionFieldPage);
     }
 
-    public List<QaGroup> getGroupList() {
-        return qaGroupRepository.findAllByDeletedIsFalse();
+    public List<QaGroup> getGroupList(Sort sort) {
+        return qaGroupRepository.findAllByDeletedIsFalse(sort);
     }
 }

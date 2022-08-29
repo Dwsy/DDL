@@ -7,7 +7,6 @@ import link.dwsy.ddl.service.QaQuestionFieldService;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,12 +23,10 @@ public class QaQuestionFieldServiceImpl implements QaQuestionFieldService {
     @Resource
     QaFieldRepository qaFieldRepository;
 
-    public PageData<QaQuestionField> getPageList(int page, int size, Collection<QuestionState> questionStateCollection, Sort sort) {
-        PageRequest pageRequest = PageRequest.of(page - 1, size,sort);
+    public PageData<QaQuestionField> getPageList(Collection<QuestionState> questionStateCollection, PageRequest pageRequest) {
 
         Page<QaQuestionField> questionFields = qaFieldRepository
                 .findByDeletedFalseAndQuestionStateIn(questionStateCollection, pageRequest);
-
         PageData<QaQuestionField> fieldPageData = new PageData<>(questionFields);
         return fieldPageData;
     }

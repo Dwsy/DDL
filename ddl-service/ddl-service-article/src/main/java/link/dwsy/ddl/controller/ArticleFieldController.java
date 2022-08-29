@@ -7,12 +7,10 @@ import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleField;
-import link.dwsy.ddl.repository.Article.ArticleContentRepository;
-import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
-import link.dwsy.ddl.repository.Article.ArticleTagRepository;
 import link.dwsy.ddl.service.impl.ArticleContentServiceImpl;
-import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;
+import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,27 +24,21 @@ import javax.validation.constraints.Size;
 @RestController
 @RequestMapping("article")
 public class ArticleFieldController {
-    @Resource
-    ArticleTagRepository articleTagRepository;
-    @Resource
-    ArticleContentRepository articleContentRepository;
-    @Resource
-    ArticleGroupRepository articleGroupRepository;
 
     @Resource
     ArticleContentServiceImpl articleContentService;
 
-    @Resource
-    ArticleFieldServiceImpl articleFieldService;
 
     @GetMapping("field/list")
     public PageData<fieldVO> ArticleList(
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size) {
         if (size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
-
-        return articleContentService.getPageList(page < 1 ? 1 : page, size > 20 ? 20 : size, ArticleState.open);
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        return articleContentService.getPageList(pageRequest, ArticleState.open);
     }
 
     @GetMapping("field/{id}")
