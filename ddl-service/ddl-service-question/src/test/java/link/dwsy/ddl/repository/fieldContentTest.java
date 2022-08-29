@@ -26,7 +26,7 @@ import java.util.Set;
 public class fieldContentTest {
     public static void main(String[] args) {
         System.out.println(new QaQuestionField().getQuestionState());
-        QaQuestionField question = QaQuestionField.builder().title("发起提问").summary("问题简介").questionState(QuestionState.Ask).build();
+        QaQuestionField question = QaQuestionField.builder().title("发起提问").summary("问题简介").questionState(QuestionState.ASK).build();
         System.out.println(question.getQuestionState());
         question = QaQuestionField.builder().title("发起提问").summary("问题简介").build();
         System.out.println(question.getQuestionState());
@@ -56,7 +56,7 @@ public class fieldContentTest {
 
         System.out.println(new QaQuestionField());
 
-        QaQuestionField question = QaQuestionField.builder().user(user).title("发起提问").summary("问题简介").qaQuestionContent(qaQuestionContent).questionState(QuestionState.Ask)
+        QaQuestionField question = QaQuestionField.builder().user(user).title("发起提问").summary("问题简介").qaQuestionContent(qaQuestionContent).questionState(QuestionState.ASK)
                 .qaGroup(qaGroup).questionTags(qaTags).build();
 
         QaQuestionField qaQuestionField = qaFieldRepository.save(question);

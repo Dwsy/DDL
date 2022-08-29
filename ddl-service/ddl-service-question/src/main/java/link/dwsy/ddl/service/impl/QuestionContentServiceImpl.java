@@ -3,11 +3,13 @@ package link.dwsy.ddl.service.impl;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.entity.Article.ArticleField;
+import link.dwsy.ddl.entity.QA.QaQuestionContent;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
 import link.dwsy.ddl.repository.Article.ArticleTagRepository;
-import link.dwsy.ddl.service.ArticleContentService;
+import link.dwsy.ddl.repository.QA.QaContentRepository;
+import link.dwsy.ddl.service.QuestionContentService;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +22,7 @@ import javax.annotation.Resource;
  * @Date 2022/8/25
  */
 @Service
-public class ArticleContentServiceImpl implements ArticleContentService {
+public class QuestionContentServiceImpl implements QuestionContentService {
     @Resource
     ArticleTagRepository articleTagRepository;
     @Resource
@@ -29,6 +31,11 @@ public class ArticleContentServiceImpl implements ArticleContentService {
     ArticleGroupRepository articleGroupRepository;
     @Resource
     ArticleContentRepository articleContentRepository;
+
+    @Resource
+    QaContentRepository qaContentRepository;
+
+
 
 //    public PageData<ArticleContent, ArticleContentDTO> getPageList(int page, int size) {
 //        PageRequest pageRequest = PageRequest.of(page-1, size);
@@ -50,13 +57,13 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
     public String getContent(long id, int type) {
         if (type == 0) {
-            return articleContentRepository.findByIdAndDeletedIsFalse(id).getTextHtml();
+            return qaContentRepository.getHtmlTextById(id);
         }
         if (type == 1) {
-            return articleContentRepository.findArticleContentByIdAndDeletedIsFalse(id).getTextPure();
+            return qaContentRepository.getPureTextById(id);
         }
         if (type == 2) {
-            return articleContentRepository.findArticleContentByDeletedIsFalseAndId(id).getTextMd();
+            return qaContentRepository.getMdTextById(id);
         }
         return null;
     }

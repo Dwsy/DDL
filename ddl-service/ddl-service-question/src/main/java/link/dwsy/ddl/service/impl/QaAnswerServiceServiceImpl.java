@@ -1,6 +1,5 @@
 package link.dwsy.ddl.service.impl;
 
-import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.entity.QA.QaAnswer;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.QA.QaAnswerRepository;
@@ -26,11 +25,11 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     @Resource
     private QaAnswerRepository qaAnswerRepository;
 
-    public PageData<QaAnswer> getByQuestionId(long qid, int page, int size) {
+    public PageData<QaAnswer> getByQuestionId(long qid, int page, int size, Sort sort) {
 //        , Sort.by(Sort.Direction.ASC,"id")
-        PageRequest pageRequest = PageRequest.of(page - 1, size);
+        PageRequest pageRequest = PageRequest.of(page - 1, size, sort);
         Page<QaAnswer> QaAnswerData = qaAnswerRepository
-                .findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(qid, 1L, pageRequest);
+                .findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(qid, 0L, pageRequest);
         for (QaAnswer qaAnswer : QaAnswerData) {
             long pid = qaAnswer.getId();
             qaAnswer.setChildQaAnswers(qaAnswerRepository

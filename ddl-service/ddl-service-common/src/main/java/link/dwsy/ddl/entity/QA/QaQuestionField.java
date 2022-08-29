@@ -24,7 +24,7 @@ import java.util.Set;
 @Builder()
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "createTime", "deleted", "lastModifiedTime"})
+@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted", "lastModifiedTime"})
 public class QaQuestionField extends BaseEntity {
 
     @ManyToOne
@@ -37,7 +37,7 @@ public class QaQuestionField extends BaseEntity {
 
     @Builder.Default
     @Enumerated(EnumType.ORDINAL)
-    QuestionState questionState=QuestionState.Ask;
+    QuestionState questionState=QuestionState.ASK;
 
     @Builder.Default
     boolean allow_answer=true;
@@ -48,13 +48,13 @@ public class QaQuestionField extends BaseEntity {
     int views = 0;
 
     @Builder.Default
-    int collect_num = 0;
+    int collectNum = 0;
 
     @Builder.Default
-    int up_num=0;
+    int upNum=0;
 
     @Builder.Default
-    int down_num = 0;
+    int downNum = 0;
 
     @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
             orphanRemoval = true,fetch = FetchType.LAZY,optional = true)
