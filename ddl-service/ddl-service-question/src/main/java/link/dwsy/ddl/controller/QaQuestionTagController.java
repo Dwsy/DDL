@@ -12,9 +12,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Author Dwsy
@@ -44,9 +44,9 @@ public class QaQuestionTagController {
             @RequestParam(required = false, defaultValue = "ask", name = "status") Set<String> statusStr) {
         if (id < 1L || size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
-        Set<QuestionState> questionStates = new HashSet<>();
-        statusStr.forEach(status -> questionStates.add(QuestionState.valueOf(status.toUpperCase())));
+        Set<QuestionState> questionStates = statusStr.stream().map(String::toUpperCase).map(QuestionState::valueOf).collect(Collectors.toSet());
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+
         return qaQuestionTagService.getQuestionListById(id,questionStates,pageRequest);
     }
 }

@@ -25,8 +25,8 @@ public class ArticleGroupController {
     @Resource
     ArticleGroupServiceImpl articleGroupService;
 
-    @GetMapping()
-    public List<ArticleGroup> GetTagList(
+    @GetMapping("list")
+    public List<ArticleGroup> GetGroupList(
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
 

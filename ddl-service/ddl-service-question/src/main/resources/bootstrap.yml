@@ -4,14 +4,11 @@ server:
 #    encoding:
 #      charset: utf-8
 #      force-response: true
-#      force: true
+#      force: trues
 #  servlet:
-#    context-path: /ddl-authority-center
+#    context-path: /qa
 spring:
-  devtools:
-    restart:
-      enabled: true
-      additional-paths: src/main/java
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -77,3 +74,7 @@ spring:
 knife4j:
   enable: true
 
+#  devtools:
+#    restart:
+#      enabled: true
+#      additional-paths: src/main/java

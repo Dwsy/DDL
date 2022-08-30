@@ -3,7 +3,10 @@ package link.dwsy.ddl.entity.Article;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.entity.BaseEntity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
@@ -34,6 +37,9 @@ public class ArticleTag extends BaseEntity {
                 fetch = FetchType.LAZY)
     @JsonIgnore
     private List<ArticleField> articleFields;
+
+    @ManyToOne
+    private ArticleGroup articleGroup;
 
     public ArticleTag() {
 

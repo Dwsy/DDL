@@ -2,9 +2,10 @@ package link.dwsy.ddl;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @Author Dwsy
@@ -14,11 +15,17 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 //@EnableDiscoveryClient
 //@EnableDiscoveryClient(autoRegister = false)
 @EnableJpaAuditing
-@EnableWebMvc
+@RestController
+@RequestMapping()
 //@MapperScan("link.dwsy.ddl.dao")
 public class authorityCenterApplication {
     public static void main(String[] args) {
         SpringApplication.run(authorityCenterApplication.class, args);
+    }
+
+    @GetMapping()
+    public String index() {
+        return "Hello World";
     }
 
 }

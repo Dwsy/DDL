@@ -2,6 +2,7 @@ package link.dwsy.ddl.entity.QA;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.User.User;
@@ -70,6 +71,7 @@ public class QaQuestionField extends BaseEntity {
     private Set<QaTag> questionTags;
 
     @ManyToOne()
+    @JsonProperty(value = "group")
     private QaGroup qaGroup;
 
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "questionField")

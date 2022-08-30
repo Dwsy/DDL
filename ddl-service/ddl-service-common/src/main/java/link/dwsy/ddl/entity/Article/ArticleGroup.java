@@ -30,6 +30,9 @@ public class ArticleGroup extends BaseEntity {
     @JsonIgnore
     private List<ArticleField> articleFields;
 
+    @Builder.Default
+    private int articleNum=0;
+
     @Override
     public String toString() {
         return "ArticleGroup{" +

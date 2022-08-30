@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
  * @Date 2022/8/16
  */
 @SpringBootApplication(scanBasePackages = {"link.dwsy.ddl"})
-//@EnableDiscoveryClient
 //@EnableDiscoveryClient(autoRegister = false)
 @EnableJpaAuditing
 @EnableAspectJAutoProxy
