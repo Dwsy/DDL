@@ -1,25 +1,24 @@
 package link.dwsy.ddl.repository.Article;
 
 //import link.dwsy.ddl.XO.DTO.OnlyTest;
-import link.dwsy.ddl.XO.VO.ContentHtmlVO;
-import link.dwsy.ddl.XO.VO.ContentMdVO;
-import link.dwsy.ddl.XO.VO.ContentPureVO;
+
 import link.dwsy.ddl.entity.Article.ArticleContent;
-        import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-        import javax.transaction.Transactional;
+import javax.transaction.Transactional;
 
 //public interface ArticleContentRepository extends JpaRepository<ArticleContent, Long> {
 public interface ArticleContentRepository extends JpaRepository<ArticleContent, Long> {
-    ContentHtmlVO findByIdAndDeletedIsFalse(long id);
-//    @Query("select c.textPure from ArticleContent c where c.articleFieldId=?1 and c.deleted=false")
-//    @Query(value = "select text_pure from article_content c where article_field_id=?1 and c.deleted=false",nativeQuery = true)
-    ContentPureVO findArticleContentByIdAndDeletedIsFalse(long id);
+    @Query(value = "select text_md from article_content where article_field_id=?1 and deleted is false", nativeQuery = true)
+    String getMdTextById(long id);
 
-//    @Query(value = "select text_md from article_content c where article_field_id=?1 and c.deleted=false",nativeQuery = true)
-    ContentMdVO findArticleContentByDeletedIsFalseAndId(long id);
+    @Query(value = "select text_pure from article_content where article_field_id=?1 and deleted is false", nativeQuery = true)
+    String getPureTextById(long id);
+
+    @Query(value = "select text_html from article_content where article_field_id=?1 and deleted is false", nativeQuery = true)
+    String getHtmlTextById(long id);
 
     @Modifying
     @Transactional

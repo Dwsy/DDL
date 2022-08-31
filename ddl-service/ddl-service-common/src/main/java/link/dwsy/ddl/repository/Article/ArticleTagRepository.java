@@ -16,6 +16,9 @@ public interface ArticleTagRepository extends JpaRepository<ArticleTag, Long> {
 
     List<ArticleTag> findAllByDeletedIsFalse(Sort sort);
 
+    List<ArticleTag> findByDeletedFalseAndArticleGroupId(long id, Sort sort);
+
+
 //    @Query()
 //    void getFieldListByTagId();
 }

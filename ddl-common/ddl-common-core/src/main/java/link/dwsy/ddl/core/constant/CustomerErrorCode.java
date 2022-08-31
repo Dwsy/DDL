@@ -21,8 +21,7 @@ public enum CustomerErrorCode {
     UserLevelLow(104, "用户等级不足"),
     ParamError(400, "请求参数错误"),
 
-
-    ;
+    NotFound(201,"文章不存在");
 
     private int code;
 

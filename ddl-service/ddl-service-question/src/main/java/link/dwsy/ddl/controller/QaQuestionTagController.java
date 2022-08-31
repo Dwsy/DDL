@@ -34,6 +34,14 @@ public class QaQuestionTagController {
         return qaQuestionTagService.getTagList(PRHelper.sort(order, properties));
     }
 
+    @GetMapping("group/list/{id}")
+    public List<QaTag> getTagListByGroupId(
+            @PathVariable(name = "id") Long id,
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
+        return qaQuestionTagService.getTagListByGroupId(id,PRHelper.sort(order, properties));
+    }
+
     @GetMapping("question/{id}")
     public PageData<QaQuestionField> GetArticleFieldList(
             @PathVariable(name = "id") Long id,

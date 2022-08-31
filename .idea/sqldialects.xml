@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/31ccc740-d462-4eed-94a6-b4796c75c8c3/console_1.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-common/src/main/java/link/dwsy/ddl/repository/Article/ArticleTagRepository.java" dialect="GenericSQL" />
     <file url="PROJECT" dialect="PostgreSQL" />
+  </component>
+  <component name="SqlResolveMappings">
+    <file url="file://$PROJECT_DIR$" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;name&quot;:{     &quot;@qname&quot;:&quot;e8597555-4de7-4cc8-8716-e4c212730626&quot;    },    &quot;group&quot;:{     &quot;@kind&quot;:&quot;database&quot;,     &quot;node&quot;:{      &quot;name&quot;:{       &quot;@qname&quot;:&quot;ddl&quot;      }     }    }   }  } }}" />
   </component>
 </project>

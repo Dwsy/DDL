@@ -22,7 +22,7 @@ public class ArticleCommentController {
     private ArticleCommentServiceImpl articleCommentService;
 
     @GetMapping("/{id}")
-    public PageData<ArticleComment> GetCommentById(
+    public PageData<ArticleComment> getUCommentById(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,

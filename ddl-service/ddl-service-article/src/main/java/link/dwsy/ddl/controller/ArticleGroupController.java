@@ -26,7 +26,7 @@ public class ArticleGroupController {
     ArticleGroupServiceImpl articleGroupService;
 
     @GetMapping("list")
-    public List<ArticleGroup> GetGroupList(
+    public List<ArticleGroup> getGroupList(
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
 
@@ -34,7 +34,7 @@ public class ArticleGroupController {
     }
 
     @GetMapping("article/{id}")
-    public PageData<fieldVO> GetFieldListByGroupId(
+    public PageData<fieldVO> getFieldListByGroupId(
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,

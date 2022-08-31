@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.Size;
+import java.util.Optional;
 
 /**
  * @Author Dwsy
@@ -30,7 +31,7 @@ public class ArticleFieldController {
 
 
     @GetMapping("field/list")
-    public PageData<fieldVO> ArticleList(
+    public PageData<fieldVO> articleList(
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
@@ -42,7 +43,8 @@ public class ArticleFieldController {
     }
 
     @GetMapping("field/{id}")
-    public ArticleField GetArticleById(@PathVariable("id") Long id) {
+    @CrossOrigin
+    public ArticleField getArticleById(@PathVariable("id") Long id) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
 
@@ -56,7 +58,7 @@ public class ArticleFieldController {
      */
     @GetMapping(value = "content/{id}",produces="application/json")
 //    @IgnoreResponseAdvice
-    public String GetArticleContent(
+    public String getArticleContent(
             @Size
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "0", name = "type") int type) {
@@ -65,8 +67,12 @@ public class ArticleFieldController {
 
         if (type < 0 || type > 2)
             throw new CodeException(CustomerErrorCode.ParamError);
-
-        return articleContentService.getContent(id, type);
+        Optional<String> ret = Optional.ofNullable(articleContentService.getContent(id, type));
+        if (ret.isPresent()) {
+            return ret.get();
+        } else {
+            throw new CodeException(CustomerErrorCode.NotFound);
+        }
     }
 
     @GetMapping(value = "test")

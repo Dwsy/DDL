@@ -1,12 +1,12 @@
 package link.dwsy.ddl.controller;
 
 import cn.hutool.json.JSONUtil;
+import link.dwsy.ddl.XO.RB.UserRB;
+import link.dwsy.ddl.XO.RB.UserRegisterRB;
 import link.dwsy.ddl.annotation.IgnoreResponseAdvice;
 import link.dwsy.ddl.core.domain.JwtToken;
 import link.dwsy.ddl.core.utils.RSAUtil;
 import link.dwsy.ddl.service.impl.TokenServiceImpl;
-import link.dwsy.ddl.XO.RB.UserRB;
-import link.dwsy.ddl.XO.RB.UserRegisterRB;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 

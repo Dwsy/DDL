@@ -50,13 +50,13 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
     public String getContent(long id, int type) {
         if (type == 0) {
-            return articleContentRepository.findByIdAndDeletedIsFalse(id).getTextHtml();
+            return articleContentRepository.getHtmlTextById(id);
         }
         if (type == 1) {
-            return articleContentRepository.findArticleContentByIdAndDeletedIsFalse(id).getTextPure();
+            return articleContentRepository.getPureTextById(id);
         }
         if (type == 2) {
-            return articleContentRepository.findArticleContentByDeletedIsFalseAndId(id).getTextMd();
+            return articleContentRepository.getMdTextById(id);
         }
         return null;
     }

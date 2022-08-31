@@ -44,4 +44,8 @@ public class ArticleTagServiceImpl implements ArticleTagService {
 
 
     }
+
+    public List<ArticleTag> getTagListByGroupId(Long id, Sort sort) {
+        return articleTagRepository.findByDeletedFalseAndArticleGroupId(id, sort);
+    }
 }

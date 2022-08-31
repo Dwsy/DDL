@@ -24,23 +24,31 @@ public class ArticleTagController {
     ArticleTagServiceImpl articleTagService;
 
     @GetMapping("list")
-    public List<ArticleTag> GetTagList(
+    public List<ArticleTag> getTagList(
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
-
         return articleTagService.getTagList(PRHelper.sort(order, properties));
     }
 
+    @GetMapping("group/list/{id}")
+    public List<ArticleTag> getTagListByGroupId(
+            @PathVariable(name = "id") Long id,
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
+        return articleTagService.getTagListByGroupId(id,PRHelper.sort(order, properties));
+    }
+
     @GetMapping("article/{id}")
-    public PageData<fieldVO> GetArticleFieldList(
+    public PageData<fieldVO> getArticleFieldListByTagId(
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties
     ) {
-        if (id < 0L || size < 1)
+        if (id < 0L || size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         return articleTagService.getArticleListById(id, pageRequest);
     }

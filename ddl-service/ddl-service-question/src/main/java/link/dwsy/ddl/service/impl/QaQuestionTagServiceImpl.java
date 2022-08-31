@@ -43,4 +43,9 @@ public class QaQuestionTagServiceImpl implements QaQuestionTagService {
                 .findByDeletedFalseAndIdInAndQuestionStateIn(ids, questionStates,pageRequest);
         return new PageData<>(questionFields);
     }
+
+    @Override
+    public List<QaTag> getTagListByGroupId(Long id, Sort sort) {
+        return qaQuestionTagRepository.findByDeletedFalseAndQaGroupId(id, sort);
+    }
 }

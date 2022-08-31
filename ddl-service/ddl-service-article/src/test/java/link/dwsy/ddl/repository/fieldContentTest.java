@@ -102,7 +102,7 @@ public class fieldContentTest {
 
     @Test
     public void getHtmlContent() throws JsonProcessingException {
-        ContentHtmlVO v = articleContentRepository.findByIdAndDeletedIsFalse(2L);
+        String v = articleContentRepository.getHtmlTextById(2L);
 
         System.out.println(new ObjectMapper().writeValueAsString(v));
     }
