@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteTargetsManager">
+    <option name="projectDefaultTargetUuid" value="9fdba2ce-dd1e-44da-ab36-c65afa0c897d" />
+    <targets>
+      <target name="WSL - Arch" type="wsl" uuid="e6bba87c-2da7-466a-9a11-da83f3a8ef3b">
+        <config>
+          <option name="distributionMsId" value="Arch" />
+          <option name="projectRootOnTarget" value="/mnt/e/Tools/JetBrains/apps/IDEA-U/ch-0/222.3739.54/jbr/bin&#10;/DDL" />
+        </config>
+        <ContributedStateBase type="JavaLanguageRuntime">
+          <config>
+            <option name="homePath" value="\\wsl$\Arch\usr\lib\jvm\java-11-openjdk" />
+            <option name="javaVersionString" value="11.0.16" />
+          </config>
+        </ContributedStateBase>
+      </target>
+    </targets>
+  </component>
+</project>
