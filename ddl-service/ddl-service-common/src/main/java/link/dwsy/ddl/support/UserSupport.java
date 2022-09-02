@@ -3,6 +3,7 @@ package link.dwsy.ddl.support;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
+import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.constant.TokenConstants;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.core.utils.TokenUtil;
@@ -23,19 +24,24 @@ public class UserSupport {
     @Value("${spring.cloud.nacos.discovery.enabled}")
     boolean isCloud=false;
 //    cloud模式优先从header中获取loginUserInfo boot模式获取token
-    public LoginUserInfo getCurrentUser() throws Exception {
+//    todo 缓存解析结果
+    public LoginUserInfo getCurrentUser() {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         assert requestAttributes != null;
         HttpServletRequest request = requestAttributes.getRequest();
         if (isCloud) {
             String loginUserInfoString = request.getHeader("loginUserInfo");
+            if (StrUtil.isBlank(loginUserInfoString)) {
+                throw new CodeException(CustomerErrorCode.UserNotLogin);
+            }
             return JSON.parseObject(loginUserInfoString, LoginUserInfo.class);
         } else {
             String token = request.getHeader(TokenConstants.AUTHENTICATION);
             if (StrUtil.isBlank(token)) {
-                throw new CodeException(2, "token为空");
+                throw new CodeException(CustomerErrorCode.UserNotLogin);
             }
-            return TokenUtil.parseUserInfoFromToken(token);
+            String[] t = token.split(" ");
+            return TokenUtil.parseUserInfoFromToken(t[1]);
         }
 //        Long userId = TokenUtil.parseUserInfoFromToken(token).getId();
 //        if(userId < 0) {

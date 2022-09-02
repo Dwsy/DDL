@@ -1,55 +1,36 @@
-package link.dwsy.ddl;
+package link.dwsy.ddl.service.impl;
 
 import link.dwsy.ddl.XO.Enum.Message.MessageState;
+import link.dwsy.ddl.XO.RB.SendPrivateMessageRB;
 import link.dwsy.ddl.entity.Message.UserMessage;
 import link.dwsy.ddl.repository.Meaasge.UserMessageRepository;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import link.dwsy.ddl.service.UserPrivateMessageService;
+import link.dwsy.ddl.support.UserSupport;
+import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * @Author Dwsy
- * @Date 2022/9/1
+ * @Date 2022/9/2
  */
-@SpringBootTest
-public class messageTest {
 
+@Service
+public class UserPrivateMessageServiceImpl implements UserPrivateMessageService {
     @Resource
-    private UserMessageRepository userMessageRepository;
+    UserMessageRepository userMessageRepository;
+    @Resource
+    UserSupport userSupport;
 
-    @Test
-    public void test() {
-        sendMessage(3L, 5L,"3->5");
-        sendMessage(3L, 6L,"3->6");
-
-        sendMessage(6L, 3L,"6->3");
-    }
-
-    @Test
-    public void test2() {
-        pullMessageByLatestId(3L, 4L, 3L);
-        pullMessageByLatestId(3L, 4L, 5L);
-        pullMessageByLatestId(3L, 4L, 6L);
-    }
-
-    @Test
-    void test3() {
-        pullHistoryMessage(3L, 4L, 10L,5,0);
-        pullHistoryMessage(3L, 4L, 10L,5,1);
-    }
-
-    @Test
-    void test4() {
-        getPrivateMessageList(3L);
-        getPrivateMessageList(4L);
-        getPrivateMessageList(6L);
-    }
-    public void sendMessage(long formUserId, long toUserId,String content) {
+    @Override
+    public boolean sendPrivateMessage(SendPrivateMessageRB sendPrivateMessageRB)  {
+        long formUserId = userSupport.getCurrentUser().getId();
+        long toUserId = sendPrivateMessageRB.getToUserId();
+        String content = sendPrivateMessageRB.getContent();
         String conversationId;
         if (formUserId < toUserId) {
             conversationId = formUserId + "_" + toUserId;
@@ -61,10 +42,17 @@ public class messageTest {
                 .toUserId(toUserId)
                 .content(content)
                 .conversationId(conversationId).build();
-        userMessageRepository.save(message);
+        try {
+            userMessageRepository.save(message);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+
     }
 
-    public void pullMessageByLatestId (long formUserId, long toUserId,long latestId) {
+    public PageData<UserMessage> pullMessageByLatestId(long latestId, long toUserId, int page,int size)  {
+        long formUserId = userSupport.getCurrentUser().getId();
         String conversationId;
         if (formUserId<toUserId)
             conversationId = formUserId + "_" + toUserId;
@@ -73,14 +61,14 @@ public class messageTest {
         HashSet<MessageState> messageStates = new HashSet<>();
         messageStates.add(MessageState.READ);
         messageStates.add(MessageState.UNREAD);
-        PageRequest pr = PageRequest.of(0, 20);
+        PageRequest pr = PageRequest.of(page, size);
         Page<UserMessage> messages = userMessageRepository
                 .findByConversationIdAndIdGreaterThanAndDeletedFalseAndStatusIn(conversationId, latestId, messageStates, pr);
-        messages.forEach(System.out::println);
-    }
+        return new PageData<>(messages);
+    };
 
-//    反向分页查询
-    public void pullHistoryMessage(long formUserId, long toUserId, long latestId,int size,int page) {
+    public PageData<UserMessage> pullHistoryMessage(long latestId, long toUserId, int page, int size) {
+        long formUserId = userSupport.getCurrentUser().getId();
         String conversationId;
         if (formUserId<toUserId)
             conversationId = formUserId + "_" + toUserId;
@@ -92,21 +80,8 @@ public class messageTest {
         PageRequest pr = PageRequest.of(page, size);
         Page<UserMessage> messages = userMessageRepository
                 .findByConversationIdAndIdLessThanAndDeletedFalseAndStatusIn(conversationId, latestId, messageStates, pr);
-        messages.forEach(System.out::println);
+
+        return new PageData<>(messages);
     }
-
-    public void getPrivateMessageList(long uid) {
-//        String conversationId;
-//        if (formUserId<toUserId)
-//            conversationId = formUserId + "_" + toUserId;
-//        else
-//            conversationId = toUserId + "_" + formUserId;
-        HashSet<MessageState> messageStates = new HashSet<>();
-        messageStates.add(MessageState.READ);
-        messageStates.add(MessageState.UNREAD);
-        List<UserMessage> ttt = userMessageRepository.getPrivateMessageList(uid);
-        ttt.forEach(System.out::println);
-
-    }
-
 }
+

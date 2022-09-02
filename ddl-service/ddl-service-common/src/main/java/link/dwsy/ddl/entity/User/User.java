@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.BaseEntity;
+import link.dwsy.ddl.entity.Message.Channel;
 import lombok.*;
 
 import javax.persistence.*;
@@ -36,6 +37,9 @@ public class User extends BaseEntity {
     private String password;
 
     @JsonIgnore
+    private String salt;
+
+    @JsonIgnore
     private String email;
 
     @JsonIgnore
@@ -65,6 +69,12 @@ public class User extends BaseEntity {
                 ", level=" + level +
                 '}';
     }
+
+
+    @ManyToMany(mappedBy = "user",
+            fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Channel> channels;
 
 
 }

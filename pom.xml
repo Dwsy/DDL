@@ -114,18 +114,18 @@
             </dependency>
 
             <!-- FastDFS 分布式文件系统 -->
-            <dependency>
-                <groupId>com.github.tobato</groupId>
-                <artifactId>fastdfs-client</artifactId>
-                <version>${tobato.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.github.tobato</groupId>-->
+<!--                <artifactId>fastdfs-client</artifactId>-->
+<!--                <version>${tobato.version}</version>-->
+<!--            </dependency>-->
 
             <!-- Mybatis 依赖配置 -->
-            <dependency>
-                <groupId>org.mybatis.spring.boot</groupId>
-                <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${spring-boot.mybatis}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.mybatis.spring.boot</groupId>-->
+<!--                <artifactId>mybatis-spring-boot-starter</artifactId>-->
+<!--                <version>${spring-boot.mybatis}</version>-->
+<!--            </dependency>-->
 
             <!-- Swagger 依赖配置 -->
             <dependency>
@@ -147,11 +147,11 @@
             </dependency>
 
             <!-- pagehelper 分页插件 -->
-            <dependency>
-                <groupId>com.github.pagehelper</groupId>
-                <artifactId>pagehelper-spring-boot-starter</artifactId>
-                <version>${pagehelper.boot.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.github.pagehelper</groupId>-->
+<!--                <artifactId>pagehelper-spring-boot-starter</artifactId>-->
+<!--                <version>${pagehelper.boot.version}</version>-->
+<!--            </dependency>-->
 
             <!-- io常用工具类 -->
             <dependency>
@@ -175,11 +175,11 @@
             </dependency>
 
             <!-- 代码生成使用模板 -->
-            <dependency>
-                <groupId>org.apache.velocity</groupId>
-                <artifactId>velocity-engine-core</artifactId>
-                <version>${velocity.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.velocity</groupId>-->
+<!--                <artifactId>velocity-engine-core</artifactId>-->
+<!--                <version>${velocity.version}</version>-->
+<!--            </dependency>-->
 
             <!-- Collection 增强Java集合框架 -->
             <dependency>
@@ -203,19 +203,19 @@
             </dependency>
 
             <!-- 线程传递值 -->
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>transmittable-thread-local</artifactId>
-                <version>${transmittable-thread-local.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.alibaba</groupId>-->
+<!--                <artifactId>transmittable-thread-local</artifactId>-->
+<!--                <version>${transmittable-thread-local.version}</version>-->
+<!--            </dependency>-->
 
 
             <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>3.5.2</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.baomidou</groupId>-->
+<!--                <artifactId>mybatis-plus-boot-starter</artifactId>-->
+<!--                <version>3.5.2</version>-->
+<!--            </dependency>-->
 
             <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
             <dependency>
@@ -280,11 +280,11 @@
                 <artifactId>knife4j-spring-boot-starter</artifactId>
                 <version>2.0.9</version>
             </dependency>
-            <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-ui</artifactId>
-                <version>${springdoc-openapi-ui.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.springdoc</groupId>-->
+<!--                <artifactId>springdoc-openapi-ui</artifactId>-->
+<!--                <version>${springdoc-openapi-ui.version}</version>-->
+<!--            </dependency>-->
 
             <!-- https://mvnrepository.com/artifact/hikari-cp/hikari-cp -->
             <!--            <dependency>-->

@@ -7,6 +7,7 @@ import link.dwsy.ddl.core.domain.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -70,6 +71,11 @@ public class GlobalExceptionAdvice {
         return response;
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public R handlerHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        return new R<String>(R.FAIL,"请求体错误");
+    }
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public R<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {

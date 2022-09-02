@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Message.MessageState;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 /**
@@ -30,6 +32,8 @@ public class UserMessage extends BaseEntity {
 
     private String conversationId;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String content;
 
     @Builder.Default

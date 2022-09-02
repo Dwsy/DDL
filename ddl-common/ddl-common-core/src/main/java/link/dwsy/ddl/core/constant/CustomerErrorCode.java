@@ -20,7 +20,10 @@ public enum CustomerErrorCode {
     UserNotLogin(101, "用户未登录"),
 
     UserNotExist(103, "用户不存在"),
-    UserLevelLow(104, "用户等级不足"),
+    UserTokenExpired(104, "用户令牌已过期"),
+//    token解析失败
+    TokenParseError(105, "token解析失败"),
+    UserLevelLow(110, "用户等级不足"),
     ParamError(400, "请求参数错误"),
 
     NotFound(201,"文章不存在");

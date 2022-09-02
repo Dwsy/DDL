@@ -3,19 +3,14 @@ package link.dwsy.ddl.core.utils;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import io.jsonwebtoken.*;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.Constants;
+import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.codec.CodecException;
 
-
-import java.security.PublicKey;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -51,7 +46,7 @@ public class TokenUtil {
     /**
      * <h2>从 JWT Token 中解析 LoginUserInfo 对象</h2>
      */
-    public static LoginUserInfo parseUserInfoFromToken(String token) throws Exception {
+    public static LoginUserInfo parseUserInfoFromToken(String token)  {
 
         if (null == token) {
             return null;
@@ -75,15 +70,16 @@ public class TokenUtil {
     /**
      * <h2>通过公钥去解析 JWT Token</h2>
      */
-    private static Jws<Claims> parseToken(String token) throws Exception {
+    private static Jws<Claims> parseToken(String token) {
         Jws<Claims> claimsJws = null;
         try {
             claimsJws = Jwts.parser().setSigningKey(RSAUtil.getPublicKey()).parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
             log.error("token过期");
-            throw new CodeException(2, "token过期");
+            throw new CodeException(CustomerErrorCode.UserTokenExpired);
         } catch (Exception e) {
-            throw new CodeException(3,"token异常");
+            log.error("token解析失败");
+            throw new CodeException(CustomerErrorCode.TokenParseError);
         }
         return claimsJws;
     }
