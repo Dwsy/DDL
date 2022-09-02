@@ -2,11 +2,8 @@ package link.dwsy.ddl;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * @Author Dwsy
@@ -17,7 +14,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 //@EnableDiscoveryClient(autoRegister = false)
 @EnableJpaAuditing
 @EnableAspectJAutoProxy
-@EnableWebMvc
 public class articleApplication {
     public static void main(String[] args) {
         SpringApplication.run(articleApplication.class, args);

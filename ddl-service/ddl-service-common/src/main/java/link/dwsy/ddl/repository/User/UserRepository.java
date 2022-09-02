@@ -19,4 +19,5 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     @Query(value = "select nickname from ddl.public.users where id=?1",nativeQuery = true)
     String findUserNicknameById(long uid);
+
 }

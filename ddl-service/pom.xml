@@ -12,7 +12,8 @@
         <module>ddl-service-common</module>
         <module>ddl-service-article</module>
         <module>ddl-service-question</module>
-        <module>ddl-service-private_message</module>
+        <module>ddl-service-message</module>
+        <module>ddl-service-user_center</module>
 
     </modules>
     <artifactId>ddl-service</artifactId>

@@ -13,9 +13,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 //@EnableDiscoveryClient(autoRegister = false)
 @EnableJpaAuditing
 @EnableAspectJAutoProxy
-public class privateMessageApplication {
+public class messageApplication {
     public static void main(String[] args) {
-        SpringApplication.run(privateMessageApplication.class, args);
+        SpringApplication.run(messageApplication.class, args);
     }
 
 }

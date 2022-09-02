@@ -1,0 +1,76 @@
+server:
+  port: 7060
+#  servlet:
+#    encoding:
+#      charset: utf-8
+#      force-response: true
+#      force: true
+#  servlet:
+#    context-path: /ddl-authority-center
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    database: postgresql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  datasource:
+    # 数据源
+    url: jdbc:postgresql://localhost:5432/ddl?useSSL=false
+    username: postgres
+    password: root
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 4
+      idle-timeout: 30000
+      connection-timeout: 30000
+      max-lifetime: 45000
+      auto-commit: true
+      pool-name: DDLHikariCP
+  application:
+    name: ddl-service-message
+  cloud:
+    nacos:
+      discovery:
+#        enabled: false # 如果不想使用 Nacos 进行服务注册和发现, 设置为 false 即可
+        enabled: true
+        server-addr: localhost:8848 # Nacos 服务器地址
+        # server-addr: 127.0.0.1:8848,127.0.0.1:8849,127.0.0.1:8850 # Nacos 服务器地址
+        namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
+        metadata:
+          management:
+            context-path: ${server.servlet.context-path}/actuator
+
+#  kafka:
+#    bootstrap-servers: 127.0.0.1:9092
+#    producer:
+#      retries: 3
+#    consumer:
+#      auto-offset-reset: latest
+#  zipkin:
+#    sender:
+#      type: kafka # 默认是 web
+#    base-url: http://127.0.0.1:9411/
+
+# 暴露端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'  # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 *, 可以开放所有端点
+  endpoint:
+    health:
+      show-details: always
+knife4j:
+  enable: true
+
