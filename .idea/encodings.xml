@@ -24,6 +24,8 @@
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-article/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-content_checking/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-content_checking/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-message/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-message/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-question/src/main/java" charset="UTF-8" />

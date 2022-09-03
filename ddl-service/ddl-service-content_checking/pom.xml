@@ -9,36 +9,20 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <artifactId>ddl-service-content_checking</artifactId>
 
-    <artifactId>ddl-service-common</artifactId>
     <dependencies>
         <dependency>
             <groupId>link.dwsy.DDL</groupId>
             <artifactId>ddl-common-mvc</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        <!--jpa-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.5.0</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-spring-boot-starter</artifactId>
-        </dependency>
     </dependencies>
+
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-
 
 </project>

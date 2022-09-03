@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.domain.R;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -109,10 +108,6 @@ public class GlobalExceptionAdvice {
         return new R<>(R.FAIL, "请求参数错误:MissingServletRequestParameterException");
     }
 
-    @ExceptionHandler(value = IncorrectResultSizeDataAccessException.class)
-    public R<String> handlerIncorrectResultSizeDataAccess(IncorrectResultSizeDataAccessException e) {
-        return new R<>(R.FAIL, "服务端错误");
-    }
 
     @ExceptionHandler(value = JSONException.class)
     public R<String> handlerJSONException() {

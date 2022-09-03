@@ -14,6 +14,7 @@
         <module>ddl-service-question</module>
         <module>ddl-service-message</module>
         <module>ddl-service-user_center</module>
+        <module>ddl-service-content_checking</module>
 
     </modules>
     <artifactId>ddl-service</artifactId>

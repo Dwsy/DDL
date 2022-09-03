@@ -26,6 +26,9 @@ public class Channel extends BaseEntity {
 
     private String description;
 
+    @ManyToOne
+    private User owner;
+
     @ManyToMany(
             fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinTable(name = "channel_user_ref",
