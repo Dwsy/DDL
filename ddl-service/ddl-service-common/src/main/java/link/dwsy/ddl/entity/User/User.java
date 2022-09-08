@@ -55,7 +55,9 @@ public class User extends BaseEntity {
     private int level = 0;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<ArticleField> articleFields;
+
 
     @Override
     public String toString() {

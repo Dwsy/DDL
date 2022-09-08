@@ -1,13 +1,16 @@
 package link.dwsy.ddl.controller;
 
-import link.dwsy.ddl.core.domain.LoginUserInfo;
+import link.dwsy.ddl.XO.Enum.UserActiveType;
 import link.dwsy.ddl.repository.User.UserActiveRepository;
+import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
 import link.dwsy.ddl.support.UserSupport;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @Author Dwsy
@@ -15,17 +18,29 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/active")
-public class UserActive {
+public class UserActiveController {
 
     @Resource
     UserActiveRepository userActiveRepository;
     @Resource
     UserSupport userSupport;
 
+    @Resource
+    UserActiveServiceImpl userActiveService;
+
     @PostMapping("/check")
     public String checkIn(){
-        LoginUserInfo currentUser = userSupport.getCurrentUser();
-
-        return "check in";
+//        LoginUserInfo currentUser = userSupport.getCurrentUser();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Date zero = calendar.getTime();
+        if (userActiveRepository.findByUserActiveTypeAndCreateTimeGreaterThanEqualAndDeletedFalse(UserActiveType.Check_In, zero).isPresent()) {
+            return "今日已签到";
+        }
+        userActiveService.ActiveLog(UserActiveType.Check_In, null);
+        return "签到成功";
     }
 }

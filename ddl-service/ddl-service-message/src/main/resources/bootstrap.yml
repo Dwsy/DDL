@@ -51,7 +51,7 @@ spring:
           management:
             context-path: ${server.servlet.context-path}/actuator
   redis:
-    host: localhost
+    host: 192.168.123.111
     port: 6379
     database: 0
     lettuce:

@@ -1,9 +1,11 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
+import link.dwsy.ddl.XO.Enum.UserActiveType;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
+import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
 import link.dwsy.ddl.service.impl.QaQuestionFieldServiceImpl;
 import link.dwsy.ddl.service.impl.QuestionContentServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
@@ -33,6 +35,9 @@ public class QaQuestionFieldController {
     @Resource
     QuestionContentServiceImpl questionContentService;
 
+    @Resource
+    UserActiveServiceImpl userActiveService;
+
 
     @GetMapping("field/list")
     public PageData<QaQuestionField> QuestionList(
@@ -57,7 +62,7 @@ public class QaQuestionFieldController {
     public QaQuestionField GetQuestionById(@PathVariable("id") Long id) {
         if (id < 1L)
             throw new CodeException(CustomerErrorCode.ParamError);
-
+        userActiveService.ActiveLog(UserActiveType.Browse_QA, id);
         return qaQuestionFieldService.getQuestionById(id);
     }
 

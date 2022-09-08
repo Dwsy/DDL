@@ -3,10 +3,12 @@ package link.dwsy.ddl.controller;
 //import link.dwsy.ddl.XO.DTO.ArticleContentDTO;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.XO.Enum.UserActiveType;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleField;
+import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleContentServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
@@ -29,6 +31,10 @@ public class ArticleFieldController {
     @Resource
     ArticleContentServiceImpl articleContentService;
 
+    @Resource
+    UserActiveServiceImpl userActiveService;
+
+
 
     @GetMapping("field/list")
     public PageData<fieldVO> articleList(
@@ -47,7 +53,7 @@ public class ArticleFieldController {
     public ArticleField getArticleById(@PathVariable("id") Long id) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
-
+        userActiveService.ActiveLog(UserActiveType.Browse_Article, id);
         return articleContentService.getArticleById(id, ArticleState.open);
     }
 

@@ -16,7 +16,7 @@ import javax.annotation.Resource;
  */
 
 @Service
-public class UserActiveImpl implements UserActiveService {
+public class UserActiveServiceImpl implements UserActiveService {
 
     @Resource
     UserSupport userSupport;
