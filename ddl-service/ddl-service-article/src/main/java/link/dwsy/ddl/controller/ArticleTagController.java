@@ -1,6 +1,8 @@
 package link.dwsy.ddl.controller;
 
+import link.dwsy.ddl.XO.RB.ArticleTagRB;
 import link.dwsy.ddl.XO.VO.fieldVO;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleTag;
@@ -8,6 +10,7 @@ import link.dwsy.ddl.service.impl.ArticleTagServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -51,6 +54,27 @@ public class ArticleTagController {
         }
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         return articleTagService.getArticleListById(id, pageRequest);
+    }
+
+
+    @PostMapping()
+    @AuthAnnotation(Level = 999)
+    public boolean addTag(@RequestBody @Validated ArticleTagRB articleTagRB) {
+        return articleTagService.addTag(articleTagRB);
+    }
+
+    @PutMapping("{id}")
+    @AuthAnnotation(Level = 999)
+    public boolean updateTag(@PathVariable("id") Long id, @RequestBody @Validated ArticleTagRB articleTagRB) {
+        articleTagService.updateTag(id, articleTagRB);
+        return true;
+    }
+
+    @DeleteMapping("{id}")
+    @AuthAnnotation(Level = 999)
+    public boolean deleteTag(@PathVariable(name = "id") Long id) {
+        articleTagService.deleteTag(id);
+        return true;
     }
 
 

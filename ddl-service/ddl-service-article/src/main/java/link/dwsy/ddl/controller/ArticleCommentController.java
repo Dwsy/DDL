@@ -1,5 +1,7 @@
 package link.dwsy.ddl.controller;
 
+import link.dwsy.ddl.XO.Enum.Article.CommentType;
+import link.dwsy.ddl.XO.RB.ArticleCommentRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleComment;
@@ -32,5 +34,22 @@ public class ArticleCommentController {
             throw new CodeException(CustomerErrorCode.ParamError);
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         return articleCommentService.getByArticleId(aid, pageRequest);
+    }
+
+    @PostMapping()
+    public boolean reply(@RequestBody ArticleCommentRB articleCommentRB) {
+        articleCommentService.reply(articleCommentRB, CommentType.comment);
+        return true;
+    }
+
+    @DeleteMapping("/{id}")
+//    logically delete a comment
+    public boolean delete(@PathVariable("id") Long id) {
+        return articleCommentService.logicallyDelete(id);
+    }
+
+    @PostMapping("/{id}")
+    public boolean recovery(@PathVariable("id") Long id) {
+        return articleCommentService.logicallyRecovery(id);
     }
 }

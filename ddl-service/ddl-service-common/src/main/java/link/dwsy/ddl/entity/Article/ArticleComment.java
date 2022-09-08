@@ -54,6 +54,9 @@ public class ArticleComment extends BaseEntity {
     private long parentCommentId = 0;
 
     @Transient
+    private User parentUser;
+
+    @Transient
     private Set<ArticleComment> childComments;
 
     @Builder.Default

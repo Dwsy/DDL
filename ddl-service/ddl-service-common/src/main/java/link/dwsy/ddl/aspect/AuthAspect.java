@@ -32,7 +32,7 @@ public class AuthAspect {
     public void doBefore(JoinPoint joinPoint, AuthAnnotation authAnnotation) throws Throwable {
         LoginUserInfo loginUserInfo = userSupport.getCurrentUser();
         if (loginUserInfo == null) {
-            throw new CodeException(CustomerErrorCode.UserLevelLow);
+            throw new CodeException(CustomerErrorCode.UserNotLogin);
         }
         int level = loginUserInfo.getLevel();
         if (level < authAnnotation.Level()) {

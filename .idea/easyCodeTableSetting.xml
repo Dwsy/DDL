@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EasyCodeTableSetting">
+    <option name="tableInfoMap">
+      <map>
+        <entry key="link.dwsy.ddl.controller.ArticleCommentController">
+          <value>
+            <TableInfoDTO>
+              <option name="comment" value="" />
+              <option name="fullColumn">
+                <list>
+                  <ColumnInfoDTO>
+                    <option name="custom" value="false" />
+                    <option name="ext">
+                      <map />
+                    </option>
+                    <option name="name" value="articleCommentService" />
+                    <option name="type" value="link.dwsy.ddl.service.impl.ArticleCommentServiceImpl" />
+                  </ColumnInfoDTO>
+                </list>
+              </option>
+              <option name="name" value="ArticleCommentController" />
+              <option name="preName" value="" />
+              <option name="saveModelName" value="" />
+              <option name="savePackageName" value="" />
+              <option name="savePath" value="" />
+              <option name="templateGroupName" value="" />
+            </TableInfoDTO>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

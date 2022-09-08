@@ -4,15 +4,20 @@ package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.XO.RB.ArticleContentRB;
+import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleContentServiceImpl;
+import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,14 +31,17 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("article")
+@Slf4j
 public class ArticleFieldController {
 
     @Resource
     ArticleContentServiceImpl articleContentService;
 
     @Resource
-    UserActiveServiceImpl userActiveService;
+    ArticleFieldServiceImpl articleFieldService;
 
+    @Resource
+    UserActiveServiceImpl userActiveService;
 
 
     @GetMapping("field/list")
@@ -53,7 +61,7 @@ public class ArticleFieldController {
     public ArticleField getArticleById(@PathVariable("id") Long id) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
-        userActiveService.ActiveLog(UserActiveType.Browse_Article, id);
+        articleContentService.ActiveLog(UserActiveType.Browse_Article, id);
         return articleContentService.getArticleById(id, ArticleState.open);
     }
 
@@ -62,7 +70,7 @@ public class ArticleFieldController {
      * @param type 0 html 1 md 2 pure
      * @return String
      */
-    @GetMapping(value = "content/{id}",produces="application/json")
+    @GetMapping(value = "content/{id}", produces = "application/json")
 //    @IgnoreResponseAdvice
     public String getArticleContent(
             @Size
@@ -77,13 +85,51 @@ public class ArticleFieldController {
         if (ret.isPresent()) {
             return ret.get();
         } else {
-            throw new CodeException(CustomerErrorCode.NotFound);
+            throw new CodeException(CustomerErrorCode.NotFoundArticle);
         }
     }
+
+    @PostMapping
+    public Long createArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
+        Long articleId = articleFieldService.createArticle(articleContentRB);
+        return articleId;
+    }
+    @PutMapping
+    public Long updateArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
+        if (articleContentRB.getArticleId() == null||articleContentRB.getArticleId()<0) {
+            throw new CodeException(CustomerErrorCode.NotFoundArticle);
+        }
+        Long articleId = articleFieldService.updateArticle(articleContentRB);
+        return articleId;
+    }
+    @DeleteMapping("{articleId}")
+    public boolean deleteArticle(@PathVariable Long articleId) {
+        if (articleId == null||articleId<0) {
+            throw new CodeException(CustomerErrorCode.NotFoundArticle);
+        }
+
+        try {
+            articleFieldService.logicallyDeleted(articleId);
+        } catch (Exception e) {
+            log.info("删除文章{}失败",articleId);
+            return false;
+        }
+        return true;
+    }
+
+    @PostMapping("recovery")
+    public void recoveryArticle(@RequestBody @Validated ArticleRecoveryRB articleRecoveryRB) {
+        articleFieldService.logicallyRecovery(articleRecoveryRB);
+    }
+
+
+
+
 
     @GetMapping(value = "test")
 //    @IgnoreResponseAdvice
     public String g() {
+
         return "乱码二分之一";
     }
 

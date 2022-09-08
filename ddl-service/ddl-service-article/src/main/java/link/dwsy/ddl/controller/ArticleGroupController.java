@@ -1,6 +1,8 @@
 package link.dwsy.ddl.controller;
 
+import link.dwsy.ddl.XO.RB.ArticleGroupRB;
 import link.dwsy.ddl.XO.VO.fieldVO;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleGroup;
@@ -8,6 +10,7 @@ import link.dwsy.ddl.service.impl.ArticleGroupServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -44,5 +47,24 @@ public class ArticleGroupController {
             throw new CodeException(CustomerErrorCode.ParamError);
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         return articleGroupService.getFieldListByGroupId(id,pageRequest);
+    }
+
+    @PostMapping()
+    @AuthAnnotation(Level = 999)
+    public boolean addGroup(@RequestBody @Validated ArticleGroupRB articleGroupRB) {
+        return articleGroupService.addGroup(articleGroupRB);
+    }
+
+    @PutMapping("{id}")
+    @AuthAnnotation(Level = 999)
+    public boolean updateGroup(@PathVariable("id") Long id, @RequestBody @Validated ArticleGroupRB articleGroupRB) {
+        articleGroupService.updateGroup(id, articleGroupRB);
+        return true;
+    }
+
+    @DeleteMapping("{id}")
+    @AuthAnnotation(Level = 999)
+    public boolean deleteGroup(@PathVariable(name = "id") Long id) {
+        return articleGroupService.deleteGroup(id);
     }
 }

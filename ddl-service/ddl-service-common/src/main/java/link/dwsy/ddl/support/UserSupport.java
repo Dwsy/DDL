@@ -52,6 +52,16 @@ public class UserSupport {
 
     }
 
+    public String getUserAgent() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (requestAttributes == null) {
+            HttpServletRequest request = requestAttributes.getRequest();
+            return request.getHeader("User-Agent");
+        } else {
+            return "no-user-agent";
+        }
+
+    }
     private void verifyRefreshToken(Long userId) {
 //        ServletRequestAttributes requestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
 //        String refreshToken = requestAttributes.getRequest().getHeader("refreshToken");

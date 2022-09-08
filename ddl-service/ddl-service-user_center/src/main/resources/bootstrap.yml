@@ -8,6 +8,8 @@ server:
 #  servlet:
 #    context-path: /ddl-authority-center
 spring:
+  application:
+    name: ddl-service-message
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -37,8 +39,7 @@ spring:
       max-lifetime: 45000
       auto-commit: true
       pool-name: DDLHikariCP
-  application:
-    name: ddl-service-message
+
   cloud:
     nacos:
       discovery:
@@ -50,6 +51,12 @@ spring:
         metadata:
           management:
             context-path: ${server.servlet.context-path}/actuator
+  rabbitmq:
+    host: localhost
+    port: 5672
+    virtual-host: /
+    username: admin
+    password: admin
 
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092

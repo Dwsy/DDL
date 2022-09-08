@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.repository.User.UserActiveRepository;
 import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
 import link.dwsy.ddl.support.UserSupport;
@@ -29,15 +30,16 @@ public class UserActiveController {
     UserActiveServiceImpl userActiveService;
 
     @PostMapping("/check")
+    @AuthAnnotation(Level = 0)
     public String checkIn(){
-//        LoginUserInfo currentUser = userSupport.getCurrentUser();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         Date zero = calendar.getTime();
-        if (userActiveRepository.findByUserActiveTypeAndCreateTimeGreaterThanEqualAndDeletedFalse(UserActiveType.Check_In, zero).isPresent()) {
+        if (userActiveRepository.findByUserActiveTypeAndCreateTimeGreaterThanEqualAndDeletedFalse
+                (UserActiveType.Check_In, zero).isPresent()) {
             return "今日已签到";
         }
         userActiveService.ActiveLog(UserActiveType.Check_In, null);

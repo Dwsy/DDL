@@ -51,6 +51,12 @@ spring:
         metadata:
           management:
             context-path: ${server.servlet.context-path}/actuator
+  rabbitmq:
+    host: localhost
+    port: 5672
+    virtual-host: /
+    username: admin
+    password: admin
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092
 #    producer:

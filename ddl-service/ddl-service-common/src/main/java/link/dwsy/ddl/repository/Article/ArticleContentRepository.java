@@ -6,8 +6,8 @@ import link.dwsy.ddl.entity.Article.ArticleContent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 
 //public interface ArticleContentRepository extends JpaRepository<ArticleContent, Long> {
 public interface ArticleContentRepository extends JpaRepository<ArticleContent, Long> {
@@ -24,6 +24,18 @@ public interface ArticleContentRepository extends JpaRepository<ArticleContent, 
     @Transactional
     @Query(value = "update article_content set article_field_id=?1 where id =?2", nativeQuery = true)
     int setArticleFieldId(long fid, long cid);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true,
+            value = "update article_content set deleted=true where id=?1")
+    int logicallyDeleted(long aid);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true,
+            value = "update article_content set deleted=false where id=?1")
+    int logicallyRecovery(long aid);
 
 //    contentMdVO findByIdAndDeletedIsFalse(long id);
 

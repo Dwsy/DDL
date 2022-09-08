@@ -23,6 +23,7 @@ public class UserActiveServiceImpl implements UserActiveService {
     @Resource
     UserActiveRepository userActiveRepository;
 
+
     public boolean ActiveLog(UserActiveType userActiveType, Long sourceId) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         if (currentUser != null) {

@@ -1,7 +1,10 @@
 package link.dwsy.ddl.service.impl;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.XO.RB.ArticleTagRB;
 import link.dwsy.ddl.XO.VO.fieldVO;
+import link.dwsy.ddl.core.CustomExceptions.CodeException;
+import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleTag;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Article.ArticleTagRepository;
@@ -47,5 +50,31 @@ public class ArticleTagServiceImpl implements ArticleTagService {
 
     public List<ArticleTag> getTagListByGroupId(Long id, Sort sort) {
         return articleTagRepository.findByDeletedFalseAndArticleGroupId(id, sort);
+    }
+
+
+
+    public boolean addTag(ArticleTagRB articleTagRB) {
+
+        if (articleTagRepository.existsByName(articleTagRB.getName())) {
+            throw new CodeException(CustomerErrorCode.ArticleTagAlreadyExists);
+        }
+        ArticleTag articleTag = ArticleTag.builder()
+                .name(articleTagRB.getName()).tagInfo(articleTagRB.getTagInfo()).build();
+        articleTagRepository.save(articleTag);
+        return true;
+    }
+
+
+    public void updateTag(Long id,ArticleTagRB articleTagRB) {
+        articleTagRepository.findById(id).orElseThrow(() -> new CodeException(CustomerErrorCode.ArticleTagNotFound));
+        ArticleTag.ArticleTagBuilder articleTagBuilder = ArticleTag.builder().name(articleTagRB.getName()).tagInfo(articleTagRB.getTagInfo());
+        articleTagRepository.save(articleTagBuilder.build());
+    }
+
+
+    public boolean deleteTag(Long id) {
+        int i = articleTagRepository.logicallyDeleteById(id);
+        return i > 0;
     }
 }

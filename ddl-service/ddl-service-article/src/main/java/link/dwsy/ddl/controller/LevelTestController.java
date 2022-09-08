@@ -20,6 +20,7 @@ public class LevelTestController {
 
     @Resource
     ArticleCommentRepository articleCommentRepository;
+
     @GetMapping("l1")
     @AuthAnnotation
     public String t1() {
@@ -36,6 +37,17 @@ public class LevelTestController {
     @AuthAnnotation(Level = 3)
     public List<ArticleComment> t3() {
         return articleCommentRepository.findAll();
+    }
+
+    @GetMapping("v")
+    public void aVoid() {
+        System.out.println("void");
+    }
+
+    @GetMapping("b")
+    public boolean aBoolean() {
+        System.out.println("void");
+        return false;
     }
 
 }
