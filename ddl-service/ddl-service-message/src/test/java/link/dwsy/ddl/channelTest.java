@@ -8,6 +8,7 @@ import link.dwsy.ddl.repository.Meaasge.ChannelRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -96,5 +97,14 @@ public class channelTest {
         List<User> allByIdAndDeletedIsFalse = userRepository.findByIdInAndDeletedFalse(userIdList);
         ObjectMapper objectMapper = new ObjectMapper();
         System.out.println(objectMapper.writeValueAsString(allByIdAndDeletedIsFalse));
+    }
+
+    @Resource
+    private RedisTemplate redisTemplate;
+    @Test
+    public void redis() {
+        System.out.println(redisTemplate.opsForSet().add("channel:1:user", 1));
+        System.out.println(redisTemplate.opsForSet().add("channel:1:user", 1));
+        System.out.println(redisTemplate.opsForSet().add("channel:1:user", 1));
     }
 }

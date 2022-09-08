@@ -16,19 +16,22 @@ import javax.annotation.Resource;
  */
 
 @Service
-public class UserActiveImpl implements UserActiveService {
+public class UserActiveServiceImpl implements UserActiveService {
 
     @Resource
     UserSupport userSupport;
     @Resource
     UserActiveRepository userActiveRepository;
 
-    public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
+    public boolean ActiveLog(UserActiveType userActiveType, Long sourceId) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         if (currentUser != null) {
             userActiveRepository.save(UserActive.builder()
                     .userActiveType(userActiveType).userId(userSupport.getCurrentUser().getId())
                     .sourceId(sourceId).build());
+            return true;
+        } else {
+            return false;
         }
     }
 

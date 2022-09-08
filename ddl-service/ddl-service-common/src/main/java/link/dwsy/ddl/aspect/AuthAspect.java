@@ -31,6 +31,9 @@ public class AuthAspect {
     @Before("cut() && @annotation(authAnnotation)")
     public void doBefore(JoinPoint joinPoint, AuthAnnotation authAnnotation) throws Throwable {
         LoginUserInfo loginUserInfo = userSupport.getCurrentUser();
+        if (loginUserInfo == null) {
+            throw new CodeException(CustomerErrorCode.UserLevelLow);
+        }
         int level = loginUserInfo.getLevel();
         if (level < authAnnotation.Level()) {
             throw new CodeException(CustomerErrorCode.UserLevelLow);

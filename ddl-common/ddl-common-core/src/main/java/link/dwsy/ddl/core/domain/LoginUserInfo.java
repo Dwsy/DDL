@@ -1,6 +1,7 @@
 package link.dwsy.ddl.core.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class LoginUserInfo {
 
     /**
@@ -21,6 +23,8 @@ public class LoginUserInfo {
      * 用户名
      */
     private String username;
+
+    private String nickname;
 
     private int level;
 }

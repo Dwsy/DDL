@@ -58,9 +58,12 @@ public class TokenServiceImpl implements TokenService {
 //         首先需要验证用户是否能够通过授权校验, 即输入的用户名和密码能否匹配数据表记录
 
         // Token 中塞入对象, 即 JWT 中存储的信息, 后端拿到这些信息就可以知道是哪个用户在操作
-        LoginUserInfo loginUserInfo = new LoginUserInfo(
-                user.getId(), user.getUsername(),user.getLevel()
-        );
+        LoginUserInfo loginUserInfo = LoginUserInfo.builder()
+                .username(user.getUsername())
+                .id(user.getId())
+                .level(user.getLevel())
+                .nickname(user.getNickname()).build();
+
 
         if (expire <= 0) {
             expire = AuthorityConstant.DEFAULT_EXPIRE_DAY;

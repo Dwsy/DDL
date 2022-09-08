@@ -5,6 +5,6 @@ package link.dwsy.ddl.service;
  * @Date 2022/9/5
  */
 
-public interface UserActive {
-    ActiveLog
+public interface UserActiveService {
+//    ActiveLog
 }

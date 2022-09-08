@@ -1,7 +1,8 @@
 package link.dwsy.ddl.controller;
 
-import link.dwsy.ddl.core.domain.LoginUserInfo;
+import link.dwsy.ddl.XO.Enum.UserActiveType;
 import link.dwsy.ddl.repository.User.UserActiveRepository;
+import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
 import link.dwsy.ddl.support.UserSupport;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,17 +16,22 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/active")
-public class UserActive {
+public class UserActiveController {
 
     @Resource
     UserActiveRepository userActiveRepository;
     @Resource
     UserSupport userSupport;
 
+    @Resource
+    UserActiveServiceImpl userActiveService;
+
     @PostMapping("/check")
     public String checkIn(){
-        LoginUserInfo currentUser = userSupport.getCurrentUser();
-
-        return "check in";
+        if (userActiveService.ActiveLog(UserActiveType.Check_In,null)) {
+            return "签到成功";
+        } else {
+            return "今日已签到";
+        }
     }
 }
