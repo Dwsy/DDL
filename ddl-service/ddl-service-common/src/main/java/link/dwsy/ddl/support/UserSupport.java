@@ -30,15 +30,15 @@ public class UserSupport {
         if (isCloud) {
             String loginUserInfoString = request.getHeader("loginUserInfo");
             if (StrUtil.isBlank(loginUserInfoString)) {
-                return null;
 //                throw new CodeException(CustomerErrorCode.UserNotLogin);
+                return null;
             }
             return JSON.parseObject(loginUserInfoString, LoginUserInfo.class);
         } else {
             String token = request.getHeader(TokenConstants.AUTHENTICATION);
             if (StrUtil.isBlank(token)) {
-                return null;
 //                throw new CodeException(CustomerErrorCode.UserNotLogin);
+                return null;
             }
             String[] t = token.split(" ");
             return TokenUtil.parseUserInfoFromToken(t[1]);

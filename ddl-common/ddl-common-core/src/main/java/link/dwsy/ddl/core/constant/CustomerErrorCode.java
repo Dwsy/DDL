@@ -14,6 +14,7 @@ public enum CustomerErrorCode {
      * 2xx 文章
      * 3xx 评论
      * 4xx 参数
+     * 5xx 信息
      */
 
 
@@ -21,12 +22,18 @@ public enum CustomerErrorCode {
 
     UserNotExist(103, "用户不存在"),
     UserTokenExpired(104, "用户令牌已过期"),
-//    token解析失败
+    //    token解析失败
     TokenParseError(105, "token解析失败"),
     UserLevelLow(110, "用户等级不足"),
+    NotFound(201, "文章不存在"),
     ParamError(400, "请求参数错误"),
 
-    NotFound(201,"文章不存在");
+    ChannelNotExist(501, "频道不存在"),
+    ChannelNotJoin(502, "未加入频道"),
+
+    ChannelNotOwner(504, "不是频道所有者"),
+    ChannelMessageSendError(505, "消息发送失败");
+
 
     private int code;
 
@@ -46,4 +53,4 @@ public enum CustomerErrorCode {
     }
 
 
-}
+    }
