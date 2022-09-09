@@ -17,15 +17,16 @@
     <modules>
         <module>ddl-demo</module>
         <module>ddl-common</module>
-<!--        <module>ddl-common/ddl-common-core</module>-->
-<!--        <module>ddl-common/ddl-common-mvc</module>-->
+        <!--        <module>ddl-common/ddl-common-core</module>-->
+        <!--        <module>ddl-common/ddl-common-mvc</module>-->
         <module>ddl-monitor-admin</module>
         <module>ddl-authority-center</module>
         <module>ddl-gateway</module>
         <module>ddl-service</module>
-<!--        <module>ddl-service/ddl-service-common</module>-->
-<!--        <module>ddl-service/ddl-service-article</module>-->
-<!--        <module>ddl-service/ddl-service-question</module>-->
+        <module>ddl-service/ddl-service-search</module>
+        <!--        <module>ddl-service/ddl-service-common</module>-->
+        <!--        <module>ddl-service/ddl-service-article</module>-->
+        <!--        <module>ddl-service/ddl-service-question</module>-->
     </modules>
 
     <dependencies>
@@ -66,6 +67,7 @@
         <commons-collections.version>3.2.2</commons-collections.version>
         <transmittable-thread-local.version>2.13.2</transmittable-thread-local.version>
         <springdoc-openapi-ui.version>1.6.9</springdoc-openapi-ui.version>
+        <elasticsearch.version>8.4.0</elasticsearch.version>
     </properties>
 
     <!-- 依赖声明 -->
@@ -97,12 +99,12 @@
                 <version>${alibaba.nacos.version}</version>
             </dependency>
 
-<!--            &lt;!&ndash; Alibaba Seata 配置 &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>io.seata</groupId>-->
-<!--                <artifactId>seata-spring-boot-starter</artifactId>-->
-<!--                <version>${alibaba.seata.version}</version>-->
-<!--            </dependency>-->
+            <!--            &lt;!&ndash; Alibaba Seata 配置 &ndash;&gt;-->
+            <!--            <dependency>-->
+            <!--                <groupId>io.seata</groupId>-->
+            <!--                <artifactId>seata-spring-boot-starter</artifactId>-->
+            <!--                <version>${alibaba.seata.version}</version>-->
+            <!--            </dependency>-->
 
             <!-- SpringBoot 依赖配置 -->
             <dependency>
@@ -114,18 +116,18 @@
             </dependency>
 
             <!-- FastDFS 分布式文件系统 -->
-<!--            <dependency>-->
-<!--                <groupId>com.github.tobato</groupId>-->
-<!--                <artifactId>fastdfs-client</artifactId>-->
-<!--                <version>${tobato.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.github.tobato</groupId>-->
+            <!--                <artifactId>fastdfs-client</artifactId>-->
+            <!--                <version>${tobato.version}</version>-->
+            <!--            </dependency>-->
 
             <!-- Mybatis 依赖配置 -->
-<!--            <dependency>-->
-<!--                <groupId>org.mybatis.spring.boot</groupId>-->
-<!--                <artifactId>mybatis-spring-boot-starter</artifactId>-->
-<!--                <version>${spring-boot.mybatis}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.mybatis.spring.boot</groupId>-->
+            <!--                <artifactId>mybatis-spring-boot-starter</artifactId>-->
+            <!--                <version>${spring-boot.mybatis}</version>-->
+            <!--            </dependency>-->
 
             <!-- Swagger 依赖配置 -->
             <dependency>
@@ -138,7 +140,22 @@
                 <artifactId>swagger-annotations</artifactId>
                 <version>${swagger.core.version}</version>
             </dependency>
-
+            <!--es-->
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>co.elastic.clients</groupId>
+                <artifactId>elasticsearch-java</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
             <!-- 验证码 -->
             <dependency>
                 <groupId>com.github.penggle</groupId>
@@ -147,11 +164,11 @@
             </dependency>
 
             <!-- pagehelper 分页插件 -->
-<!--            <dependency>-->
-<!--                <groupId>com.github.pagehelper</groupId>-->
-<!--                <artifactId>pagehelper-spring-boot-starter</artifactId>-->
-<!--                <version>${pagehelper.boot.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.github.pagehelper</groupId>-->
+            <!--                <artifactId>pagehelper-spring-boot-starter</artifactId>-->
+            <!--                <version>${pagehelper.boot.version}</version>-->
+            <!--            </dependency>-->
 
             <!-- io常用工具类 -->
             <dependency>
@@ -175,11 +192,11 @@
             </dependency>
 
             <!-- 代码生成使用模板 -->
-<!--            <dependency>-->
-<!--                <groupId>org.apache.velocity</groupId>-->
-<!--                <artifactId>velocity-engine-core</artifactId>-->
-<!--                <version>${velocity.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.apache.velocity</groupId>-->
+            <!--                <artifactId>velocity-engine-core</artifactId>-->
+            <!--                <version>${velocity.version}</version>-->
+            <!--            </dependency>-->
 
             <!-- Collection 增强Java集合框架 -->
             <dependency>
@@ -203,19 +220,19 @@
             </dependency>
 
             <!-- 线程传递值 -->
-<!--            <dependency>-->
-<!--                <groupId>com.alibaba</groupId>-->
-<!--                <artifactId>transmittable-thread-local</artifactId>-->
-<!--                <version>${transmittable-thread-local.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.alibaba</groupId>-->
+            <!--                <artifactId>transmittable-thread-local</artifactId>-->
+            <!--                <version>${transmittable-thread-local.version}</version>-->
+            <!--            </dependency>-->
 
 
             <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
-<!--            <dependency>-->
-<!--                <groupId>com.baomidou</groupId>-->
-<!--                <artifactId>mybatis-plus-boot-starter</artifactId>-->
-<!--                <version>3.5.2</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>com.baomidou</groupId>-->
+            <!--                <artifactId>mybatis-plus-boot-starter</artifactId>-->
+            <!--                <version>3.5.2</version>-->
+            <!--            </dependency>-->
 
             <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
             <dependency>
@@ -289,12 +306,11 @@
             </dependency>
 
 
-
-<!--            <dependency>-->
-<!--                <groupId>org.springdoc</groupId>-->
-<!--                <artifactId>springdoc-openapi-ui</artifactId>-->
-<!--                <version>${springdoc-openapi-ui.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.springdoc</groupId>-->
+            <!--                <artifactId>springdoc-openapi-ui</artifactId>-->
+            <!--                <version>${springdoc-openapi-ui.version}</version>-->
+            <!--            </dependency>-->
 
             <!-- https://mvnrepository.com/artifact/hikari-cp/hikari-cp -->
             <!--            <dependency>-->
@@ -364,17 +380,16 @@
     </dependencyManagement>
 
 
-
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>public</id>-->
-<!--            <name>aliyun nexus</name>-->
-<!--            <url>https://maven.aliyun.com/repository/public</url>-->
-<!--            <releases>-->
-<!--                <enabled>true</enabled>-->
-<!--            </releases>-->
-<!--        </repository>-->
-<!--    </repositories>-->
+    <!--    <repositories>-->
+    <!--        <repository>-->
+    <!--            <id>public</id>-->
+    <!--            <name>aliyun nexus</name>-->
+    <!--            <url>https://maven.aliyun.com/repository/public</url>-->
+    <!--            <releases>-->
+    <!--                <enabled>true</enabled>-->
+    <!--            </releases>-->
+    <!--        </repository>-->
+    <!--    </repositories>-->
 
 
     <build>

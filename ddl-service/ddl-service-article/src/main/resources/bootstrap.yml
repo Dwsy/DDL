@@ -8,6 +8,8 @@ server:
 #  servlet:
 #    context-path: /ddl-authority-center
 spring:
+  application:
+    name: ddl-service-article
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -37,8 +39,7 @@ spring:
       max-lifetime: 45000
       auto-commit: true
       pool-name: DDLHikariCP
-  application:
-    name: ddl-authority-center
+
   cloud:
     nacos:
       discovery:

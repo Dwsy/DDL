@@ -45,8 +45,9 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
 
     boolean existsByDeletedFalseAndAllowCommentTrueAndId(long id);
 
-
-
+    @Query(nativeQuery = true,
+    value = "select * from article_field where deleted is false and article_state=1")
+    Long[] findAllId();
 
 //    ArticleField findArticleFieldsByDeletedIsFalse(Long articleId);
 }
