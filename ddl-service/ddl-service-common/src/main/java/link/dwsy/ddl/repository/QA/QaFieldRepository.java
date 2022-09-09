@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface QaFieldRepository extends JpaRepository<QaQuestionField, Long> {
     Page<QaQuestionField> findByDeletedFalseAndQuestionState(QuestionState questionState, Pageable pageable);
@@ -17,9 +18,13 @@ public interface QaFieldRepository extends JpaRepository<QaQuestionField, Long> 
 
     QaQuestionField findByDeletedFalseAndId(long id);
 
+    Optional<QaQuestionField> findByIdAndDeletedFalse(long id);
+
     Page<QaQuestionField> findByDeletedFalseAndIdIn(Collection<Long> id, Pageable pageable);
 
     Page<QaQuestionField> findByDeletedFalseAndIdInAndQuestionStateIn(Collection<Long> ids, Collection<QuestionState> questionStates, Pageable pageable);
+
+    Optional<QaQuestionField> findByDeletedFalseAndIdAndQuestionState(long id, QuestionState questionState);
 
 
 

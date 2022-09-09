@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface ArticleCommentRepository extends JpaRepository<ArticleComment, Long> {
@@ -15,6 +16,8 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
     int getCountByArticleId(long id);
 
     Page<ArticleComment> findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(long fid, long pid, Pageable pageable);
+
+    Optional<ArticleComment> findByDeletedFalseAndId(long id);
 
     Set<ArticleComment> findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(long fid, long pid);
 

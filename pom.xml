@@ -68,6 +68,7 @@
         <transmittable-thread-local.version>2.13.2</transmittable-thread-local.version>
         <springdoc-openapi-ui.version>1.6.9</springdoc-openapi-ui.version>
         <elasticsearch.version>8.4.0</elasticsearch.version>
+        <flexmark.version>0.64.0</flexmark.version>
     </properties>
 
     <!-- 依赖声明 -->
@@ -129,6 +130,12 @@
             <!--                <version>${spring-boot.mybatis}</version>-->
             <!--            </dependency>-->
 
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.5.0</version>
+                <scope>runtime</scope>
+            </dependency>
             <!-- Swagger 依赖配置 -->
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -305,6 +312,28 @@
                 <version>2.7.2</version>
             </dependency>
 
+            <!--markdown to html-->
+            <dependency>
+                <groupId>com.vladsch.flexmark</groupId>
+                <artifactId>flexmark</artifactId>
+                <version>${flexmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vladsch.flexmark</groupId>
+                <artifactId>flexmark-util</artifactId>
+                <version>${flexmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vladsch.flexmark</groupId>
+                <artifactId>flexmark-ext-tables</artifactId>
+                <version>${flexmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vladsch.flexmark</groupId>
+                <artifactId>flexmark-profile-pegdown</artifactId>
+                <version>${flexmark.version}</version>
+            </dependency>
+            <!--markdown to html end-->
 
             <!--            <dependency>-->
             <!--                <groupId>org.springdoc</groupId>-->

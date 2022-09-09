@@ -25,8 +25,8 @@ public enum CustomerErrorCode {
     //    token解析失败
     TokenParseError(105, "token解析失败"),
     UserLevelLow(110, "用户等级不足"),
-    NotFoundArticle(201, "文章不存在"),
-    NotFoundGroup(202, "分组不出存在"),
+    ArticleNotFound(201, "文章不存在"),
+    GroupNotFound(202, "分组不出存在"),
 
     ArticleCommentIsClose(204, "文章不允许评论"),
 
@@ -39,7 +39,12 @@ public enum CustomerErrorCode {
 
     ArticleGroupNotFound(209, "分组不存在"),
     ArticleTagNotFound(210, "标签不存在"),
+    ArticleGroupNotBelongToUser(211, "权限不足"),
 
+    ArticleGroupNotEmpty(212, "分组不为空"),
+    UserCollectionGroupNotExist(213, "收藏分组不存在"),
+
+    CollectionAlreadyExist(214, "已收藏"),
 
     ParamError(400, "请求参数错误"),
 
@@ -47,12 +52,20 @@ public enum CustomerErrorCode {
     ChannelNotJoin(502, "未加入频道"),
 
     ChannelNotOwner(504, "不是频道所有者"),
-    ChannelMessageSendError(505, "消息发送失败");
+    ChannelMessageSendError(505, "消息发送失败"),
 
 
-    private int code;
+    QuestionNotFound(601, "问题不存在"),
+    AnswerNotFound(602, "答案不存在"),
 
-    private String message;
+
+
+    ;
+
+
+    private final int code;
+
+    private final String message;
 
     CustomerErrorCode(int code, String message) {
         this.code = code;
@@ -68,4 +81,4 @@ public enum CustomerErrorCode {
     }
 
 
-}
+    }
