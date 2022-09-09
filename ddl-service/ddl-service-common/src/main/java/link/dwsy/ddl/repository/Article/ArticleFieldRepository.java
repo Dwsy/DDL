@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long> {
     Page<fieldVO> findAllByDeletedIsFalseAndArticleState(ArticleState articleState, Pageable pageable);
@@ -22,6 +23,10 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
 
     ArticleField findByIdAndDeletedIsFalseAndArticleState(long id, ArticleState articleState);
 
+    Optional<ArticleField> findByIdAndDeletedFalseAndArticleState(long id, ArticleState articleState);
+
+
+//    Optional<ArticleField> findByIdAndDeletedIsFalseAndArticleState(long id, ArticleState articleState);
     @Query(value = "select af from ArticleField af where af.deleted=false and af.articleState=?1")
     List<fieldVO> findBySqlTest(ArticleState articleState, Pageable pageable);
 

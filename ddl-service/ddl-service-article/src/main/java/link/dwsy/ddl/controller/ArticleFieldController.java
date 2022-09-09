@@ -85,7 +85,7 @@ public class ArticleFieldController {
         if (ret.isPresent()) {
             return ret.get();
         } else {
-            throw new CodeException(CustomerErrorCode.NotFoundArticle);
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
     }
 
@@ -97,7 +97,7 @@ public class ArticleFieldController {
     @PutMapping
     public Long updateArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
         if (articleContentRB.getArticleId() == null||articleContentRB.getArticleId()<0) {
-            throw new CodeException(CustomerErrorCode.NotFoundArticle);
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
         Long articleId = articleFieldService.updateArticle(articleContentRB);
         return articleId;
@@ -105,7 +105,7 @@ public class ArticleFieldController {
     @DeleteMapping("{articleId}")
     public boolean deleteArticle(@PathVariable Long articleId) {
         if (articleId == null||articleId<0) {
-            throw new CodeException(CustomerErrorCode.NotFoundArticle);
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
 
         try {

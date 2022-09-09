@@ -87,7 +87,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     public Long updateArticle(ArticleContentRB articleContentRB) {
         Long uid = userSupport.getCurrentUser().getId();
         if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleContentRB.getArticleId(), uid)) {
-            throw new CodeException(CustomerErrorCode.NotFoundArticle);
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
 
         HashSet<ArticleTag> articleTags = null;
@@ -98,7 +98,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         }
         ArticleGroup articleGroup = articleGroupRepository
                 .findById(articleContentRB.getArticleGroupId())
-                .orElseThrow(() -> new CodeException(CustomerErrorCode.NotFoundGroup));
+                .orElseThrow(() -> new CodeException(CustomerErrorCode.GroupNotFound));
 
 
         if (StrUtil.isBlank(articleContentRB.getSummary())) {// todo pureText
@@ -128,7 +128,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     public void logicallyDeleted(Long articleId) {
         Long uid = userSupport.getCurrentUser().getId();
         if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, uid)) {
-            throw new CodeException(CustomerErrorCode.NotFoundArticle);
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
         articleFieldRepository.logicallyDeleted(articleId);
         articleContentRepository.logicallyDeleted(articleId);
@@ -139,7 +139,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         List<Long> aids = articleRecoveryRB.getAids();
         int count = articleFieldRepository.countByDeletedIsFalseAndIdInAndUser_Id(aids, uid);
         if (count!= aids.size()) {
-            throw new CodeException(CustomerErrorCode.NotFoundArticle);
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
 
         for (Long aid : aids) {

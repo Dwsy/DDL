@@ -144,17 +144,17 @@ public class esTest {
                                 )
                                 .from((page - 1) * size)
                                 .size(size)
-                                .sort(so -> so.field(f -> f.field("viveNum").field("upNum")));
-//                                .highlight(h -> h.fields("title",
-//                                                h1 -> h1.preTags("<p class=\"highlight\">")
-//                                                        .postTags("</p>"))
-//                                        .fields("content",
-//                                                h1 -> h1.preTags("<p class=\"highlight\">")
-//                                                        .postTags("</p>"))
-//                                        .fields("tagList.name",
-//                                                h1 -> h1.preTags("<p class=\"highlight\">")
-//                                                        .postTags("</p>"))
-//                                );
+                                .sort(so -> so.field(f -> f.field("viveNum").field("upNum")))
+                                .highlight(h -> h.fields("title",
+                                                h1 -> h1.preTags("<p class=\"highlight\">")
+                                                        .postTags("</p>"))
+                                        .fields("content",
+                                                h1 -> h1.preTags("<p class=\"highlight\">")
+                                                        .postTags("</p>"))
+                                        .fields("tagList.name",
+                                                h1 -> h1.preTags("<p class=\"highlight\">")
+                                                        .postTags("</p>"))
+                                );
                         return req;
                     }, ArticleEsDoc.class
             );

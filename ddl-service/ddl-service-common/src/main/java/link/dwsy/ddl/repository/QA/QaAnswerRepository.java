@@ -7,9 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
+    Optional<QaAnswer> findByDeletedFalseAndId(long id);
     List<QaAnswer> findByUser_LevelBetween(int levelStart, int levelEnd, Pageable pageable);
     //    @Query(value = "select a.questionField.id from QaAnswer a where a.id=?2 and a.questionField.id=?1")
     boolean existsByIdAndQuestionFieldId(long qid, long aid);

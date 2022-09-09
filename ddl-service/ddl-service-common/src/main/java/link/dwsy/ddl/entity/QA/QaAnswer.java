@@ -42,6 +42,9 @@ public class QaAnswer extends BaseEntity {
 //  回答可能需要贴代码高亮显示用md2html保存
     private String textHtml;
 
+    @Transient
+    private String textPure;
+
     @Builder.Default
     int upNum = 0;
     @Builder.Default

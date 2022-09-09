@@ -4,11 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.VO.fieldVO;
-import link.dwsy.ddl.entity.Article.ArticleContent;
-import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.Article.ArticleGroup;
 import link.dwsy.ddl.entity.Article.ArticleTag;
-import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
@@ -20,7 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Author Dwsy
@@ -58,9 +56,13 @@ public class article_TagGroupTest {
     @Test
     public void updateTag(){
         ArticleTag articleTag = articleTagRepository.findById(1L).get();
-        articleTag.setTagInfo("{}");
+        articleTag.setTagInfo("{1}");
         articleTagRepository.save(articleTag);
+    }
 
+    @Test
+    public void lmtTest() {
+        articleGroupRepository.logicallyDeleteById(1L);
     }
 
     @Test

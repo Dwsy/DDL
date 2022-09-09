@@ -6,7 +6,7 @@ import link.dwsy.ddl.core.constant.CustomerErrorCode;
  * @Author Dwsy
  * @Date 2022/8/24
  */
-public class CodeException extends RuntimeException{
+public class CodeException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     private int code;
@@ -38,4 +38,5 @@ public class CodeException extends RuntimeException{
     public void setCode(int code) {
         this.code = code;
     }
+
 }
