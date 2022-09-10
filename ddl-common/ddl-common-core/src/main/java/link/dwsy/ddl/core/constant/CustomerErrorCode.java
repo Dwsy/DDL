@@ -41,12 +41,14 @@ public enum CustomerErrorCode {
     ArticleTagNotFound(210, "标签不存在"),
     ArticleGroupNotBelongToUser(211, "权限不足"),
 
-    ArticleGroupNotEmpty(212, "分组不为空"),
+    ArticleGroupNotEmpty(212, "分组不为空"),//todo 强制删除好像也不是不行
     UserCollectionGroupNotExist(213, "收藏分组不存在"),
+    UserCollectionNotExist(215,"未收藏"),
 
-    CollectionAlreadyExist(214, "已收藏"),
+    UserCollectionAlreadyExist(214, "已收藏"),
 
     ParamError(400, "请求参数错误"),
+    BodyError(401, "请求体错误"),
 
     ChannelNotExist(501, "频道不存在"),
     ChannelNotJoin(502, "未加入频道"),
@@ -59,8 +61,7 @@ public enum CustomerErrorCode {
     AnswerNotFound(602, "答案不存在"),
 
 
-
-    ;
+;
 
 
     private final int code;

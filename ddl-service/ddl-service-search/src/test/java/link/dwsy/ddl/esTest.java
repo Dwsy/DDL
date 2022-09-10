@@ -42,7 +42,7 @@ public class esTest {
     @Resource
     private ArticleContentRepository articleContentRepository;
 
-    private String INDEX = "ddl_article";
+    private final String INDEX = "ddl_article";
 
     @Test
     public void indices() throws IOException {

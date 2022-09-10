@@ -54,5 +54,28 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
     value = "select * from article_field where deleted is false and article_state=1")
     Long[] findAllId();
 
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true,
+    value = "update article_field set up_num=up_num+?2 where id=?1")
+    int upNumIncrement(long aid,int num);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true,
+            value = "update article_field set down_num=down_num+?2 where id=?1")
+    int downNumIncrement(long aid,int num);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true,
+            value = "update article_field set view_num=view_num+?2 where id=?1")
+    int viewNumIncrement(long aid,int num);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true,
+            value = "update article_field set collect_num=collect_num+?2 where id=?1")
+    int collectNumIncrement(long aid,int num);
 //    ArticleField findArticleFieldsByDeletedIsFalse(Long articleId);
 }

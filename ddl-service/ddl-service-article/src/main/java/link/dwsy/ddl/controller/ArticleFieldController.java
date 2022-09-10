@@ -7,6 +7,7 @@ import link.dwsy.ddl.XO.Enum.UserActiveType;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
 import link.dwsy.ddl.XO.VO.fieldVO;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleField;
@@ -90,11 +91,13 @@ public class ArticleFieldController {
     }
 
     @PostMapping
+    @AuthAnnotation
     public Long createArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
         Long articleId = articleFieldService.createArticle(articleContentRB);
         return articleId;
     }
     @PutMapping
+    @AuthAnnotation
     public Long updateArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
         if (articleContentRB.getArticleId() == null||articleContentRB.getArticleId()<0) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
@@ -103,6 +106,7 @@ public class ArticleFieldController {
         return articleId;
     }
     @DeleteMapping("{articleId}")
+    @AuthAnnotation
     public boolean deleteArticle(@PathVariable Long articleId) {
         if (articleId == null||articleId<0) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
@@ -118,12 +122,17 @@ public class ArticleFieldController {
     }
 
     @PostMapping("recovery")
+    @AuthAnnotation
     public void recoveryArticle(@RequestBody @Validated ArticleRecoveryRB articleRecoveryRB) {
         articleFieldService.logicallyRecovery(articleRecoveryRB);
     }
 
 
-
+    @PostMapping("action")
+    @AuthAnnotation
+    public void actionArticle(@RequestBody @Validated ArticleRecoveryRB articleRecoveryRB) {
+//        articleFieldService.actionArticle(articleRecoveryRB);
+    }
 
 
     @GetMapping(value = "test")

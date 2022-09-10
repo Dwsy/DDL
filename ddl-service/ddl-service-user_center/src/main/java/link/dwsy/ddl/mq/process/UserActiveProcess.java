@@ -20,10 +20,8 @@ public class UserActiveProcess {
     UserActiveRepository userActiveRepository;
 
     public void ActiveLog(UserActiveType userActiveType, Long sourceId, Long uid) {
-
         userActiveRepository.save(UserActive.builder()
                 .userActiveType(userActiveType).userId(uid)
                 .sourceId(sourceId).build());
-
     }
 }

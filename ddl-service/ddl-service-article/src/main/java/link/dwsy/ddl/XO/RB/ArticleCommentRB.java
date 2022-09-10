@@ -20,6 +20,4 @@ public class ArticleCommentRB {
     private long parentUserId;
 
     private long parentCommentId ;
-
-
 }

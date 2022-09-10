@@ -1,6 +1,7 @@
 package link.dwsy.ddl.service.impl;
 
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
+import link.dwsy.ddl.XO.RB.ArticleCommentActionRB;
 import link.dwsy.ddl.XO.RB.ArticleCommentRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -9,6 +10,7 @@ import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
+import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
@@ -31,9 +33,12 @@ public class ArticleCommentServiceImpl {
     @Resource
     private ArticleFieldRepository articleFieldRepository;
 
+    @Resource
+    private UserRepository userRepository;
+
     public PageData<ArticleComment> getByArticleId(long aid, PageRequest pageRequest) {
         Page<ArticleComment> parentComment = articleCommentRepository.
-                findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid,0L, pageRequest);
+                findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, 0L, pageRequest);
         for (ArticleComment ArticleComment : parentComment) {
             long pid = ArticleComment.getId();
             ArticleComment.setChildComments(articleCommentRepository.findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, pid));
@@ -41,7 +46,7 @@ public class ArticleCommentServiceImpl {
         return new PageData<>(parentComment);
     }
 
-    public void reply(ArticleCommentRB articleCommentRB,CommentType commentType) {
+    public void reply(ArticleCommentRB articleCommentRB, CommentType commentType) {
 
 
         if (!articleFieldRepository.existsByDeletedFalseAndAllowCommentTrueAndId(articleCommentRB.getArticleFieldId())) {
@@ -51,12 +56,13 @@ public class ArticleCommentServiceImpl {
         user.setId(userSupport.getCurrentUser().getId());
 
         ArticleField af = new ArticleField();
-        af.setId(9L);
+        af.setId(articleCommentRB.getArticleFieldId());
 
         if (articleCommentRB.getParentCommentId() == 0) {
             ArticleComment articleComment = ArticleComment.builder()
                     .parentCommentId(0)
                     .parentUserId(0)
+                    .text(articleCommentRB.getText())
                     .commentType(commentType)
                     .user(user)
                     .articleField(af)
@@ -67,8 +73,8 @@ public class ArticleCommentServiceImpl {
             if (!articleCommentRepository.isFirstAnswer(articleCommentRB.getParentCommentId())) {
                 throw new CodeException(CustomerErrorCode.ArticleCommentNotIsFirst);
             }
-            if (articleCommentRepository.existsByDeletedFalseAndIdAndArticleFieldId
-                    (articleCommentRB.getParentCommentId(), articleCommentRB.getArticleFieldId())) {
+            if (articleCommentRepository.existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType
+                    (articleCommentRB.getParentCommentId(), articleCommentRB.getArticleFieldId(), CommentType.comment)) {
                 throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
             }
             ArticleComment articleComment = ArticleComment.builder()
@@ -87,21 +93,96 @@ public class ArticleCommentServiceImpl {
     public boolean logicallyDelete(Long id) {
         Long uid = userSupport.getCurrentUser().getId();
         int i = articleCommentRepository.logicallyDelete(uid, id);
-        if (i > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return i > 0;
     }
 
     public boolean logicallyRecovery(Long id) {
         Long uid = userSupport.getCurrentUser().getId();
         int i = articleCommentRepository.logicallyRecovery(uid, id);
-        if (i > 0) {
-            return true;
-        } else {
-            return false;
+        return i > 0;
+    }
+
+
+    public CommentType action(ArticleCommentActionRB commentActionRB) {
+        Long uid = userSupport.getCurrentUser().getId();
+        long fid = commentActionRB.getArticleFieldId();
+        long pid = commentActionRB.getActionCommentId();
+        if (pid < -1 || pid == 0) {
+//            等于 -1  点赞 文章
+            throw new CodeException(CustomerErrorCode.BodyError);
         }
+        CommentType commentType = commentActionRB.getCommentType();
+        if (commentType == CommentType.comment || commentType == CommentType.cancel) {
+            throw new CodeException(CustomerErrorCode.ParamError);
+        }
+        if (articleCommentRepository.existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType
+                (commentActionRB.getActionCommentId(), commentActionRB.getArticleFieldId(), CommentType.comment)) {
+            throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
+        }
+
+
+        if (articleCommentRepository
+                .existsByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot(uid, fid, pid, CommentType.comment)) {
+//            exists cancel
+//            up -> cancel ->up state transfer base database ont is user action
+//            one row is one action
+            ArticleComment comment = articleCommentRepository
+                    .findByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot(uid, fid, pid, CommentType.comment);
+            if (comment.getCommentType() == commentType) {
+                if (commentType == CommentType.up) {
+                    articleCommentRepository.upNumIncrement(fid, -1);
+                } else {
+                    articleCommentRepository.downNumIncrement(fid, -1);
+                }
+                comment.setCommentType(CommentType.cancel);
+            } else {
+                if (commentType == CommentType.up) {
+                    articleCommentRepository.downNumIncrement(fid, -1);
+                    articleCommentRepository.upNumIncrement(fid, 1);
+                } else {
+                    articleCommentRepository.downNumIncrement(fid, 1);
+                    articleCommentRepository.upNumIncrement(fid, -1);
+                }
+                comment.setCommentType(commentType);
+            }
+            return comment.getCommentType();
+        }
+
+        User user = new User();
+        user.setId(uid);
+        ArticleField af = new ArticleField();
+        af.setId(fid);
+
+        long actionCommentId = commentActionRB.getActionCommentId();
+
+        long ActionUserId;
+
+        if (fid != -1) {
+            ArticleComment actionComment = articleCommentRepository.findByDeletedFalseAndIdAndCommentType(actionCommentId, CommentType.comment);
+            ActionUserId = actionComment.getUser().getId();
+        } else {
+            ActionUserId = 0;
+            if (commentType == CommentType.up) {
+                articleFieldRepository.upNumIncrement(fid, 1);
+            } else {
+                articleFieldRepository.downNumIncrement(fid, 1);
+            }
+        }
+
+        //todo mq message
+
+        ArticleComment articleComment = ArticleComment.builder()
+                .parentCommentId(commentActionRB.getActionCommentId())
+                .parentUserId(ActionUserId)
+                .commentType(commentType)
+                .user(user)
+                .articleField(af)
+                .ua(userSupport.getUserAgent())
+                .build();
+        articleCommentRepository.save(articleComment);
+        return commentType;
+
+
     }
 }
 

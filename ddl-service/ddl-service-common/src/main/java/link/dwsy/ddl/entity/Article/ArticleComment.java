@@ -50,7 +50,7 @@ public class ArticleComment extends BaseEntity {
     private long parentUserId;
 //    todo 增加字段 待修改
 
-    @Builder.Default
+    @Builder.Default // 0 为一级评论 -1 up or down 文章 1楼上面 -1 是内容好像没啥问题。。
     private long parentCommentId = 0;
 
     @Transient

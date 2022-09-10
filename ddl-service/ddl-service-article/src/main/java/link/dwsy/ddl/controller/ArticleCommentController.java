@@ -1,7 +1,9 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
+import link.dwsy.ddl.XO.RB.ArticleCommentActionRB;
 import link.dwsy.ddl.XO.RB.ArticleCommentRB;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleComment;
@@ -9,6 +11,7 @@ import link.dwsy.ddl.service.impl.ArticleCommentServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -22,6 +25,7 @@ import javax.annotation.Resource;
 public class ArticleCommentController {
     @Resource
     private ArticleCommentServiceImpl articleCommentService;
+
 
     @GetMapping("/{id}")
     public PageData<ArticleComment> getUCommentById(
@@ -42,14 +46,22 @@ public class ArticleCommentController {
         return true;
     }
 
-    @DeleteMapping("/{id}")
+    @AuthAnnotation(Level = 999)
+    @DeleteMapping("/{id}")//todo time
 //    logically delete a comment
     public boolean delete(@PathVariable("id") Long id) {
         return articleCommentService.logicallyDelete(id);
     }
 
+    @AuthAnnotation(Level = 999)
     @PostMapping("/{id}")
     public boolean recovery(@PathVariable("id") Long id) {
         return articleCommentService.logicallyRecovery(id);
+    }
+
+    @PostMapping("/action")
+    public CommentType action(@Validated @RequestBody ArticleCommentActionRB commentActionRB) {
+        CommentType action = articleCommentService.action(commentActionRB);
+        return action;
     }
 }

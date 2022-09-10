@@ -1,5 +1,5 @@
 package link.dwsy.ddl.XO.Enum.Article;
 
 public enum CommentType {
-    comment,up,down
+    comment,up, down,cancel
 }
