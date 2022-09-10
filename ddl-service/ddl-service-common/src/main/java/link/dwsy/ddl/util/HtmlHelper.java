@@ -35,6 +35,14 @@ public class HtmlHelper {
         return HtmlUtil.filter(html);
     }
 
+    public static String toPure(String html) {
+        return HtmlUtil.cleanHtmlTag(html);
+    }
+
+    public static String mdToPure(String md) {
+        return toPure(toHTML(md));
+    }
+
     /**
      * Markdown转HTML
      * <p>

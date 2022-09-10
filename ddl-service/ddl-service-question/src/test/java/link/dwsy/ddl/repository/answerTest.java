@@ -2,7 +2,6 @@ package link.dwsy.ddl.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
 import link.dwsy.ddl.entity.QA.QaAnswer;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
@@ -12,10 +11,8 @@ import link.dwsy.ddl.repository.QA.QaFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
-import java.util.Optional;
 
 /**
  * @Author Dwsy
@@ -89,7 +86,7 @@ public class answerTest {
                     QaAnswer qaAnswer = QaAnswer.builder().user(user).questionField(qaQuestionField)
                             .commentType(CommentType.comment).parentUserId(pid)
                             .parentAnswerId(aid)
-//                            todo 拼接优化
+//                            todo 拼接优化 or by uid 前端显示
                             .textHtml("回复" + "<a class=\"reply\">@" +
                                     userNickname +"</a>" + "<b>回答 回答</b>")
                             .ua("user-agent:喜马拉雅山").user(user).childQaAnswers(null).build();
