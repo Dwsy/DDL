@@ -17,6 +17,7 @@ import link.dwsy.ddl.repository.Article.ArticleTagRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.ArticleFieldService;
 import link.dwsy.ddl.support.UserSupport;
+import link.dwsy.ddl.util.HtmlHelper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -51,21 +52,25 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     public Long createArticle(ArticleContentRB articleContentRB) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
 
-        HashSet<ArticleTag> articleTags = null;
+        HashSet<ArticleTag> articleTags;
         if (articleContentRB.getArticleTagIds().isEmpty()) {
             articleTags = new HashSet<>();
         } else {
             articleTags = new HashSet<>(articleTagRepository.findAllById(articleContentRB.getArticleTagIds()));
         }
-        ArticleGroup articleGroup = articleGroupRepository.findById(articleContentRB.getArticleGroupId()).get();
-        if (StrUtil.isBlank(articleContentRB.getSummary())) {// todo pureText
-            articleContentRB.setSummary(articleContentRB.getContent().substring(0, 100));
+        ArticleGroup articleGroup = articleGroupRepository
+                .findById(articleContentRB.getArticleGroupId())
+                .orElseThrow(() -> new CodeException(CustomerErrorCode.GroupNotFound));
+        String html = HtmlHelper.toHTML(articleContentRB.getContent());
+        String pure = HtmlHelper.toPure(html);
+        if (StrUtil.isBlank(articleContentRB.getSummary())) {
+            articleContentRB.setSummary(pure.substring(0, 100));
         }
 
         ArticleContent content = ArticleContent.builder()
-                .textPure("pure")
+                .textPure(pure)
                 .textMd(articleContentRB.getContent())
-                .textHtml(articleContentRB.getContent())//todo server to html and pure
+                .textHtml(html)
                 .build();
 
         ArticleField field = ArticleField.builder()
@@ -101,15 +106,17 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
                 .orElseThrow(() -> new CodeException(CustomerErrorCode.GroupNotFound));
 
 
-        if (StrUtil.isBlank(articleContentRB.getSummary())) {// todo pureText
-            articleContentRB.setSummary(articleContentRB.getContent().substring(0, 100));
+        String html = HtmlHelper.toHTML(articleContentRB.getContent());
+        String pure = HtmlHelper.toPure(html);
+        if (StrUtil.isBlank(articleContentRB.getSummary())) {
+            articleContentRB.setSummary(pure.substring(0, 100));
         }
 
 
         ArticleContent content = ArticleContent.builder()
-                .textPure("pure")
+                .textPure(pure)
                 .textMd(articleContentRB.getContent())
-                .textHtml(articleContentRB.getContent())//todo server to html and pure
+                .textHtml(html)//todo server to html and pure
                 .build();
 
         ArticleField field = ArticleField.builder()
@@ -134,11 +141,11 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         articleContentRepository.logicallyDeleted(articleId);
     }
 
-    public void logicallyRecovery(ArticleRecoveryRB articleRecoveryRB){
+    public void logicallyRecovery(ArticleRecoveryRB articleRecoveryRB) {
         Long uid = userSupport.getCurrentUser().getId();
         List<Long> aids = articleRecoveryRB.getAids();
         int count = articleFieldRepository.countByDeletedIsFalseAndIdInAndUser_Id(aids, uid);
-        if (count!= aids.size()) {
+        if (count != aids.size()) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
 

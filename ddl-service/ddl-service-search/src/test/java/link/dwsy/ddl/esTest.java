@@ -4,9 +4,13 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.Result;
 import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.*;
+import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
+import co.elastic.clients.elasticsearch.core.search.Suggestion;
 import co.elastic.clients.elasticsearch.indices.ElasticsearchIndicesClient;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import link.dwsy.ddl.XO.ES.article.ArticleEsDoc;
 import link.dwsy.ddl.XO.ES.article.ArticleEsSuggestion;
 import link.dwsy.ddl.XO.ES.article.ArticleTagEsDoc;
@@ -19,8 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -82,6 +85,7 @@ public class esTest {
                 .id(af.getId())
                 .title(af.getTitle())
                 .content(pureTextById)
+                .summary(af.getSummary())
                 .userNickName(af.getUser().getNickname())
                 .userId(String.valueOf(af.getUser().getId()))
                 .group(af.getArticleGroup().getName())
@@ -106,6 +110,7 @@ public class esTest {
     public void updateData() {
 
     }
+
     @Test
     public void q() throws IOException {
         oder("title", 1, 10);
@@ -137,29 +142,57 @@ public class esTest {
             SearchResponse<ArticleEsDoc> search = client.search(
                     req -> {
                         req.index(INDEX)
-                                .query(q ->
-                                        q.match(
-                                                m -> m.field("all").query(query)
-                                        )
+                                .source(s->s
+                                        .filter(f->f
+                                                .excludes("content","suggestion")))
+                                .query(q -> q
+                                        .multiMatch(mm -> mm
+                                                .query(query)
+                                                .fields("title", "content", "userNickName.name"))
                                 )
                                 .from((page - 1) * size)
                                 .size(size)
                                 .sort(so -> so.field(f -> f.field("viveNum").field("upNum")))
-                                .highlight(h -> h.fields("title",
-                                                h1 -> h1.preTags("<p class=\"highlight\">")
-                                                        .postTags("</p>"))
+                                .highlight(h -> h
+                                        .fields("title",
+                                                h1 -> h1.preTags("<em class=\"highlight\">")
+                                                        .postTags("</em>"))
                                         .fields("content",
-                                                h1 -> h1.preTags("<p class=\"highlight\">")
-                                                        .postTags("</p>"))
-                                        .fields("tagList.name",
-                                                h1 -> h1.preTags("<p class=\"highlight\">")
-                                                        .postTags("</p>"))
+                                                h1 -> h1.preTags("<em class=\"highlight\">")
+                                                        .postTags("</em>"))
+                                        .fields("userNickName.name",
+                                                h1 -> h1.preTags("<em class=\"highlight\">")
+                                                        .postTags("</em>"))
                                 );
                         return req;
                     }, ArticleEsDoc.class
             );
-            // todo  高亮感觉还是前端做好点
-            System.out.println(search);
+
+            HitsMetadata<ArticleEsDoc> hits = search.hits();
+            List<Hit<ArticleEsDoc>> hitList = hits.hits();
+            List<ArticleEsDoc> retSearch = new ArrayList<>();
+            for (Hit<ArticleEsDoc> articleEsDocHit : hitList) {
+                ArticleEsDoc source = articleEsDocHit.source();
+                Map<String, List<String>> highlight = articleEsDocHit.highlight();
+                assert source != null;
+                Optional.ofNullable(highlight.get("title")).ifPresent(title -> source.setTitle(title.get(0)));
+                Optional.ofNullable(highlight.get("userNickName.name")).ifPresent(n -> source.setUserNickName(n.get(0)));
+                Optional.ofNullable(highlight.get("content")).ifPresent(c -> source.setContent(c.get(0)));
+                List<String> content = highlight.get("content");
+//                todo 字段二选一 但是@JsonIgnore 会让es c反序列化也失效
+//                if (content != null) {
+//                    source.setContent(content.get(0));
+//                } else {
+//                    source.setContent(source.getSummary());
+//                }
+
+                retSearch.add(source);
+            }
+
+            System.out.println(new ObjectMapper().writeValueAsString(retSearch));
+
+
+//            var collect = hitList.stream().map(Hit::source).collect(Collectors.toList());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -167,7 +200,7 @@ public class esTest {
 
     @Test
     public void suggestion() {
-        String text = "后";
+        String text = "t";
         try {
             SearchResponse<ArticleEsDoc> search = client.search(req -> {
                         req.suggest(s ->

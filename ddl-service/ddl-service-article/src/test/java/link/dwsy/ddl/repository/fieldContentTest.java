@@ -55,7 +55,8 @@ public class fieldContentTest {
         User user = userRepository.findById(3L).get();
         HashSet<ArticleTag> articleTags = new HashSet<>(articleTagRepository.findAllById(longs));
         ArticleGroup articleGroup = articleGroupRepository.findById(1L).get();
-        ArticleContent content = ArticleContent.builder().textPure("pure").textMd("mdmdmdmdmdmdmdmdmdmdmdv").textHtml("html").build();
+        ArticleContent content = ArticleContent.builder()
+                .textPure("pure").textMd("mdmdmdmdmdmdmdmdmdmdmdv").textHtml("html").build();
 
         ArticleField field = ArticleField.builder().articleTags(articleTags).
                 articleGroup(articleGroup).articleContent(content)

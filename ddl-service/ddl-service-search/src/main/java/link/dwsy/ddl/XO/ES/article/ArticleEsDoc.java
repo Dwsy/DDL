@@ -21,6 +21,7 @@ public class ArticleEsDoc {
     private String userNickName;
     private String title;
     private String content;
+    private String summary;
     private String group;
     private List<ArticleTagEsDoc> tagList;
     private int viewNum;
