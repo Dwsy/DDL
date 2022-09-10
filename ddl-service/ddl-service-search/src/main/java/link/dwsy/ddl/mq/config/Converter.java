@@ -15,8 +15,4 @@ public class Converter {
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
-
-
-
-
 }

@@ -14,7 +14,7 @@ import link.dwsy.ddl.entity.User.UserCollectionGroup;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.QA.QaAnswerRepository;
-import link.dwsy.ddl.repository.QA.QaFieldRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserCollectionGroupRepository;
 import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
@@ -51,15 +51,19 @@ public class userCollectionController {
     QaAnswerRepository qaAnswerRepository;
 
     @Resource
-    QaFieldRepository qaFieldRepository;
+    QaQuestionFieldRepository qaQuestionFieldRepository;
 
     @Resource
     UserRepository userRepository;
 
+
+
+
+
     @Resource
     UserSupport userSupport;
 
-    
+
     @PostMapping
     public String addCollectionToGroup(@RequestBody UserCollectionRB userCollectionRB) {
         CollectionType collectionType = userCollectionRB.getCollectionType();
@@ -71,6 +75,22 @@ public class userCollectionController {
         uce.ifPresent(userCollection -> {
             if (userCollection.isDeleted()) {
                 userCollection.setDeleted(false);
+                CollectionType type = userCollectionRB.getCollectionType();
+
+                switch (type) {
+                    // todo
+                    case Article:
+                        articleFieldRepository.collectNumIncrement(sid, 1);
+                        break;
+                    case Question:
+                        qaQuestionFieldRepository.collectNumIncrement(sid, 1);
+                        break;
+//                    case Answer:
+//                        break;
+//                    case Comment:
+//                        break;
+                }
+
                 userCollectionRepository.save(userCollection);
             } else {
                 throw new CodeException(CustomerErrorCode.UserCollectionAlreadyExist);
@@ -84,7 +104,7 @@ public class userCollectionController {
 
         userCollectionGroup.setCollectionNum(userCollectionGroup.getCollectionNum() + 1);
         UserCollectionGroup g = userCollectionGroupRepository.save(userCollectionGroup);
-        String sourceTitle=null;
+        String sourceTitle = null;
         if (collectionType == CollectionType.Article) {
             ArticleField articleField = articleFieldRepository
                     .findByIdAndDeletedFalseAndArticleState(sid, ArticleState.open)
@@ -104,7 +124,7 @@ public class userCollectionController {
         }
 
         if (collectionType == CollectionType.Question) {
-            sourceTitle = qaFieldRepository.findByIdAndDeletedFalse(sid)
+            sourceTitle = qaQuestionFieldRepository.findByIdAndDeletedFalse(sid)
                     .orElseThrow(() -> new CodeException(CustomerErrorCode.QuestionNotFound))
                     .getTitle();
         }
@@ -131,14 +151,14 @@ public class userCollectionController {
 
     @DeleteMapping()
     @AuthAnnotation
-    private String deleteCollection(@RequestBody UserCollectionRB userCollectionRB) {
+    private String cancelCollection(@RequestBody UserCollectionRB userCollectionRB) {
         Long uid = userSupport.getCurrentUser().getId();
         Long sourceId = userCollectionRB.getSourceId();
         CollectionType collectionType = userCollectionRB.getCollectionType();
         Long groupId = userCollectionRB.getGroupId();
 
         UserCollection userCollection = userCollectionRepository
-                .findByDeletedFalseAndUserIdAndSourceIdAndUserCollectionGroup_IdAndCollectionType(uid, sourceId, groupId,collectionType)
+                .findByDeletedFalseAndUserIdAndSourceIdAndUserCollectionGroup_IdAndCollectionType(uid, sourceId, groupId, collectionType)
                 .orElseThrow(() -> new CodeException(CustomerErrorCode.UserCollectionNotExist));
 
         UserCollectionGroup userCollectionGroup = userCollection.getUserCollectionGroup();
@@ -150,7 +170,6 @@ public class userCollectionController {
 
         return "删除成功";
     }
-
 
 
 }

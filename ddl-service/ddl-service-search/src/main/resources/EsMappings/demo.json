@@ -1,0 +1,16 @@
+{
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "keyword",
+        "ignore_above": 256
+      },
+      "description": {
+        "type": "text"
+      },
+      "price": {
+        "type": "integer"
+      }
+    }
+  }
+}

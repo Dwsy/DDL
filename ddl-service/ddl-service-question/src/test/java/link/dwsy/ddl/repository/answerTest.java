@@ -7,7 +7,7 @@ import link.dwsy.ddl.entity.QA.QaAnswer;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.QA.QaAnswerRepository;
-import link.dwsy.ddl.repository.QA.QaFieldRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,13 +26,13 @@ public class answerTest {
     @Resource
     UserRepository userRepository;
     @Resource
-    QaFieldRepository qaFieldRepository;
+    QaQuestionFieldRepository qaQuestionFieldRepository;
 
     public void addAnswerByQuestionId(long uid, long qid, long aid) throws JsonProcessingException {
         User user = new User();
         user.setId(uid);
         QaQuestionField qaQuestionField = null;
-        qaQuestionField = qaFieldRepository.findById(qid).get();
+        qaQuestionField = qaQuestionFieldRepository.findById(qid).get();
 //        todo sql查询可通过projections优化
         if (qaQuestionField.isAllow_answer()) {
             //            开启回答
@@ -65,7 +65,7 @@ public class answerTest {
         User user = new User();
         user.setId(uid);
         QaQuestionField qaQuestionField = null;
-        qaQuestionField = qaFieldRepository.findById(qid).get();
+        qaQuestionField = qaQuestionFieldRepository.findById(qid).get();
 //        qaAnswerRepository.
 //        判断是否允许评论
         if (qaQuestionField.isAllow_answer()) {

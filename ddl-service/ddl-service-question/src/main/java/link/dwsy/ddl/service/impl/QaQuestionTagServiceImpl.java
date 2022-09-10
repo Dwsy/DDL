@@ -3,7 +3,7 @@ package link.dwsy.ddl.service.impl;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.QA.QaTag;
-import link.dwsy.ddl.repository.QA.QaFieldRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionTagRepository;
 import link.dwsy.ddl.service.QaQuestionTagService;
 import link.dwsy.ddl.util.PageData;
@@ -29,7 +29,7 @@ public class QaQuestionTagServiceImpl implements QaQuestionTagService {
     QaQuestionTagRepository qaQuestionTagRepository;
 
     @Resource
-    QaFieldRepository qaFieldRepository;
+    QaQuestionFieldRepository qaQuestionFieldRepository;
     public List<QaTag> getTagList(Sort sort) {
 
         return qaQuestionTagRepository.findByDeletedFalse(sort);
@@ -39,7 +39,7 @@ public class QaQuestionTagServiceImpl implements QaQuestionTagService {
     public PageData<QaQuestionField> getQuestionListById(Long id, Set<QuestionState> questionStates, PageRequest pageRequest ) {
         Collection<Long> ids = qaQuestionTagRepository.findQuestionContentIdListById(id);
 
-        Page<QaQuestionField> questionFields = qaFieldRepository
+        Page<QaQuestionField> questionFields = qaQuestionFieldRepository
                 .findByDeletedFalseAndIdInAndQuestionStateIn(ids, questionStates,pageRequest);
         return new PageData<>(questionFields);
     }

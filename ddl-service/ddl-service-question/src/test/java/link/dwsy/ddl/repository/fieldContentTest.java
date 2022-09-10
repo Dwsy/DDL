@@ -7,7 +7,7 @@ import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.QA.QaTag;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.QA.QaContentRepository;
-import link.dwsy.ddl.repository.QA.QaFieldRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.QA.QaGroupRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionTagRepository;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ public class fieldContentTest {
     QaQuestionTagRepository qaQuestionTagRepository;
 
     @Resource
-    QaFieldRepository qaFieldRepository;
+    QaQuestionFieldRepository qaQuestionFieldRepository;
 
     @Test
     public void saveQuestion() {
@@ -59,8 +59,13 @@ public class fieldContentTest {
         QaQuestionField question = QaQuestionField.builder().user(user).title("发起提问").summary("问题简介").qaQuestionContent(qaQuestionContent).questionState(QuestionState.ASK)
                 .qaGroup(qaGroup).questionTags(qaTags).build();
 
-        QaQuestionField qaQuestionField = qaFieldRepository.save(question);
+        QaQuestionField qaQuestionField = qaQuestionFieldRepository.save(question);
 
         qaContentRepository.setQuestionFieldLd(qaQuestionField.getId(), qaQuestionField.getQaQuestionContent().getId());
+    }
+
+    @Test
+    public void numAdd() {
+        qaQuestionFieldRepository.collectNumIncrement(1, 1);
     }
 }

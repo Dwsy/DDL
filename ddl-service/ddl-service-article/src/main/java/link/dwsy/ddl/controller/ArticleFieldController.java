@@ -62,7 +62,7 @@ public class ArticleFieldController {
     public ArticleField getArticleById(@PathVariable("id") Long id) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
-        articleContentService.ActiveLog(UserActiveType.Browse_Article, id);
+        articleFieldService.ActiveLog(UserActiveType.Browse_Article, id);
         return articleContentService.getArticleById(id, ArticleState.open);
     }
 

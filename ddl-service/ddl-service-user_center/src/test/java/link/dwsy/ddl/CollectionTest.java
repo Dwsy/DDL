@@ -13,7 +13,7 @@ import link.dwsy.ddl.entity.User.UserCollectionGroup;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.QA.QaAnswerRepository;
-import link.dwsy.ddl.repository.QA.QaFieldRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserCollectionGroupRepository;
 import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
@@ -48,7 +48,7 @@ public class CollectionTest {
     QaAnswerRepository qaAnswerRepository;
 
     @Resource
-    QaFieldRepository qaFieldRepository;
+    QaQuestionFieldRepository qaQuestionFieldRepository;
 
     @Resource
     UserRepository userRepository;
@@ -99,7 +99,7 @@ public class CollectionTest {
             sourceTitle = text;
         }
         if (collectionType == CollectionType.Question) {
-            sourceTitle = qaFieldRepository.findByIdAndDeletedFalse(sid)
+            sourceTitle = qaQuestionFieldRepository.findByIdAndDeletedFalse(sid)
                     .orElseThrow(() -> new CodeException(CustomerErrorCode.QuestionNotFound))
                     .getTitle();
         }

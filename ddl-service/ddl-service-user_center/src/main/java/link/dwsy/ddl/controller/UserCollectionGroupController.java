@@ -9,7 +9,7 @@ import link.dwsy.ddl.entity.User.UserCollectionGroup;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.QA.QaAnswerRepository;
-import link.dwsy.ddl.repository.QA.QaFieldRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserCollectionGroupRepository;
 import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
@@ -46,7 +46,7 @@ public class UserCollectionGroupController {
     QaAnswerRepository qaAnswerRepository;
 
     @Resource
-    QaFieldRepository qaFieldRepository;
+    QaQuestionFieldRepository qaQuestionFieldRepository;
 
     @Resource
     UserRepository userRepository;

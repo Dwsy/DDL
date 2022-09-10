@@ -1,6 +1,8 @@
 package link.dwsy.ddl.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.XO.Message.UserActiveMessage;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
@@ -10,6 +12,7 @@ import link.dwsy.ddl.entity.Article.ArticleContent;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.Article.ArticleGroup;
 import link.dwsy.ddl.entity.Article.ArticleTag;
+import link.dwsy.ddl.mq.ArticleSearchConstants;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
@@ -49,6 +52,16 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     @Resource
     UserRepository userRepository;
 
+    public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
+        LoginUserInfo currentUser = userSupport.getCurrentUser();
+        if (currentUser != null) {
+            rabbitTemplate.convertAndSend("history.user.active", UserActiveMessage.builder()
+                    .userActiveType(userActiveType).userId(userSupport.getCurrentUser().getId())
+                    .sourceId(sourceId).build());
+
+        }
+    }
+
     public Long createArticle(ArticleContentRB articleContentRB) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
 
@@ -86,8 +99,12 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 
         ArticleField save = articleFieldRepository.save(field);
         articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
+        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE,save.getId());
+        rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
         return save.getId();
     }
+
+
 
     public Long updateArticle(ArticleContentRB articleContentRB) {
         Long uid = userSupport.getCurrentUser().getId();
@@ -129,14 +146,16 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
                 .articleContent(content).build();
 
         ArticleField save = articleFieldRepository.save(field);
+        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE, save.getId());
         return save.getId();
     }
 
     public void logicallyDeleted(Long articleId) {
-        Long uid = userSupport.getCurrentUser().getId();
-        if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, uid)) {
-            throw new CodeException(CustomerErrorCode.ArticleNotFound);
-        }
+//        Long uid = userSupport.getCurrentUser().getId();
+//        if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, uid)) {
+//            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+//        }
+        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_DELETE,articleId);
         articleFieldRepository.logicallyDeleted(articleId);
         articleContentRepository.logicallyDeleted(articleId);
     }
@@ -152,6 +171,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         for (Long aid : aids) {
             articleFieldRepository.logicallyRecovery(aid);
             articleContentRepository.logicallyRecovery(aid);
+            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE,aid);
         }
+
     }
 }

@@ -26,13 +26,14 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
     Optional<ArticleField> findByIdAndDeletedFalseAndArticleState(long id, ArticleState articleState);
 
 
-//    Optional<ArticleField> findByIdAndDeletedIsFalseAndArticleState(long id, ArticleState articleState);
+    //    Optional<ArticleField> findByIdAndDeletedIsFalseAndArticleState(long id, ArticleState articleState);
     @Query(value = "select af from ArticleField af where af.deleted=false and af.articleState=?1")
     List<fieldVO> findBySqlTest(ArticleState articleState, Pageable pageable);
 
     boolean existsByDeletedFalseAndIdAndUser_Id(long aid, long uid);
 
     boolean existsByDeletedIsFalseAndIdInAndUser_Id(Collection<Long> ids, long id);
+
     int countByDeletedIsFalseAndIdInAndUser_Id(Collection<Long> ids, long id);
 //    @Query(nativeQuery = true,value = "select * from article_field where deleted is false and user_id=?1")
 
@@ -51,31 +52,31 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
     boolean existsByDeletedFalseAndAllowCommentTrueAndId(long id);
 
     @Query(nativeQuery = true,
-    value = "select * from article_field where deleted is false and article_state=1")
+            value = "select * from article_field where deleted is false and article_state=1")
     Long[] findAllId();
 
     @Modifying
     @Transactional
     @Query(nativeQuery = true,
-    value = "update article_field set up_num=up_num+?2 where id=?1")
-    int upNumIncrement(long aid,int num);
+            value = "update article_field set up_num=up_num+?2 where id=?1")
+    int upNumIncrement(long aid, int num);
 
     @Modifying
     @Transactional
     @Query(nativeQuery = true,
             value = "update article_field set down_num=down_num+?2 where id=?1")
-    int downNumIncrement(long aid,int num);
+    int downNumIncrement(long aid, int num);
 
     @Modifying
     @Transactional
     @Query(nativeQuery = true,
             value = "update article_field set view_num=view_num+?2 where id=?1")
-    int viewNumIncrement(long aid,int num);
+    int viewNumIncrement(long aid, int num);
 
     @Modifying
     @Transactional
     @Query(nativeQuery = true,
             value = "update article_field set collect_num=collect_num+?2 where id=?1")
-    int collectNumIncrement(long aid,int num);
+    int collectNumIncrement(long aid, int num);
 //    ArticleField findArticleFieldsByDeletedIsFalse(Long articleId);
 }

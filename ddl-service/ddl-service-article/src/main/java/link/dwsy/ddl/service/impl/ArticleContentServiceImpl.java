@@ -1,10 +1,7 @@
 package link.dwsy.ddl.service.impl;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
-import link.dwsy.ddl.XO.Enum.UserActiveType;
-import link.dwsy.ddl.XO.Message.UserActiveMessage;
 import link.dwsy.ddl.XO.VO.fieldVO;
-import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
@@ -62,15 +59,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return af;
     }
 
-    public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
-        LoginUserInfo currentUser = userSupport.getCurrentUser();
-        if (currentUser != null) {
-            rabbitTemplate.convertAndSend("history.user.active", UserActiveMessage.builder()
-                    .userActiveType(userActiveType).userId(userSupport.getCurrentUser().getId())
-                    .sourceId(sourceId).build());
 
-        }
-    }
 
 
     public String getContent(long id, int type) {

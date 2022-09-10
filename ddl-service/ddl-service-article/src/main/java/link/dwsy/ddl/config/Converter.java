@@ -1,4 +1,4 @@
-package link.dwsy.ddl.mq.config;
+package link.dwsy.ddl.config;
 
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -15,8 +15,4 @@ public class Converter {
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
-
-
-
-
 }

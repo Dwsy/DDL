@@ -3,7 +3,7 @@ package link.dwsy.ddl.service.impl;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.entity.QA.QaGroup;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
-import link.dwsy.ddl.repository.QA.QaFieldRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.QA.QaGroupRepository;
 import link.dwsy.ddl.service.QaQuestionGroupService;
 import link.dwsy.ddl.util.PageData;
@@ -29,10 +29,10 @@ public class QaQuestionGroupServiceImpl implements QaQuestionGroupService {
     QaGroupRepository qaGroupRepository;
 
     @Resource
-    QaFieldRepository qaFieldRepository;
+    QaQuestionFieldRepository qaQuestionFieldRepository;
 
     public PageData<QaQuestionField> getFieldListByGroupId(Long gid, Set<QuestionState> questionStates,PageRequest pageRequest) {
-        Page<QaQuestionField> questionFieldPage = qaFieldRepository.
+        Page<QaQuestionField> questionFieldPage = qaQuestionFieldRepository.
                 findByDeletedFalseAndQaGroupIdAndQuestionStateIn
                         (gid, questionStates, pageRequest);
 

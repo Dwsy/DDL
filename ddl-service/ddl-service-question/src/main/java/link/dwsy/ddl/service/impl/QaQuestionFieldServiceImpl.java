@@ -2,7 +2,7 @@ package link.dwsy.ddl.service.impl;
 
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
-import link.dwsy.ddl.repository.QA.QaFieldRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,12 +20,12 @@ import java.util.Collection;
 public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuestionFieldService {
 
     @Resource
-    QaFieldRepository qaFieldRepository;
+    QaQuestionFieldRepository qaQuestionFieldRepository;
 
     @Override
     public PageData<QaQuestionField> getPageList(Collection<QuestionState> questionStateCollection, PageRequest pageRequest) {
 
-        Page<QaQuestionField> questionFields = qaFieldRepository
+        Page<QaQuestionField> questionFields = qaQuestionFieldRepository
                 .findByDeletedFalseAndQuestionStateIn(questionStateCollection, pageRequest);
         PageData<QaQuestionField> fieldPageData = new PageData<>(questionFields);
         return fieldPageData;
@@ -33,7 +33,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
     @Override
     public QaQuestionField getQuestionById(long qid) {
-        QaQuestionField questionField = qaFieldRepository.findByDeletedFalseAndId(qid);
+        QaQuestionField questionField = qaQuestionFieldRepository.findByDeletedFalseAndId(qid);
         return questionField;
     }
 

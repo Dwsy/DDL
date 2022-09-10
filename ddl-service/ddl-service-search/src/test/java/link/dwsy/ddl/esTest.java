@@ -8,6 +8,7 @@ import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import co.elastic.clients.elasticsearch.core.search.Suggestion;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.ElasticsearchIndicesClient;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,7 @@ import link.dwsy.ddl.XO.ES.article.ArticleEsDoc;
 import link.dwsy.ddl.XO.ES.article.ArticleEsSuggestion;
 import link.dwsy.ddl.XO.ES.article.ArticleTagEsDoc;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
@@ -22,8 +24,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -33,16 +40,13 @@ import java.util.stream.Collectors;
 
 @SpringBootTest
 public class esTest {
+    private final String INDEX = "ddl_article";
     @Resource
     private ElasticsearchClient client;
-
     @Resource
     private ArticleFieldRepository articleFieldRepository;
-
     @Resource
     private ArticleContentRepository articleContentRepository;
-
-    private final String INDEX = "ddl_article";
 
     @Test
     public void indices() throws IOException {
@@ -56,6 +60,28 @@ public class esTest {
             indices.delete(d -> d.index("test"));
             System.out.println("删除索引");
         }
+    }
+
+    @Test
+    public void indicesByJson() throws IOException {
+        ElasticsearchIndicesClient indices = client.indices();
+        BooleanResponse exists = indices.exists(e -> e.index("test2"));
+        if (!exists.value()) {
+            String filePath = "src/main/resources/EsMappings/article.json";
+            create("test2", new FileInputStream(filePath));
+            System.out.println("创建索引");
+        } else {
+            System.out.println("索引已存在");
+
+        }
+
+    }
+
+    public void create(String name, InputStream inputStream) throws IOException {
+        CreateIndexRequest request = CreateIndexRequest.of(builder -> builder
+                .index(name)
+                .withJson(inputStream));
+        client.indices().create(request);
     }
 
     @Test
@@ -106,9 +132,58 @@ public class esTest {
         System.out.println(result);
     }
 
-    @Test
-    public void updateData() {
 
+    @Test
+    public void upTest() throws IOException {
+//        updateDataById(11L);
+        updateAllDataById(16L);
+    }
+
+    public void updateDataById(long aid) throws IOException {
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.open);
+        if (af == null) {
+            throw new CodeException(1, "更新失败");
+        }
+        ArticleEsDoc esDoc = ArticleEsDoc.builder()
+                .upNum(af.getUpNum())
+                .downNum(af.getDownNum())
+                .collectNum(af.getCollectNum())
+                .viewNum(af.getViewNum())
+                .build();
+        ArticleEsDoc.builder().title("updateTest").build();
+        client.update(req -> req
+                        .index(INDEX).id(String.valueOf(aid))
+                        .doc(esDoc)
+                , ArticleEsDoc.class);
+    }
+
+    public void updateAllDataById(long aid) throws IOException {
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.open);
+        if (af == null) {
+            throw new CodeException(1, "更新失败");
+        }
+        String pureTextById = articleContentRepository.getPureTextById(aid);
+        ArticleEsDoc articleEsDoc = ArticleEsDoc.builder()
+                .id(af.getId())
+                .title(af.getTitle())
+                .content(pureTextById)
+                .summary(af.getSummary())
+                .userNickName(af.getUser().getNickname())
+                .userId(String.valueOf(af.getUser().getId()))
+                .group(af.getArticleGroup().getName())
+                .tagList(af.getArticleTags().stream().map(tag -> ArticleTagEsDoc.builder()
+                        .id(tag.getId())
+                        .name(tag.getName())
+                        .build()).collect(Collectors.toList()))
+                .suggestion(ArticleEsSuggestion.
+                        create(af.getTitle(), af.getArticleGroup().getName(), af.getArticleTags()))
+                .build();
+        ArticleEsDoc.builder().title("updateTest").build();
+        client.update(req -> req
+                        .index(INDEX).id(String.valueOf(aid))
+                        .doc(articleEsDoc)
+                        .docAsUpsert(true)
+                , ArticleEsDoc.class);
     }
 
     @Test
@@ -142,9 +217,9 @@ public class esTest {
             SearchResponse<ArticleEsDoc> search = client.search(
                     req -> {
                         req.index(INDEX)
-                                .source(s->s
-                                        .filter(f->f
-                                                .excludes("content","suggestion")))
+                                .source(s -> s
+                                        .filter(f -> f
+                                                .excludes("content", "suggestion")))
                                 .query(q -> q
                                         .multiMatch(mm -> mm
                                                 .query(query)
