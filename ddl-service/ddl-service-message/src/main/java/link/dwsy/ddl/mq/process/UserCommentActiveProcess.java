@@ -6,7 +6,6 @@ import link.dwsy.ddl.XO.Enum.NotifyType;
 import link.dwsy.ddl.XO.Enum.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserCommentNotifyMessage;
 import link.dwsy.ddl.XO.VO.Notify.CommentNotifyVO;
-import link.dwsy.ddl.entity.User.UserActive;
 import link.dwsy.ddl.entity.User.UserNotify;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
@@ -39,13 +38,6 @@ public class UserCommentActiveProcess {
 
     @Resource
     UserNotifyRepository userNotifyRepository;
-
-    public void ActiveLog(UserActiveType userActiveType, Long sourceId, Long uid, String ua) {
-
-        userActiveRepository.save(UserActive.builder()
-                .userActiveType(userActiveType).userId(uid)
-                .sourceId(sourceId).ua(ua).build());
-    }
 
     public void sendNotify(UserCommentNotifyMessage message) throws JsonProcessingException {
         if (message.isCancel()) {

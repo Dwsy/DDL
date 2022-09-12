@@ -1,7 +1,7 @@
 package link.dwsy.ddl.repository;
 
 import link.dwsy.ddl.XO.Enum.UserActiveType;
-import link.dwsy.ddl.XO.Message.UserCommentNotifyMessage;
+import link.dwsy.ddl.XO.Message.UserActiveMessage;
 import link.dwsy.ddl.mq.ArticleSearchConstants;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
@@ -46,7 +46,7 @@ public class MqTest {
     @Test
     public void TEST3() {
         var userActiveType = UserActiveType.Browse_Article;
-        UserCommentNotifyMessage build = UserCommentNotifyMessage.builder()
+        UserActiveMessage build = UserActiveMessage.builder()
                 .userActiveType(userActiveType).userId(3L)
                 .sourceId(9L).build();
         rabbitTemplate.convertAndSend("history.user.active", build);

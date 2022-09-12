@@ -1,6 +1,6 @@
 package link.dwsy.ddl.mq.listener;
 
-import link.dwsy.ddl.XO.Message.UserCommentNotifyMessage;
+import link.dwsy.ddl.XO.Message.UserActiveMessage;
 import link.dwsy.ddl.mq.UserActiveConstants;
 import link.dwsy.ddl.mq.process.UserActiveProcess;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class UserActive {
     UserActiveProcess userActiveProcess;
 
     @RabbitListener(queues = UserActiveConstants.QUEUE_DDL_USER_ACTIVE)
-    public void userActive(UserCommentNotifyMessage message) {
+    public void userActive(UserActiveMessage message) {
         userActiveProcess.ActiveLog(message.getUserActiveType(), message.getSourceId(), message.getUserId(),message.getUa());
         log.info("用户{}活跃记录{}成功", message.getUserId(), message.getUserActiveType().toString());
     }
