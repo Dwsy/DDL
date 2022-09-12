@@ -22,15 +22,13 @@ import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +45,8 @@ public class esTest {
     private ArticleFieldRepository articleFieldRepository;
     @Resource
     private ArticleContentRepository articleContentRepository;
+    @Resource
+    RedisTemplate<String, String> redisTemplate;
 
     @Test
     public void indices() throws IOException {
@@ -188,8 +188,12 @@ public class esTest {
 
     @Test
     public void q() throws IOException {
-        oder("title", 1, 10);
+
+
+//        oder("title", 1, 10);
     }
+
+
 
     public void search(String query) throws IOException {
         SearchResponse<ArticleEsDoc> search = client.search(
