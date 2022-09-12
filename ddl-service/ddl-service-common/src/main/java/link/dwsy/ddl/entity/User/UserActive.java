@@ -27,5 +27,7 @@ public class UserActive extends BaseEntity {
     private UserActiveType userActiveType;
 
     private Long sourceId;
+
+    private String ua;
 }
 

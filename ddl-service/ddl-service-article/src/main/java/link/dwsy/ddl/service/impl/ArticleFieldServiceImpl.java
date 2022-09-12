@@ -13,6 +13,7 @@ import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.Article.ArticleGroup;
 import link.dwsy.ddl.entity.Article.ArticleTag;
 import link.dwsy.ddl.mq.ArticleSearchConstants;
+import link.dwsy.ddl.mq.UserActiveConstants;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
@@ -55,9 +56,9 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         if (currentUser != null) {
-            rabbitTemplate.convertAndSend("history.user.active", UserActiveMessage.builder()
+            rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ACTIVE, UserActiveMessage.builder()
                     .userActiveType(userActiveType).userId(userSupport.getCurrentUser().getId())
-                    .sourceId(sourceId).build());
+                    .sourceId(sourceId).ua(userSupport.getUserAgent()).build());
 
         }
     }

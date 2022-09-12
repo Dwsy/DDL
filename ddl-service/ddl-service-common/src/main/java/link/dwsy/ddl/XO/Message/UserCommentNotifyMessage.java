@@ -14,10 +14,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserActiveMessage {
-    private Long userId;
+public class UserCommentNotifyMessage {
+    private Long formUserId;
+//    to userid
 
-    private Long sourceId;//aid or uid or qaid
+    private Long articleId;//aid or uid or qaid
+
+    private Long commentId;//
 
     private UserActiveType userActiveType;
 
