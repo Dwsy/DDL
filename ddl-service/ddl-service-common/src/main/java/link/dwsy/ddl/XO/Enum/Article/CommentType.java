@@ -1,5 +1,11 @@
 package link.dwsy.ddl.XO.Enum.Article;
 
 public enum CommentType {
-    comment,up, down,cancel
+    comment,
+    comment_comment,//二级评论
+    up, down,
+    cancel
+
+
 }
+

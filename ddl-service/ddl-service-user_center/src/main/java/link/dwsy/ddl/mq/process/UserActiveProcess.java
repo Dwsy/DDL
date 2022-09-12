@@ -19,9 +19,9 @@ public class UserActiveProcess {
     @Resource
     UserActiveRepository userActiveRepository;
 
-    public void ActiveLog(UserActiveType userActiveType, Long sourceId, Long uid) {
+    public void ActiveLog(UserActiveType userActiveType, Long sourceId, Long uid, String ua) {
         userActiveRepository.save(UserActive.builder()
                 .userActiveType(userActiveType).userId(uid)
-                .sourceId(sourceId).build());
+                .sourceId(sourceId).ua(ua).build());
     }
 }

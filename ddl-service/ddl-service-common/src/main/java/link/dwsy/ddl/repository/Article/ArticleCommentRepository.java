@@ -35,11 +35,11 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
     ArticleComment findByDeletedFalseAndIdAndCommentType(long id, CommentType commentType);
 
 
-    @Query(value = "update article_comment set deleted=true where user_id=?1 and id=?2",nativeQuery = true)
+    @Query(value = "update article_comment set deleted=true where user_id=?1 and id=?2", nativeQuery = true)
     @Modifying
     int logicallyDelete(Long id, Long aLong);
 
-    @Query(value = "update article_comment set deleted=false where user_id=?1 and id=?2",nativeQuery = true)
+    @Query(value = "update article_comment set deleted=false where user_id=?1 and id=?2", nativeQuery = true)
     @Modifying
     int logicallyRecovery(Long id, Long aLong);
 
@@ -47,11 +47,15 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
     @Transactional
     @Query(nativeQuery = true,
             value = "update article_comment set up_num=up_num+?2 where id=?1")
-    int upNumIncrement(long aid,int num);
+    int upNumIncrement(long aid, int num);
 
     @Modifying
     @Transactional
     @Query(nativeQuery = true,
             value = "update article_comment set down_num=down_num+?2 where id=?1")
-    int downNumIncrement(long aid,int num);
+    int downNumIncrement(long aid, int num);
+
+    @Query(nativeQuery = true, value =
+            "select user_id from article_comment where id=?1 and deleted=false")
+    Long getUserIdByCommentId(Long id);
 }
