@@ -52,6 +52,8 @@ public class QaQuestionFieldController {
 
         Set<QuestionState> questionStates = new HashSet<>();
 
+        QaQuestionFieldController qaQuestionFieldController = new QaQuestionFieldController();
+
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
 
         statusStr.forEach(status -> questionStates.add(QuestionState.valueOf(status.toUpperCase())));

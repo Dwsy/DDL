@@ -65,10 +65,10 @@ public class esTest {
     @Test
     public void indicesByJson() throws IOException {
         ElasticsearchIndicesClient indices = client.indices();
-        BooleanResponse exists = indices.exists(e -> e.index("test2"));
+        BooleanResponse exists = indices.exists(e -> e.index(INDEX));
         if (!exists.value()) {
             String filePath = "src/main/resources/EsMappings/article.json";
-            create("test2", new FileInputStream(filePath));
+            create(INDEX, new FileInputStream(filePath));
             System.out.println("创建索引");
         } else {
             System.out.println("索引已存在");

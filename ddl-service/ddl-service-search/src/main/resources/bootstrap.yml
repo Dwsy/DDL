@@ -66,11 +66,17 @@ spring:
         max-active: 16
         max-idle: 16
         min-idle: 8
+  data:
+    redis:
+      repositories:
+        enabled: false
 
 elasticsearch:
   hosts: localhost:9200
   username: elastic
   password: uW66TS36Z0FGhDKKzeQL
+  ca: vm_ca.crt
+#  ca: ca.crt
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092
 #    producer:
