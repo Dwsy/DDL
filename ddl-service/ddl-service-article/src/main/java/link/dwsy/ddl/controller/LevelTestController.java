@@ -1,8 +1,10 @@
 package link.dwsy.ddl.controller;
 
+import link.dwsy.ddl.annotation.UserActiveLog;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import link.dwsy.ddl.annotation.AuthAnnotation;
@@ -44,10 +46,11 @@ public class LevelTestController {
         System.out.println("void");
     }
 
-    @GetMapping("b")
-    public boolean aBoolean() {
-        System.out.println("void");
-        return false;
+    @GetMapping("b/{id}")
+    @UserActiveLog
+    public String aBoolean(@PathVariable String id) {
+        System.out.println(id);
+        return id;
     }
 
 }

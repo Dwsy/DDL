@@ -29,7 +29,7 @@ public class AuthAspect {
 
 
     @Before("cut() && @annotation(authAnnotation)")
-    public void doBefore(JoinPoint joinPoint, AuthAnnotation authAnnotation) throws Throwable {
+    public void doBefore(JoinPoint joinPoint, AuthAnnotation authAnnotation) {
         LoginUserInfo loginUserInfo = userSupport.getCurrentUser();
         if (loginUserInfo == null) {
             throw new CodeException(CustomerErrorCode.UserNotLogin);

@@ -1,6 +1,5 @@
 package link.dwsy.ddl.annotation;
 
-import link.dwsy.ddl.XO.Enum.UserActiveType;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.*;
@@ -10,6 +9,6 @@ import java.lang.annotation.*;
 @Documented
 @Component
 public @interface UserActiveLog {
-    UserActiveType userActiveType();
-    long sourceId() default 0L;
+//    UserActiveType userActiveType();
+//    long sourceId() default 0L;
 }

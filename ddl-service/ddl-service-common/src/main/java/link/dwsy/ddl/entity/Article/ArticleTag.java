@@ -38,7 +38,8 @@ public class ArticleTag extends BaseEntity {
     @JsonIgnore
     private List<ArticleField> articleFields;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private ArticleGroup articleGroup;
 
     public ArticleTag() {

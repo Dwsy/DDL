@@ -15,6 +15,7 @@ import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
 import link.dwsy.ddl.repository.Article.ArticleTagRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.util.HtmlHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -113,5 +114,12 @@ public class fieldContentTest {
     public void ttt() {
         List<Long> aids = Arrays.asList(9L, 10L, 200L);
         System.out.println(articleFieldRepository.countByDeletedIsFalseAndIdInAndUser_Id(aids, 3L));
+    }
+
+    @Test
+    public void toHtml() {
+        List<ArticleContent> all = articleContentRepository.findAll();
+        all.forEach(c-> c.setTextHtml(HtmlHelper.toHTML(c.getTextMd())));
+        articleContentRepository.saveAll(all);
     }
 }

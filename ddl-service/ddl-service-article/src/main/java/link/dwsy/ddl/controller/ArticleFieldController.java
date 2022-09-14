@@ -58,7 +58,6 @@ public class ArticleFieldController {
     }
 
     @GetMapping("field/{id}")
-    @CrossOrigin
     public ArticleField getArticleById(@PathVariable("id") Long id) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
