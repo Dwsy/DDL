@@ -62,6 +62,13 @@ public enum CustomerErrorCode {
     QuestionNotFound(601, "问题不存在"),
     AnswerNotFound(602, "答案不存在"),
 
+    QuestionAnswerNotBelongToUser(603, "不是你的答案"),
+
+    QuestionAnswerNotBelongToQuestion(604, "不是你的问题"),
+
+    WordNotFount(10001, "未找到该词"),
+
+    WordExist(10002, "该词已存在"),
 
 ;
 

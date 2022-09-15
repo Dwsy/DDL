@@ -1,8 +1,13 @@
 package link.dwsy.ddl.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @Author Dwsy
@@ -13,9 +18,44 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/check")
 public class ContentChecking {
 
-    @GetMapping("/test")
-    public String test() {
-        return "test";
+
+    @Resource
+    private SensitiveWordBs sensitiveWordBs;
+
+
+    /**
+     * 是否包含敏感词
+     *
+     * @param text 文本
+     * @return 结果
+     */
+    @PostMapping("/contains")
+    public boolean contains(@RequestParam("text")  String text) {
+
+        return sensitiveWordBs.contains(text);
+    }
+
+    /**
+     * 获取所有的敏感词
+     * @param text 文本
+     * @return 结果
+     */
+    @PostMapping("/findAll")
+    public List<String>  findAll(@RequestParam("text") String text) {
+
+        return sensitiveWordBs.findAll(text);
+    }
+
+    /**
+     * 获取替换后的结果
+     *
+     * @param text 文本
+     * @return 结果
+     */
+    @PostMapping("/replace")
+    public String replace(@RequestParam("text") String text) {
+
+        return sensitiveWordBs.replace(text);
     }
 
 

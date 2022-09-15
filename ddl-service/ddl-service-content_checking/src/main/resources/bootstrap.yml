@@ -13,32 +13,32 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-#  jpa:
-#    database: postgresql
-#    show-sql: true
-#    hibernate:
-#      ddl-auto: update
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.PostgreSQLDialect
-#        format_sql: true
-#    database-platform: org.hibernate.dialect.PostgreSQLDialect
-#    open-in-view: false
-#  datasource:
-#    # 数据源
-#    url: jdbc:postgresql://localhost:5432/ddl?useSSL=false
-#    username: postgres
-#    password: root
-#    type: com.zaxxer.hikari.HikariDataSource
-#    driver-class-name: org.postgresql.Driver
-#    hikari:
-#      maximum-pool-size: 8
-#      minimum-idle: 4
-#      idle-timeout: 30000
-#      connection-timeout: 30000
-#      max-lifetime: 45000
-#      auto-commit: true
-#      pool-name: DDLHikariCP
+  jpa:
+    database: postgresql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  datasource:
+    # 数据源
+    url: jdbc:postgresql://localhost:5432/ddl?useSSL=false
+    username: postgres
+    password: root
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 4
+      idle-timeout: 30000
+      connection-timeout: 30000
+      max-lifetime: 45000
+      auto-commit: true
+      pool-name: DDLHikariCP
 
   cloud:
     nacos:
