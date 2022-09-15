@@ -25,6 +25,8 @@ public enum CustomerErrorCode {
     //    token解析失败
     TokenParseError(105, "token解析失败"),
     UserLevelLow(110, "用户等级不足"),
+
+    TokenNotFound(111,"token未找到"),
     ArticleNotFound(201, "文章不存在"),
     GroupNotFound(202, "分组不出存在"),
 

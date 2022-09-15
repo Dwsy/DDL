@@ -14,6 +14,10 @@ public class GatewayConstant {
      */
     public static final String REGISTER_URI = "/ddl/register";
 
+    public static final String LOGOUT_URI = "/ddl/logout";
+
+    public static final String REFRESH_URI = "/ddl/refresh";
+
     /**
      * 去授权中心拿到登录 token 的 uri 格式化接口
      */
@@ -25,4 +29,10 @@ public class GatewayConstant {
      */
     public static final String AUTHORITY_CENTER_REGISTER_URL_FORMAT =
             "http://%s:%s/ddl-authority-center/authority/register";
+
+    public static final String AUTHORITY_LOGOUT_URL_FORMAT =
+            "http://%s:%s/ddl-authority-center/authority/logut";
+
+    public static final String AUTHORITY_REFRESH_URL_FORMAT =
+            "http://%s:%s/ddl-authority-center/authority/refresh";
 }

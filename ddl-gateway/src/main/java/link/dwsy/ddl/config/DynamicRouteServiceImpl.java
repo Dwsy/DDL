@@ -21,6 +21,7 @@ import java.util.List;
 @SuppressWarnings("all")
 public class DynamicRouteServiceImpl implements ApplicationEventPublisherAware {
 
+
     /** 写路由定义 */
     private final RouteDefinitionWriter routeDefinitionWriter;
     /** 获取路由定义 */

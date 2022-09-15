@@ -22,4 +22,5 @@ public class TokenConstants
      */
     public final static String SECRET = "abcdefghijklmnopqrstuvwxyz";
 
+    public static final String REDIS_TOKEN_BLACKLIST_KEY = "Token:Blacklist";
 }

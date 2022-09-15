@@ -24,9 +24,12 @@ public class CommentTest {
 
     @Resource
     ArticleCommentRepository articleCommentRepository;
+
     @Resource
+
     ArticleContentRepository articleContentRepository;
     @Resource
+
     UserRepository userRepository;
 
     @Resource

@@ -1,16 +1,23 @@
 package link.dwsy.ddl.controller;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import link.dwsy.ddl.XO.RB.UserRB;
 import link.dwsy.ddl.XO.RB.UserRegisterRB;
 import link.dwsy.ddl.annotation.IgnoreResponseAdvice;
+import link.dwsy.ddl.core.CustomExceptions.CodeException;
+import link.dwsy.ddl.core.constant.CustomerErrorCode;
+import link.dwsy.ddl.core.constant.TokenConstants;
 import link.dwsy.ddl.core.domain.JwtToken;
 import link.dwsy.ddl.core.utils.RSAUtil;
 import link.dwsy.ddl.service.impl.TokenServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * <h1>对外暴露的授权服务接口</h1>
@@ -42,6 +49,34 @@ public class AuthorityController {
         return new JwtToken(tokenService.generateToken(
                 userRB
         ));
+    }
+
+    @PostMapping("logout")
+    public boolean logout() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        assert requestAttributes != null;
+        HttpServletRequest request = requestAttributes.getRequest();
+        String token = request.getHeader(TokenConstants.AUTHENTICATION);
+        if (StrUtil.isBlank(token)) {
+            return false;
+        }
+        tokenService.blackToken(token);
+
+        return true;
+    }
+
+    @PostMapping("refresh")
+    @IgnoreResponseAdvice
+    public String refresh() throws Exception {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        assert requestAttributes != null;
+        HttpServletRequest request = requestAttributes.getRequest();
+        String token = request.getHeader(TokenConstants.AUTHENTICATION);
+        if (StrUtil.isBlank(token)) {
+            throw  new CodeException(CustomerErrorCode.TokenNotFound);
+        }
+
+        return tokenService.refreshToken(token);
     }
 
     /**

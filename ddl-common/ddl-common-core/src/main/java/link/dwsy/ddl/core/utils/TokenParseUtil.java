@@ -60,7 +60,7 @@ public class TokenParseUtil {
     /**
      * <h2>通过公钥去解析 JWT Token</h2>
      */
-    private static Jws<Claims> parseToken(String token, PublicKey publicKey) throws Exception {
+    public static Jws<Claims> parseToken(String token, PublicKey publicKey) throws Exception {
         Jws<Claims> claimsJws = null;
         try {
             claimsJws = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(token);

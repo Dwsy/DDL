@@ -3,7 +3,11 @@ package link.dwsy.ddl.service.impl;
 import cn.hutool.core.util.StrUtil;
 //import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import link.dwsy.ddl.constant.AuthorityConstant;
+import link.dwsy.ddl.core.CustomExceptions.CodeException;
+import link.dwsy.ddl.core.constant.CustomerErrorCode;
+import link.dwsy.ddl.core.constant.TokenConstants;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
+import link.dwsy.ddl.core.utils.TokenParseUtil;
 import link.dwsy.ddl.core.utils.TokenUtil;
 import link.dwsy.ddl.entity.User;
 
@@ -12,6 +16,7 @@ import link.dwsy.ddl.service.TokenService;
 import link.dwsy.ddl.XO.RB.UserRB;
 import link.dwsy.ddl.XO.RB.UserRegisterRB;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +26,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author Dwsy
@@ -34,6 +40,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Resource
     private UserRepository userRepository;
+    @Resource
+    private RedisTemplate<String, String> redisTemplate;
+
 
     @Override
     public String generateToken(UserRB userRB) throws Exception {
@@ -101,5 +110,35 @@ public class TokenServiceImpl implements TokenService {
         userRB.setPassword(userRegisterRB.getPassword());
 
         return generateToken(userRB);
+    }
+
+    public void blackToken(String token) {
+        redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY + token, "1",
+                AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
+    }
+
+    public String refreshToken(String token) throws Exception {
+        LoginUserInfo loginUserInfo = null;
+        if (token != null) {
+            try {
+                loginUserInfo = TokenParseUtil.parseUserInfoFromToken(token);
+            } catch (Exception ex) {
+                log.error("parse user info from token error: [{}]", ex.getMessage(), ex);
+                throw  new CodeException(CustomerErrorCode.TokenParseError);
+            }
+        }
+        assert loginUserInfo != null;
+        User user = userRepository.findByDeletedFalseAndId(loginUserInfo.getId()).orElse(null);
+        UserRB userRB = new UserRB();
+        if (user != null) {
+            userRB.setUsername(user.getUsername());
+            userRB.setPassword(user.getPassword());
+        }else {
+            throw new CodeException(CustomerErrorCode.UserNotExist);
+        }
+        String newToken = generateToken(userRB);
+        redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY + token, "1",
+                AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
+        return newToken;
     }
 }
