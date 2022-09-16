@@ -37,4 +37,4 @@ build/
 ### Mac OS ###
 .DS_Store!/.idea/httpRequests/
 
-*/mail.setting
+/ddl-service/ddl-service-user_center/src/main/resources/mail.setting
