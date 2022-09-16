@@ -27,6 +27,10 @@ public enum CustomerErrorCode {
     UserLevelLow(110, "用户等级不足"),
 
     TokenNotFound(111,"token未找到"),
+
+    OldPWDEqualsNewPWD(119,"新旧密码不能相同" ),
+
+    OldPWDWrong(120,"旧密码错误" ),
     ArticleNotFound(201, "文章不存在"),
     GroupNotFound(202, "分组不出存在"),
 
@@ -68,9 +72,9 @@ public enum CustomerErrorCode {
 
     WordNotFount(10001, "未找到该词"),
 
-    WordExist(10002, "该词已存在"),
+    WordExist(10002, "该词已存在"), CaptchaWrong(100004, "验证码错误");
 
-;
+
 
 
     private final int code;

@@ -39,6 +39,10 @@ public class UserCommentActiveProcess {
     @Resource
     UserNotifyRepository userNotifyRepository;
 
+    @Resource
+    private ObjectMapper objectMapper;
+
+
     public void sendNotify(UserCommentNotifyMessage message) throws JsonProcessingException {
         if (message.isCancel()) {
 //            redisTemplate.opsForSet().remove(message.getUserActiveType().toString(), message.getUserId().toString());
@@ -116,9 +120,10 @@ public class UserCommentActiveProcess {
         }
 
         userNotifyRepository.save(userNotify);
-        ObjectMapper objectMapper = new ObjectMapper();
+
         String notifyJson = objectMapper.writeValueAsString(notify);
-        redisTemplate.opsForSet().add("Article:Comment:Notify:UID:" + toUserId, notifyJson);
+        System.out.println(notifyJson);
+//        redisTemplate.opsForSet().add("Article:Comment:Notify:UID:" + toUserId, notifyJson);
 
     }
 }

@@ -36,7 +36,7 @@ public class LogAspect {
     @Before("cut() && @annotation(userActiveLog)")
     public void doBefore(JoinPoint joinPoint, UserActiveLog userActiveLog) {
 
-        String[] paramNames = ((MethodSignature)joinPoint.getSignature()).getParameterNames();
+        String[] paramNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames();
 
         Object[] paramValues = joinPoint.getArgs();
 
@@ -53,7 +53,7 @@ public class LogAspect {
         LogJson logJson = LogJson.builder()
                 .url(httpServletRequest.getRequestURI())
                 .method(httpServletRequest.getMethod())
-                .ip(httpServletRequest.getRemoteAddr())
+                .ip(httpServletRequest.getRemoteAddr())//todo 获取真实ip
                 .requestParams(requestParams)
                 .classMethod(joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName())
                 .build();

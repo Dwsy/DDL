@@ -1,10 +1,13 @@
 package link.dwsy.ddl.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Gender;
 import lombok.*;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
@@ -15,14 +18,14 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","articleContent","lastModifiedTime","user"})
 public class UserInfo extends BaseEntity {
 
+
+    @Builder.Default
     private String avatar = "default";
 
-
     private String sign;
-
 
     @Enumerated(EnumType.STRING)
     private Gender gender;

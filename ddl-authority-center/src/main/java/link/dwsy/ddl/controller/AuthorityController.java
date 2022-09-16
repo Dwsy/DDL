@@ -13,8 +13,6 @@ import link.dwsy.ddl.core.utils.RSAUtil;
 import link.dwsy.ddl.service.impl.TokenServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +31,7 @@ public class AuthorityController {
 
     @GetMapping("/rsa-pks")
     public String getRsaPublicKey() {
+
         return RSAUtil.getPublicKeyStr();
     }
 
@@ -52,30 +51,24 @@ public class AuthorityController {
     }
 
     @PostMapping("logout")
-    public boolean logout() {
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        assert requestAttributes != null;
-        HttpServletRequest request = requestAttributes.getRequest();
+    public boolean logout(HttpServletRequest request) {
         String token = request.getHeader(TokenConstants.AUTHENTICATION);
         if (StrUtil.isBlank(token)) {
             return false;
         }
         tokenService.blackToken(token);
-
+        request.getSession().invalidate();
         return true;
     }
 
     @PostMapping("refresh")
     @IgnoreResponseAdvice
-    public String refresh() throws Exception {
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        assert requestAttributes != null;
-        HttpServletRequest request = requestAttributes.getRequest();
+    public String refresh(HttpServletRequest request) throws Exception {
         String token = request.getHeader(TokenConstants.AUTHENTICATION);
         if (StrUtil.isBlank(token)) {
             throw  new CodeException(CustomerErrorCode.TokenNotFound);
         }
-
+        request.getSession().invalidate();
         return tokenService.refreshToken(token);
     }
 

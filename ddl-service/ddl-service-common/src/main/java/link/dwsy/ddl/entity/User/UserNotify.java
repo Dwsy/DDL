@@ -20,16 +20,24 @@ import javax.persistence.Table;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime","articleFields"})
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime"})
 public class UserNotify extends BaseEntity {
     private long fromUserId;
+
     private long toUserId;
+
     private long articleId;
+
     private long commentId;
+
     private long questionId;
+
     private long answerId;
+
     private NotifyType notifyType;
+
     private String formContent;//己方
+
     private String toContent;//他方
 
 }

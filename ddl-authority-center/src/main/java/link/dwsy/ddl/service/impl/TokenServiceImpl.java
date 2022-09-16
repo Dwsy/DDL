@@ -1,7 +1,10 @@
 package link.dwsy.ddl.service.impl;
 
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-//import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import cn.hutool.crypto.SecureUtil;
+import link.dwsy.ddl.XO.RB.UserRB;
+import link.dwsy.ddl.XO.RB.UserRegisterRB;
 import link.dwsy.ddl.constant.AuthorityConstant;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -10,11 +13,8 @@ import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.core.utils.TokenParseUtil;
 import link.dwsy.ddl.core.utils.TokenUtil;
 import link.dwsy.ddl.entity.User;
-
 import link.dwsy.ddl.repository.UserRepository;
 import link.dwsy.ddl.service.TokenService;
-import link.dwsy.ddl.XO.RB.UserRB;
-import link.dwsy.ddl.XO.RB.UserRegisterRB;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -50,14 +50,26 @@ public class TokenServiceImpl implements TokenService {
         return generateToken(userRB, 0);
     }
 
+//   前端 (pwd + PublicKey -> md5) 后端( md5 (md5+salt) -> savePwd)
+
     @Override
     public String generateToken(UserRB userRB, int expire)
             throws Exception {
         User user = null;
         if (!StrUtil.hasBlank(userRB.getUsername())) {
+            user = userRepository.findByDeletedFalseAndUsername(userRB.getUsername());
+            String md5 = SecureUtil.md5(userRB.getPassword() + user.getSalt());
+            if (!user.getPassword().equals(md5)) {
+                return "0";
+            }
             user = userRepository.findUserByUsernameAndPasswordAndDeletedIsFalse(userRB.getUsername(), userRB.getPassword());
         } else {
-            user = userRepository.findUserByPhoneAndPasswordAndDeletedIsFalse(userRB.getUsername(), userRB.getPassword());
+            user = userRepository.findByDeletedFalseAndPhone(userRB.getPhone());
+
+            String md5 = SecureUtil.md5(userRB.getPassword() + user.getSalt());
+            if (!user.getPassword().equals(md5)) {
+                return "0";
+            }
         }
         if (user == null) {
             log.error("can not find user: [{}],", userRB.getUsername());
@@ -87,18 +99,25 @@ public class TokenServiceImpl implements TokenService {
 
 
     @Override
-    public String registerUserAndGenerateToken(UserRegisterRB userRegisterRB)
-            throws Exception {
+    public String registerUserAndGenerateToken(UserRegisterRB userRegisterRB) throws Exception {
+
+
         // 先去校验用户名是否存在, 如果存在, 不能重复注册
         User u = userRepository.findUserByUsernameAndDeletedIsFalse(userRegisterRB.getUsername());
         if (u != null) {
             log.error("username is registered: [{}]", userRegisterRB.getUsername());
             return null;
         }
+
+        String salt = RandomUtil.randomString(8);
+        String password = SecureUtil.md5(userRegisterRB.getPassword() + salt);
+
+
         User user = User.builder()
                 .username(userRegisterRB.getUsername())
+                .nickname(userRegisterRB.getUsername())
+                .salt(salt)
                 .password(userRegisterRB.getPassword())
-                .userInfo(userRegisterRB.getUserInfo())
                 .build();//todo 前端加密 后期加盐
         userRepository.save(user);
         // 注册一个新用户, 写一条记录到数据表中
@@ -107,7 +126,7 @@ public class TokenServiceImpl implements TokenService {
         // 生成 token 并返回
         UserRB userRB = new UserRB();
         userRB.setUsername(userRegisterRB.getUsername());
-        userRB.setPassword(userRegisterRB.getPassword());
+        userRB.setPassword(password);
 
         return generateToken(userRB);
     }

@@ -87,7 +87,7 @@ public class RSAUtil {
 
 	public static void main(String[] args) throws Exception{
 		String str = RSAUtil.encrypt("123456");
-
+		System.out.println(str);
 		System.out.println(RSAUtil.decrypt(str));
 	}
 

@@ -14,13 +14,12 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "user_active")
-// todo user是关键字要用得加双引号但是jpa并不会。。
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"username","handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime","articleFields"})
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime","articleFields"})
 public class UserActive extends BaseEntity {
     private Long userId;
 

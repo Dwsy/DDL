@@ -1,12 +1,15 @@
 package link.dwsy.ddl.XO.RB;
 
-import link.dwsy.ddl.entity.UserInfo;
+import link.dwsy.ddl.XO.Enum.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
 
 /**
  * @Author Dwsy
@@ -29,5 +32,13 @@ public class UserRegisterRB {
     @Builder.Default
     private String area = "+86";
 
-    private UserInfo userInfo;
+    @Builder.Default
+    private String avatar = "default";
+
+    private String sign;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    private Date birth;
 }
