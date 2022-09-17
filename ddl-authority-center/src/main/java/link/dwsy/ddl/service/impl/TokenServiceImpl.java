@@ -82,7 +82,7 @@ public class TokenServiceImpl implements TokenService {
         LoginUserInfo loginUserInfo = LoginUserInfo.builder()
                 .username(user.getUsername())
                 .id(user.getId())
-                .level(user.getLevel())
+
                 .nickname(user.getNickname()).build();
 
 

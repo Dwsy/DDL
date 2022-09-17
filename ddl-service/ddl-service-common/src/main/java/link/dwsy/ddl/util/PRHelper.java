@@ -14,6 +14,10 @@ public class PRHelper {
         return PageRequest.of(page < 0 ? 0 : page-1, Math.min(size, 20), sort);
     }
 
+    public static PageRequest order(Sort.Direction direction,String[] properties,int page,int size) {
+        Sort sort = Sort.by(direction, properties);
+        return PageRequest.of(page < 0 ? 0 : page-1, Math.min(size, 20), sort);
+    }
     public static Sort sort(String order, String[] properties) {
         return Sort.by(Sort.Direction.valueOf(order.toUpperCase()), properties);
     }

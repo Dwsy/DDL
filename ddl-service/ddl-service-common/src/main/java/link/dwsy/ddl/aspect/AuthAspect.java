@@ -4,6 +4,7 @@ import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
+import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -22,6 +23,8 @@ import javax.annotation.Resource;
 public class AuthAspect {
     @Resource
     private UserSupport userSupport;
+    @Resource
+    private UserRepository userRepository;
 
     @Pointcut("@annotation(link.dwsy.ddl.annotation.AuthAnnotation)")
     public void cut() {
@@ -34,7 +37,8 @@ public class AuthAspect {
         if (loginUserInfo == null) {
             throw new CodeException(CustomerErrorCode.UserNotLogin);
         }
-        int level = loginUserInfo.getLevel();
+//        int level = loginUserInfo.getLevel();
+        int level = userRepository.getUserLevelById(loginUserInfo.getId());
         if (level < authAnnotation.Level()) {
             throw new CodeException(CustomerErrorCode.UserLevelLow);
         }

@@ -13,6 +13,9 @@ import java.util.List;
  */
 public interface UserRepository extends JpaRepository<User,Long> {
 
+    @Query(nativeQuery = true, value = "select level from users where id = ?1 and deleted is false")
+    int getUserLevelById(Long id);
+
     User findUserByUsernameAndPasswordAndDeletedIsFalse(String Username, String Password);
     User findUserByPhoneAndPasswordAndDeletedIsFalse(String Username, String Password);
 
