@@ -1,9 +1,8 @@
 package link.dwsy.ddl.mq.process;
 
-import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.entity.User.UserActive;
 import link.dwsy.ddl.repository.User.UserActiveRepository;
-import link.dwsy.ddl.support.UserSupport;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -14,8 +13,7 @@ import javax.annotation.Resource;
  */
 @Service
 public class UserActiveProcess {
-    @Resource
-    UserSupport userSupport;
+
     @Resource
     UserActiveRepository userActiveRepository;
 

@@ -1,6 +1,6 @@
 package link.dwsy.ddl.repository.User;
 
-import link.dwsy.ddl.XO.Enum.CollectionType;
+import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.entity.User.UserCollection;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,4 +1,4 @@
-package link.dwsy.ddl.XO.Enum;
+package link.dwsy.ddl.XO.Enum.Message;
 
 /**
  * @Author Dwsy

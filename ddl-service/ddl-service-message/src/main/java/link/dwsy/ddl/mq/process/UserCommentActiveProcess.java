@@ -2,8 +2,8 @@ package link.dwsy.ddl.mq.process;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import link.dwsy.ddl.XO.Enum.NotifyType;
-import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.XO.Enum.Message.NotifyType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserCommentNotifyMessage;
 import link.dwsy.ddl.XO.VO.Notify.CommentNotifyVO;
 import link.dwsy.ddl.entity.User.UserNotify;

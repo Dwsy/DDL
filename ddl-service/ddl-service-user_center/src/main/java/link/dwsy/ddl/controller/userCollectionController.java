@@ -1,7 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
-import link.dwsy.ddl.XO.Enum.CollectionType;
+import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.XO.RB.UserCollectionRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;

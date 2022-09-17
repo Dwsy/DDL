@@ -1,6 +1,6 @@
 package link.dwsy.ddl.XO.VO.Notify;
 
-import link.dwsy.ddl.XO.Enum.NotifyType;
+import link.dwsy.ddl.XO.Enum.Message.NotifyType;
 import link.dwsy.ddl.entity.User.UserNotify;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,7 @@
 package link.dwsy.ddl.entity.User;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import link.dwsy.ddl.XO.Enum.Message.NotifyType;
+import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
 
@@ -14,30 +14,19 @@ import javax.persistence.Table;
  */
 
 @Entity
-@Table(name = "user_notify")
+@Table(name = "user_points")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime"})
-public class UserNotify extends BaseEntity {
-    private long fromUserId;
+public class  UserPoints  extends BaseEntity {
 
-    private long toUserId;
+    private Long userId;
 
-    private long articleId;
+    private PointsType pointsType;
 
-    private long commentId;
-
-    private long questionId;
-
-    private long answerId;
-
-    private NotifyType notifyType;
-
-    private String formContent;//己方
-
-    private String toContent;//他方
+    int point;
 
 }

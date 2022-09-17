@@ -5,6 +5,6 @@ port = 25
 # 发件人（必须正确，否则发送失败）
 from = hutool@yeah.net
 # 用户名，默认为发件人邮箱前缀
-user = hutool
+user =
 # 密码（注意，某些邮箱需要为SMTP服务单独设置授权码，详情查看相关帮助）
 pass = q1w2e3

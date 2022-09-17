@@ -15,7 +15,7 @@ import javax.annotation.Resource;
  */
 @Component
 @Slf4j
-public class UserActive {
+public class UserActiveListener {
     @Resource
     UserActiveProcess userActiveProcess;
 

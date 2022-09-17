@@ -35,6 +35,8 @@ build/
 .vscode/
 
 ### Mac OS ###
-.DS_Store!/.idea/httpRequests/
+.DS_Store!
+/.idea/httpRequests/
 
 /ddl-service/ddl-service-user_center/src/main/resources/mail.setting
+/ddl-service/ddl-service-user_center/src/main/resources/test.cof

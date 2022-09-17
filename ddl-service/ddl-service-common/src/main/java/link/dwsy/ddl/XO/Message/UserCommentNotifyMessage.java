@@ -1,6 +1,6 @@
 package link.dwsy.ddl.XO.Message;
 
-import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

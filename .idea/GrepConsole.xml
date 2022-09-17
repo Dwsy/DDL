@@ -50,5 +50,16 @@
         </option>
       </PinnedGrepConsolesState>
     </option>
+    <option name="tailHistory">
+      <TailHistory>
+        <option name="items">
+          <set>
+            <TailItem>
+              <option name="path" value="$PROJECT_DIR$/ddl-service/ddl-service-user_center/src/main/resources/mail.setting.example" />
+            </TailItem>
+          </set>
+        </option>
+      </TailHistory>
+    </option>
   </component>
 </project>

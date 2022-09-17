@@ -1,6 +1,6 @@
 package link.dwsy.ddl.service.Impl;
 
-import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.User.UserActive;
 import link.dwsy.ddl.repository.User.UserActiveRepository;

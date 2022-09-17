@@ -1,7 +1,7 @@
 package link.dwsy.ddl.entity.User;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import link.dwsy.ddl.XO.Enum.CollectionType;
+import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
 

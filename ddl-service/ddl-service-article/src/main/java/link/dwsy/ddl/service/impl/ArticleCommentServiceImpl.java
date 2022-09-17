@@ -1,7 +1,7 @@
 package link.dwsy.ddl.service.impl;
 
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
-import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserCommentNotifyMessage;
 import link.dwsy.ddl.XO.Projection.ArticleFieldInfo;
 import link.dwsy.ddl.XO.RB.ArticleCommentActionRB;

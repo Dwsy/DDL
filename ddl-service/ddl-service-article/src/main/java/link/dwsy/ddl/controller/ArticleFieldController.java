@@ -3,7 +3,7 @@ package link.dwsy.ddl.controller;
 //import link.dwsy.ddl.XO.DTO.ArticleContentDTO;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
-import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
 import link.dwsy.ddl.XO.VO.fieldVO;

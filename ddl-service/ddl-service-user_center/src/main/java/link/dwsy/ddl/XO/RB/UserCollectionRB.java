@@ -1,6 +1,6 @@
 package link.dwsy.ddl.XO.RB;
 
-import link.dwsy.ddl.XO.Enum.CollectionType;
+import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;

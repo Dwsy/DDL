@@ -1,7 +1,7 @@
 package link.dwsy.ddl;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
-import link.dwsy.ddl.XO.Enum.CollectionType;
+import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleComment;

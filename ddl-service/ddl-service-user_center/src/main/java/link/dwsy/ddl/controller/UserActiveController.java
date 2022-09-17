@@ -1,6 +1,6 @@
 package link.dwsy.ddl.controller;
 
-import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.repository.User.UserActiveRepository;
 import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
@@ -31,18 +31,29 @@ public class UserActiveController {
 
     @PostMapping("/check")
     @AuthAnnotation(Level = 0)
-    public String checkIn(){
+    public String checkIn() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR_OF_DAY, Calendar.HOUR_OF_DAY + 1);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Date zero = calendar.getTime();
+        if (userActiveRepository.existsByUserIdAndUserActiveTypeAndCreateTimeLessThanEqual
+                (userSupport.getCurrentUser().getId(),UserActiveType.Check_In, zero)) {
+            return "今日已签到";
+        }
+        userActiveService.ActiveLog(UserActiveType.Check_In, null);
+        return "签到成功";
+    }
+
+
+    public static void main(String[] args) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         Date zero = calendar.getTime();
-        if (userActiveRepository.findByUserActiveTypeAndCreateTimeGreaterThanEqualAndDeletedFalse
-                (UserActiveType.Check_In, zero).isPresent()) {
-            return "今日已签到";
-        }
-        userActiveService.ActiveLog(UserActiveType.Check_In, null);
-        return "签到成功";
+        System.out.println(zero);
     }
 }
