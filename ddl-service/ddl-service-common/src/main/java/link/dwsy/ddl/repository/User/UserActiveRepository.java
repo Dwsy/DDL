@@ -14,7 +14,11 @@ import java.util.Date;
 public interface UserActiveRepository extends JpaRepository<UserActive, Long> {
 
 
-    boolean existsByUserIdAndUserActiveTypeAndCreateTimeLessThanEqual(Long userId, UserActiveType userActiveType, Date createTime);
+
+    boolean existsByCreateTimeBetween(Date createTimeStart, Date createTimeEnd);
+
+
+    boolean existsByUserIdIsAndUserActiveTypeAndCreateTimeBetween(Long id, UserActiveType userActiveType, Date createTimeStart, Date createTimeEnd);
 
 
 

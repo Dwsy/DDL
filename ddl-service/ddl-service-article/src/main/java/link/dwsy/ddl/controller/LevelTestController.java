@@ -1,5 +1,7 @@
 package link.dwsy.ddl.controller;
 
+import link.dwsy.ddl.XO.Enum.User.PointsType;
+import link.dwsy.ddl.annotation.Points;
 import link.dwsy.ddl.annotation.UserActiveLog;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
@@ -42,6 +44,7 @@ public class LevelTestController {
     }
 
     @GetMapping("v")
+    @Points(TYPE = PointsType.Publish_Article)
     public void aVoid() {
         System.out.println("void");
     }

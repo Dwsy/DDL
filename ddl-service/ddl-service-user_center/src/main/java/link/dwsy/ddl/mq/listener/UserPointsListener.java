@@ -27,10 +27,9 @@ public class UserPointsListener {
 
     @RabbitListener(queues = UserPointsConstants.QUEUE_DDL_USER_POINTS)
     public void points(UserPointsMessage message) {
+        System.out.println(11);
         if (!userPointsProcess.pointsLimit(message))
             return;
-
-
 
         Long userId = message.getUserId();
         PointsType pointsType = message.getPointsType();
@@ -40,6 +39,6 @@ public class UserPointsListener {
                 .point(pointsType.getPoint())
                 .pointsType(pointsType)
                 .build());
-        log.info("用户{}积分记录{}成功", message.getUserId(), message.getPointsType().toString());
+        log.info("用户{}积分记录{}成功", message.getUserId(), message.getPointsType().point);
     }
 }
