@@ -2,6 +2,7 @@ package link.dwsy.ddl.entity.Message;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import link.dwsy.ddl.XO.Enum.Message.ChannelState;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.User.User;
 import lombok.*;

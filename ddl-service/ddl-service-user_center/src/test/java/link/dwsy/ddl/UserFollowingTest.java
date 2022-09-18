@@ -1,16 +1,18 @@
 package link.dwsy.ddl;
 
+import com.alibaba.fastjson2.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.entity.User.UserFollowing;
 import link.dwsy.ddl.repository.User.UserFollowingRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.util.PageData;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import javax.annotation.Resource;
@@ -43,10 +45,10 @@ public class UserFollowingTest {
 
     @Test
     public void test2() throws JsonProcessingException {
-        List<User> following = getUserFollowing(3);
-        System.out.println(new ObjectMapper().writeValueAsString(following));
-        List<User> follower = getUserFollower(3);
-        System.out.println(new ObjectMapper().writeValueAsString(follower));
+//        List<User> following = getUserFollowing(3);
+//        System.out.println(new ObjectMapper().writeValueAsString(following));
+//        List<User> follower = getUserFollower(3);
+//        System.out.println(new ObjectMapper().writeValueAsString(follower));
     }
 
     public void FollowUser(long uid, long fid) {
@@ -63,16 +65,27 @@ public class UserFollowingTest {
     public List<User> getUserFollowing(long uid) {
         PageRequest of = PageRequest.of(0, 10);
         Page<BigInteger> followingUserIdList = userFollowingRepository.findFollowingUserIdList(uid, of);
+
         List<Long> longList = followingUserIdList.getContent().stream().map(BigInteger::longValue).collect(Collectors.toList());
 //        followingUserIdList.getContent().
         return userRepository.findAllById(longList);
     }
 
+
+    @Test
+    public void TT() {
+        getUserFollower(3L);
+    }
     //    获取粉丝列表
-    public List<User> getUserFollower(long uid) {
-        PageRequest of = PageRequest.of(0, 10);
+    public void getUserFollower(long uid) {
+        PageRequest of = PageRequest.of(0, 5);
         Page<BigInteger> followerUserIdList = userFollowingRepository.findFollowerUserIdList(uid, of);
         List<Long> longList = followerUserIdList.getContent().stream().map(BigInteger::longValue).collect(Collectors.toList());
-        return userRepository.findAllById(longList);
+        List<User> userList = userRepository.findAllById(longList);
+        Page<User> users = new PageImpl<>(userList, of, followerUserIdList.getTotalElements());
+        PageData<User> pageData = new PageData<>(users);
+
+        System.out.println(JSON.toJSONString(pageData));
+
     }
 }

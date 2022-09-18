@@ -1,4 +1,4 @@
-package link.dwsy.ddl.entity;
+package link.dwsy.ddl.XO.Enum;
 
 public enum WordType {
     Allow,

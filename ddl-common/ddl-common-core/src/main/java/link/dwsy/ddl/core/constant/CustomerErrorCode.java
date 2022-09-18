@@ -31,6 +31,9 @@ public enum CustomerErrorCode {
     OldPWDEqualsNewPWD(119,"新旧密码不能相同" ),
 
     OldPWDWrong(120,"旧密码错误" ),
+
+    UserAlreadyFollowed(130,"已关注用户" ),
+    UserNotFollowed(131,"未关注用户" ),
     ArticleNotFound(201, "文章不存在"),
     GroupNotFound(202, "分组不出存在"),
 
@@ -72,7 +75,7 @@ public enum CustomerErrorCode {
 
     WordNotFount(10001, "未找到该词"),
 
-    WordExist(10002, "该词已存在"), CaptchaWrong(100004, "验证码错误");
+    WordExist(10002, "该词已存在"), CaptchaWrong(100004, "验证码错误"), ;
 
 
 

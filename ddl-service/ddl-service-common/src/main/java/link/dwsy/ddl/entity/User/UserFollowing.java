@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * @Author Dwsy
@@ -26,5 +27,8 @@ public class UserFollowing extends BaseEntity {
 
 
     private Long followingUserId;
+
+    @Transient
+    private boolean mutual;
 
 }

@@ -39,6 +39,8 @@ public interface ChannelRepository extends JpaRepository<Channel, Long> {
     @Query(nativeQuery = true,
             value = "select user_id from channel_user_ref where channel_id=?1")
     List<Long> findChannelUser(long l);
+
+
 //
 //    @Query(nativeQuery = true,value = ""
 }

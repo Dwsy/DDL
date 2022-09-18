@@ -1,7 +1,7 @@
 package link.dwsy.ddl.repository.ContentChecking;
 
 import link.dwsy.ddl.entity.ContentChecking.WordEntity;
-import link.dwsy.ddl.entity.WordType;
+import link.dwsy.ddl.XO.Enum.WordType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 

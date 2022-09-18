@@ -70,6 +70,14 @@ public class userCollectionController {
         Long gid = userCollectionRB.getGroupId();
         Long sid = userCollectionRB.getSourceId();
         Long uid = userSupport.getCurrentUser().getId();
+
+        UserCollectionGroup userCollectionGroup = userCollectionGroupRepository.findByIdAndUserIdAndDeletedIsFalse(gid, uid);
+
+        if (userCollectionGroup == null) {
+            throw new CodeException(CustomerErrorCode.UserCollectionGroupNotExist);
+        }
+
+
         Optional<UserCollection> uce = userCollectionRepository
                 .findByDeletedFalseAndUserIdAndSourceIdAndUserCollectionGroup_IdAndCollectionType(uid, sid, gid, collectionType);
         uce.ifPresent(userCollection -> {
@@ -96,11 +104,6 @@ public class userCollectionController {
                 throw new CodeException(CustomerErrorCode.UserCollectionAlreadyExist);
             }
         });
-        UserCollectionGroup userCollectionGroup = userCollectionGroupRepository.findByIdAndUserIdAndDeletedIsFalse(gid, uid);
-
-        if (userCollectionGroup == null) {
-            throw new CodeException(CustomerErrorCode.UserCollectionGroupNotExist);
-        }
 
         userCollectionGroup.setCollectionNum(userCollectionGroup.getCollectionNum() + 1);
         UserCollectionGroup g = userCollectionGroupRepository.save(userCollectionGroup);

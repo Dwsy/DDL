@@ -58,6 +58,7 @@ public class UserCollectionGroupController {
 
     @PostMapping("create_default")
     @AuthAnnotation
+//    todo 注册用户创建默认分组
     public void createDefaultGroup() {
         Long uid = userSupport.getCurrentUser().getId();
 

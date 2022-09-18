@@ -3,7 +3,7 @@ package link.dwsy.ddl.config;
 
 import com.github.houbb.sensitive.word.api.IWordDeny;
 import link.dwsy.ddl.entity.ContentChecking.WordEntity;
-import link.dwsy.ddl.entity.WordType;
+import link.dwsy.ddl.XO.Enum.WordType;
 import link.dwsy.ddl.repository.ContentChecking.WordReptitory;
 import org.springframework.stereotype.Component;
 
