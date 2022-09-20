@@ -53,6 +53,12 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         PageData<fieldVO> fieldVOPageData = new PageData<>(fieldVOList);
         return fieldVOPageData;
     }
+    public PageData<fieldVO> getPageList(PageRequest pageRequest, ArticleState articleState, long articleTagId) {
+
+        Page<fieldVO> fieldVOList = articleFieldRepository.findByDeletedFalseAndArticleStateAndArticleTags_Id
+                (articleState, articleTagId,pageRequest);
+        return new PageData<>(fieldVOList);
+    }
 
     public ArticleField getArticleById(long id, ArticleState articleState) {
         ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(id, articleState);

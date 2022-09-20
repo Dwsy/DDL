@@ -31,9 +31,9 @@ public interface fieldVO {
 
     String getBanner();
 
-//    long getArticleContentId();
+    //    long getArticleContentId();
 //    private ArticleContent articleContent;
-
+    String getCreateTime();
     Set<ArticleTag> getArticleTags();
 
     ArticleGroup getArticleGroup();

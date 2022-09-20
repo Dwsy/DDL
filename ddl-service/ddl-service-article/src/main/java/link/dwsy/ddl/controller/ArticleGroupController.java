@@ -3,6 +3,7 @@ package link.dwsy.ddl.controller;
 import link.dwsy.ddl.XO.RB.ArticleGroupRB;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.annotation.UserActiveLog;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleGroup;
@@ -29,6 +30,7 @@ public class ArticleGroupController {
     ArticleGroupServiceImpl articleGroupService;
 
     @GetMapping("list")
+    @UserActiveLog
     public List<ArticleGroup> getGroupList(
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {

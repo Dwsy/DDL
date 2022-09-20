@@ -111,4 +111,16 @@ public class article_TagGroupTest {
         articleGroupRepository.save(ArticleGroup.builder().name("前端").build());
         articleGroupRepository.save(ArticleGroup.builder().name("后端").build());
     }
+
+    @Test
+    public void listByTag() {
+        for (fieldVO articleField : articleFieldRepository.findByDeletedFalseAndArticleStateAndArticleTags_Id(ArticleState.open, 1L, PageRequest.of(0, 10))) {
+            articleField.getArticleTags().forEach(t->{
+                System.out.println(t.getName());
+                System.out.println(t.getCreateTime());
+            });
+            System.out.println("----------");
+        }
+
+    }
 }
