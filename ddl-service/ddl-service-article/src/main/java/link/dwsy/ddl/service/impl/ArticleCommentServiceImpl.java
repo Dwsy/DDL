@@ -8,6 +8,7 @@ import link.dwsy.ddl.XO.RB.ArticleCommentActionRB;
 import link.dwsy.ddl.XO.RB.ArticleCommentRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
+import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.User.User;
@@ -20,10 +21,12 @@ import link.dwsy.ddl.util.PageData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @Author Dwsy
@@ -48,10 +51,30 @@ public class ArticleCommentServiceImpl {
     public PageData<ArticleComment> getByArticleId(long aid, PageRequest pageRequest) {
         Page<ArticleComment> parentComment = articleCommentRepository.
                 findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, 0L, pageRequest);
-        for (ArticleComment ArticleComment : parentComment) {
-            long pid = ArticleComment.getId();
-            ArticleComment.setChildComments(articleCommentRepository.findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, pid));
+        for (ArticleComment articleComment : parentComment) {
+            long pid = articleComment.getId();
+            Set<ArticleComment> childCommentSet = articleCommentRepository.
+                    findByDeletedFalseAndArticleFieldIdAndParentCommentIdAndCommentType(aid, pid,CommentType.comment,Sort.by(Sort.Direction.ASC, "createTime"));
+            articleComment.setChildComments(childCommentSet);
+//            ArticleComment.setChildComments(articleCommentRepository.findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, pid));
+            //添加点赞状态
+            LoginUserInfo user = userSupport.getCurrentUser();
+            if (user!=null){
+                articleCommentRepository.
+                        findByUserIdAndParentCommentIdAndCommentTypeIn
+                                (user.getId(), pid, Set.of(CommentType.up, CommentType.down))
+                        .ifPresent(c -> articleComment.setUserAction(c.getCommentType()));
+                //添加子评论点赞状态
+                for (ArticleComment childComment : childCommentSet) {
+                    articleCommentRepository.
+                            findByUserIdAndParentCommentIdAndCommentTypeIn
+                                    (user.getId(), childComment.getId(), Set.of(CommentType.up, CommentType.down))
+                            .ifPresent(c -> childComment.setUserAction(c.getCommentType()));
+                }
+            }
+
         }
+        //todo 限制子评论条数  优先展示赞数最多的top条 之后 另外按时间排序 获取剩余的
         return new PageData<>(parentComment);
     }
 
@@ -112,7 +135,7 @@ public class ArticleCommentServiceImpl {
             if (t.isPresent()) {
                 title = t.get().getTitle();
             }
-            sendActionMqMessage(save.getId(),articleCommentRB.getParentUserId(), commentType, false, content, title);
+            sendActionMqMessage(save.getId(), articleCommentRB.getParentUserId(), commentType, false, content, title);
         }
     }
 
@@ -151,41 +174,75 @@ public class ArticleCommentServiceImpl {
         if (commentType == CommentType.comment || commentType == CommentType.cancel) {
             throw new CodeException(CustomerErrorCode.ParamError);
         }
-        if (articleCommentRepository.existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType
+        if (!articleCommentRepository.existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType
                 (commentActionRB.getActionCommentId(), commentActionRB.getArticleFieldId(), CommentType.comment)) {
             throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
         }
 
 
         if (articleCommentRepository
-                .existsByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot(uid, fid, pid, CommentType.comment)) {
+                .existsByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot
+                        (uid, fid, pid, CommentType.comment)) {
 //            exists cancel
 //            up -> cancel ->up state transfer base database ont is user action
 //            one row is one action
+
             ArticleComment comment = articleCommentRepository
-                    .findByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot(uid, fid, pid, CommentType.comment);
+                    .findByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot
+                            (uid, fid, pid, CommentType.comment);
+            if (comment.getCommentType() == CommentType.cancel) {
+                if (commentType == CommentType.up) {
+                    comment.setCommentType(commentType);
+                    articleCommentRepository.save(comment);
+                    articleCommentRepository.upNumIncrement(pid, 1);
+                    articleCommentRepository.
+                            updateCommentTypeByIdAndDeletedFalse(commentType, comment.getId());
+                    sendActionMqMessage(pid, fid, commentType, false);
+                }
+                if (commentType == CommentType.down) {
+                    comment.setCommentType(commentType);
+                    articleCommentRepository.save(comment);
+                    articleCommentRepository.downNumIncrement(pid, 1);
+                    articleCommentRepository.
+                            updateCommentTypeByIdAndDeletedFalse(commentType, comment.getId());
+
+                }
+                return comment.getCommentType();
+            }
+
             if (comment.getCommentType() == commentType) {
                 if (commentType == CommentType.up) {//相同2次操作取消
-                    articleCommentRepository.upNumIncrement(fid, -1);
+                    articleCommentRepository.upNumIncrement(pid, -1);//取消点赞-1
+                    sendActionMqMessage(pid, fid, commentType, true);
+//                    articleCommentRepository.updateCommentTypeByIdAndDeletedFalse(CommentType.cancel, comment.getId());
                 } else {
-                    articleCommentRepository.downNumIncrement(fid, -1);
+                    articleCommentRepository.downNumIncrement(pid, -1); //取消踩  +1
+//                    articleCommentRepository.updateCommentTypeByIdAndDeletedFalse(CommentType.cancel, comment.getId());
                 }
 
                 comment.setCommentType(CommentType.cancel);
-                sendActionMqMessage(pid, fid, commentType, true);
 
-            } else {//点赞->点踩  先取消点赞 再点踩
+
+            } else {//点踩->点赞 / 点赞->点踩  先取消点赞 再点踩 返回叠加状态 to
                 if (commentType == CommentType.up) {
-                    articleCommentRepository.downNumIncrement(fid, -1);
-                    articleCommentRepository.upNumIncrement(fid, 1);
+                    articleCommentRepository.downNumIncrement(pid, -1);
+                    sendActionMqMessage(pid, fid, commentType, false);
+                    articleCommentRepository.upNumIncrement(pid, 1);
+                    comment.setCommentType(CommentType.up);
+                    articleCommentRepository.save(comment);
+                    return CommentType.downToUp;
 
                 } else {
-                    articleCommentRepository.downNumIncrement(fid, 1);
-                    articleCommentRepository.upNumIncrement(fid, -1);
+                    articleCommentRepository.downNumIncrement(pid, 1);
+                    articleCommentRepository.upNumIncrement(pid, -1);
+                    comment.setCommentType(CommentType.down);
+                    articleCommentRepository.save(comment);
+                    return CommentType.upToDown;
                 }
-                sendActionMqMessage(pid, fid, commentType, false);
-                comment.setCommentType(commentType);
+
+
             }
+            articleCommentRepository.save(comment);
             return comment.getCommentType();
         }
 
@@ -198,11 +255,13 @@ public class ArticleCommentServiceImpl {
 
         long ActionUserId;
 
-        if (fid != -1) {
-            ArticleComment actionComment = articleCommentRepository.findByDeletedFalseAndIdAndCommentType(actionCommentId, CommentType.comment);
+        if (pid != -1) {// -1 是啥玩意  想起来料 -1是文章
+            ArticleComment actionComment = articleCommentRepository.
+                    findByDeletedFalseAndIdAndCommentType(actionCommentId, CommentType.comment);
             ActionUserId = actionComment.getUser().getId();
+            articleCommentRepository.upNumIncrement(actionCommentId, 1);
         } else {
-            ActionUserId = 0;
+            ActionUserId = 0;//文章
             if (commentType == CommentType.up) {
                 articleFieldRepository.upNumIncrement(fid, 1);
                 sendActionMqMessage(pid, fid, commentType, false);
@@ -262,7 +321,6 @@ public class ArticleCommentServiceImpl {
                 .commentId(commentId)
 
                 .ua(userSupport.getUserAgent())
-
 
 
                 .cancel(cancel)

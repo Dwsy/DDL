@@ -61,8 +61,8 @@ public class ArticleCommentController {
 
     @PostMapping("/action")
     @AuthAnnotation
-    public CommentType action(@Validated @RequestBody ArticleCommentActionRB commentActionRB) {
+    public int action(@Validated @RequestBody ArticleCommentActionRB commentActionRB) {
         CommentType action = articleCommentService.action(commentActionRB);
-        return action;
+        return action.ordinal();
     }
 }

@@ -13,6 +13,7 @@ import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.core.utils.TokenParseUtil;
 import link.dwsy.ddl.core.utils.TokenUtil;
 import link.dwsy.ddl.entity.User;
+import link.dwsy.ddl.entity.UserInfo;
 import link.dwsy.ddl.repository.UserRepository;
 import link.dwsy.ddl.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
@@ -58,26 +59,37 @@ public class TokenServiceImpl implements TokenService {
         User user = null;
         if (!StrUtil.hasBlank(userRB.getUsername())) {
             user = userRepository.findByDeletedFalseAndUsername(userRB.getUsername());
-            String md5 = SecureUtil.md5(userRB.getPassword() + user.getSalt());
-            if (!user.getPassword().equals(md5)) {
-                return "0";
+            if (user == null) {
+                log.error("can not find user: [{}],", userRB.getUsername());
+                return "username or password error";
+//            throw new Exception("登录失败");
             }
-            user = userRepository.findUserByUsernameAndPasswordAndDeletedIsFalse(userRB.getUsername(), userRB.getPassword());
+            String md5Pwd = SecureUtil.md5(userRB.getPassword() + user.getSalt());
+
+            if (!user.getPassword().equals(md5Pwd)) {
+//                log.error("can not find user: [{}],", userRB.getUsername());
+                return "username or password error";
+            }
+            user = userRepository.findUserByUsernameAndPasswordAndDeletedIsFalse(userRB.getUsername(), md5Pwd);
         } else {
             user = userRepository.findByDeletedFalseAndPhone(userRB.getPhone());
-
+            if (user == null) {
+                log.error("can not find user: [{}],", userRB.getUsername());
+                return "username or password error";
+            }
             String md5 = SecureUtil.md5(userRB.getPassword() + user.getSalt());
             if (!user.getPassword().equals(md5)) {
-                return "0";
+                //todo 密码多次错误锁定ip
+//                log.error("can not find user: [{}],", userRB.getUsername());
+                return "username or password error.";
             }
         }
+        // 首先需要验证用户是否能够通过授权校验, 即输入的用户名和密码能否匹配数据表记录
         if (user == null) {
             log.error("can not find user: [{}],", userRB.getUsername());
-            return "0";
+            return "username or password error";
 //            throw new Exception("登录失败");
         }
-//         首先需要验证用户是否能够通过授权校验, 即输入的用户名和密码能否匹配数据表记录
-
         // Token 中塞入对象, 即 JWT 中存储的信息, 后端拿到这些信息就可以知道是哪个用户在操作
         LoginUserInfo loginUserInfo = LoginUserInfo.builder()
                 .username(user.getUsername())
@@ -98,37 +110,51 @@ public class TokenServiceImpl implements TokenService {
     }
 
 
+    public void test(UserRB userRB) {
+        System.out.println(userRB.getUsername());
+        System.out.println(userRB.getPassword());
+    }
+
     @Override
     public String registerUserAndGenerateToken(UserRegisterRB userRegisterRB) throws Exception {
+        // {front} 明文密码-> rasDecode(md5(pwd)) ->
+        // {server} pwd= rsaEncode(body.pwd) ->md5(pwd+salt~Random(8,str)) -> savePwd
+        // 好像后端不需要解密, 直接保存就行了
 
 
         // 先去校验用户名是否存在, 如果存在, 不能重复注册
         User u = userRepository.findUserByUsernameAndDeletedIsFalse(userRegisterRB.getUsername());
         if (u != null) {
             log.error("username is registered: [{}]", userRegisterRB.getUsername());
-            return null;
+            return "username is registered";
         }
-
+        String registerRBPassword = userRegisterRB.getPassword();
         String salt = RandomUtil.randomString(8);
-        String password = SecureUtil.md5(userRegisterRB.getPassword() + salt);
+        String password = SecureUtil.md5(registerRBPassword + salt);
 
 
         User user = User.builder()
                 .username(userRegisterRB.getUsername())
                 .nickname(userRegisterRB.getUsername())
                 .salt(salt)
-                .password(userRegisterRB.getPassword())
-                .build();//todo 前端加密 后期加盐
+                .password(password)
+                .build();
+        user.setUserInfo(UserInfo.builder()
+                        .avatar("https://tva4.sinaimg.cn/large/005NWBIgly1h6ffm4ez6bj30fo0fogra.jpg")
+                        .build());
         userRepository.save(user);
         // 注册一个新用户, 写一条记录到数据表中
-        log.info("register user success: [{}], [{}]", user.getUsername(),
-                user.getId());
+        log.info("register user success: [{}], [{}],[{}]", user.getUsername(), user.getId(), user.getPassword());
         // 生成 token 并返回
-        UserRB userRB = new UserRB();
-        userRB.setUsername(userRegisterRB.getUsername());
-        userRB.setPassword(password);
-
-        return generateToken(userRB);
+        LoginUserInfo loginUserInfo = LoginUserInfo.builder()
+                .username(user.getUsername())
+                .id(user.getId())
+                .nickname(user.getNickname()).build();
+        var expire = AuthorityConstant.DEFAULT_EXPIRE_DAY;
+        ZonedDateTime zdt = LocalDate.now().plus(expire, ChronoUnit.DAYS)
+                .atStartOfDay(ZoneId.systemDefault());
+        Date expireDate = Date.from(zdt.toInstant());
+        return TokenUtil.generateToken(loginUserInfo, expireDate);
     }
 
     public void blackToken(String token) {
@@ -143,7 +169,7 @@ public class TokenServiceImpl implements TokenService {
                 loginUserInfo = TokenParseUtil.parseUserInfoFromToken(token);
             } catch (Exception ex) {
                 log.error("parse user info from token error: [{}]", ex.getMessage(), ex);
-                throw  new CodeException(CustomerErrorCode.TokenParseError);
+                throw new CodeException(CustomerErrorCode.TokenParseError);
             }
         }
         assert loginUserInfo != null;
@@ -152,7 +178,7 @@ public class TokenServiceImpl implements TokenService {
         if (user != null) {
             userRB.setUsername(user.getUsername());
             userRB.setPassword(user.getPassword());
-        }else {
+        } else {
             throw new CodeException(CustomerErrorCode.UserNotExist);
         }
         String newToken = generateToken(userRB);

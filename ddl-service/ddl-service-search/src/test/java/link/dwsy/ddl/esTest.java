@@ -85,7 +85,7 @@ public class esTest {
     }
 
     @Test
-    public void Test() throws IOException {
+    public void TestPutAll() throws IOException {
 //        indexRequest(9L);
 //        GetRequest build = new GetRequest.Builder().index(INDEX).id("9").build();
 //        get(1L);
@@ -121,6 +121,7 @@ public class esTest {
                         .build()).collect(Collectors.toList()))
                 .suggestion(ArticleEsSuggestion.
                         create(af.getTitle(), af.getArticleGroup().getName(), af.getArticleTags()))
+                .createTime(af.getCreateTime())
                 .build();
 
         Result result = client.create(req ->
@@ -190,7 +191,7 @@ public class esTest {
     public void q() throws IOException {
 
 
-//        oder("title", 1, 10);
+        oder("title", 1, 10);
     }
 
 

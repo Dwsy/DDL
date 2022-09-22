@@ -4,11 +4,13 @@ import link.dwsy.ddl.XO.Enum.Article.CommentType;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,9 +21,18 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
 
     Page<ArticleComment> findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(long fid, long pid, Pageable pageable);
 
+    Page<ArticleComment> findByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentType(long id, long parentCommentId, CommentType commentType, Pageable pageable);
+
+
+
     Optional<ArticleComment> findByDeletedFalseAndId(long id);
 
     Set<ArticleComment> findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(long fid, long pid);
+
+    Set<ArticleComment> findByDeletedFalseAndArticleFieldIdAndParentCommentIdAndCommentType(long fid, long pid,CommentType commentType, Sort sort);
+
+
+
 
     @Query(value = "select parent_comment_id=0 from article_comment a where id=?1", nativeQuery = true)
     boolean isFirstAnswer(long parentCommentId);
@@ -47,15 +58,28 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
     @Transactional
     @Query(nativeQuery = true,
             value = "update article_comment set up_num=up_num+?2 where id=?1")
-    int upNumIncrement(long aid, int num);
+    int upNumIncrement(long cid, int num);
 
     @Modifying
     @Transactional
     @Query(nativeQuery = true,
             value = "update article_comment set down_num=down_num+?2 where id=?1")
-    int downNumIncrement(long aid, int num);
+    int downNumIncrement(long cid, int num);
 
     @Query(nativeQuery = true, value =
             "select user_id from article_comment where id=?1 and deleted=false")
     Long getUserIdByCommentId(Long id);
+
+    @Transactional
+    @Modifying
+    @Query("update ArticleComment a set a.commentType = ?1 where a.id = ?2 and a.deleted = false")
+    int updateCommentTypeByIdAndDeletedFalse(CommentType commentType, long id);
+
+    Optional<ArticleComment> findByUserIdAndParentCommentIdAndCommentTypeIn
+            (long uid, long parentCommentId, Collection<CommentType> commentTypes);
+
+
+
+
+
 }

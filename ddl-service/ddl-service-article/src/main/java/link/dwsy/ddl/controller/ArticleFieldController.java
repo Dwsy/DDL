@@ -3,7 +3,7 @@ package link.dwsy.ddl.controller;
 //import link.dwsy.ddl.XO.DTO.ArticleContentDTO;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
-import link.dwsy.ddl.XO.Enum.UserActiveType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
 import link.dwsy.ddl.XO.VO.fieldVO;
@@ -51,7 +51,7 @@ public class ArticleFieldController {
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
-            @RequestParam(required = false, defaultValue = "0", name = "tag") long tagId) {
+            @RequestParam(required = false, defaultValue = "0", name = "tagId") long tagId) {
         if (size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);

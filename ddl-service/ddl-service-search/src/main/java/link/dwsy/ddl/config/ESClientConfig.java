@@ -18,7 +18,6 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +48,8 @@ public class ESClientConfig {
 
     @Setter
     private String password;
+    @Setter
+    private String ca;
 
     @Setter
     private String apikey;
@@ -82,8 +83,8 @@ public class ESClientConfig {
     }
 
     private static SSLContext buildSSLContext() {
-//        ClassPathResource resource = new ClassPathResource("ca.crt");
-        ClassPathResource resource = new ClassPathResource("vm_ca.crt");
+        ClassPathResource resource = new ClassPathResource("ca.crt");
+//        ClassPathResource resource = new ClassPathResource("vm_ca.crt");
         SSLContext sslContext = null;
         try {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");

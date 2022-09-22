@@ -71,4 +71,11 @@ public class CommentTest {
         replyComment();
 
     }
+
+    @Test
+    public void UpTest(){
+//        articleCommentRepository.upNumIncrement(1, -1);
+        articleCommentRepository.
+                updateCommentTypeByIdAndDeletedFalse(CommentType.up, 15);
+    }
 }

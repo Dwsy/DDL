@@ -86,9 +86,11 @@ public class RSAUtil {
 			"5EPg8Cor5bJbmttGz4sU+4+NTzqCbA==";
 
 	public static void main(String[] args) throws Exception{
-		String str = RSAUtil.encrypt("123456");
-		System.out.println(str);
-		System.out.println(RSAUtil.decrypt(str));
+//		String str = RSAUtil.encrypt("123456");
+//		System.out.println(str);
+//		System.out.println(RSAUtil.decrypt(str));
+		String pwd = "123456";
+		System.out.println(RSAUtil.encrypt(pwd));
 	}
 
 	public static String getPublicKeyStr(){

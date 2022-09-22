@@ -1,6 +1,5 @@
 package link.dwsy.ddl.entity;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,7 +19,7 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private boolean deleted = false;
     @CreatedDate

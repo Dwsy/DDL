@@ -75,7 +75,7 @@ elasticsearch:
   hosts: localhost:9200
   username: elastic
   password: uW66TS36Z0FGhDKKzeQL
-  ca: vm_ca.crt
+  ca: ca.crt
 #  ca: ca.crt
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092

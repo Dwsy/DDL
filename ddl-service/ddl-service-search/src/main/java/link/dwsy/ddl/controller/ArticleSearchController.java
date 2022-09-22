@@ -11,6 +11,8 @@ import link.dwsy.ddl.XO.Index.ArticleIndex;
 import link.dwsy.ddl.annotation.UserActiveLog;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
+import link.dwsy.ddl.util.PageData;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +44,7 @@ public class ArticleSearchController {
 
     @GetMapping("{query}")
     @UserActiveLog
-    public List<ArticleEsDoc> search(@PathVariable String query,
+    public PageData<ArticleEsDoc> search(@PathVariable String query,
                                      @RequestParam(defaultValue = "1") int page,
                                      @RequestParam(defaultValue = "10") int size
     ) throws IOException {
@@ -76,6 +78,12 @@ public class ArticleSearchController {
                 }, ArticleEsDoc.class
         );
 
+        return getPageData(page, size, search);
+
+    }
+
+    @NotNull
+    private static PageData<ArticleEsDoc> getPageData(int page, int size, SearchResponse<ArticleEsDoc> search) {
         HitsMetadata<ArticleEsDoc> hits = search.hits();
         List<Hit<ArticleEsDoc>> hitList = hits.hits();
         List<ArticleEsDoc> retSearch = new ArrayList<>();
@@ -90,9 +98,24 @@ public class ArticleSearchController {
 //                todo 字段二选一 但是@JsonIgnore 会让es c反序列化也失效
             retSearch.add(source);
         }
+        PageData<ArticleEsDoc> docPageData = new PageData<>();
+        docPageData.setContent(retSearch);
+        assert hits.total() != null;
+        docPageData.setTotalElements(hits.total().value());
+        docPageData.setPageNumber(page);
 
-        return retSearch;
-
+        docPageData.setTotalPages((int) Math.ceil((double) hits.total().value() / size));
+        docPageData.setPageSize(size);
+        if (page == 1) {
+            docPageData.setFirst(true);
+        }
+        if (page ==docPageData.getTotalPages()){
+            docPageData.setLast(true);
+        }
+        if (retSearch.isEmpty()){
+            docPageData.setEmpty(true);
+        }
+        return docPageData;
     }
 
 

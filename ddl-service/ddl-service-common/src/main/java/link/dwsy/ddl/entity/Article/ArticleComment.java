@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.Article;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
@@ -31,6 +32,10 @@ public class ArticleComment extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Transient
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER) //返回值
+    private CommentType userAction;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private ArticleField articleField;
@@ -61,6 +66,7 @@ public class ArticleComment extends BaseEntity {
 
     @Builder.Default
     @Enumerated(EnumType.ORDINAL)
+    @JsonIgnore
     private CommentType commentType = CommentType.comment;
 
     @Lob

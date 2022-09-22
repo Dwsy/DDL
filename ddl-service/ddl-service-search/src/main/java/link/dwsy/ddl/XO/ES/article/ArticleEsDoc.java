@@ -1,10 +1,12 @@
 package link.dwsy.ddl.XO.ES.article;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,6 +24,8 @@ public class ArticleEsDoc {
     private String title;
     private String content;
     private String summary;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date createTime;
     private String group;
     private List<ArticleTagEsDoc> tagList;
     private int viewNum;
