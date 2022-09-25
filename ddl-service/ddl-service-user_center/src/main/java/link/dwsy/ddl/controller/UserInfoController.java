@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.RB.UserInfoRB;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.entity.User.UserInfo;
 import link.dwsy.ddl.repository.User.UserRepository;
@@ -20,6 +21,7 @@ public class UserInfoController {
     UserSupport userSupport;
 
     @GetMapping
+    @AuthAnnotation(Level = 1)
     public UserInfo getUserInfo() {
         Long id = userSupport.getCurrentUser().getId();
         return userRepository.findUserByIdAndDeletedIsFalse(id).getUserInfo();

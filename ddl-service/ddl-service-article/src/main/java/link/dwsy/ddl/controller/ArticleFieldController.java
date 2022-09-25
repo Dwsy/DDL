@@ -3,9 +3,9 @@ package link.dwsy.ddl.controller;
 //import link.dwsy.ddl.XO.DTO.ArticleContentDTO;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
-import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
+import link.dwsy.ddl.XO.VO.UserActionVO;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
@@ -57,8 +57,8 @@ public class ArticleFieldController {
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         if (tagId == 0) {
             return articleContentService.getPageList(pageRequest, ArticleState.open);
-        }else {
-            return articleContentService.getPageList(pageRequest, ArticleState.open,tagId);
+        } else {
+            return articleContentService.getPageList(pageRequest, ArticleState.open, tagId);
         }
     }
 
@@ -66,8 +66,15 @@ public class ArticleFieldController {
     public ArticleField getArticleById(@PathVariable("id") Long id) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
-        articleFieldService.ActiveLog(UserActiveType.Browse_Article, id);
         return articleContentService.getArticleById(id, ArticleState.open);
+    }
+
+
+    @GetMapping("field/action/{id}")
+    @AuthAnnotation(Level = 1)
+    public UserActionVO getUserAction(@PathVariable Long id) {
+
+        return articleContentService.getUserAction(id);
     }
 
     /**
@@ -100,26 +107,28 @@ public class ArticleFieldController {
         Long articleId = articleFieldService.createArticle(articleContentRB);
         return articleId;
     }
+
     @PutMapping
     @AuthAnnotation
     public Long updateArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
-        if (articleContentRB.getArticleId() == null||articleContentRB.getArticleId()<0) {
+        if (articleContentRB.getArticleId() == null || articleContentRB.getArticleId() < 0) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
         Long articleId = articleFieldService.updateArticle(articleContentRB);
         return articleId;
     }
+
     @DeleteMapping("{articleId}")
     @AuthAnnotation
     public boolean deleteArticle(@PathVariable Long articleId) {
-        if (articleId == null||articleId<0) {
+        if (articleId == null || articleId < 0) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
 
         try {
             articleFieldService.logicallyDeleted(articleId);
         } catch (Exception e) {
-            log.info("删除文章{}失败",articleId);
+            log.info("删除文章{}失败", articleId);
             return false;
         }
         return true;

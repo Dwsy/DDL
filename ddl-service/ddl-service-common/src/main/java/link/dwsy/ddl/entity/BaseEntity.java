@@ -1,8 +1,6 @@
 package link.dwsy.ddl.entity;
 
-import com.alibaba.fastjson2.JSON;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;

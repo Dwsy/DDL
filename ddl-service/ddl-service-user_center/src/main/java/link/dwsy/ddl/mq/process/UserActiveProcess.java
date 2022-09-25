@@ -18,6 +18,7 @@ public class UserActiveProcess {
     UserActiveRepository userActiveRepository;
 
     public void ActiveLog(UserActiveType userActiveType, Long sourceId, Long uid, String ua) {
+        //todo 15分钟内不重复记录
         userActiveRepository.save(UserActive.builder()
                 .userActiveType(userActiveType).userId(uid)
                 .sourceId(sourceId).ua(ua).build());

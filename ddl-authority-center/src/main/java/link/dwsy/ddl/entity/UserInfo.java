@@ -27,7 +27,7 @@ public class UserInfo extends BaseEntity {
 
     private String sign;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private Gender gender;
 
     private Date birth;

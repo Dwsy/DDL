@@ -36,6 +36,7 @@ public class ArticleComment extends BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER) //返回值
     private CommentType userAction;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private ArticleField articleField;

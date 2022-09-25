@@ -11,13 +11,17 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class ArticleCommentRB {
+
     @NotNull(message = "文章ID不能为空")
     private long ArticleFieldId;
 
     @NotBlank(message = "评论内容不能为空")
     private String text;
 
+    @NotBlank(message = "can not be empty")
     private long parentUserId;
 
+    @NotBlank(message = "can not be empty")
     private long parentCommentId ;
+
 }

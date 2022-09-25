@@ -19,7 +19,7 @@ public class userInfoTest {
     public void T1() {
         var userInfo = UserInfoRB.builder()
                 .avatar("")
-                .gender(Gender.FMAIL)
+                .gender(Gender.MALE)
                 .build();
 
         Long id = 3L;

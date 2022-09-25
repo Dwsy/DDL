@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.ArticleCommentActionRB;
 import link.dwsy.ddl.XO.RB.ArticleCommentRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
@@ -8,6 +9,7 @@ import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.service.impl.ArticleCommentServiceImpl;
+import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +28,8 @@ public class ArticleCommentController {
     @Resource
     private ArticleCommentServiceImpl articleCommentService;
 
+    @Resource
+    ArticleFieldServiceImpl articleFieldService;
 
     @GetMapping("/{id}")
     public PageData<ArticleComment> getUCommentById(
@@ -36,14 +40,14 @@ public class ArticleCommentController {
             @PathVariable("id") Long aid) {
         if (aid < 1 || size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
+        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         return articleCommentService.getByArticleId(aid, pageRequest);
     }
 
     @PostMapping()
-    public boolean reply(@RequestBody ArticleCommentRB articleCommentRB) {
-        articleCommentService.reply(articleCommentRB, CommentType.comment);
-        return true;
+    public long reply(@RequestBody ArticleCommentRB articleCommentRB) {
+        return articleCommentService.reply(articleCommentRB, CommentType.comment);
     }
 
     @AuthAnnotation(Level = 999)

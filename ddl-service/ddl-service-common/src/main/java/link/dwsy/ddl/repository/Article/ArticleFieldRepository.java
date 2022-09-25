@@ -28,6 +28,12 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
 
     ArticleField findByIdAndDeletedIsFalseAndArticleState(long id, ArticleState articleState);
 
+
+    @Query(nativeQuery = true,value = "select user_id from article_field where deleted is false and id=?1")
+    Long findUserIdById(long id);
+
+
+
     Optional<ArticleField> findByIdAndDeletedFalseAndArticleState(long id, ArticleState articleState);
 
 

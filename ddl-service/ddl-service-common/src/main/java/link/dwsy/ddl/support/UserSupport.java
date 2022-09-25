@@ -54,7 +54,7 @@ public class UserSupport {
 
     public String getUserAgent() {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (requestAttributes == null) {
+        if (requestAttributes != null) {
             HttpServletRequest request = requestAttributes.getRequest();
             return request.getHeader("User-Agent");
         } else {

@@ -3,6 +3,7 @@ package link.dwsy.ddl.repository;
 import link.dwsy.ddl.XO.Enum.User.Gender;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.entity.User.UserInfo;
+import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,9 +18,12 @@ import javax.annotation.Resource;
 public class userTest {
     @Resource
     UserRepository userRepository;
+
+    @Resource
+    ArticleFieldRepository articleFieldRepository;
     @Test
     public void save() {
-        UserInfo info = UserInfo.builder().avatar("avatar").gender(Gender.MAIL).sign("sign").build();
+        UserInfo info = UserInfo.builder().avatar("avatar").gender(Gender.MALE).sign("sign").build();
         User u = User.builder()
                 .username("Dwsy")
                 .password("123").level(5).userInfo(info).build();
@@ -38,4 +42,12 @@ public class userTest {
     public void remove() {
         userRepository.deleteById(2L);
     }
+
+    @Test
+    public void Test1() {
+
+        Long followUserId = articleFieldRepository.findUserIdById(9);
+        System.out.println(followUserId);
+    }
+
 }

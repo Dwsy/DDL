@@ -1,10 +1,7 @@
 package link.dwsy.ddl.XO.Message;
 
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * @Author Dwsy
@@ -14,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class UserActiveMessage {
     private Long userId;
 

@@ -22,6 +22,7 @@ import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.ArticleFieldService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ import java.util.List;
  */
 
 @Service
+@Slf4j
 public class ArticleFieldServiceImpl implements ArticleFieldService {
 
     @Resource
@@ -56,9 +58,11 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         if (currentUser != null) {
-            rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ACTIVE, UserActiveMessage.builder()
+            UserActiveMessage userActiveMessage = UserActiveMessage.builder()
                     .userActiveType(userActiveType).userId(userSupport.getCurrentUser().getId())
-                    .sourceId(sourceId).ua(userSupport.getUserAgent()).build());
+                    .sourceId(sourceId).ua(userSupport.getUserAgent()).build();
+            log.info(userActiveMessage.toString());
+            rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ACTIVE, userActiveMessage);
 
         }
     }

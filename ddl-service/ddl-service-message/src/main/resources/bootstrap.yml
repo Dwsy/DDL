@@ -65,6 +65,12 @@ spring:
     virtual-host: /
     username: admin
     password: admin
+    listener:
+      direct:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092
 #    producer:

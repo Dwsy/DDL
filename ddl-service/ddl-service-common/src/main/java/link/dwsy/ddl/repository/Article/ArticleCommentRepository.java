@@ -78,6 +78,8 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
     Optional<ArticleComment> findByUserIdAndParentCommentIdAndCommentTypeIn
             (long uid, long parentCommentId, Collection<CommentType> commentTypes);
 
+    Optional<ArticleComment> findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentTypeInAndArticleField_Id(long id, long parentCommentId, Collection<CommentType> commentTypes, long id1);
+
 
 
 

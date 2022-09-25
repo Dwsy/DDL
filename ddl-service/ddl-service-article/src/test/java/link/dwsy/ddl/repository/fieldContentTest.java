@@ -122,4 +122,11 @@ public class fieldContentTest {
         all.forEach(c-> c.setTextHtml(HtmlHelper.toHTML(c.getTextMd())));
         articleContentRepository.saveAll(all);
     }
+
+    @Test
+    public void toHtml1() {
+        ArticleContent articleContent = articleContentRepository.findById(115L).get();
+        articleContent.setTextHtml(HtmlHelper.toHTML(articleContent.getTextMd()));
+        articleContentRepository.save(articleContent);
+    }
 }
