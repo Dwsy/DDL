@@ -196,22 +196,28 @@ public class ArticleCommentServiceImpl {
                     .findByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot
                             (uid, fid, pid, CommentType.comment);
             if (comment.getCommentType() == CommentType.cancel) {
-
                 if (commentType == CommentType.up) {
+                    if (pid == -1) {
+                        articleFieldRepository.upNumIncrement(fid,1);
+                    } else {
+                        articleCommentRepository.upNumIncrement(pid, 1);
+                        articleCommentRepository.
+                                updateCommentTypeByIdAndDeletedFalse(commentType, comment.getId());
+                    }
                     comment.setCommentType(commentType);
                     articleCommentRepository.save(comment);
-                    articleCommentRepository.upNumIncrement(pid, 1);
-                    articleCommentRepository.
-                            updateCommentTypeByIdAndDeletedFalse(commentType, comment.getId());
                     sendActionMqMessage(pid, fid, commentType, false);
                 }
                 if (commentType == CommentType.down) {
+                    if (pid == -1) {
+                        articleFieldRepository.downNumIncrement(fid,1);
+                    } else {
+                        articleCommentRepository.downNumIncrement(pid, 1);
+                        articleCommentRepository.
+                                updateCommentTypeByIdAndDeletedFalse(commentType, comment.getId());
+                    }
                     comment.setCommentType(commentType);
                     articleCommentRepository.save(comment);
-                    articleCommentRepository.downNumIncrement(pid, 1);
-                    articleCommentRepository.
-                            updateCommentTypeByIdAndDeletedFalse(commentType, comment.getId());
-
                 }
                 return comment.getCommentType();
             }
@@ -220,14 +226,14 @@ public class ArticleCommentServiceImpl {
                 if (commentType == CommentType.up) {//相同2次操作取消
                     if (pid == -1) {
                         articleFieldRepository.upNumIncrement(fid, -1);
-                    }else {
+                    } else {
                         articleCommentRepository.upNumIncrement(pid, -1);//取消点赞-1
                     }
                     sendActionMqMessage(pid, fid, commentType, true);
 //                    articleCommentRepository.updateCommentTypeByIdAndDeletedFalse(CommentType.cancel, comment.getId());
                 } else {
                     if (pid == -1) {
-                        articleFieldRepository.upNumIncrement(fid, -1);
+                        articleFieldRepository.downNumIncrement(fid, -1);
                     } else {
                         articleCommentRepository.downNumIncrement(pid, -1); //取消踩  +1
                     }
