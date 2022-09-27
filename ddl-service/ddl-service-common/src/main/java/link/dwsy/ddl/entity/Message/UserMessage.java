@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.Message;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Message.MessageState;
 import link.dwsy.ddl.entity.BaseEntity;
@@ -9,7 +10,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-
+import javax.persistence.Transient;
 /**
  * @Author Dwsy
  * @Date 2022/9/1
@@ -30,6 +31,16 @@ public class UserMessage extends BaseEntity {
 
     private long toUserId;
 
+    @Transient
+    private String chatUserNickname;
+
+    @Transient
+    private long chatUserId;
+
+    @Transient
+    private String chatUserAvatar;
+
+    @JsonIgnore
     private String conversationId;
 
     @Lob

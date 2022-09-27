@@ -1,16 +1,21 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.RB.SendPrivateMessageRB;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.entity.Message.UserMessage;
+import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Meaasge.UserMessageRepository;
+import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.impl.UserPrivateMessageServiceImpl;
 import link.dwsy.ddl.support.UserSupport;
+import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @Author Dwsy
@@ -28,49 +33,71 @@ public class UserPrivateMessage {
     private UserMessageRepository userMessageRepository;
 
     @Resource
+    private UserRepository userRepository;
+
+    @Resource
     private UserSupport userSupport;
 
     @GetMapping("/list")
-    public List<UserMessage> getPrivateMessageList(
-//            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
-//            @RequestParam(required = false, defaultValue = "8", name = "size") int size,
-//            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
-//            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties
+    @AuthAnnotation
+    public PageData<UserMessage> getPrivateMessageList(
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "8", name = "size") int size,
+            @RequestParam(required = false, defaultValue = "desc", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "conversation_id", name = "properties") String[] properties
     ) {
         Long uid = userSupport.getCurrentUser().getId();
-        List<UserMessage> privateMessageList = userMessageRepository.getPrivateMessageList(uid);
-        return privateMessageList;
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        Page<UserMessage> privateMessagePage = userMessageRepository.getPrivateMessageListPage(uid, pageRequest);
+        for (UserMessage message : privateMessagePage) {
+            long chatUserId;
+            if (message.getToUserId() == uid) {
+                chatUserId = message.getFormUserId();
+            } else {
+                chatUserId = message.getToUserId();
+            }
+            User chatUser = userRepository.findUserByIdAndDeletedIsFalse(chatUserId);
+            message.setChatUserId(chatUserId);
+            message.setChatUserNickname(chatUser.getNickname());
+            message.setChatUserAvatar(chatUser.getUserInfo().getAvatar());
+        }
+        return new PageData<>(privateMessagePage);
     }
 
     @PutMapping("/send")
-    public String sendMessage(@Validated @RequestBody
-            SendPrivateMessageRB sendPrivateMessageRB) throws Exception {
-        if (userPrivateMessageService.sendPrivateMessage(sendPrivateMessageRB)) {
-            return "发送成功";
-        } else {
-            return "发送失败";
-        }
+    public boolean sendMessage(@Validated @RequestBody
+                               SendPrivateMessageRB sendPrivateMessageRB) throws Exception {
+        return userPrivateMessageService.sendPrivateMessage(sendPrivateMessageRB);
     }
 
     @GetMapping("/pull/{toUserId}")
+    @AuthAnnotation
     public PageData<UserMessage> pullMessageByLatestId(
-            @RequestParam(name = "size") int size,
-            @RequestParam(name = "page") int page,
-            @RequestParam(name ="latest") long latestId, @PathVariable long toUserId) {
+            @RequestParam(required = false, name = "size", defaultValue = "10") int size,
+            @RequestParam(required = false, name = "page", defaultValue = "1") int page,
+            @RequestParam(required = false, name = "latest", defaultValue = "0") int latestId,
+            @PathVariable long toUserId,
+            @RequestParam(required = false, defaultValue = "asc", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "id", name = "properties") String[] properties) {
 
-        PageData<UserMessage> userMessagePageData = userPrivateMessageService
-                .pullMessageByLatestId(latestId, toUserId, page < 0 ? 0 : page-1, Math.min(size, 20));
-        return userMessagePageData;
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+
+        return userPrivateMessageService.pullMessageByLatestId(latestId, toUserId, pageRequest);
     }
 
     @GetMapping("pull/history/{toUserId}")
+    @AuthAnnotation
     public PageData<UserMessage> pullHistoryMessage(
-            @RequestParam(name = "size") int size,
-            @RequestParam(name = "page") int page,
-            @RequestParam(name ="latest") long latestId, @PathVariable long toUserId) {
-
+            @RequestParam(required = false, name = "size", defaultValue = "10") int size,
+            @RequestParam(required = false, name = "page", defaultValue = "1") int page,
+            @RequestParam(required = false, name = "latest", defaultValue = "0") int latestId,
+            @PathVariable long toUserId,
+            @RequestParam(required = false, defaultValue = "desc", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "id", name = "properties") String[] properties) {
+//        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         PageData<UserMessage> userMessagePageData = userPrivateMessageService
                 .pullHistoryMessage(latestId, toUserId, page, size);
+
         return userMessagePageData;
     }
 }

@@ -1,5 +1,6 @@
 package link.dwsy.ddl.controller;
 
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.repository.Meaasge.SystemMessageRepository;
 import link.dwsy.ddl.service.impl.SystemMessageServiceImpl;
 import link.dwsy.ddl.util.PageData;
@@ -24,6 +25,7 @@ public class SystemMessage {
     private SystemMessageRepository systemMessageRepository;
 
     @GetMapping("/message")
+    @AuthAnnotation
     public PageData<link.dwsy.ddl.entity.Message.SystemMessage> pullSysMessage(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "20", name = "size") int size

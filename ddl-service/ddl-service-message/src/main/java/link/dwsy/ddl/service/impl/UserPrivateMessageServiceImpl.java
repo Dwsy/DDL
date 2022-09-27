@@ -3,7 +3,9 @@ package link.dwsy.ddl.service.impl;
 import link.dwsy.ddl.XO.Enum.Message.MessageState;
 import link.dwsy.ddl.XO.RB.SendPrivateMessageRB;
 import link.dwsy.ddl.entity.Message.UserMessage;
+import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Meaasge.UserMessageRepository;
+import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.UserPrivateMessageService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PageData;
@@ -25,9 +27,11 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
     UserMessageRepository userMessageRepository;
     @Resource
     UserSupport userSupport;
+    @Resource
+    UserRepository userRepository;
 
     @Override
-    public boolean sendPrivateMessage(SendPrivateMessageRB sendPrivateMessageRB)  {
+    public boolean sendPrivateMessage(SendPrivateMessageRB sendPrivateMessageRB) {
         long formUserId = userSupport.getCurrentUser().getId();
         long toUserId = sendPrivateMessageRB.getToUserId();
         String content = sendPrivateMessageRB.getContent();
@@ -51,26 +55,39 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
 
     }
 
-    public PageData<UserMessage> pullMessageByLatestId(long latestId, long toUserId, int page,int size)  {
+    public PageData<UserMessage> pullMessageByLatestId(long latestId, long toUserId, PageRequest pr) {
         long formUserId = userSupport.getCurrentUser().getId();
+        if (formUserId == toUserId) {
+            return null;
+        }
         String conversationId;
-        if (formUserId<toUserId)
+        if (formUserId < toUserId)
             conversationId = formUserId + "_" + toUserId;
         else
             conversationId = toUserId + "_" + formUserId;
         HashSet<MessageState> messageStates = new HashSet<>();
         messageStates.add(MessageState.READ);
         messageStates.add(MessageState.UNREAD);
-        PageRequest pr = PageRequest.of(page, size);
         Page<UserMessage> messages = userMessageRepository
                 .findByConversationIdAndIdGreaterThanAndDeletedFalseAndStatusIn(conversationId, latestId, messageStates, pr);
+        User toUser = userRepository.findUserByIdAndDeletedIsFalse(toUserId);
+        for (UserMessage message : messages.getContent()) {
+            message.setChatUserNickname(toUser.getNickname());
+            message.setChatUserId(toUser.getId());
+            message.setChatUserAvatar(toUser.getUserInfo().getAvatar());
+        }
         return new PageData<>(messages);
-    };
+    }
+
+    ;
 
     public PageData<UserMessage> pullHistoryMessage(long latestId, long toUserId, int page, int size) {
         long formUserId = userSupport.getCurrentUser().getId();
+        if (formUserId == toUserId) {
+            return null;
+        }
         String conversationId;
-        if (formUserId<toUserId)
+        if (formUserId < toUserId)
             conversationId = formUserId + "_" + toUserId;
         else
             conversationId = toUserId + "_" + formUserId;
@@ -80,7 +97,13 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
         PageRequest pr = PageRequest.of(page, size);
         Page<UserMessage> messages = userMessageRepository
                 .findByConversationIdAndIdLessThanAndDeletedFalseAndStatusIn(conversationId, latestId, messageStates, pr);
-
+        //todo 优化
+        User toUser = userRepository.findUserByIdAndDeletedIsFalse(toUserId);
+        for (UserMessage message : messages.getContent()) {
+            message.setChatUserNickname(toUser.getNickname());
+            message.setChatUserId(toUser.getId());
+            message.setChatUserAvatar(toUser.getUserInfo().getAvatar());
+        }
         return new PageData<>(messages);
     }
 }
