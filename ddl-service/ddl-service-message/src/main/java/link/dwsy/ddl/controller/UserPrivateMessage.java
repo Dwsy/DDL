@@ -65,6 +65,7 @@ public class UserPrivateMessage {
     }
 
     @PutMapping("/send")
+    @AuthAnnotation
     public boolean sendMessage(@Validated @RequestBody
                                SendPrivateMessageRB sendPrivateMessageRB) throws Exception {
         return userPrivateMessageService.sendPrivateMessage(sendPrivateMessageRB);
@@ -77,7 +78,7 @@ public class UserPrivateMessage {
             @RequestParam(required = false, name = "page", defaultValue = "1") int page,
             @RequestParam(required = false, name = "latest", defaultValue = "0") int latestId,
             @PathVariable long toUserId,
-            @RequestParam(required = false, defaultValue = "asc", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "desc", name = "order") String order,
             @RequestParam(required = false, defaultValue = "id", name = "properties") String[] properties) {
 
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);

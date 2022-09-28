@@ -36,12 +36,6 @@ public class messageTest {
         sendMessage(6L, 3L, "6->3");
     }
 
-    @Test
-    public void test2() {
-        pullMessageByLatestId(3L, 4L, 0L);
-//        pullMessageByLatestId(3L, 4L, 5L);
-//        pullMessageByLatestId(3L, 4L, 6L);
-    }
 
     @Test
     void test3() {
@@ -70,8 +64,15 @@ public class messageTest {
                 .conversationId(conversationId).build();
         userMessageRepository.save(message);
     }
-
-    public void pullMessageByLatestId(long formUserId, long toUserId, long latestId) {
+    @Test
+    public void test2() {
+        pullMessageByLatestId(3L, 4L, 0L,0);
+        pullMessageByLatestId(3L, 4L, 0L,1);
+        pullMessageByLatestId(3L, 4L, 0L,2);
+//        pullMessageByLatestId(3L, 4L, 5L);
+//        pullMessageByLatestId(3L, 4L, 6L);
+    }
+    public void pullMessageByLatestId(long formUserId, long toUserId, long latestId,int page) {
         String conversationId;
         if (formUserId < toUserId)
             conversationId = formUserId + "_" + toUserId;
@@ -81,7 +82,7 @@ public class messageTest {
         messageStates.add(MessageState.READ);
         messageStates.add(MessageState.UNREAD);
         Sort sort = Sort.by(Sort.Direction.DESC,"id");
-        PageRequest pr = PageRequest.of(0, 2,sort);
+        PageRequest pr = PageRequest.of(page, 10,sort);
         Page<UserMessage> messages = userMessageRepository
                 .findByConversationIdAndIdGreaterThanAndDeletedFalseAndStatusIn(conversationId, latestId, messageStates, pr);
         messages.forEach(System.out::println);
@@ -97,7 +98,8 @@ public class messageTest {
         HashSet<MessageState> messageStates = new HashSet<>();
         messageStates.add(MessageState.READ);
         messageStates.add(MessageState.UNREAD);
-        PageRequest pr = PageRequest.of(page, size);
+//        PRHelper.order()
+        PageRequest pr = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC,"id"));
         Page<UserMessage> messages = userMessageRepository
                 .findByConversationIdAndIdLessThanAndDeletedFalseAndStatusIn(conversationId, latestId, messageStates, pr);
         messages.forEach(System.out::println);

@@ -20,6 +20,7 @@ public interface UserMessageRepository extends JpaRepository<UserMessage, Long> 
     Page<UserMessage> findByConversationIdAndIdGreaterThanAndDeletedFalseAndStatusIn
             (String conversationId, long id, Set<MessageState> status, Pageable pageable);
 
+
     Page<UserMessage> findByConversationIdAndIdLessThanAndDeletedFalseAndStatusIn
             (String conversationId, long id, Collection<MessageState> statuses, Pageable pageable);
 
