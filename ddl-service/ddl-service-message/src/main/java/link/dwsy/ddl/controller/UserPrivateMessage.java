@@ -2,6 +2,8 @@ package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.RB.SendPrivateMessageRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.core.CustomExceptions.CodeException;
+import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Message.UserMessage;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Meaasge.UserMessageRepository;
@@ -68,6 +70,9 @@ public class UserPrivateMessage {
     @AuthAnnotation
     public boolean sendMessage(@Validated @RequestBody
                                SendPrivateMessageRB sendPrivateMessageRB) throws Exception {
+        if (sendPrivateMessageRB.getToUserId() <= 0) {
+            throw new CodeException(CustomerErrorCode.ParamError);
+        }
         return userPrivateMessageService.sendPrivateMessage(sendPrivateMessageRB);
     }
 

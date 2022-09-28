@@ -47,7 +47,7 @@ public class ChannelWS {
     private static UserSupport userSupport;
     private static ChannelRepository channelRepository;
     private static RedisMessageListenerContainer redisMessageListenerContainer;
-    private static HashMap<String,LoginUserInfo> currentUserMap=new HashMap<>();
+    private static HashMap<String, LoginUserInfo> currentUserMap = new HashMap<>();
 
 
     @Autowired
@@ -59,6 +59,7 @@ public class ChannelWS {
     public void setStringRedisTemplate(StringRedisTemplate stringRedisTemplate) {
         ChannelWS.stringRedisTemplate = stringRedisTemplate;
     }
+
     @Autowired
     public void setRedisTemplate(RedisTemplate redisTemplate) {
         ChannelWS.redisTemplate = redisTemplate;
@@ -83,7 +84,7 @@ public class ChannelWS {
     @OnOpen
     public void open(@PathParam("id") Long id, Session session) throws IOException {
         if (!channelRepository.findById(id).isPresent()) {
-            session.getBasicRemote().sendText("cid ont found");
+            session.getBasicRemote().sendText("cid not found");
             session.close();
         }
 
@@ -95,7 +96,7 @@ public class ChannelWS {
         CopyOnWriteArraySet<Session> channelWS = ChannelSocket.get(id);
         LoginUserInfo loginUserInfo = currentUserMap.get(session.getId());
         if (loginUserInfo != null) {
-            redisTemplate.opsForHash().increment("channel:user:hash"+id, loginUserInfo.getId().toString(), -1);
+            redisTemplate.opsForHash().increment("channel:user:hash" + id, loginUserInfo.getId().toString(), -1);
 
             Long remove = redisTemplate.opsForValue().decrement("channel:online:user" + id);
             if (remove == 0) {
@@ -122,16 +123,15 @@ public class ChannelWS {
         }
         int type = wsMessage.getType();
         if (type == 0) {
-            if (currentUserMap.get(session.getId())!=null) {
+            if (currentUserMap.get(session.getId()) != null) {
                 session.getBasicRemote().sendText("已鉴权");
                 return;
             }
             String token = wsMessage.getContent();
             if (token != null) {
-
                 try {
                     loginUserInfo = TokenUtil.parseUserInfoFromToken(token);
-                }catch (Exception e){
+                } catch (Exception e) {
                     session.getBasicRemote().sendText("token错误");
                     return;
                 }
@@ -146,11 +146,12 @@ public class ChannelWS {
                     channelWS.add(session);
                     ChannelSocket.put(id, channelWS);
                 }
-                redisTemplate.opsForHash().increment("channel:user:hash"+id, loginUserInfo.getId().toString() + loginUserInfo.getId(), 1L);
-                if (redisTemplate.opsForSet().add("channel:user:id"+id, loginUserInfo.getId().toString()) > 0) {
+                redisTemplate.opsForHash().increment("channel:user:hash" + id, loginUserInfo.getId().toString() + loginUserInfo.getId(), 1L);
+                if (redisTemplate.opsForSet().add("channel:user:id" + id, loginUserInfo.getId().toString()) > 0) {
                     Long increment = redisUtil.increment("channel:online:user" + id, 1);
-                    log.info("用户{}加入频道{}，当前频道在线人数{}", loginUserInfo.getId(), id,increment);
+                    log.info("用户{}加入频道{}，当前频道在线人数{}", loginUserInfo.getId(), id, increment);
                 }
+                // fixme
                 redisMessageListenerContainer.addMessageListener(new MessageListener() {
                     @Override
                     public void onMessage(Message message, byte[] bytes) {
@@ -213,7 +214,7 @@ public class ChannelWS {
         }
     }
 
-    public  void  sendMessageAll(Long cid, String message) throws IOException {
+    public void sendMessageAll(Long cid, String message) throws IOException {
         CopyOnWriteArraySet<Session> channelWS = ChannelSocket.get(cid);
         if (channelWS != null) {
 

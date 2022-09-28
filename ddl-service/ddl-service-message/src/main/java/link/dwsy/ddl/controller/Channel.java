@@ -27,9 +27,10 @@ public class Channel {
     @Resource
     ChannelMessageRepository channelMessageRepository;
     @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    StringRedisTemplate stringRedisTemplate;
     @Resource
-    private UserSupport userSupport;
+    UserSupport userSupport;
+
     @GetMapping("/list")
     public Object list() {
         return channelRepository.findAll();
@@ -43,8 +44,8 @@ public class Channel {
                 .userId(user.getId())
                 .message(channelSendMessageRB.getMessage())
                 .channelId(channelSendMessageRB.getChannelId()).build();
-        stringRedisTemplate.convertAndSend("channel:message"+channelSendMessageRB.getChannelId(), JSONObject.toJSONString(message));
+        stringRedisTemplate.convertAndSend("channel:message" + channelSendMessageRB.getChannelId(), JSONObject.toJSONString(message));
         channelMessageRepository.save(message);
     }
-    }
+}
 

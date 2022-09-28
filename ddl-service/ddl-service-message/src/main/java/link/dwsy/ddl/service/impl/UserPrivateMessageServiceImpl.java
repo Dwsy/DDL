@@ -1,7 +1,9 @@
 package link.dwsy.ddl.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import link.dwsy.ddl.XO.Enum.Message.MessageState;
 import link.dwsy.ddl.XO.RB.SendPrivateMessageRB;
+import link.dwsy.ddl.XO.WS.Constants.UserPrivateMessageConstants;
 import link.dwsy.ddl.entity.Message.UserMessage;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Meaasge.UserMessageRepository;
@@ -11,6 +13,7 @@ import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -30,6 +33,12 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
     @Resource
     UserRepository userRepository;
 
+    @Resource
+    StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    ObjectMapper objectMapper;
+
     @Override
     public boolean sendPrivateMessage(SendPrivateMessageRB sendPrivateMessageRB) {
         long formUserId = userSupport.getCurrentUser().getId();
@@ -47,7 +56,9 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
                 .content(content)
                 .conversationId(conversationId).build();
         try {
-            userMessageRepository.save(message);
+            UserMessage save = userMessageRepository.save(message);
+            String msgStr = objectMapper.writeValueAsString(save);
+            stringRedisTemplate.convertAndSend(UserPrivateMessageConstants.RedisChannelTopic + conversationId, msgStr);
             return true;
         } catch (Exception e) {
             return false;
