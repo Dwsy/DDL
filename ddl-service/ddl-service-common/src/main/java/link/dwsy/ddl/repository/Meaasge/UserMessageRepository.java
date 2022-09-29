@@ -41,6 +41,9 @@ public interface UserMessageRepository extends JpaRepository<UserMessage, Long> 
                     " order by create_time desc ",countQuery = "select count(*) from user_message where status in (0,1) and id in (select max(id) as id from user_message where to_user_id = ?1 or form_user_id = ?1 group by conversation_id)")
     Page<UserMessage> getPrivateMessageListPage(long uid, Pageable pageable);
 
+    boolean existsByDeletedFalseAndConversationId(String conversationId);
+
+
 
 //    List<UserMessage> findDistinctByToUserIdOrFormUserIdAndDeletedIsFalseAndOrderByConversationId(long toUserId, long formUserId);
 

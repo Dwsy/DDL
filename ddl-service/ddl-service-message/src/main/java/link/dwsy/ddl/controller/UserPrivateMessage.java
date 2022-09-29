@@ -106,4 +106,10 @@ public class UserPrivateMessage {
 
         return userMessagePageData;
     }
+
+    @PostMapping("/read/{toUserId}")
+    @AuthAnnotation
+    public boolean readMessage(@PathVariable long toUserId) {
+        return userPrivateMessageService.readMessage(toUserId);
+    }
 }

@@ -1,6 +1,6 @@
 package link.dwsy.ddl.entity.Message;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Message.MessageState;
 import link.dwsy.ddl.entity.BaseEntity;
@@ -40,7 +40,7 @@ public class UserMessage extends BaseEntity {
     @Transient
     private String chatUserAvatar;
 
-    @JsonIgnore
+
     private String conversationId;
 
     @Lob
@@ -48,6 +48,7 @@ public class UserMessage extends BaseEntity {
     private String content;
 
     @Builder.Default
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER) //返回值
     private MessageState status=MessageState.UNREAD;
 
     @Override

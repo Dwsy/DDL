@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import link.dwsy.ddl.XO.Enum.Message.MessageState;
 import link.dwsy.ddl.XO.RB.SendPrivateMessageRB;
 import link.dwsy.ddl.XO.WS.Constants.UserPrivateMessageConstants;
+import link.dwsy.ddl.core.CustomExceptions.CodeException;
+import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Message.UserMessage;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Meaasge.UserMessageRepository;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
+import java.util.Optional;
 
 /**
  * @Author Dwsy
@@ -69,13 +72,20 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
     public PageData<UserMessage> pullMessageByLatestId(long latestId, long toUserId, PageRequest pr) {
         long formUserId = userSupport.getCurrentUser().getId();
         if (formUserId == toUserId) {
-            return null;
+            throw new RuntimeException("不能和自己聊天");
         }
         String conversationId;
         if (formUserId < toUserId)
             conversationId = formUserId + "_" + toUserId;
         else
             conversationId = toUserId + "_" + formUserId;
+        if (!userMessageRepository.existsByDeletedFalseAndConversationId(conversationId)) {
+            if (userRepository.existsById(toUserId)) {
+                greetMessage(toUserId, formUserId, conversationId);
+            } else {
+                throw new CodeException(CustomerErrorCode.UserNotExist);
+            }
+        }
         HashSet<MessageState> messageStates = new HashSet<>();
         messageStates.add(MessageState.READ);
         messageStates.add(MessageState.UNREAD);
@@ -88,6 +98,15 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
             message.setChatUserAvatar(toUser.getUserInfo().getAvatar());
         }
         return new PageData<>(messages);
+    }
+
+    private void greetMessage(long toUserId, long formUserId, String conversationId) {
+        UserMessage greetMessage = UserMessage.builder()
+                .formUserId(formUserId)
+                .toUserId(toUserId)
+                .content("发起了聊天")
+                .conversationId(conversationId).build();
+        UserMessage save = userMessageRepository.save(greetMessage);
     }
 
     ;
@@ -116,6 +135,27 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
             message.setChatUserAvatar(toUser.getUserInfo().getAvatar());
         }
         return new PageData<>(messages);
+    }
+
+    public boolean readMessage(long id) {
+        Long uid = userSupport.getCurrentUser().getId();
+        Optional<UserMessage> msg = userMessageRepository.findById(id);
+        if (msg.isPresent()) {
+            UserMessage message = msg.get();
+            if (message.getToUserId() == uid) {
+                message.setStatus(MessageState.READ);
+                userMessageRepository.save(message);
+                String conversationId = message.getConversationId();
+
+//                            read      formId   toId
+                var msgStr = UserPrivateMessageConstants.readMsgPrefix + id + "_"
+                        + message.getFormUserId() + "_" + message.getToUserId();
+                stringRedisTemplate.convertAndSend
+                        (UserPrivateMessageConstants.RedisChannelTopic + conversationId, msgStr);
+                return true;
+            }
+        }
+        return false;
     }
 }
 

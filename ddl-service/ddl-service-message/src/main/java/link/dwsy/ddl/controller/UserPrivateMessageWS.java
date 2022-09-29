@@ -14,6 +14,8 @@ import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -144,25 +146,47 @@ public class UserPrivateMessageWS {
                     return;
                 }
             }
+            //fixme
             if (!sms.isHasSubChannel()) {
-                redisMessageListenerContainer.addMessageListener((msg, bytes) -> {
-                    try {
-                        this.sendMessageAll(conversationId, msg.toString());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }, new ChannelTopic(UserPrivateMessageConstants.RedisChannelTopic + conversationId));
-                sms.setHasSubChannel(true);
+                synchronized (sms) {
+                    ChannelTopic channelTopic = new ChannelTopic(UserPrivateMessageConstants.RedisChannelTopic + conversationId);
+                    redisMessageListenerContainer.addMessageListener(new MessageListener() {
+                        @Override
+                        public void onMessage(Message message, byte[] bytes) {
+                            String msg = message.toString();
+                            if (msg.startsWith(UserPrivateMessageConstants.jsonPrefix)) {
+                                try {
+                                    UserPrivateMessageWS.this.sendMessageAll(msg);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (msg.startsWith(UserPrivateMessageConstants.readMsgPrefix)) {
+                                try {
+                                    UserPrivateMessageWS.this.readMessage(msg);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        }
+                    }, channelTopic);
+                    log.info("ChannelTopic{}", channelTopic.getTopic());
+                    sms.setHasSubChannel(true);
+                }
+
             }
+
+
             session.getBasicRemote().sendText("鉴权成功");
         }
 
     }
 
-    public void sendMessageAll(String conversationId, String message) throws IOException {
+    public void sendMessageAll(String message) throws IOException {
         boolean toBig;
         UserMessage privateWsMessage = (UserMessage) objectMapper.readValue(message, UserMessage.class);
-        UserPrivateWsMessageSession sms = SessionMapSet.get(conversationId);
+        UserPrivateWsMessageSession sms = SessionMapSet.get(privateWsMessage.getConversationId());
         if (sms != null) {
             if (privateWsMessage.getToUserId() == sms.getBigId()) {
                 toBig = true;
@@ -170,18 +194,66 @@ public class UserPrivateMessageWS {
                 toBig = false;
             }
             Set<Session> sessionHashSet;
+//            if (toBig) {
+//                sessionHashSet = sms.getBigIdUserSessionSet();
+//            } else {
+//                sessionHashSet = sms.getSmallIdUserSessionSet();
+//            }
+            for (Session session : sms.getBigIdUserSessionSet()) {
+                log.info("sendTo:{}", privateWsMessage.getToUserId());
+                synchronized (session) {
+                    session.getBasicRemote().sendText(message);
+                }
+            }
+            for (Session session : sms.getSmallIdUserSessionSet()) {
+                log.info("sendTo:{}", privateWsMessage.getToUserId());
+                synchronized (session) {
+                    session.getBasicRemote().sendText(message);
+                }
+            }
+        } else {
+            log.info("null");
+        }
+
+    }
+
+
+    public void readMessage(String message) throws IOException {
+        var msg = message.split("_");
+        var id = Long.valueOf(msg[1]);
+        var formUserId = Long.valueOf(msg[2]);
+        var toUserId = Long.valueOf(msg[3]);
+
+        boolean toBig;
+        String conversationId;
+        if (formUserId > toUserId) {
+            conversationId = toUserId + "_" + formUserId;
+            toBig = true;
+        } else {
+            conversationId = formUserId + "_" + toUserId;
+            toBig = false;
+        }
+
+        UserPrivateWsMessageSession sms = SessionMapSet.get(conversationId);
+        if (sms != null) {
+            Set<Session> sessionHashSet;
             if (toBig) {
                 sessionHashSet = sms.getBigIdUserSessionSet();
             } else {
                 sessionHashSet = sms.getSmallIdUserSessionSet();
             }
-            System.out.println(sessionHashSet.size());
             for (Session session : sessionHashSet) {
-                log.info("sendTo:{}",privateWsMessage.getToUserId());
+                log.info("{}readTo:{}", toUserId, formUserId);
                 synchronized (session) {
                     session.getBasicRemote().sendText(message);
                 }
             }
+//            for (Session session : sms.getSmallIdUserSessionSet()) {
+//                log.info("sendTo:{}", privateWsMessage.getToUserId());
+//                synchronized (session) {
+//                    session.getBasicRemote().sendText(message);
+//                }
+//            }
         } else {
             log.info("null");
         }
@@ -196,7 +268,7 @@ public class UserPrivateMessageWS {
         } else {
             sms.getSmallIdUserSessionSet().remove(session);
         }
-        log.info("removeSession{}",session);
+        log.info("removeSession{}", session);
     }
 
     @OnError
