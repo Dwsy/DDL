@@ -1,4 +1,4 @@
-package link.dwsy.ddl.controller;
+package link.dwsy.ddl.controller.WebSocket;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONException;
@@ -146,36 +146,41 @@ public class UserPrivateMessageWS {
                     return;
                 }
             }
-            //fixme
-            if (!sms.isHasSubChannel()) {
-                synchronized (sms) {
-                    ChannelTopic channelTopic = new ChannelTopic(UserPrivateMessageConstants.RedisChannelTopic + conversationId);
-                    redisMessageListenerContainer.addMessageListener(new MessageListener() {
-                        @Override
-                        public void onMessage(Message message, byte[] bytes) {
-                            String msg = message.toString();
-                            if (msg.startsWith(UserPrivateMessageConstants.jsonPrefix)) {
-                                try {
-                                    UserPrivateMessageWS.this.sendMessageAll(msg);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            if (msg.startsWith(UserPrivateMessageConstants.readMsgPrefix)) {
-                                try {
-                                    UserPrivateMessageWS.this.readMessage(msg);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+            log.info("addSession{}",session);
+            //fixme lock
+                synchronized (UserPrivateWsMessageSession.class) {
+                    if (!sms.isHasSubChannel()) {
+                        sms.setHasSubChannel(true);
+                        System.out.println("2if (!sms.isHasSubChannel()) {");
+                        ChannelTopic channelTopic = new ChannelTopic(UserPrivateMessageConstants.RedisChannelTopic + conversationId);
+                        if (sms.isHasSubChannel()) {
+                            redisMessageListenerContainer.addMessageListener(new MessageListener() {
+                                @Override
+                                public void onMessage(Message message, byte[] bytes) {
+                                    String msg = message.toString();
+                                    if (msg.startsWith(UserPrivateMessageConstants.jsonPrefix)) {
+                                        try {
+                                            UserPrivateMessageWS.this.sendMessageAll(msg);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    if (msg.startsWith(UserPrivateMessageConstants.readMsgPrefix)) {
+                                        try {
+                                            UserPrivateMessageWS.this.readMessage(msg);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
 
+                                }
+                            }, channelTopic);
                         }
-                    }, channelTopic);
-                    log.info("ChannelTopic{}", channelTopic.getTopic());
-                    sms.setHasSubChannel(true);
+                        log.info("ChannelTopic{}", channelTopic.getTopic());
+                    }
                 }
 
-            }
+
 
 
             session.getBasicRemote().sendText("鉴权成功");
@@ -224,6 +229,8 @@ public class UserPrivateMessageWS {
         var formUserId = Long.valueOf(msg[2]);
         var toUserId = Long.valueOf(msg[3]);
 
+        log.info("{}readTo:{}", toUserId, formUserId);
+
         boolean toBig;
         String conversationId;
         if (formUserId > toUserId) {
@@ -243,7 +250,6 @@ public class UserPrivateMessageWS {
                 sessionHashSet = sms.getSmallIdUserSessionSet();
             }
             for (Session session : sessionHashSet) {
-                log.info("{}readTo:{}", toUserId, formUserId);
                 synchronized (session) {
                     session.getBasicRemote().sendText(message);
                 }

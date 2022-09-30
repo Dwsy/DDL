@@ -59,6 +59,9 @@ public class ArticleComment extends BaseEntity {
     @Builder.Default // 0 为一级评论 -1 up or down 文章 1楼上面 -1 是内容好像没啥问题。。
     private long parentCommentId = 0;
 
+    @Builder.Default
+    private long replyUserCommentId = 0;
+
     @Transient
     private User parentUser;
 

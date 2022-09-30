@@ -16,7 +16,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserCommentNotifyMessage {
     private Long formUserId;
-//    to userid
+
+//    private Long toUserId;
+//    to userid mq 查询
 
     private Long articleId;//aid or uid or qaid
 
@@ -29,6 +31,8 @@ public class UserCommentNotifyMessage {
     private String formContent;//己方
 
     private String toContent;//他方
+
+    private Long replayCommentId;//回复后返回的评论id
 
     private boolean cancel;
 }

@@ -10,4 +10,5 @@ public class UserActiveConstants {
 
     public static final String QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE = "ddl.user.article.comment.action.queue";
 
+
 }

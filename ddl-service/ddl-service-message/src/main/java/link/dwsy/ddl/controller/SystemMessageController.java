@@ -18,7 +18,7 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/sys")
-public class SystemMessage {
+public class SystemMessageController {
     @Resource
     private SystemMessageServiceImpl systemMessageService;
     @Resource

@@ -7,7 +7,6 @@ package link.dwsy.ddl.XO.Enum.Message;
 
 
 public enum NotifyType {
-    comment, comment_comment, up_article,up_article_comment ,at,
+    comment_article, comment_article_comment, up_article,up_article_comment ,at,
     answer, answer_comment,
-
 }

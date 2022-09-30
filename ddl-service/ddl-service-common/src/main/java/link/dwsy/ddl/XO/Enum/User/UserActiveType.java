@@ -34,14 +34,21 @@ public enum UserActiveType {
 
     ;
 
-    public static UserActiveType get(CommentType commentType) {
+    public static UserActiveType Converter(CommentType commentType,long parentCommentId) {
 //        comment,up, down,cancel
         switch (commentType) {
             case comment:
-                return Comment_Article;
+                if (parentCommentId == 0) {
+                    return Comment_Article;
+                } else {
+                    return Comment_Article_Comment;
+                }
             case up:
-                return UP_Article_Comment;
-
+                if (parentCommentId == -1) {
+                    return UP_Article;
+                } else {
+                    return UP_Article_Comment;
+                }
             default:
                 return null;
         }

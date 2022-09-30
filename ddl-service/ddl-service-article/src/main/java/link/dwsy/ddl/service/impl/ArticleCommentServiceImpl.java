@@ -91,7 +91,7 @@ public class ArticleCommentServiceImpl {
 
         ArticleField af = new ArticleField();
         af.setId(articleFieldId);
-
+        //评论文章
         if (articleCommentRB.getParentCommentId() == 0) {
             ArticleComment articleComment = ArticleComment.builder()
                     .parentCommentId(0)
@@ -110,7 +110,11 @@ public class ArticleCommentServiceImpl {
             if (t.isPresent()) {
                 title = t.get().getTitle();
             }
-            sendActionMqMessage(save.getId(), articleFieldId, commentType, false, content, title);
+
+//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
+            sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getParentCommentId(),
+                    commentType, false, content, title, save.getId());
+//            }
             return save.getId();
         } else {
             if (!articleCommentRepository.isFirstAnswer(articleCommentRB.getParentCommentId())) {
@@ -120,24 +124,53 @@ public class ArticleCommentServiceImpl {
                     (articleCommentRB.getParentCommentId(), articleFieldId, CommentType.comment)) {
                 throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
             }
-            ArticleComment articleComment = ArticleComment.builder()
-                    .user(user)
-                    .articleField(af)
-                    .text(articleCommentRB.getText())
-                    .parentCommentId(articleCommentRB.getParentCommentId())
-                    .parentUserId(articleCommentRB.getParentUserId())
-                    .commentType(commentType)
-                    .ua(userSupport.getUserAgent())
-                    .build();
-            ArticleComment save = articleCommentRepository.save(articleComment);
-            String content = articleCommentRB.getText().substring(0, Math.min(50, articleCommentRB.getText().length()));
-            Optional<ArticleFieldInfo> t = articleFieldRepository.getTitle(articleFieldId);
-            String title = "";
-            if (t.isPresent()) {
-                title = t.get().getTitle();
+            //回复评论
+            if (articleCommentRB.getReplyUserCommentId() == 0) {
+                ArticleComment articleComment = ArticleComment.builder()
+                        .user(user)
+                        .articleField(af)
+                        .text(articleCommentRB.getText())
+                        .parentCommentId(articleCommentRB.getParentCommentId())
+                        .parentUserId(articleCommentRB.getReplyUserId())
+                        .commentType(commentType)
+                        .ua(userSupport.getUserAgent())
+                        .build();
+                ArticleComment save = articleCommentRepository.save(articleComment);
+                String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
+                String parentText = articleCommentRepository.getText(articleCommentRB.getParentCommentId());
+                sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getParentCommentId(),
+                        commentType, false, content, parentText, save.getId());
+                return save.getId();
+            } else {
+                //回复二级评论
+                String replyText;
+//                if(articleCommentRepository.notIsSecondaryComment(articleCommentRB.getReplyUserCommentId())){
+                replyText = "回复@" + userRepository.findUserNicknameById
+                        (articleCommentRB.getReplyUserId()) + "：" + articleCommentRB.getText();
+//                }else {
+//                    String str = articleCommentRB.getText().split("：")[1];
+//                    replyText = "回复@" + userRepository.findUserNicknameById
+//                            (articleCommentRB.getReplyUserId()) + "：" + str;
+//                }
+
+
+                ArticleComment articleComment = ArticleComment.builder()
+                        .user(user)
+                        .articleField(af)
+                        .text(replyText)
+                        .parentCommentId(articleCommentRB.getParentCommentId())
+                        .parentUserId(articleCommentRB.getReplyUserId())
+                        .commentType(commentType)
+                        .replyUserCommentId(articleCommentRB.getReplyUserCommentId())
+                        .ua(userSupport.getUserAgent())
+                        .build();
+                String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
+                String parentText = articleCommentRepository.getText(articleCommentRB.getReplyUserCommentId());
+                ArticleComment save = articleCommentRepository.save(articleComment);
+                sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getReplyUserCommentId(),
+                        commentType, false, content, parentText, save.getId());
+                return save.getId();
             }
-            sendActionMqMessage(save.getId(), articleCommentRB.getParentUserId(), commentType, false, content, title);
-            return save.getId();
         }
     }
 
@@ -172,13 +205,18 @@ public class ArticleCommentServiceImpl {
 //            等于 -1  点赞 文章
             throw new CodeException(CustomerErrorCode.BodyError);
         }
+        boolean actionArticle = pid != -1;
         CommentType commentType = commentActionRB.getCommentType();
         if (commentType == CommentType.comment || commentType == CommentType.cancel) {
-            throw new CodeException(CustomerErrorCode.ParamError);
+            throw new CodeException(CustomerErrorCode.BodyError);
         }
-        if (pid != -1) {
+        if (actionArticle) {
             if (!articleCommentRepository.existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType
                     (commentActionRB.getActionCommentId(), commentActionRB.getArticleFieldId(), CommentType.comment)) {
+                throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
+            }
+        } else {
+            if (!articleFieldRepository.existsById(fid)) {
                 throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
             }
         }
@@ -197,8 +235,8 @@ public class ArticleCommentServiceImpl {
                             (uid, fid, pid, CommentType.comment);
             if (comment.getCommentType() == CommentType.cancel) {
                 if (commentType == CommentType.up) {
-                    if (pid == -1) {
-                        articleFieldRepository.upNumIncrement(fid,1);
+                    if (!actionArticle) {
+                        articleFieldRepository.upNumIncrement(fid, 1);
                     } else {
                         articleCommentRepository.upNumIncrement(pid, 1);
                         articleCommentRepository.
@@ -206,11 +244,11 @@ public class ArticleCommentServiceImpl {
                     }
                     comment.setCommentType(commentType);
                     articleCommentRepository.save(comment);
-                    sendActionMqMessage(pid, fid, commentType, false);
+                    sendActionMqMessage(uid, fid, pid, commentType);
                 }
                 if (commentType == CommentType.down) {
-                    if (pid == -1) {
-                        articleFieldRepository.downNumIncrement(fid,1);
+                    if (!actionArticle) {
+                        articleFieldRepository.downNumIncrement(fid, 1);
                     } else {
                         articleCommentRepository.downNumIncrement(pid, 1);
                         articleCommentRepository.
@@ -224,15 +262,15 @@ public class ArticleCommentServiceImpl {
 
             if (comment.getCommentType() == commentType) {
                 if (commentType == CommentType.up) {//相同2次操作取消
-                    if (pid == -1) {
+                    if (!actionArticle) {
                         articleFieldRepository.upNumIncrement(fid, -1);
                     } else {
                         articleCommentRepository.upNumIncrement(pid, -1);//取消点赞-1
                     }
-                    sendActionMqMessage(pid, fid, commentType, true);
+                    sendActionMqMessage(uid, fid, pid, CommentType.cancel);
 //                    articleCommentRepository.updateCommentTypeByIdAndDeletedFalse(CommentType.cancel, comment.getId());
                 } else {
-                    if (pid == -1) {
+                    if (!actionArticle) {
                         articleFieldRepository.downNumIncrement(fid, -1);
                     } else {
                         articleCommentRepository.downNumIncrement(pid, -1); //取消踩  +1
@@ -246,27 +284,26 @@ public class ArticleCommentServiceImpl {
 
             } else {//点踩->点赞 / 点赞->点踩  先取消点赞 再点踩 返回叠加状态 to
                 if (commentType == CommentType.up) {
-
-                    if (pid == -1) {
+                    if (!actionArticle) {
                         articleFieldRepository.downNumIncrement(fid, -1);
                         articleFieldRepository.upNumIncrement(fid, 1);
                     } else {
                         articleCommentRepository.downNumIncrement(pid, -1);
                         articleCommentRepository.upNumIncrement(pid, 1);
                     }
-                    sendActionMqMessage(pid, fid, commentType, false);
+                    sendActionMqMessage(uid, fid, pid, commentType);
                     comment.setCommentType(CommentType.up);
                     articleCommentRepository.save(comment);
                     return CommentType.downToUp;
                 } else {
-                    if (pid == -1) {
+                    if (!actionArticle) {
                         articleFieldRepository.upNumIncrement(fid, -1);
                         articleFieldRepository.downNumIncrement(fid, 1);
                     } else {
                         articleCommentRepository.upNumIncrement(pid, -1);
                         articleCommentRepository.downNumIncrement(pid, 1);
                     }
-                    sendActionMqMessage(pid, fid, commentType, false);
+                    sendActionMqMessage(uid, fid, pid, commentType);
                     comment.setCommentType(CommentType.down);
                     articleCommentRepository.save(comment);
                     return CommentType.upToDown;
@@ -287,16 +324,17 @@ public class ArticleCommentServiceImpl {
 
         long ActionUserId;
 
-        if (pid != -1) {// -1 是啥玩意  想起来料 -1是文章
+        if (actionArticle) {// -1 是啥玩意  想起来料 -1是点赞or点踩文章 0为评论文章这样查询可以少个类型判断
             ArticleComment actionComment = articleCommentRepository.
                     findByDeletedFalseAndIdAndCommentType(actionCommentId, CommentType.comment);
             ActionUserId = actionComment.getUser().getId();
             articleCommentRepository.upNumIncrement(actionCommentId, 1);
+            sendActionMqMessage(uid, fid, pid, commentType);
         } else {
             ActionUserId = 0;//文章 避免前端参数错误 后端直接不管了 要用到时候从文章id查询用户id
             if (commentType == CommentType.up) {
                 articleFieldRepository.upNumIncrement(fid, 1);
-                sendActionMqMessage(pid, fid, commentType, false);
+                sendActionMqMessage(uid, fid, pid, commentType);
 
             } else {
                 articleFieldRepository.downNumIncrement(fid, 1);
@@ -319,15 +357,17 @@ public class ArticleCommentServiceImpl {
 
     }
 
-    private void sendActionMqMessage(long articleId, long commentId, CommentType commentType, boolean cancel, String formContent, String toContent) {
+    private void sendActionMqMessage(long userId, long articleFieldId, long parentCommentId,
+                                     CommentType commentType, boolean cancel, String formContent, String toContent, long replayCommentId) {
+//        评论
         UserCommentNotifyMessage activeMessage = UserCommentNotifyMessage.builder()
-                .userActiveType(UserActiveType.get(commentType))
+                .userActiveType(UserActiveType.Converter(commentType, parentCommentId))
 
-                .formUserId(userSupport.getCurrentUser().getId())
+                .formUserId(userId)
 
-                .articleId(articleId)
+                .articleId(articleFieldId)
 
-                .commentId(commentId)
+                .commentId(parentCommentId)
 
                 .ua(userSupport.getUserAgent())
 
@@ -338,24 +378,25 @@ public class ArticleCommentServiceImpl {
 
                 .toContent(toContent)
 
+                .replayCommentId(replayCommentId)
+
                 .build();
         rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
     }
 
-    private void sendActionMqMessage(long articleId, long commentId, CommentType commentType, boolean cancel) {
+    private void sendActionMqMessage(long userId, long articleFieldId, long parentCommentId, CommentType commentType) {
         UserCommentNotifyMessage activeMessage = UserCommentNotifyMessage.builder()
-                .userActiveType(UserActiveType.get(commentType))
+                .userActiveType(UserActiveType.Converter(commentType, parentCommentId))
 
-                .formUserId(userSupport.getCurrentUser().getId())
+                .formUserId(userId)
 
-                .articleId(articleId)
+                .articleId(articleFieldId)
 
-                .commentId(commentId)
+                .commentId(parentCommentId)
 
                 .ua(userSupport.getUserAgent())
 
-
-                .cancel(cancel)
+                .cancel(commentType == CommentType.cancel)
 
                 .build();
         rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);

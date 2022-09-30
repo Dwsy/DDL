@@ -1,7 +1,12 @@
 package link.dwsy.ddl.repository.User;
 
+import link.dwsy.ddl.XO.Enum.Message.NotifyType;
 import link.dwsy.ddl.entity.User.UserNotify;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Collection;
 
 /**
  * @Author Dwsy
@@ -9,5 +14,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 
 public interface UserNotifyRepository extends JpaRepository<UserNotify, Long> {
+    boolean existsByDeletedFalseAndFromUserIdAndToUserIdAndCommentIdAndNotifyType
+            (long fromUserId, long toUserId, long commentId, NotifyType notifyType);
+
+    Page<UserNotify> findByDeletedFalseAndToUserIdAndNotifyType(long toUserId, NotifyType notifyType, Pageable pageable);
+
+    Page<UserNotify> findByDeletedFalseAndToUserIdAndNotifyTypeIn(long toUserId, Collection<NotifyType> notifyTypes, Pageable pageable);
+
 
 }

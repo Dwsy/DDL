@@ -1,12 +1,15 @@
 package link.dwsy.ddl.entity.User;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import link.dwsy.ddl.XO.Enum.Message.NotifyState;
 import link.dwsy.ddl.XO.Enum.Message.NotifyType;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * @Author Dwsy
@@ -34,10 +37,24 @@ public class UserNotify extends BaseEntity {
 
     private long answerId;
 
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private NotifyType notifyType;
 
     private String formContent;//己方
 
     private String toContent;//他方
+
+    private Long replayCommentId;//回复后返回的评论id
+
+    @Builder.Default
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER) //返回值
+    private NotifyState notifyState=NotifyState.UNREAD;
+//    private  read=false;
+
+    @Transient
+    private String formUserAvatar;
+
+    @Transient
+    private String formUserNickname;
 
 }

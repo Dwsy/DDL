@@ -18,5 +18,5 @@ public class UserPrivateWsMessageSession {
     private Set<Session> SmallIdUserSessionSet;
     private long BigId;
     private long SmallId;
-    private boolean HasSubChannel;
+    private boolean HasSubChannel=false;
 }

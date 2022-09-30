@@ -1,4 +1,4 @@
-package link.dwsy.ddl.controller;
+package link.dwsy.ddl.controller.WebSocket;
 
 import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;

@@ -25,7 +25,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("private/message")
-public class UserPrivateMessage {
+public class UserPrivateMessageController {
 
 
     @Resource

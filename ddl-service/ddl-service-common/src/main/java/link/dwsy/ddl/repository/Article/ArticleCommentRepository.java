@@ -81,7 +81,12 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
     Optional<ArticleComment> findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentTypeInAndArticleField_Id(long id, long parentCommentId, Collection<CommentType> commentTypes, long id1);
 
 
+    @Query(nativeQuery = true,value = "select text from article_comment where id=?1 and deleted=false")
+    String getText(Long commentId);
 
+    @Query("select (count(a) > 0) from ArticleComment a " +
+            "where a.deleted = false and a.id = ?1 and a.replyUserCommentId = 0")
+    boolean notIsSecondaryComment(long id);
 
 
 }

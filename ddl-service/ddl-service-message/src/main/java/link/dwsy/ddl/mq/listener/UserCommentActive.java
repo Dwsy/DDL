@@ -22,15 +22,16 @@ public class UserCommentActive {
 
     @RabbitListener(queues = UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE)
     public void sendNotify(UserCommentNotifyMessage message) throws JsonProcessingException {
-//        userCommentActiveProcess.sendNotify(message);
 
+//        System.out.println(JSON.toJSONString(message));
+        userCommentActiveProcess.sendNotify(message);
 
-        if (message.getUserActiveType() == null) {
-            System.out.println(message.getCommentId());
-            return;
-
-        }
-        log.info("用户{}comment记录{}成功", message.getFormUserId(), message.getUserActiveType());
+//        if (message.getUserActiveType() == null) {
+//            System.out.println(message.getCommentId());
+//            return;
+//
+//        }
+//
     }
 
 

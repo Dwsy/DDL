@@ -24,6 +24,7 @@ public class CommentNotifyVO {
     private String formContent;//己方
     private String toContent;//他方
 
+    //点赞 回复
     public CommentNotifyVO(UserNotify userNotify) {
         this.fromUserId = userNotify.getFromUserId();
         this.toUserId = userNotify.getToUserId();

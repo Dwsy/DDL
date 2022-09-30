@@ -3,6 +3,7 @@ package link.dwsy.ddl.controller;
 import com.alibaba.fastjson2.JSONObject;
 import link.dwsy.ddl.XO.RB.channelSendMessageRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.controller.WebSocket.ChannelWS;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.Message.ChannelMessage;
 import link.dwsy.ddl.repository.Meaasge.ChannelMessageRepository;
@@ -19,17 +20,17 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/channel")
-public class Channel {
+public class ChannelController {
     @Resource
-    ChannelWS channelWS;
+    private ChannelWS channelWS;
     @Resource
-    ChannelRepository channelRepository;
+    private ChannelRepository channelRepository;
     @Resource
-    ChannelMessageRepository channelMessageRepository;
+    private ChannelMessageRepository channelMessageRepository;
     @Resource
-    StringRedisTemplate stringRedisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
     @Resource
-    UserSupport userSupport;
+    private UserSupport userSupport;
 
     @GetMapping("/list")
     public Object list() {

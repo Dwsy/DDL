@@ -19,7 +19,9 @@ public class ArticleCommentRB {
     private String text;
 
     @NotBlank(message = "can not be empty")
-    private long parentUserId;
+    private long replyUserId;
+
+    private long replyUserCommentId;
 
     @NotBlank(message = "can not be empty")
     private long parentCommentId ;
