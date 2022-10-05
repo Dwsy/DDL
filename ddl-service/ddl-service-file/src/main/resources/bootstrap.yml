@@ -1,0 +1,101 @@
+server:
+  port: 7007
+#  servlet:
+#    encoding:
+#      charset: utf-8
+#      force-response: true
+#      force: true
+#  servlet:
+#    context-path: /ddl-authority-center
+spring:
+  application:
+    name: ddl-service-file
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  #  multipart:
+#    max
+#    max-request-size: 20MB
+#    max-file-size: 2MB
+#  jpa:
+#    database: postgresql
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: update
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#        format_sql: true
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#    open-in-view: false
+#  datasource:
+#    # 数据源
+#    url: jdbc:postgresql://localhost:5432/ddl?useSSL=false
+#    username: postgres
+#    password: root
+#    type: com.zaxxer.hikari.HikariDataSource
+#    driver-class-name: org.postgresql.Driver
+#    hikari:
+#      maximum-pool-size: 8
+#      minimum-idle: 4
+#      idle-timeout: 30000
+#      connection-timeout: 30000
+#      max-lifetime: 45000
+#      auto-commit: true
+#      pool-name: DDLHikariCP
+
+  cloud:
+    nacos:
+      discovery:
+#        enabled: false # 如果不想使用 Nacos 进行服务注册和发现, 设置为 false 即可
+        enabled: false
+        server-addr: localhost:8848 # Nacos 服务器地址
+        # server-addr: 127.0.0.1:8848,127.0.0.1:8849,127.0.0.1:8850 # Nacos 服务器地址
+        namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
+        metadata:
+          management:
+            context-path: ${server.servlet.context-path}/actuator
+
+
+#  kafka:
+#    bootstrap-servers: 127.0.0.1:9092
+#    producer:
+#      retries: 3
+#    consumer:
+#      auto-offset-reset: latest
+#  zipkin:
+#    sender:
+#      type: kafka # 默认是 web
+#    base-url: http://127.0.0.1:9411/
+
+# 暴露端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'  # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 *, 可以开放所有端点
+  endpoint:
+    health:
+      show-details: always
+knife4j:
+  enable: true
+
+jasypt:
+  encryptor:
+    password: 17df5675c2ee9097f8f604167fa89f7d
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+#    password: ${DDL_SALT}
+qiniu:
+  accessKey: ENC(xVPjIee6Y8ENKZ0WjpdAEkOh+kUEPggX5YBoY4u5s4BpBmLcFuR8gCZi8GGtod5S2F+B29Rxb8A=)
+  secretKey: ENC(Kj3KIUd9sRCgXX6lyQtVujYUmmmF8Ua2r3092M2RQIJWAnE3+3yKVKZZJO05C+Zw/JUFIduh19w=)
+  bucketName: ENC(vYjK3TZrClnInVeIOb+R0WW5JXFZeA5b)
+  path: ENC(JjYFieNksT6OI74kBFfkOZIjL4ngbuPz)
+  documentName: ddl
+
+
+# 最大文件上传，单次最大上传

@@ -27,7 +27,7 @@ import java.util.Optional;
  */
 
 @RestController
-@RequestMapping("group")
+@RequestMapping("collection/group")
 @Slf4j
 public class UserCollectionGroupController {
     @Resource
