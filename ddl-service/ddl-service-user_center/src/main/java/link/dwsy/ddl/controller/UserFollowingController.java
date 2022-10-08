@@ -3,6 +3,7 @@ package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.VO.FollowUserVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.annotation.RequestSingleParam;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.User.User;
@@ -89,13 +90,19 @@ public class UserFollowingController {
 
     @PostMapping("follow")
     @AuthAnnotation
-    public boolean followUser(@RequestParam Long fid) {
-        User followUser = userRepository.findUserByIdAndDeletedIsFalse(fid);
+    public boolean followUser(@RequestSingleParam(value = "fid") String fid) {
+        Long uid = userSupport.getCurrentUser().getId();
+        if (Long.valueOf(fid).equals(uid)) {
+            throw new CodeException(CustomerErrorCode.FOLLOW_SELF);
+        }
+
+        User followUser = userRepository.findUserByIdAndDeletedIsFalse(Long.valueOf(fid));
+
         if (followUser == null) {
             throw new CodeException(CustomerErrorCode.UserNotExist);
         }
-        Long uid = userSupport.getCurrentUser().getId();
-        UserFollowing exist = userFollowingRepository.findByUserIdAndFollowingUserIdAndDeletedIsFalse(uid, fid);
+
+        UserFollowing exist = userFollowingRepository.findByUserIdAndFollowingUserIdAndDeletedIsFalse(uid, Long.valueOf(fid));
         if (exist != null) {
             if (exist.isDeleted()) {
                 exist.setDeleted(false);
@@ -105,20 +112,20 @@ public class UserFollowingController {
                 throw new CodeException(CustomerErrorCode.UserAlreadyFollowed);
             }
         }
-        UserFollowing userFollowing = UserFollowing.builder().userId(uid).followingUserId(fid).build();
+        UserFollowing userFollowing = UserFollowing.builder().userId(uid).followingUserId(Long.valueOf(fid)).build();
         userFollowingRepository.save(userFollowing);
         return true;
     }
 
-    @DeleteMapping("unfollow")
+    @PostMapping("unfollow")
     @AuthAnnotation
-    public Object unfollowUser(@RequestParam Long fid) {
+    public Object unfollowUser(@RequestSingleParam(value = "fid") String fid) {
         Long uid = userSupport.getCurrentUser().getId();
-        User followUser = userRepository.findUserByIdAndDeletedIsFalse(fid);
+        User followUser = userRepository.findUserByIdAndDeletedIsFalse(Long.valueOf(fid));
         if (followUser == null) {
             throw new CodeException(CustomerErrorCode.UserNotExist);
         }
-        UserFollowing exist = userFollowingRepository.findByUserIdAndFollowingUserIdAndDeletedIsFalse(uid, fid);
+        UserFollowing exist = userFollowingRepository.findByUserIdAndFollowingUserIdAndDeletedIsFalse(uid, Long.valueOf(fid));
         if (exist != null) {
             if (!exist.isDeleted()) {
                 exist.setDeleted(true);

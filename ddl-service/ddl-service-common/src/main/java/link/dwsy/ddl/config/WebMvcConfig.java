@@ -1,9 +1,11 @@
 package link.dwsy.ddl.config;
 
+import link.dwsy.ddl.support.RequestStringParamHandlerMethodArgumentResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -37,4 +39,9 @@ public class WebMvcConfig implements WebMvcConfigurer  {
         converters.add(responseBody());
     }
 
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers){
+        argumentResolvers.add(new RequestStringParamHandlerMethodArgumentResolver());
+        WebMvcConfigurer.super.addArgumentResolvers(argumentResolvers);
+    }
 }

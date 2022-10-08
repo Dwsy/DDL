@@ -26,14 +26,16 @@ public enum CustomerErrorCode {
     TokenParseError(105, "token解析失败"),
     UserLevelLow(110, "用户等级不足"),
 
-    TokenNotFound(111,"token未找到"),
+    TokenNotFound(111, "token未找到"),
 
-    OldPWDEqualsNewPWD(119,"新旧密码不能相同" ),
+    OldPWDEqualsNewPWD(119, "新旧密码不能相同"),
 
-    OldPWDWrong(120,"旧密码错误" ),
+    OldPWDWrong(120, "旧密码错误"),
 
-    UserAlreadyFollowed(130,"已关注用户" ),
-    UserNotFollowed(131,"未关注用户" ),
+    UserAlreadyFollowed(130, "已关注用户"),
+    UserNotFollowed(131, "未关注用户"),
+
+    FOLLOW_SELF(134,"不能关注自己" ),
     ArticleNotFound(201, "文章不存在"),
     GroupNotFound(202, "分组不出存在"),
 
@@ -52,7 +54,7 @@ public enum CustomerErrorCode {
 
     ArticleGroupNotEmpty(212, "分组不为空"),//todo 强制删除好像也不是不行
     UserCollectionGroupNotExist(213, "收藏分组不存在"),
-    UserCollectionNotExist(215,"未收藏"),
+    UserCollectionNotExist(215, "未收藏"),
 
     UserCollectionAlreadyExist(214, "已收藏"),
 
@@ -75,9 +77,7 @@ public enum CustomerErrorCode {
 
     WordNotFount(10001, "未找到该词"),
 
-    WordExist(10002, "该词已存在"), CaptchaWrong(100004, "验证码错误"), ;
-
-
+    WordExist(10002, "该词已存在"), CaptchaWrong(100004, "验证码错误"), EmailEqualsOld(100005, "邮箱未更改"), ;
 
 
     private final int code;
@@ -98,4 +98,4 @@ public enum CustomerErrorCode {
     }
 
 
-    }
+}

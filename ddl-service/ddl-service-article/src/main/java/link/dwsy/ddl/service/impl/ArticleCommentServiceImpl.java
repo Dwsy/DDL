@@ -17,6 +17,7 @@ import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
+import link.dwsy.ddl.util.HtmlHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
@@ -88,7 +89,7 @@ public class ArticleCommentServiceImpl {
         }
         User user = new User();
         user.setId(userSupport.getCurrentUser().getId());
-
+        articleCommentRB.setText(HtmlHelper.filter(articleCommentRB.getText().trim()));
         ArticleField af = new ArticleField();
         af.setId(articleFieldId);
         //评论文章

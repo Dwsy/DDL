@@ -77,6 +77,7 @@ public class ArticleComment extends BaseEntity {
     @Type(type = "org.hibernate.type.TextType")
     private String ua;
 
+
     @Override
     public String toString() {
         return "ArticleComment{" +

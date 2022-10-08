@@ -86,16 +86,12 @@ knife4j:
 
 jasypt:
   encryptor:
-    password: 17df5675c2ee9097f8f604167fa89f7d
     algorithm: PBEWithMD5AndDES
     iv-generator-classname: org.jasypt.iv.NoIvGenerator
-#    password: ${DDL_SALT}
+    password: ${DDL_SALT}
 qiniu:
-  accessKey: ENC(xVPjIee6Y8ENKZ0WjpdAEkOh+kUEPggX5YBoY4u5s4BpBmLcFuR8gCZi8GGtod5S2F+B29Rxb8A=)
-  secretKey: ENC(Kj3KIUd9sRCgXX6lyQtVujYUmmmF8Ua2r3092M2RQIJWAnE3+3yKVKZZJO05C+Zw/JUFIduh19w=)
-  bucketName: ENC(vYjK3TZrClnInVeIOb+R0WW5JXFZeA5b)
-  path: ENC(JjYFieNksT6OI74kBFfkOZIjL4ngbuPz)
+  accessKey: ENC(lzpY3WxdmvCPoyjxquII/zrtTQeia82RX84cSY0g1nl3ZfZ4m9CyZyBFmGR/BAtptuC4y+M2j48=)
+  secretKey: ENC(RaoOOwABD0g96QOungQkYkGR/X93KxHh0ykasWn3jD1eUCFIIkl2I8u6yX2jl6mDteGMJaAl9Yw=)
+  bucketName: ENC(1Y/XqbqvJa486wgL/XSAnUzJBrY+ciEE)
+  path: ENC(GxN7Gm6LHpzjEtM34Lv6j6syNSpBUPE1)
   documentName: ddl
-
-
-# 最大文件上传，单次最大上传

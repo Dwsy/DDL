@@ -148,6 +148,7 @@ public class UserPrivateMessageWS {
             }
             log.info("addSession{}",session);
             //fixme lock
+            if (!sms.isHasSubChannel()) {
                 synchronized (UserPrivateWsMessageSession.class) {
                     if (!sms.isHasSubChannel()) {
                         sms.setHasSubChannel(true);
@@ -179,6 +180,7 @@ public class UserPrivateMessageWS {
                         log.info("ChannelTopic{}", channelTopic.getTopic());
                     }
                 }
+            }
 
 
 

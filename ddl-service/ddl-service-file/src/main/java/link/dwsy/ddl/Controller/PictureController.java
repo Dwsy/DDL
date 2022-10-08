@@ -18,11 +18,8 @@ public class PictureController {
 
     @PostMapping("/upload")
     public R<String> upload(@RequestParam("file") MultipartFile file){
-        //上传文件，上传到哪呢？图片服务器七牛云
-        //把图片发放到距离图片最近的服务器上，降低我们自身服务器的带宽消耗
         String imagePath = qiniuUtils.upload(file);
         if (!imagePath.isEmpty()){
-            //上传成功
             return R.ok(imagePath);
         }
         return R.fail("图片上传失败！");

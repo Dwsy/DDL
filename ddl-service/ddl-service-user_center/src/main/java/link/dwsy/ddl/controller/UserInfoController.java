@@ -24,7 +24,9 @@ public class UserInfoController {
     @AuthAnnotation(Level = 1)
     public UserInfo getUserInfo() {
         Long id = userSupport.getCurrentUser().getId();
-        return userRepository.findUserByIdAndDeletedIsFalse(id).getUserInfo();
+        UserInfo userInfo = userRepository.findUserByIdAndDeletedIsFalse(id).getUserInfo();
+        userInfo.setLevel(userRepository.getUserLevelById(id));
+        return userInfo;
     }
 
     @PutMapping

@@ -22,7 +22,7 @@ public class JasyptUtils {
     public static String encryptPwd(String password, String value) {
         PooledPBEStringEncryptor encryptOr = new PooledPBEStringEncryptor();
         encryptOr.setConfig(cryptOr(password));
-        return encryptOr.encrypt(value);
+        return String.format("ENC(%s)", encryptOr.encrypt(value));
     }
 
     /**
@@ -58,13 +58,12 @@ public class JasyptUtils {
         // 盐值也需要在第三步写入配置文件
         Map<String, String> env = System.getenv();
         String salt = env.get("DDL_SALT");
+//        String salt = "$2a$10$8CNGFBcZJYIRkleg51vpEO2oSecuFGQEb9/NsEy4pIZgV5ojvTT7O";
 //        System.out.println(salt);
-        System.out.println(encryptPwd(salt, "rkpO69kR_pMDNUjlppXxq-mTLjhitwQ20YFPOHWf"));
-        System.out.println(encryptPwd(salt, "Gv03_Qz9RBT3J2mqGxygRnx0FyNZyuFCHv6ZJMB5"));
+        System.out.println(encryptPwd(salt, ""));
+        System.out.println(encryptPwd(salt, ""));
         System.out.println(encryptPwd(salt, "dams-demo"));
         System.out.println(encryptPwd(salt, "qiniu.dwsy.link"));
-
-        System.out.println(decyptPwd("17df5675c2ee9097f8f604167fa89f7d", "FLQUNaYejX5rQWBKXiH3Pg=="));
 //        String account = "root";
 //        BasicTextEncryptor encryptor = new BasicTextEncryptor();
 //        //秘钥
