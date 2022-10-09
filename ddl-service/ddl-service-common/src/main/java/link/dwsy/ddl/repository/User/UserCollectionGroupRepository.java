@@ -1,6 +1,7 @@
 package link.dwsy.ddl.repository.User;
 
 import link.dwsy.ddl.entity.User.UserCollectionGroup;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -17,6 +18,10 @@ public interface UserCollectionGroupRepository extends JpaRepository<UserCollect
     UserCollectionGroup findByIdAndUserIdAndDeletedIsFalse(long gid, long uid);
 
     List<UserCollectionGroup> findByDeletedFalseAndUserId(Long userId);
+
+    List<UserCollectionGroup> findByUserIdAndDeletedFalse(Long userId, Sort sort);
+
+
 
     Optional<UserCollectionGroup> findByDeletedFalseAndUserIdAndId(Long userId, long id);
 

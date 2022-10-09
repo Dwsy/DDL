@@ -33,4 +33,6 @@ public class UserCollectionGroup extends BaseEntity {
 
     private int groupOrder;
 
+    private String introduction;
+
 }

@@ -21,10 +21,14 @@ import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @Author Dwsy
@@ -56,16 +60,12 @@ public class userCollectionController {
     @Resource
     UserRepository userRepository;
 
-
-
-
-
     @Resource
     UserSupport userSupport;
 
 
     @PostMapping
-    public String addCollectionToGroup(@RequestBody UserCollectionRB userCollectionRB) {
+    public String addCollectionToGroup(@Validated @RequestBody UserCollectionRB userCollectionRB) {
         CollectionType collectionType = userCollectionRB.getCollectionType();
         Long gid = userCollectionRB.getGroupId();
         Long sid = userCollectionRB.getSourceId();
@@ -79,7 +79,7 @@ public class userCollectionController {
 
 
         Optional<UserCollection> uce = userCollectionRepository
-                .findByDeletedFalseAndUserIdAndSourceIdAndUserCollectionGroup_IdAndCollectionType(uid, sid, gid, collectionType);
+                .findByUserIdAndSourceIdAndUserCollectionGroup_IdAndCollectionType(uid, sid, gid, collectionType);
         uce.ifPresent(userCollection -> {
             if (userCollection.isDeleted()) {
                 userCollection.setDeleted(false);
@@ -107,6 +107,9 @@ public class userCollectionController {
 
         userCollectionGroup.setCollectionNum(userCollectionGroup.getCollectionNum() + 1);
         UserCollectionGroup g = userCollectionGroupRepository.save(userCollectionGroup);
+        if (uce.isPresent()) {
+            return "收藏成功";
+        }
         String sourceTitle = null;
         if (collectionType == CollectionType.Article) {
             ArticleField articleField = articleFieldRepository
@@ -152,9 +155,9 @@ public class userCollectionController {
         return "收藏成功";
     }
 
-    @DeleteMapping()
+    @DeleteMapping
     @AuthAnnotation
-    private String cancelCollection(@RequestBody UserCollectionRB userCollectionRB) {
+    public String cancelCollection(@RequestBody UserCollectionRB userCollectionRB) {
         Long uid = userSupport.getCurrentUser().getId();
         Long sourceId = userCollectionRB.getSourceId();
         CollectionType collectionType = userCollectionRB.getCollectionType();
@@ -168,11 +171,36 @@ public class userCollectionController {
         userCollectionGroup.setCollectionNum(userCollectionGroup.getCollectionNum() - 1);
         userCollection.setDeleted(true);
 
+        CollectionType type = userCollection.getCollectionType();
+        //todo 收藏多次1
+        switch (type) {
+            case Article:
+                articleFieldRepository.collectNumIncrement(sourceId, -1);
+                break;
+            case Question:
+                qaQuestionFieldRepository.collectNumIncrement(sourceId, -1);
+                break;
+        }
+
+
         userCollectionGroupRepository.save(userCollectionGroup);
         userCollectionRepository.save(userCollection);
 
         return "删除成功";
     }
 
+    @GetMapping("state")
+    @AuthAnnotation
+    public Set<Long> getCollectionState(@RequestParam(name = "sourceId") long sourceId,
+                                        @RequestParam(name = "type") CollectionType collectionType) {
+        Long uid = userSupport.getCurrentUser().getId();
+        List<UserCollection> collectionListion = userCollectionRepository
+                .findByDeletedFalseAndUserIdAndSourceIdAndCollectionType(uid, sourceId, collectionType);
+        Set<Long> ret = new HashSet<>();
+        for (UserCollection userCollection : collectionListion) {
+            ret.add(userCollection.getUserCollectionGroup().getId());
+        }
+        return ret;
+    }
 
 }

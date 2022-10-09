@@ -15,6 +15,7 @@ import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -66,6 +67,7 @@ public class UserCollectionGroupController {
                 .userId(uid)
                 .groupName("默认收藏夹")
                 .collectionNum(0)
+                .introduction("文章简介")
                 .groupOrder(0).build();
         if (!userCollectionGroupRepository.existsByUserIdAndGroupName(uid, "默认收藏夹")) {
             userCollectionGroupRepository.save(userCollectionGroupRepository.save(group));
@@ -79,7 +81,8 @@ public class UserCollectionGroupController {
     public List<UserCollectionGroup> getGroupList() {
         Long uid = userSupport.getCurrentUser().getId();
         //         不做分页 限制最大数
-        return userCollectionGroupRepository.findByDeletedFalseAndUserId(uid);
+
+        return userCollectionGroupRepository.findByUserIdAndDeletedFalse(uid, Sort.by("collectionNum").descending());
     }
 
     @GetMapping("{id}")
@@ -90,9 +93,7 @@ public class UserCollectionGroupController {
     }
 
 
-
-
-    @PostMapping
+    @PostMapping("create")
     @AuthAnnotation
     public String createGroup(@RequestBody UserCollectionGroupRB userCollectionGroupRB) {
         String groupName = userCollectionGroupRB.getGroupName();
@@ -108,6 +109,7 @@ public class UserCollectionGroupController {
                 .userId(uid)
                 .groupName(groupName)
                 .collectionNum(0)
+                .introduction("文章简介")
                 .groupOrder(0).build();
         userCollectionGroupRepository.save(group);
         return "创建成功";
