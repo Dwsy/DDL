@@ -10,7 +10,7 @@ import lombok.*;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * @Author Dwsy
@@ -66,7 +66,13 @@ public class ArticleComment extends BaseEntity {
     private User parentUser;
 
     @Transient
-    private Set<ArticleComment> childComments;
+    private Collection<ArticleComment> childComments;
+
+    @Transient
+    private long childCommentNum;
+
+    @Transient
+    private long childCommentTotalPages;
 
     @Builder.Default
     @Enumerated(EnumType.ORDINAL)

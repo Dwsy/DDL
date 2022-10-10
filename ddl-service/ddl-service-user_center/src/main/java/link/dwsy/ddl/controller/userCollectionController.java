@@ -157,7 +157,7 @@ public class userCollectionController {
 
     @DeleteMapping
     @AuthAnnotation
-    public String cancelCollection(@RequestBody UserCollectionRB userCollectionRB) {
+    public String cancelCollection(@RequestBody @Validated UserCollectionRB userCollectionRB) {
         Long uid = userSupport.getCurrentUser().getId();
         Long sourceId = userCollectionRB.getSourceId();
         CollectionType collectionType = userCollectionRB.getCollectionType();

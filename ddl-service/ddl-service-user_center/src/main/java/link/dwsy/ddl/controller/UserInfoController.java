@@ -2,8 +2,12 @@ package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.RB.UserInfoRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.core.CustomExceptions.CodeException;
+import link.dwsy.ddl.core.constant.CustomerErrorCode;
+import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.entity.User.UserInfo;
+import link.dwsy.ddl.repository.User.UserFollowingRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +20,11 @@ import java.util.Optional;
 public class UserInfoController {
 
     @Resource
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Resource
-    UserSupport userSupport;
+    private UserSupport userSupport;
+    @Resource
+    private UserFollowingRepository userFollowingRepository;
 
     @GetMapping
     @AuthAnnotation(Level = 1)
@@ -27,6 +33,26 @@ public class UserInfoController {
         UserInfo userInfo = userRepository.findUserByIdAndDeletedIsFalse(id).getUserInfo();
         userInfo.setLevel(userRepository.getUserLevelById(id));
         return userInfo;
+    }
+
+    @GetMapping("{id}")
+//    @AuthAnnotation(Level = 1)
+    public User getUserById(@PathVariable Long id) {
+        User user = userRepository.findUserByIdAndDeletedIsFalse(id);
+        if (user != null) {
+            LoginUserInfo currentUser = userSupport.getCurrentUser();
+            //fixme
+            if (currentUser != null) {
+                Long currentUserId = currentUser.getId();
+                boolean following = userFollowingRepository.existsByUserIdAndFollowingUserIdAndDeletedIsFalse(currentUserId, id);
+                if (following) {
+                    user.setFollowing(true);
+                }
+            }
+            return user;
+        } else {
+            throw new CodeException(CustomerErrorCode.UserNotExist);
+        }
     }
 
     @PutMapping

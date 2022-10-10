@@ -20,7 +20,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Author Dwsy
@@ -54,7 +58,7 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public R handlerBindException(BindException e) {
+    public R<String> handlerBindException(BindException e) {
         R<String> response = new R<>(R.FAIL,"请求体错误");
         BindingResult bindingResult = e.getBindingResult();
         // 判断异常中是否有错误信息，如果存在就使用异常中的消息，否则使用默认消息
@@ -91,6 +95,19 @@ public class GlobalExceptionAdvice {
             }
         }
         return response;
+    }
+
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public R<String> constraintViolationExceptionHandler(ConstraintViolationException e) {
+        Set<ConstraintViolation<?>> constraintViolations = e.getConstraintViolations();
+        List<String> collect = constraintViolations.stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.toList());
+
+
+        return new R<>(R.FAIL,"请求参数错误",collect.toString());
+
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

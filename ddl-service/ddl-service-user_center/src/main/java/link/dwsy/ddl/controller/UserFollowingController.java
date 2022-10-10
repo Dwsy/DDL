@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/following")
+@RequestMapping("/follow")
 public class UserFollowingController {
 
     @Resource
@@ -36,11 +36,11 @@ public class UserFollowingController {
     @Resource
     UserSupport userSupport;
 
-    @GetMapping("follower")
+    @GetMapping("follower/list")
     @AuthAnnotation
     public PageData<User> getUserFollower(
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
-            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "create_time", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "10", name = "size") int size
     ) {
@@ -61,11 +61,11 @@ public class UserFollowingController {
         return new PageData<>(users);
     }
 
-    @GetMapping("following")
+    @GetMapping("following/list")
     @AuthAnnotation
     public PageData<User> getUserFollowing(
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
-            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "create_time", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "10", name = "size") int size
     ) {
@@ -83,14 +83,13 @@ public class UserFollowingController {
         Page<User> users = new PageImpl<>(userList, pageRequest, followerUserIdList.getTotalElements());
 
 
-
         return new PageData<>(users);
     }
 
 
-    @PostMapping("follow")
+    @PostMapping("following")
     @AuthAnnotation
-    public boolean followUser(@RequestSingleParam(value = "fid") String fid) {
+    public String followUser(@RequestSingleParam(value = "fid") String fid) {
         Long uid = userSupport.getCurrentUser().getId();
         if (Long.valueOf(fid).equals(uid)) {
             throw new CodeException(CustomerErrorCode.FOLLOW_SELF);
@@ -102,19 +101,19 @@ public class UserFollowingController {
             throw new CodeException(CustomerErrorCode.UserNotExist);
         }
 
-        UserFollowing exist = userFollowingRepository.findByUserIdAndFollowingUserIdAndDeletedIsFalse(uid, Long.valueOf(fid));
+        UserFollowing exist = userFollowingRepository.findByUserIdAndFollowingUserId(uid, Long.valueOf(fid));
         if (exist != null) {
             if (exist.isDeleted()) {
                 exist.setDeleted(false);
                 userFollowingRepository.save(exist);
-                return true;
+                return "关注成功";
             } else {
                 throw new CodeException(CustomerErrorCode.UserAlreadyFollowed);
             }
         }
         UserFollowing userFollowing = UserFollowing.builder().userId(uid).followingUserId(Long.valueOf(fid)).build();
         userFollowingRepository.save(userFollowing);
-        return true;
+        return "关注成功";
     }
 
     @PostMapping("unfollow")
@@ -125,16 +124,17 @@ public class UserFollowingController {
         if (followUser == null) {
             throw new CodeException(CustomerErrorCode.UserNotExist);
         }
-        UserFollowing exist = userFollowingRepository.findByUserIdAndFollowingUserIdAndDeletedIsFalse(uid, Long.valueOf(fid));
+        UserFollowing exist = userFollowingRepository.findByUserIdAndFollowingUserId(uid, Long.valueOf(fid));
         if (exist != null) {
             if (!exist.isDeleted()) {
                 exist.setDeleted(true);
                 userFollowingRepository.save(exist);
-                return true;
+                return "取消关注成功";
+            }else {
+                throw new CodeException(CustomerErrorCode.UserNotFollowed);
             }
         } else {
             throw new CodeException(CustomerErrorCode.UserNotFollowed);
         }
-        return null;
     }
 }

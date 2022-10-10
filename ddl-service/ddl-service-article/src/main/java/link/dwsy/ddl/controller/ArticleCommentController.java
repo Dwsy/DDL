@@ -13,6 +13,7 @@ import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +44,21 @@ public class ArticleCommentController {
         articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         return articleCommentService.getByArticleId(aid, pageRequest);
+    }
+    @GetMapping("/child/{aid}-{pid}")
+    public PageData<ArticleComment> getChildCommentsById(
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "8", name = "size") int size,
+//            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+//            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @PathVariable("aid") Long aid,
+            @PathVariable("pid") Long pid
+    ) {
+        if (aid < 1 || size < 1)
+            throw new CodeException(CustomerErrorCode.ParamError);
+//        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
+        PageRequest pageRequest = PRHelper.order(Sort.Direction.ASC, "createTime", page, size);
+        return articleCommentService.getChildCommentsByParentId(aid,pid, pageRequest);
     }
 
     @PostMapping()

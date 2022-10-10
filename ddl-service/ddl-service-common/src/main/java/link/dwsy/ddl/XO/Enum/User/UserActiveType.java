@@ -14,6 +14,7 @@ public enum UserActiveType {
     Browse_Article,//浏览文章
 
     Browse_QA,//浏览问题
+    //-------------
 
     Comment_Article,//评论文章
 

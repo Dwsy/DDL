@@ -78,5 +78,8 @@ public class User extends BaseEntity {
     @JsonIgnore
     private List<Channel> channels;
 
+    @Transient
+    private boolean following;
+
 
 }

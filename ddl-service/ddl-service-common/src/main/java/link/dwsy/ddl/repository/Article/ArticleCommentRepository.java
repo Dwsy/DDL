@@ -31,6 +31,9 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
 
     Set<ArticleComment> findByDeletedFalseAndArticleFieldIdAndParentCommentIdAndCommentType(long fid, long pid,CommentType commentType, Sort sort);
 
+    Page<ArticleComment> findByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalse(long id, long parentCommentId, CommentType commentType, Pageable pageable);
+
+
 
 
 
@@ -77,6 +80,10 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
 
     Optional<ArticleComment> findByUserIdAndParentCommentIdAndCommentTypeIn
             (long uid, long parentCommentId, Collection<CommentType> commentTypes);
+
+    Page<ArticleComment> findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentType(long uid, long parentCommentId, CommentType commentType, Pageable pageable);
+
+
 
     Optional<ArticleComment> findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentTypeInAndArticleField_Id(long id, long parentCommentId, Collection<CommentType> commentTypes, long id1);
 

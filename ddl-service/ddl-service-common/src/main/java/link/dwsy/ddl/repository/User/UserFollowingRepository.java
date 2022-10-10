@@ -34,6 +34,8 @@ public interface UserFollowingRepository extends JpaRepository<UserFollowing, Lo
 
     UserFollowing findByUserIdAndFollowingUserIdAndDeletedIsFalse(Long userId, Long followingUserId);
 
+    UserFollowing findByUserIdAndFollowingUserId(Long userId, Long followingUserId);
+
     boolean existsByUserIdAndFollowingUserIdAndDeletedIsFalse(Long userId, Long followingUserId);
 
 

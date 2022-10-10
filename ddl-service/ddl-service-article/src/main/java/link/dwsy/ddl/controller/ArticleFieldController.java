@@ -11,6 +11,7 @@ import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleField;
+import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleContentServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;
@@ -36,13 +37,16 @@ import java.util.Optional;
 public class ArticleFieldController {
 
     @Resource
-    ArticleContentServiceImpl articleContentService;
+    private ArticleContentServiceImpl articleContentService;
 
     @Resource
-    ArticleFieldServiceImpl articleFieldService;
+    private ArticleFieldServiceImpl articleFieldService;
 
     @Resource
-    UserActiveServiceImpl userActiveService;
+    private UserActiveServiceImpl userActiveService;
+
+    @Resource
+    private UserRepository userRepository;
 
 
     @GetMapping("field/list")
@@ -60,6 +64,28 @@ public class ArticleFieldController {
         } else {
             return articleContentService.getPageList(pageRequest, ArticleState.open, tagId);
         }
+    }
+
+    @GetMapping("field/list/{uid}")
+    public PageData<fieldVO> getArticleListByUserId(
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "8", name = "size") int size,
+//            @RequestParam(required = false, defaultValue = "0", name = "tagId") long tagId,
+            @PathVariable long uid) {
+        if (size < 1)
+            throw new CodeException(CustomerErrorCode.ParamError);
+        if (!userRepository.existsById(uid)) {
+            throw new CodeException(CustomerErrorCode.UserNotExist);
+        }
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        return articleContentService.getArticleListByUserId(pageRequest, ArticleState.open, uid);
+//        if (tagId == 0) {
+//            return articleContentService.getArticleListByUserId(pageRequest, ArticleState.open);
+//        } else {
+//            return articleContentService.getArticleListByUserId(pageRequest, ArticleState.open, tagId);
+//        }
     }
 
     @GetMapping("field/{id}")

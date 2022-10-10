@@ -15,6 +15,6 @@ public class FollowUserVO extends User {
     public FollowUserVO(User user) {
         super(user.getUsername(), user.getNickname(), user.getPassword(),
                 user.getSalt(), user.getEmail(), user.getPhone(), user.getArea(),
-                user.getUserInfo(), user.getLevel(), user.getArticleFields(), user.getChannels());
+                user.getUserInfo(), user.getLevel(), user.getArticleFields(), user.getChannels(), user.isFollowing());
     }
 }

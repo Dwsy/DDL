@@ -54,10 +54,14 @@ public class ArticleCommentServiceImpl {
                 findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, 0L, pageRequest);
         for (ArticleComment articleComment : parentComment) {
             long pid = articleComment.getId();
-            Set<ArticleComment> childCommentSet = articleCommentRepository.
-                    findByDeletedFalseAndArticleFieldIdAndParentCommentIdAndCommentType
-                            (aid, pid, CommentType.comment, Sort.by(Sort.Direction.ASC, "createTime"));
-            articleComment.setChildComments(childCommentSet);
+            PageRequest pr = PageRequest.of(0, 8, Sort.by(Sort.Direction.ASC, "createTime"));
+//            Set<ArticleComment> childCommentSet =
+            Page<ArticleComment> childComments = articleCommentRepository.
+                    findByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalse
+                            (aid, pid, CommentType.comment, pr);
+            articleComment.setChildComments(childComments.getContent());
+            articleComment.setChildCommentNum(childComments.getTotalElements());
+            articleComment.setChildCommentTotalPages(childComments.getTotalPages());
 //            ArticleComment.setChildComments(articleCommentRepository.findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, pid));
             //添加点赞状态
             LoginUserInfo user = userSupport.getCurrentUser();
@@ -67,7 +71,7 @@ public class ArticleCommentServiceImpl {
                                 (user.getId(), pid, Set.of(CommentType.up, CommentType.down))
                         .ifPresent(c -> articleComment.setUserAction(c.getCommentType()));
                 //添加子评论点赞状态
-                for (ArticleComment childComment : childCommentSet) {
+                for (ArticleComment childComment : childComments.getContent()) {
                     articleCommentRepository.
                             findByUserIdAndParentCommentIdAndCommentTypeIn
                                     (user.getId(), childComment.getId(), Set.of(CommentType.up, CommentType.down))
@@ -76,8 +80,15 @@ public class ArticleCommentServiceImpl {
             }
 
         }
-        //todo 限制子评论条数  优先展示赞数最多的top条 之后 另外按时间排序 获取剩余的
+
         return new PageData<>(parentComment);
+    }
+
+    public PageData<ArticleComment> getChildCommentsByParentId(Long aid, Long pid, PageRequest pageRequest) {
+        Page<ArticleComment> childComments = articleCommentRepository.
+                findByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalse
+                        (aid, pid, CommentType.comment, pageRequest);
+        return new PageData<>(childComments);
     }
 
     public long reply(ArticleCommentRB articleCommentRB, CommentType commentType) {

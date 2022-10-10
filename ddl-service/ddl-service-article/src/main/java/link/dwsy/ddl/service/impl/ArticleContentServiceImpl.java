@@ -64,6 +64,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return fieldVOPageData;
     }
 
+
     public PageData<fieldVO> getPageList(PageRequest pageRequest, ArticleState articleState, long articleTagId) {
 
         Page<fieldVO> fieldVOList = articleFieldRepository.findByDeletedFalseAndArticleStateAndArticleTags_Id
@@ -71,6 +72,12 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return new PageData<>(fieldVOList);
     }
 
+    public PageData<fieldVO> getArticleListByUserId(PageRequest pageRequest, ArticleState articleState, long userId) {
+
+        Page<fieldVO> fieldVOList = articleFieldRepository.findByDeletedFalseAndArticleStateAndUser_Id
+                (articleState, userId, pageRequest);
+        return new PageData<>(fieldVOList);
+    }
     public ArticleField getArticleById(long id, ArticleState articleState) {
 //        LoginUserInfo currentUser = userSupport.getCurrentUser();
         ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(id, articleState);
