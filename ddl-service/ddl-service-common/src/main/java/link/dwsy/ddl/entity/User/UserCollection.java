@@ -1,14 +1,12 @@
 package link.dwsy.ddl.entity.User;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @Author Dwsy
@@ -21,7 +19,7 @@ import javax.persistence.Table;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime","articleFields"})
+@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted", "lastModifiedTime", "articleFields"})
 public class UserCollection extends BaseEntity {
 
     private Long userId;
@@ -32,8 +30,9 @@ public class UserCollection extends BaseEntity {
 
     private String sourceTitle;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_collection_group_id")
+    @JsonIgnore
     private UserCollectionGroup userCollectionGroup;
 
 }

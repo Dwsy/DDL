@@ -81,13 +81,21 @@ public class UserCollectionGroupController {
     public List<UserCollectionGroup> getGroupList() {
         Long uid = userSupport.getCurrentUser().getId();
         //         不做分页 限制最大数
+        //todo 权限设置
+        return userCollectionGroupRepository.findByUserIdAndDeletedFalse(uid, Sort.by("collectionNum").descending());
+    }
+
+    @GetMapping("list/{uid}")
+    @AuthAnnotation
+    public List<UserCollectionGroup> getGroupListByUserId(@PathVariable long uid) {
+        //         不做分页 限制最大数
 
         return userCollectionGroupRepository.findByUserIdAndDeletedFalse(uid, Sort.by("collectionNum").descending());
     }
 
     @GetMapping("{id}")
     @AuthAnnotation
-    public UserCollectionGroup getGroupList(@PathVariable long id) {
+    public UserCollectionGroup getGroupById(@PathVariable long id) {
         Long uid = userSupport.getCurrentUser().getId();
         return userCollectionGroupRepository.findByDeletedFalseAndUserIdAndId(uid, id).orElse(null);
     }

@@ -35,7 +35,7 @@ public enum CustomerErrorCode {
     UserAlreadyFollowed(130, "已关注用户"),
     UserNotFollowed(131, "未关注用户"),
 
-    FOLLOW_SELF(134,"不能关注自己" ),
+    FOLLOW_SELF(134, "不能关注自己"),
     ArticleNotFound(201, "文章不存在"),
     GroupNotFound(202, "分组不出存在"),
 
@@ -77,7 +77,10 @@ public enum CustomerErrorCode {
 
     WordNotFount(10001, "未找到该词"),
 
-    WordExist(10002, "该词已存在"), CaptchaWrong(100004, "验证码错误"), EmailEqualsOld(100005, "邮箱未更改"), ;
+    WordExist(10002, "该词已存在"),
+    CaptchaWrong(100004, "验证码错误"),
+    EmailEqualsOld(100005, "邮箱未更改"),
+    EmailExists(100006, "邮箱已被绑定");
 
 
     private final int code;

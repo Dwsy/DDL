@@ -9,7 +9,7 @@ public class UserPointsLimit {
         System.out.println(get(PointsType.Browse_QA));
     }
     public static int get(PointsType pointsType) {
-        switch (pointsType) {//todo value conf
+        switch (pointsType) {//todo value file conf
             case Check_In:
                 return 2;
             case Publish_Article:

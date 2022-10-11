@@ -21,7 +21,7 @@ import javax.persistence.UniqueConstraint;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted", "createTime", "lastModifiedTime", "articleFields"})
+@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted", "lastModifiedTime"})
 public class UserCollectionGroup extends BaseEntity {
 
     @Column(name = "user_id")

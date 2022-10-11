@@ -29,4 +29,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query(value = "select nickname from users where id=?1",nativeQuery = true)
     String findUserNicknameById(long uid);
 
+    boolean existsByDeletedFalseAndEmail(String email);
+
+
+
 }

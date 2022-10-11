@@ -20,15 +20,16 @@ import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
+import link.dwsy.ddl.util.PRHelper;
+import link.dwsy.ddl.util.PageData;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author Dwsy
@@ -201,6 +202,33 @@ public class userCollectionController {
             ret.add(userCollection.getUserCollectionGroup().getId());
         }
         return ret;
+    }
+
+    @GetMapping("list/{groupId}")
+    public PageData<UserCollection> getCollectionListByGroupId(
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "", name = "CollectionType") CollectionType collectionType,
+            @PathVariable long groupId) {
+//        Long uid = userSupport.getCurrentUser().getId();
+        //todo 权限设置
+        if (!userCollectionGroupRepository.existsById(groupId)) {
+            throw new CodeException(CustomerErrorCode.UserCollectionGroupNotExist);
+        }
+        Set<CollectionType> collectionTypeSet = new HashSet<>();
+        if (collectionType != null) {
+            collectionTypeSet.add(collectionType);
+        } else {
+            collectionTypeSet = EnumSet.allOf(CollectionType.class);
+        }
+
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        Page<UserCollection> userCollections = userCollectionRepository
+                .findByDeletedFalseAndCollectionTypeInAndUserCollectionGroup_Id(collectionTypeSet, groupId, pageRequest);
+
+        return new PageData<>(userCollections);
     }
 
 }

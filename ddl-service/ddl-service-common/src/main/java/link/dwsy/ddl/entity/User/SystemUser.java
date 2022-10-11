@@ -16,7 +16,6 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "system_users")
-// todo user是关键字要用得加双引号但是jpa并不会。。
 @Getter
 @Setter
 @Builder

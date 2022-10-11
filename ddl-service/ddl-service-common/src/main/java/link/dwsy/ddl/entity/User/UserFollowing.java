@@ -14,7 +14,6 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "user_following")
-// todo user是关键字要用得加双引号但是jpa并不会。。
 @Getter
 @Setter
 @Builder

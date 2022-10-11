@@ -138,7 +138,6 @@ public class ChannelWS {
 
                 this.currentUserMap.put(session.getId(), loginUserInfo);
                 CopyOnWriteArraySet<Session> channelWS = ChannelSocket.get(id);
-//                todo 鉴权
                 if (ChannelSocket.containsKey(id)) {
                     channelWS.add(session);
                 } else {

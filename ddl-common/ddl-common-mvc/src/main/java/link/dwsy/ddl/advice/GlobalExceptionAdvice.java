@@ -39,7 +39,6 @@ public class GlobalExceptionAdvice {
     public R<String> handlerException(
             HttpServletRequest req, Exception ex
     ) {
-        //TODO 后期细分异常 错误代码
         R<String> response = new R<>(R.FAIL,"business error","");
         response.setData(ex.getMessage());
         response.setMsg(ex.getMessage());

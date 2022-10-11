@@ -15,7 +15,7 @@ public class ArticleCommentActionRB {
     @NotNull(message = "文章ID不能为空")
     private long ArticleFieldId;
 
-    private long actionUserId;//fixme 忘了干啥的了
+    private long actionUserId;//
 
     private long actionCommentId;
 }
