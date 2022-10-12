@@ -62,6 +62,8 @@ public class ArticleComment extends BaseEntity {
     @Builder.Default
     private long replyUserCommentId = 0;
 
+    private int commentSerialNumber;
+
     @Transient
     private User parentUser;
 

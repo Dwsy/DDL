@@ -103,8 +103,19 @@ public class ArticleCommentServiceImpl {
         articleCommentRB.setText(HtmlHelper.filter(articleCommentRB.getText().trim()));
         ArticleField af = new ArticleField();
         af.setId(articleFieldId);
+        int commentSerialNumber = 1;
         //评论文章
         if (articleCommentRB.getParentCommentId() == 0) {
+
+            ArticleComment lastComment = articleCommentRepository
+                    .findFirstByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentTypeOrderByCommentSerialNumberDesc
+                            (articleFieldId, 0L, CommentType.comment);
+            if (lastComment != null) {
+                commentSerialNumber = lastComment.getCommentSerialNumber() + 1;
+            }
+//            Optional<ArticleComment> lastComment = articleCommentRepository.
+//                    findFirstByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalseOrderByCommentSerialNumberDesc
+//                            (articleFieldId, 0L, CommentType.comment, PageRequest.of(0, 1));
             ArticleComment articleComment = ArticleComment.builder()
                     .parentCommentId(0)
                     .parentUserId(0)
@@ -113,6 +124,7 @@ public class ArticleCommentServiceImpl {
                     .user(user)
                     .articleField(af)
                     .ua(userSupport.getUserAgent())
+                    .commentSerialNumber(commentSerialNumber)
                     .build();
             ArticleComment save = articleCommentRepository.save(articleComment);
 
@@ -136,8 +148,16 @@ public class ArticleCommentServiceImpl {
                     (articleCommentRB.getParentCommentId(), articleFieldId, CommentType.comment)) {
                 throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
             }
+            ArticleComment lastComment = articleCommentRepository
+                    .findFirstByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentTypeOrderByCommentSerialNumberDesc
+                            (articleFieldId, articleCommentRB.getParentCommentId(), commentType);
+            if (lastComment != null) {
+                commentSerialNumber = lastComment.getCommentSerialNumber() + 1;
+            }
             //回复评论
             if (articleCommentRB.getReplyUserCommentId() == 0) {
+
+
                 ArticleComment articleComment = ArticleComment.builder()
                         .user(user)
                         .articleField(af)
@@ -146,6 +166,7 @@ public class ArticleCommentServiceImpl {
                         .parentUserId(articleCommentRB.getReplyUserId())
                         .commentType(commentType)
                         .ua(userSupport.getUserAgent())
+                        .commentSerialNumber(commentSerialNumber)
                         .build();
                 ArticleComment save = articleCommentRepository.save(articleComment);
                 String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
@@ -164,8 +185,6 @@ public class ArticleCommentServiceImpl {
 //                    replyText = "回复@" + userRepository.findUserNicknameById
 //                            (articleCommentRB.getReplyUserId()) + "：" + str;
 //                }
-
-
                 ArticleComment articleComment = ArticleComment.builder()
                         .user(user)
                         .articleField(af)
@@ -175,6 +194,7 @@ public class ArticleCommentServiceImpl {
                         .commentType(commentType)
                         .replyUserCommentId(articleCommentRB.getReplyUserCommentId())
                         .ua(userSupport.getUserAgent())
+                        .commentSerialNumber(commentSerialNumber)
                         .build();
                 String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
                 String parentText = articleCommentRepository.getText(articleCommentRB.getReplyUserCommentId());

@@ -105,8 +105,8 @@ public class UserCommentActiveProcess {
                 break;
             case UP_Article:
                 toUserId = articleFieldRepository.getUserIdByArticleId(articleId);
-                if (userNotifyRepository.existsByDeletedFalseAndFromUserIdAndToUserIdAndCommentIdAndNotifyType(
-                        formUserId, toUserId, commentId, NotifyType.up_article)) {
+                if (userNotifyRepository.existsByDeletedFalseAndFromUserIdAndToUserIdAndCommentIdAndNotifyTypeAndArticleId(
+                        formUserId, toUserId, commentId, NotifyType.up_article, articleId)) {
                     log.info("用户{}已经通知过用户{}了", formUserId, toUserId);
                     return;
                 }
@@ -133,7 +133,7 @@ public class UserCommentActiveProcess {
             case UP_Article_Comment:
                 toUserId = articleCommentRepository.getUserIdByCommentId(commentId);
                 if (userNotifyRepository.existsByDeletedFalseAndFromUserIdAndToUserIdAndCommentIdAndNotifyType(
-                        formUserId, toUserId, commentId, NotifyType.up_article)) {
+                        formUserId, toUserId, commentId, NotifyType.up_article_comment)) {
                     log.info("用户{}已经通知过用户{}了", formUserId, toUserId);
                     return;
                 }

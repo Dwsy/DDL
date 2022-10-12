@@ -1,12 +1,14 @@
 package link.dwsy.ddl.XO.RB;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.XO.Enum.ArticleSource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.Set;
 
 /**
@@ -35,9 +37,15 @@ public class ArticleContentRB {
 
     private String banner;
 
+    @NotEmpty(message = "标签不能为空")
     private Set<Long> articleTagIds;
-    @NotBlank(message = "分组不能为空")
+    @NotEmpty(message = "分组不能为空")
     private Long articleGroupId;
 
-    private Long articleId;
+    @NotEmpty(message = "文章来源不能为空")
+    private ArticleSource articleSource;
+
+    private String articleSourceUrl;
+
+    private Long articleId;//change
 }

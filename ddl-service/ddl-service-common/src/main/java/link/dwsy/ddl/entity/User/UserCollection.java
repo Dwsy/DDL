@@ -30,7 +30,7 @@ public class UserCollection extends BaseEntity {
 
     private String sourceTitle;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_collection_group_id")
     @JsonIgnore
     private UserCollectionGroup userCollectionGroup;

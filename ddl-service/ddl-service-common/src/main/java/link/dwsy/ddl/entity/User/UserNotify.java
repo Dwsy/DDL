@@ -6,8 +6,10 @@ import link.dwsy.ddl.XO.Enum.Message.NotifyState;
 import link.dwsy.ddl.XO.Enum.Message.NotifyType;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -40,8 +42,12 @@ public class UserNotify extends BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private NotifyType notifyType;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String formContent;//己方
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String toContent;//他方
 
     private Long replayCommentId;//回复后返回的评论id

@@ -95,5 +95,9 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
             "where a.deleted = false and a.id = ?1 and a.replyUserCommentId = 0")
     boolean notIsSecondaryComment(long id);
 
+    ArticleComment findFirstByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentTypeOrderByCommentSerialNumberDesc
+            (long afId, long parentCommentId, CommentType commentType);
+
+
 
 }
