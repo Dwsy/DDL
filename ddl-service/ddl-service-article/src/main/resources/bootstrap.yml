@@ -79,4 +79,8 @@ management:
       show-details: always
 knife4j:
   enable: true
+snowflake:
+  datacenter-id: 0
+  worker-id: 0
+
 

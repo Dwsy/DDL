@@ -4,7 +4,6 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -40,18 +39,53 @@ import java.security.cert.CertificateFactory;
 @Slf4j
 public class ESClientConfig {
 
-    @Setter
+
     private String hosts;
-
-    @Setter
     private String username;
-
-    @Setter
     private String password;
-    @Setter
+
+    public String getHosts() {
+        return hosts;
+    }
+
+    public void setHosts(String hosts) {
+        this.hosts = hosts;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getCa() {
+        return ca;
+    }
+
+    public void setCa(String ca) {
+        this.ca = ca;
+    }
+
+    public String getApikey() {
+        return apikey;
+    }
+
+    public void setApikey(String apikey) {
+        this.apikey = apikey;
+    }
+
     private String ca;
 
-    @Setter
     private String apikey;
 
 

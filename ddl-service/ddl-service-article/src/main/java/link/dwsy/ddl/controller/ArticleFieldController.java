@@ -178,7 +178,6 @@ public class ArticleFieldController {
     @GetMapping(value = "test")
 //    @IgnoreResponseAdvice
     public String g() {
-
         return "乱码二分之一";
     }
 

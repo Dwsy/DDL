@@ -6,6 +6,7 @@ import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleTag;
+import link.dwsy.ddl.repository.Article.ArticleTagRepository;
 import link.dwsy.ddl.service.impl.ArticleTagServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
@@ -26,11 +27,19 @@ public class ArticleTagController {
     @Resource
     ArticleTagServiceImpl articleTagService;
 
+    @Resource
+    ArticleTagRepository articleTagRepository;
+
     @GetMapping("list")
     public List<ArticleTag> getTagList(
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
         return articleTagService.getTagList(PRHelper.sort(order, properties));
+    }
+
+    @GetMapping
+    public ArticleTag getTag(@RequestParam(required = false, defaultValue = "0", name = "tagId") long tagId) {
+        return articleTagRepository.findById(tagId).orElseThrow(() -> new CodeException(CustomerErrorCode.ArticleTagNotFound));
     }
 
     @GetMapping("group/list/{id}")
