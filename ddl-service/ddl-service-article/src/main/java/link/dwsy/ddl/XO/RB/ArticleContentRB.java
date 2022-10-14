@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -39,10 +40,11 @@ public class ArticleContentRB {
 
     @NotEmpty(message = "标签不能为空")
     private Set<Long> articleTagIds;
-    @NotEmpty(message = "分组不能为空")
+
+    @NotNull(message = "分组不能为空")
     private Long articleGroupId;
 
-    @NotEmpty(message = "文章来源不能为空")
+    @NotNull(message = "文章来源不能为空")
     private ArticleSource articleSource;
 
     private String articleSourceUrl;

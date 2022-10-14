@@ -6,8 +6,9 @@ import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import co.elastic.clients.elasticsearch.core.search.Suggestion;
+import link.dwsy.ddl.XO.ES.Constants.ArticleSearchConstant;
 import link.dwsy.ddl.XO.ES.article.ArticleEsDoc;
-import link.dwsy.ddl.XO.Index.ArticleIndex;
+import link.dwsy.ddl.XO.ES.article.ArticleTagSearchDoc;
 import link.dwsy.ddl.annotation.UserActiveLog;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
@@ -18,10 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +30,6 @@ import java.util.stream.Collectors;
 @RequestMapping("article")
 public class ArticleSearchController {
 
-    private final String INDEX = ArticleIndex.IndexName;
     @Resource
     RedisTemplate<String, String> redisTemplate;
     @Resource
@@ -41,46 +38,6 @@ public class ArticleSearchController {
     private ArticleFieldRepository articleFieldRepository;
     @Resource
     private ArticleContentRepository articleContentRepository;
-
-    @GetMapping("{query}")
-    @UserActiveLog
-    public PageData<ArticleEsDoc> search(@PathVariable String query,
-                                     @RequestParam(defaultValue = "1") int page,
-                                     @RequestParam(defaultValue = "10") int size
-    ) throws IOException {
-        // todo 根据点赞 收藏 浏览量 算分排序
-        SearchResponse<ArticleEsDoc> search = client.search(
-                req -> {
-                    req.index(INDEX)
-                            .source(s -> s
-                                    .filter(f -> f
-                                            .excludes("content", "suggestion")))
-                            .query(q -> q
-                                    .multiMatch(mm -> mm
-                                            .query(query)
-                                            .fields("title", "content", "userNickName.name","group","tagList.name"))
-                            )
-                            .from((page - 1) * size)
-                            .size(size)
-                            .sort(so -> so.field(f -> f.field("viveNum").field("upNum")))
-                            .highlight(h -> h
-                                    .fields("title",
-                                            h1 -> h1.preTags("<em class=\"highlight\">")
-                                                    .postTags("</em>"))
-                                    .fields("content",
-                                            h1 -> h1.preTags("<em class=\"highlight\">")
-                                                    .postTags("</em>"))
-                                    .fields("userNickName.name",
-                                            h1 -> h1.preTags("<em class=\"highlight\">")
-                                                    .postTags("</em>"))
-                            );
-                    return req;
-                }, ArticleEsDoc.class
-        );
-
-        return getPageData(page, size, search);
-
-    }
 
     @NotNull
     private static PageData<ArticleEsDoc> getPageData(int page, int size, SearchResponse<ArticleEsDoc> search) {
@@ -109,15 +66,54 @@ public class ArticleSearchController {
         if (page == 1) {
             docPageData.setFirst(true);
         }
-        if (page ==docPageData.getTotalPages()){
+        if (page == docPageData.getTotalPages()) {
             docPageData.setLast(true);
         }
-        if (retSearch.isEmpty()){
+        if (retSearch.isEmpty()) {
             docPageData.setEmpty(true);
         }
         return docPageData;
     }
 
+    @GetMapping("{query}")
+    @UserActiveLog
+    public PageData<ArticleEsDoc> search(@PathVariable String query,
+                                         @RequestParam(defaultValue = "1") int page,
+                                         @RequestParam(defaultValue = "10") int size
+    ) throws IOException {
+        // todo 根据点赞 收藏 浏览量 算分排序
+        SearchResponse<ArticleEsDoc> search = client.search(
+                req -> {
+                    req.index(ArticleSearchConstant.ArticleEsIndex)
+                            .source(s -> s
+                                    .filter(f -> f
+                                            .excludes("content", "suggestion")))
+                            .query(q -> q
+                                    .multiMatch(mm -> mm
+                                            .query(query)
+                                            .fields("title", "content", "userNickName.name", "group", "tagList.name"))
+                            )
+                            .from((page - 1) * size)
+                            .size(size)
+                            .sort(so -> so.field(f -> f.field("viveNum").field("upNum")))
+                            .highlight(h -> h
+                                    .fields("title",
+                                            h1 -> h1.preTags("<em class=\"highlight\">")
+                                                    .postTags("</em>"))
+                                    .fields("content",
+                                            h1 -> h1.preTags("<em class=\"highlight\">")
+                                                    .postTags("</em>"))
+                                    .fields("userNickName.name",
+                                            h1 -> h1.preTags("<em class=\"highlight\">")
+                                                    .postTags("</em>"))
+                            );
+                    return req;
+                }, ArticleEsDoc.class
+        );
+
+        return getPageData(page, size, search);
+
+    }
 
     @GetMapping("suggestion/{query}")
     @UserActiveLog
@@ -139,5 +135,30 @@ public class ArticleSearchController {
         List<Suggestion<ArticleEsDoc>> suggestion = suggest.get("suggestion");
         List<String> collect = suggestion.get(0).completion().options().stream().map(CompletionSuggestOption::text).collect(Collectors.toList());
         return collect;
+    }
+
+    @GetMapping("tag/suggestion/{query}")
+    @UserActiveLog
+    public List<ArticleTagSearchDoc> tagSuggestion(@PathVariable String query) throws IOException {
+//
+        SearchResponse<ArticleTagSearchDoc> search = client.search(req -> {
+                    req.index(ArticleSearchConstant.ArticleTagEsIndex)
+                            .suggest(s ->
+                                    s.suggesters("suggestion", sug ->
+                                            sug.text(query)
+                                                    .completion(com ->
+                                                            com.field("name")
+                                                                    .skipDuplicates(true)
+                                                                    .size(6))))
+                            .source(config -> config.fetch(true));
+//                            .sort(s -> s.field(f -> f.field("articleNum").order(SortOrder.Desc)));
+                    return req;
+                },
+                ArticleTagSearchDoc.class);
+        List<ArticleTagSearchDoc> suggestList = search.suggest().get("suggestion").get(0).completion().options()
+                .stream().map(CompletionSuggestOption::source).collect(Collectors.toList());
+
+        return suggestList.stream().sorted(Comparator.comparing(ArticleTagSearchDoc::getArticleNum).reversed()).collect(Collectors.toList());
+
     }
 }

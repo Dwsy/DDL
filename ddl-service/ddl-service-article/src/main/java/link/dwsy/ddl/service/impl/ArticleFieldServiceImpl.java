@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author Dwsy
@@ -104,11 +105,10 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 
         ArticleField save = articleFieldRepository.save(field);
         articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
-        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE,save.getId());
+        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, save.getId());
         rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
         return save.getId();
     }
-
 
 
     public Long updateArticle(ArticleContentRB articleContentRB) {
@@ -135,23 +135,30 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         }
 
 
-        ArticleContent content = ArticleContent.builder()
-                .textPure(pure)
-                .textMd(articleContentRB.getContent())
-                .textHtml(html)//todo server to html and pure
-                .build();
+        ArticleField field = articleFieldRepository.findByDeletedFalseAndId(articleContentRB.getArticleId());
+        Optional<ArticleContent> articleContentOptional = articleContentRepository.findById
+                (articleFieldRepository.getContentIdById(articleContentRB.getArticleId()).longValue());
+        if (articleContentOptional.isEmpty()) {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
+        ArticleContent articleContent = articleContentOptional.get();
+        articleContent.setTextHtml(html);
+        articleContent.setTextMd(articleContentRB.getContent());
+        articleContent.setTextPure(pure);
+        field.setTitle(articleContentRB.getTitle());
+        field.setSummary(articleContentRB.getSummary());
+        field.setBanner(articleContentRB.getBanner());
+        field.setArticleState(articleContentRB.getArticleState());
+        field.setArticleTags(articleTags);
+        field.setArticleGroup(articleGroup);
+        field.setArticleSource(articleContentRB.getArticleSource());
+        field.setArticleSourceUrl(articleContentRB.getArticleSourceUrl());
+        field.setArticleContent(articleContent);
 
-        ArticleField field = ArticleField.builder()
-                .title(articleContentRB.getTitle())
-                .summary(articleContentRB.getSummary())
-                .banner(articleContentRB.getBanner())
-                .articleState(articleContentRB.getArticleState())
-                .articleTags(articleTags)
-                .articleGroup(articleGroup)
-                .articleContent(content).build();
 
         ArticleField save = articleFieldRepository.save(field);
-        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE, save.getId());
+        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
+                ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE, save.getId());
         return save.getId();
     }
 
@@ -160,7 +167,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 //        if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, uid)) {
 //            throw new CodeException(CustomerErrorCode.ArticleNotFound);
 //        }
-        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_DELETE,articleId);
+        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
+                ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleId);
         articleFieldRepository.logicallyDeleted(articleId);
         articleContentRepository.logicallyDeleted(articleId);
     }
@@ -176,7 +184,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         for (Long aid : aids) {
             articleFieldRepository.logicallyRecovery(aid);
             articleContentRepository.logicallyRecovery(aid);
-            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE,aid);
+            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
+                    ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, aid);
         }
 
     }

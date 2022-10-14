@@ -84,3 +84,6 @@ knife4j:
 #    restart:
 #      enabled: true
 #      additional-paths: src/main/java
+snowflake:
+  datacenter-id: 0
+  worker-id: 0

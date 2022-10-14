@@ -1,4 +1,4 @@
-package link.dwsy.ddl.util;
+package link.dwsy.ddl.config;
 
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;

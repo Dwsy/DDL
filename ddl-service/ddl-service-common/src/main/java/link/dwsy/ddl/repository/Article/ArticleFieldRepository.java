@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,17 +22,17 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
     Page<fieldVO> findByDeletedFalseAndArticleStateAndArticleTags_Id(ArticleState articleState, long id, Pageable pageable);
 
 
-
-    Page<fieldVO> findAllByIdInAndDeletedIsFalseAndArticleState(long[] tid, ArticleState articleState, Pageable pageable);
+    Page<fieldVO> findAllByIdInAndDeletedIsFalseAndArticleState(Collection<Long> id, ArticleState articleState, Pageable pageable);
 
     Page<fieldVO> findAllByDeletedIsFalseAndArticleGroupIdAndArticleState(long gid, ArticleState articleState, Pageable pageable);
 
     ArticleField findByIdAndDeletedIsFalseAndArticleState(long id, ArticleState articleState);
 
+    ArticleField findByDeletedFalseAndId(long id);
 
-    @Query(nativeQuery = true,value = "select user_id from article_field where deleted is false and id=?1")
+
+    @Query(nativeQuery = true, value = "select user_id from article_field where deleted is false and id=?1")
     Long findUserIdById(long id);
-
 
 
     Optional<ArticleField> findByIdAndDeletedFalseAndArticleState(long id, ArticleState articleState);
@@ -100,5 +101,8 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
     Page<fieldVO> findByDeletedFalseAndArticleStateAndUser_Id(ArticleState articleState, long uid, Pageable pageable);
 
 
+    @Query(nativeQuery = true, value =
+            "select article_content_id from article_field where id = ?1")
+    BigInteger getContentIdById(long fid);
 //    ArticleField findArticleFieldsByDeletedIsFalse(Long articleId);
 }

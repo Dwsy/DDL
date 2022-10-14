@@ -32,8 +32,8 @@ public class ArticleTagController {
 
     @GetMapping("list")
     public List<ArticleTag> getTagList(
-            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
-            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
+            @RequestParam(required = false, defaultValue = "ASC,DESC", name = "order") String[] order,
+            @RequestParam(required = false, defaultValue = "weight,articleNum", name = "properties") String[] properties) {
         return articleTagService.getTagList(PRHelper.sort(order, properties));
     }
 

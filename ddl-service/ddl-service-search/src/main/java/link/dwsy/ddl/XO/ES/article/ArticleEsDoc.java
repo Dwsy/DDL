@@ -18,20 +18,35 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ArticleEsDoc {
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String userId;
+
     private String userNickName;
+
     private String title;
+
     private String content;
+
     private String summary;
+
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
+
     private String group;
+
     private List<ArticleTagEsDoc> tagList;
+
     private int viewNum;
+
     private int collectNum;
+
     private int upNum;
+
     private int downNum;
+
     private List<String> suggestion;
 }
 

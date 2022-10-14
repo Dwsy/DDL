@@ -89,6 +89,7 @@ public class userCollectionController {
                 switch (type) {
                     // todo
                     case Article:
+                        log.info("user:{}收藏文章:{}",uid,sid);
                         articleFieldRepository.collectNumIncrement(sid, 1);
                         break;
                     case Question:

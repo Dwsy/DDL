@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -87,11 +88,12 @@ public class ArticleTagGroupTest {
     @Test
     public void getFieldListByTagId() {
 //        articleContentRepository.findById(39L);
-        long[] ids = articleTagRepository.findArticleContentIdListById(1L);
+        Collection<Long> ids = articleTagRepository.findArticleContentIdListById(1L);
 
         Page<fieldVO> fieldVO = articleFieldRepository
                 .findAllByIdInAndDeletedIsFalseAndArticleState
                         (ids, ArticleState.open, PageRequest.of(0, 10));
+        System.out.printf(fieldVO.getContent().toString());
 
     }
 

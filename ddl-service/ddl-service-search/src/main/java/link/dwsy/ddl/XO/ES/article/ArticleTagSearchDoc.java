@@ -8,14 +8,23 @@ import lombok.NoArgsConstructor;
 
 /**
  * @Author Dwsy
- * @Date 2022/9/9
+ * @Date 2022/10/13
  */
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class ArticleTagEsDoc {
+@AllArgsConstructor
+public class ArticleTagSearchDoc {
+
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Long id;
+    private String id;
+
     private String name;
+
+    private int articleNum;
+
+    private String groupName;
+
+    private boolean indexPageDisplay;
+
 }

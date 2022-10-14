@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  */
 
 @SpringBootTest
-public class esTest {
+public class ArticleSearchTest {
     private final String INDEX = "ddl_article";
     @Resource
     private ElasticsearchClient client;
@@ -72,9 +72,7 @@ public class esTest {
             System.out.println("创建索引");
         } else {
             System.out.println("索引已存在");
-
         }
-
     }
 
     public void create(String name, InputStream inputStream) throws IOException {
@@ -290,7 +288,7 @@ public class esTest {
                                                                 com.field("suggestion")
                                                                         .skipDuplicates(true)
                                                                         .size(10))))
-                                .source(config -> config.fetch(false));
+                                .source(config -> config.fetch(false)).index(INDEX);
                         return req;
                     },
                     ArticleEsDoc.class);

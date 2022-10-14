@@ -3,6 +3,7 @@ package link.dwsy.ddl.entity.Article;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.XO.Enum.ArticleSource;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.User.User;
 import lombok.*;
@@ -21,6 +22,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted"})
@@ -60,6 +62,9 @@ public class ArticleField extends BaseEntity {
     @JsonIgnore
     private ArticleContent articleContent;
 
+    private ArticleSource articleSource;
+
+    private String articleSourceUrl;
 
     @ManyToMany(
             fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})

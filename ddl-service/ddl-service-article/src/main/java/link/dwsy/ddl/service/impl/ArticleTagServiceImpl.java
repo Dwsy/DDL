@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -33,12 +34,11 @@ public class ArticleTagServiceImpl implements ArticleTagService {
     ArticleFieldRepository articleFieldRepository;
     public List<ArticleTag> getTagList(Sort sort) {
 
-        return articleTagRepository.findAllByDeletedIsFalse(sort);
-
+        return articleTagRepository.findByDeletedFalseAndArticleGroup_IdNotNullAndIndexPageDisplayIsTrue(sort);
     }
 
     public PageData<fieldVO> getArticleListById(Long id, PageRequest pageRequest) {
-        long[] ids = articleTagRepository.findArticleContentIdListById(id);
+        Collection<Long> ids = articleTagRepository.findArticleContentIdListById(id);
 
         Page<fieldVO> fieldVOList = articleFieldRepository
                 .findAllByIdInAndDeletedIsFalseAndArticleState

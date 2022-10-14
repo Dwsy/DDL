@@ -2,7 +2,7 @@
   "settings": {
     "analysis": {
       "analyzer": {
-        "text_anlyzer": {
+        "text_analyzer": {
           "type":"custom",
           "tokenizer": "ik_max_word",
           "filter": "py"
@@ -36,12 +36,12 @@
       },
       "userNickname": {
         "type": "text",
-        "analyzer": "text_anlyzer",
+        "analyzer": "text_analyzer",
         "search_analyzer": "ik_smart"
       },
       "title": {
         "type": "text",
-        "analyzer": "text_anlyzer",
+        "analyzer": "text_analyzer",
         "search_analyzer": "ik_smart"
       },
       "summary": {
@@ -50,12 +50,12 @@
       },
       "content": {
         "type": "text",
-        "analyzer": "text_anlyzer",
+        "analyzer": "text_analyzer",
         "search_analyzer": "ik_smart"
       },
       "group": {
         "type": "text",
-        "analyzer": "text_anlyzer",
+        "analyzer": "text_analyzer",
         "search_analyzer": "ik_smart"
       },
       "tagList": {
@@ -65,7 +65,7 @@
           },
           "name": {
             "type": "text",
-            "analyzer": "text_anlyzer",
+            "analyzer": "text_analyzer",
             "search_analyzer": "ik_smart"
           }
         }

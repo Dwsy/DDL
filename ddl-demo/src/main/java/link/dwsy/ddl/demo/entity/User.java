@@ -1,9 +1,6 @@
 package link.dwsy.ddl.demo.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -17,15 +14,13 @@ import javax.persistence.*;
 @Entity
 @Table(name = "users")
 // todo user是关键字要用得加双引号但是jpa并不会。。
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User extends BaseEntity {
-    //    @Id
-//    @GeneratedValue(strategy = GenerationType.AUTO)
-//    private long id;
 
     private String username;
 
@@ -36,12 +31,5 @@ public class User extends BaseEntity {
     private String phone;
 
     private String area;
-//    @CreatedDate
-//    private Date create_time;
-//    @LastModifiedDate
-//    private Date update_time;
-//
-//    private boolean deleted = false;
-
 
 }

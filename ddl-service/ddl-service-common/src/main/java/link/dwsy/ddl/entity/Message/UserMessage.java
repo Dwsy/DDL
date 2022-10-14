@@ -27,20 +27,23 @@ import javax.persistence.Transient;
 
 public class UserMessage extends BaseEntity {
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long formUserId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long toUserId;
 
     @Transient
     private String chatUserNickname;
 
     @Transient
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long chatUserId;
 
     @Transient
     private String chatUserAvatar;
 
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String conversationId;
 
     @Lob

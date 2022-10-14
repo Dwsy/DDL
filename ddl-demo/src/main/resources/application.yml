@@ -121,4 +121,6 @@ management:
   endpoint:
     health:
       show-details: always
-
+snowflake:
+  datacenter-id: 0
+  worker-id: 0

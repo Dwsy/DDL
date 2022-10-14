@@ -95,3 +95,6 @@ qiniu:
   bucketName: ENC(1Y/XqbqvJa486wgL/XSAnUzJBrY+ciEE)
   path: ENC(GxN7Gm6LHpzjEtM34Lv6j6syNSpBUPE1)
   documentName: ddl
+snowflake:
+  datacenter-id: 0
+  worker-id: 0

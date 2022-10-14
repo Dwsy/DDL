@@ -1,9 +1,9 @@
 package link.dwsy.ddl.core.utils;
 
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.Constants;
@@ -22,7 +22,7 @@ public class TokenUtil {
     public static String generateToken(LoginUserInfo loginUserInfo,Date expireDate) throws Exception{
         return Jwts.builder()
                 // jwt payload --> KV
-                .claim(Constants.JWT_USER_INFO_KEY, JSONUtil.toJsonStr(loginUserInfo))
+                .claim(Constants.JWT_USER_INFO_KEY, new ObjectMapper().writeValueAsString(loginUserInfo))
                 // jwt id
                 .setId(UUID.randomUUID().toString())
                 // jwt 过期时间
@@ -71,7 +71,7 @@ public class TokenUtil {
      * <h2>通过公钥去解析 JWT Token</h2>
      */
     private static Jws<Claims> parseToken(String token) {
-        Jws<Claims> claimsJws = null;
+        Jws<Claims> claimsJws;
         try {
             claimsJws = Jwts.parser().setSigningKey(RSAUtil.getPublicKey()).parseClaimsJws(token);
         } catch (ExpiredJwtException e) {

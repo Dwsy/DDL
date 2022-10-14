@@ -21,7 +21,7 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
-@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","createTime","deleted","lastModifiedTime"})
+@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "createTime", "deleted", "lastModifiedTime"})
 public class ArticleTag extends BaseEntity {
 
 
@@ -30,15 +30,22 @@ public class ArticleTag extends BaseEntity {
     @Builder.Default
     private int articleNum = 0;
 
+    //排序权重
+    private Integer weight;
+
+    //是否在主页显示
+    @Builder.Default
+    private boolean indexPageDisplay = false;
+
     private String tagInfo;
 
 
     @ManyToMany(mappedBy = "articleTags",
-                fetch = FetchType.LAZY)
+            fetch = FetchType.LAZY)
     @JsonIgnore
     private List<ArticleField> articleFields;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     private ArticleGroup articleGroup;
 

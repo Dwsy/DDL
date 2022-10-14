@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ArticleTagRepository extends JpaRepository<ArticleTag, Long> {
@@ -13,9 +14,11 @@ public interface ArticleTagRepository extends JpaRepository<ArticleTag, Long> {
     int getCountByArticleId(long id);
 
     @Query(value = "select article_field_id from article_tag_ref as ref where article_tag_id=?1", nativeQuery = true)
-    long[] findArticleContentIdListById(long id);
+    Collection<Long> findArticleContentIdListById(long id);
 
     List<ArticleTag> findAllByDeletedIsFalse(Sort sort);
+
+    List<ArticleTag> findAllByDeletedIsFalse();
 
     List<ArticleTag> findByDeletedFalseAndArticleGroupId(long id, Sort sort);
 
@@ -25,7 +28,7 @@ public interface ArticleTagRepository extends JpaRepository<ArticleTag, Long> {
     @Modifying
     int logicallyDeleteById(Long id);
 
-
+    List<ArticleTag> findByDeletedFalseAndArticleGroup_IdNotNullAndIndexPageDisplayIsTrue(Sort sort);
 //    @Query()
 //    void getFieldListByTagId();
 }
