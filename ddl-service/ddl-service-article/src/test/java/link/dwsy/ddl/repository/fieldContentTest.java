@@ -86,10 +86,10 @@ public class fieldContentTest {
     public void page() throws JsonProcessingException {
 
         PageRequest of = PageRequest.of(0, 10);
-        Page<fieldVO> allByDeletedIsFalseAndArticleState = articleFieldRepository.findAllByDeletedIsFalseAndArticleState(ArticleState.open, of);
+        Page<fieldVO> allByDeletedIsFalseAndArticleState = articleFieldRepository.findAllByDeletedIsFalseAndArticleState(ArticleState.published, of);
         System.out.println(new ObjectMapper().writeValueAsString(allByDeletedIsFalseAndArticleState));
 
-//        List<fieldVO> t = articleFieldRepository.findBySqlTest(ArticleState.open, of);
+//        List<fieldVO> t = articleFieldRepository.findBySqlTest(ArticleState.published, of);
 //
 //        System.out.println(new ObjectMapper().writeValueAsString(t));
 
@@ -98,7 +98,7 @@ public class fieldContentTest {
 
     @Test
     public void getById() throws JsonProcessingException {
-        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(9L, ArticleState.open);
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(9L, ArticleState.published);
 
         System.out.println(new ObjectMapper().writeValueAsString(af));
     }

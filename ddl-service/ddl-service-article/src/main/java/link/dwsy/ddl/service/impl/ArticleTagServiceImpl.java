@@ -42,7 +42,7 @@ public class ArticleTagServiceImpl implements ArticleTagService {
 
         Page<fieldVO> fieldVOList = articleFieldRepository
                 .findAllByIdInAndDeletedIsFalseAndArticleState
-                        (ids, ArticleState.open, pageRequest);
+                        (ids, ArticleState.published, pageRequest);
         return new PageData<>(fieldVOList);
 
 

@@ -34,7 +34,7 @@ public class ArticleGroupServiceImpl implements ArticleGroupService {
     public PageData<fieldVO> getFieldListByGroupId(Long gid,PageRequest pageRequest) {
         Page<fieldVO> fieldVO = articleFieldRepository
                 .findAllByDeletedIsFalseAndArticleGroupIdAndArticleState
-                        (gid, ArticleState.open, pageRequest);
+                        (gid, ArticleState.published, pageRequest);
         return new PageData<>(fieldVO);
     }
 

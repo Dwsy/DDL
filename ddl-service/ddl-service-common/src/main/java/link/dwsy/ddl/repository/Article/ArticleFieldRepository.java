@@ -19,6 +19,19 @@ import java.util.Optional;
 public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long> {
     Page<fieldVO> findAllByDeletedIsFalseAndArticleState(ArticleState articleState, Pageable pageable);
 
+
+//    Page<fieldVO> findByUser_IdAndArticleStateAndDeleted(long user_id, ArticleState articleState, boolean deleted, Pageable pageable);
+//
+//    Page<fieldVO> findByUser_IdAndArticleStateNotAndDeleted(long user_id, ArticleState articleState, boolean deleted, Pageable pageable);
+//
+//    Page<ArticleField> findByUser_IdAndArticleStateNot(long id, ArticleState articleState, Pageable pageable);
+
+
+//    Page<fieldVO> findByDeletedFalseAndUser_IdAndArticleState(long id, ArticleState articleState, Pageable pageable);
+
+
+//    Page<fieldVO> findAllByDeletedIsFalseAndArticleStateIn(ArticleState articleState, Pageable pageable);
+
     Page<fieldVO> findByDeletedFalseAndArticleStateAndArticleTags_Id(ArticleState articleState, long id, Pageable pageable);
 
 
@@ -104,5 +117,22 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
     @Query(nativeQuery = true, value =
             "select article_content_id from article_field where id = ?1")
     BigInteger getContentIdById(long fid);
+
+    Page<fieldVO> findByUser_IdAndArticleStateAndDeleted(long id, ArticleState articleState, boolean deleted, Pageable pageable);
+
+    Page<fieldVO> findByUser_IdAndArticleStateAndArticleTags_IdAndDeleted(long id, ArticleState articleState, long tagId, boolean deleted, Pageable pageable);
+
+    Page<fieldVO> findByUser_IdAndArticleStateNotAndDeleted(long id, ArticleState articleState, boolean deleted, Pageable pageable);
+
+    Page<fieldVO> findByUser_IdAndArticleStateNotAndArticleTags_IdAndDeleted(long id, ArticleState articleState, long tagId, boolean deleted, Pageable pageable);
+
+    int countByDeletedFalseAndUser_IdAndArticleState(long id, ArticleState articleState);
+
+    int countByDeletedFalseAndUser_IdAndArticleStateNot(long id, ArticleState articleState);
+
+
+
 //    ArticleField findArticleFieldsByDeletedIsFalse(Long articleId);
+    
+    
 }

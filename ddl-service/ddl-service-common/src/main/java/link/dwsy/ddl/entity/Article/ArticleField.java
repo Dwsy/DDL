@@ -36,7 +36,7 @@ public class ArticleField extends BaseEntity {
 
     @Enumerated(EnumType.ORDINAL)
     @Builder.Default
-    private ArticleState articleState=ArticleState.open;
+    private ArticleState articleState=ArticleState.published;
 
     @Builder.Default
     private boolean allowComment=true;

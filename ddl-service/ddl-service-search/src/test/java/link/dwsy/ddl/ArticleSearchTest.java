@@ -102,7 +102,7 @@ public class ArticleSearchTest {
     }
 
     public void indexRequest(long aid) throws IOException {
-        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.open);
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.published);
         String pureTextById = articleContentRepository.getPureTextById(aid);
         System.out.println("插入：" + af.getTitle());
         ArticleEsDoc articleEsDoc = ArticleEsDoc.builder()
@@ -139,7 +139,7 @@ public class ArticleSearchTest {
     }
 
     public void updateDataById(long aid) throws IOException {
-        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.open);
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.published);
         if (af == null) {
             throw new CodeException(1, "更新失败");
         }
@@ -157,7 +157,7 @@ public class ArticleSearchTest {
     }
 
     public void updateAllDataById(long aid) throws IOException {
-        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.open);
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.published);
         if (af == null) {
             throw new CodeException(1, "更新失败");
         }

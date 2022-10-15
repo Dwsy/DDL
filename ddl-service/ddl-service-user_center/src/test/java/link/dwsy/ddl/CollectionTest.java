@@ -84,7 +84,7 @@ public class CollectionTest {
         String sourceTitle=null;
         if (collectionType == CollectionType.Article) {
             ArticleField articleField = articleFieldRepository
-                    .findByIdAndDeletedFalseAndArticleState(sid, ArticleState.open)
+                    .findByIdAndDeletedFalseAndArticleState(sid, ArticleState.published)
                     .orElseThrow(() -> new CodeException(CustomerErrorCode.ArticleNotFound));
             sourceTitle = articleField.getTitle();
         }

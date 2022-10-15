@@ -31,7 +31,7 @@ public class ArticleContentRB {
     private String summary;
 
     @Builder.Default
-    private ArticleState articleState = ArticleState.open;
+    private ArticleState articleState = ArticleState.published;
 
     @Builder.Default
     private boolean allowComment = true;

@@ -35,7 +35,7 @@ public class ArticleSearchProcess {
     private final String INDEX = "ddl_article";
 
     public boolean updateScoreDataById(long aid)  {
-        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.open);
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.published);
         if (af == null) {
             return false;
         }
@@ -59,7 +59,7 @@ public class ArticleSearchProcess {
     }
 
     public boolean updateOrSaveAllDataById(long aid) {
-        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.open);
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.published);
         if (af == null) {
             return false;
         }

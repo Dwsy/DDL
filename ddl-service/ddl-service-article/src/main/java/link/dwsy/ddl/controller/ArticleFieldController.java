@@ -60,9 +60,9 @@ public class ArticleFieldController {
             throw new CodeException(CustomerErrorCode.ParamError);
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         if (tagId == 0) {
-            return articleContentService.getPageList(pageRequest, ArticleState.open);
+            return articleContentService.getPageList(pageRequest, ArticleState.published);
         } else {
-            return articleContentService.getPageList(pageRequest, ArticleState.open, tagId);
+            return articleContentService.getPageList(pageRequest, ArticleState.published, tagId);
         }
     }
 
@@ -80,11 +80,11 @@ public class ArticleFieldController {
             throw new CodeException(CustomerErrorCode.UserNotExist);
         }
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
-        return articleContentService.getArticleListByUserId(pageRequest, ArticleState.open, uid);
+        return articleContentService.getArticleListByUserId(pageRequest, ArticleState.published, uid);
 //        if (tagId == 0) {
-//            return articleContentService.getArticleListByUserId(pageRequest, ArticleState.open);
+//            return articleContentService.getArticleListByUserId(pageRequest, ArticleState.published);
 //        } else {
-//            return articleContentService.getArticleListByUserId(pageRequest, ArticleState.open, tagId);
+//            return articleContentService.getArticleListByUserId(pageRequest, ArticleState.published, tagId);
 //        }
     }
 
@@ -92,7 +92,7 @@ public class ArticleFieldController {
     public ArticleField getArticleById(@PathVariable("id") Long id) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
-        return articleContentService.getArticleById(id, ArticleState.open);
+        return articleContentService.getArticleById(id, ArticleState.published);
     }
 
 

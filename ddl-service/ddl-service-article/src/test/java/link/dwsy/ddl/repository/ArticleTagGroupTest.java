@@ -92,7 +92,7 @@ public class ArticleTagGroupTest {
 
         Page<fieldVO> fieldVO = articleFieldRepository
                 .findAllByIdInAndDeletedIsFalseAndArticleState
-                        (ids, ArticleState.open, PageRequest.of(0, 10));
+                        (ids, ArticleState.published, PageRequest.of(0, 10));
         System.out.printf(fieldVO.getContent().toString());
 
     }
@@ -102,7 +102,7 @@ public class ArticleTagGroupTest {
 //        articleContentRepository.findById(39L);
         Page<fieldVO> fieldVO = articleFieldRepository
                 .findAllByDeletedIsFalseAndArticleGroupIdAndArticleState
-                        (2L, ArticleState.open, PageRequest.of(0, 10));
+                        (2L, ArticleState.published, PageRequest.of(0, 10));
         System.out.println(new ObjectMapper().writeValueAsString(fieldVO));
 //        fieldVO.forEach(System.out::println);
 //        articleTagRepository.getFieldListByTagId();
@@ -118,7 +118,7 @@ public class ArticleTagGroupTest {
 
     @Test
     public void listByTag() {
-        for (fieldVO articleField : articleFieldRepository.findByDeletedFalseAndArticleStateAndArticleTags_Id(ArticleState.open, 1L, PageRequest.of(0, 10))) {
+        for (fieldVO articleField : articleFieldRepository.findByDeletedFalseAndArticleStateAndArticleTags_Id(ArticleState.published, 1L, PageRequest.of(0, 10))) {
             articleField.getArticleTags().forEach(t -> {
                 System.out.println(t.getName());
                 System.out.println(t.getCreateTime());
