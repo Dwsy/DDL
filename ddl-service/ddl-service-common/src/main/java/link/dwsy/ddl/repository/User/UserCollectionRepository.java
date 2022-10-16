@@ -30,4 +30,5 @@ public interface UserCollectionRepository extends JpaRepository<UserCollection, 
     Page<UserCollection> findByDeletedFalseAndCollectionTypeInAndUserCollectionGroup_Id(Collection<CollectionType> collectionTypes, long groupId, Pageable pageable);
 
 
+
 }

@@ -1,6 +1,9 @@
 package link.dwsy.ddl.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import link.dwsy.ddl.XO.Enum.Article.CodeHighlightStyle;
+import link.dwsy.ddl.XO.Enum.Article.MarkDownTheme;
+import link.dwsy.ddl.XO.Enum.Article.MarkDownThemeDark;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserActiveMessage;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
@@ -101,7 +104,21 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
                 .articleTags(articleTags)
                 .articleGroup(articleGroup)
                 .articleContent(content).build();
-
+        if (articleContentRB.getMarkDownTheme() == null) {
+            field.setMarkDownTheme(MarkDownTheme.cyanosis);
+        } else {
+            field.setMarkDownTheme(articleContentRB.getMarkDownTheme());
+        }
+        if (articleContentRB.getMarkDownThemeDark() == null) {
+            field.setMarkDownThemeDark(MarkDownThemeDark.geekBlackDark);
+        } else {
+            field.setMarkDownThemeDark(articleContentRB.getMarkDownThemeDark());
+        }
+        if (articleContentRB.getCodeHighlightStyle() == null) {
+            field.setCodeHighlightStyle(CodeHighlightStyle.xcode);
+        } else {
+            field.setCodeHighlightStyle(articleContentRB.getCodeHighlightStyle());
+        }
 
         ArticleField save = articleFieldRepository.save(field);
         articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
@@ -154,8 +171,21 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         field.setArticleSource(articleContentRB.getArticleSource());
         field.setArticleSourceUrl(articleContentRB.getArticleSourceUrl());
         field.setArticleContent(articleContent);
-
-
+        if (articleContentRB.getMarkDownTheme() == null) {
+            field.setMarkDownTheme(MarkDownTheme.cyanosis);
+        } else {
+            field.setMarkDownTheme(articleContentRB.getMarkDownTheme());
+        }
+        if (articleContentRB.getMarkDownThemeDark() == null) {
+            field.setMarkDownThemeDark(MarkDownThemeDark.geekBlackDark);
+        } else {
+            field.setMarkDownThemeDark(articleContentRB.getMarkDownThemeDark());
+        }
+        if (articleContentRB.getCodeHighlightStyle() == null) {
+            field.setCodeHighlightStyle(CodeHighlightStyle.xcode);
+        } else {
+            field.setCodeHighlightStyle(articleContentRB.getCodeHighlightStyle());
+        }
         ArticleField save = articleFieldRepository.save(field);
         rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
                 ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE, save.getId());

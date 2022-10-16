@@ -3,6 +3,9 @@ package link.dwsy.ddl.entity.Article;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.XO.Enum.Article.CodeHighlightStyle;
+import link.dwsy.ddl.XO.Enum.Article.MarkDownTheme;
+import link.dwsy.ddl.XO.Enum.Article.MarkDownThemeDark;
 import link.dwsy.ddl.XO.Enum.ArticleSource;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.User.User;
@@ -25,8 +28,14 @@ import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted"})
+@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted"})
 public class ArticleField extends BaseEntity {
+    @Builder.Default
+    int upNum = 0;
+
+    @Builder.Default
+    int downNum = 0;
+
     @ManyToOne
     private User user;
 
@@ -36,10 +45,10 @@ public class ArticleField extends BaseEntity {
 
     @Enumerated(EnumType.ORDINAL)
     @Builder.Default
-    private ArticleState articleState=ArticleState.published;
+    private ArticleState articleState = ArticleState.published;
 
     @Builder.Default
-    private boolean allowComment=true;
+    private boolean allowComment = true;
 
     @Builder.Default
     private int viewNum = 0;
@@ -47,17 +56,28 @@ public class ArticleField extends BaseEntity {
     @Builder.Default
     private int collectNum = 0;
 
-    @Builder.Default
-    int upNum=0;
-
-    @Builder.Default
-    int downNum = 0;
-
-
     private String banner;
 
-    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
-            orphanRemoval = true,fetch = FetchType.LAZY,optional = true)
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private MarkDownTheme markDownTheme = MarkDownTheme.cyanosis;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private MarkDownThemeDark markDownThemeDark = MarkDownThemeDark.ayuMirage;
+
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private CodeHighlightStyle codeHighlightStyle = CodeHighlightStyle.xcode;
+
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private CodeHighlightStyle codeHighlightStyleDark = CodeHighlightStyle.xcode;
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
 //    @JoinColumn(name = "article_content_id")
     @JsonIgnore
     private ArticleContent articleContent;
@@ -76,7 +96,7 @@ public class ArticleField extends BaseEntity {
     @ManyToOne()
     private ArticleGroup articleGroup;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "articleField")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "articleField")
     @JsonIgnore
 //    @Fetch(FetchMode.SUBSELECT)
     private List<ArticleComment> articleComments;

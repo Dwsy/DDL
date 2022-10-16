@@ -12,6 +12,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 public class UserActionVO {
+
     @JsonFormat(shape = JsonFormat.Shape.NUMBER) //返回值
     private CommentType thumb;
 

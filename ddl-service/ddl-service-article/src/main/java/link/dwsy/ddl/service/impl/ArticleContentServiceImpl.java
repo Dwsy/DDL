@@ -2,12 +2,14 @@ package link.dwsy.ddl.service.impl;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
+import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.XO.VO.UserActionVO;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.repository.Article.*;
+import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserFollowingRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.ArticleContentService;
@@ -29,26 +31,29 @@ import java.util.Set;
 @Service
 public class ArticleContentServiceImpl implements ArticleContentService {
     @Resource
-    ArticleTagRepository articleTagRepository;
+    private ArticleTagRepository articleTagRepository;
     @Resource
-    ArticleFieldRepository articleFieldRepository;
+    private ArticleFieldRepository articleFieldRepository;
     @Resource
-    ArticleGroupRepository articleGroupRepository;
+    private ArticleGroupRepository articleGroupRepository;
     @Resource
-    ArticleContentRepository articleContentRepository;
+    private ArticleContentRepository articleContentRepository;
     @Resource
-    RabbitTemplate rabbitTemplate;
+    private RabbitTemplate rabbitTemplate;
     @Resource
-    UserSupport userSupport;
+    private UserSupport userSupport;
 
     @Resource
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Resource
-    ArticleCommentRepository articleCommentRepository;
+    private ArticleCommentRepository articleCommentRepository;
 
     @Resource
-    UserFollowingRepository userFollowingRepository;
+    private UserFollowingRepository userFollowingRepository;
+
+    @Resource
+    private UserCollectionRepository userCollectionRepository;
 
 
 //    public PageData<ArticleContent, ArticleContentDTO> getPageList(int page, int size) {
@@ -78,6 +83,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
                 (articleState, userId, pageRequest);
         return new PageData<>(fieldVOList);
     }
+
     public ArticleField getArticleById(long id, ArticleState articleState) {
 //        LoginUserInfo currentUser = userSupport.getCurrentUser();
         ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(id, articleState);
@@ -97,9 +103,16 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         if (currentUser != null) {//ssr 没token需要放在前端加载 所有加一个接口
             Optional<ArticleComment> action = articleCommentRepository
                     .findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentTypeInAndArticleField_Id
-                            (currentUser.getId(), -1L ,Set.of(CommentType.up, CommentType.down, CommentType.cancel),id);
+                            (currentUser.getId(), -1L,
+                                    Set.of(CommentType.up, CommentType.down, CommentType.cancel), id);
+
             userActionVO.setThumb(action.map(ArticleComment::getCommentType).orElse(null));
-            userActionVO.setCollect(false);
+
+
+            userActionVO.setCollect(userCollectionRepository
+                    .existsByUserIdAndSourceIdAndCollectionTypeAndDeletedFalse
+                            (currentUser.getId(), id, CollectionType.Article));
+
             Long followUserId = articleFieldRepository.findUserIdById(id);
             if (followUserId != null) {
                 userActionVO.setFollow(userFollowingRepository

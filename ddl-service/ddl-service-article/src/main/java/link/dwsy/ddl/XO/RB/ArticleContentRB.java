@@ -1,6 +1,9 @@
 package link.dwsy.ddl.XO.RB;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.XO.Enum.Article.CodeHighlightStyle;
+import link.dwsy.ddl.XO.Enum.Article.MarkDownTheme;
+import link.dwsy.ddl.XO.Enum.Article.MarkDownThemeDark;
 import link.dwsy.ddl.XO.Enum.ArticleSource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,4 +53,12 @@ public class ArticleContentRB {
     private String articleSourceUrl;
 
     private Long articleId;//change
+
+    private CodeHighlightStyle codeHighlightStyle;
+
+    private MarkDownTheme markDownTheme;
+
+    private CodeHighlightStyle codeHighlightStyleDark;
+
+    private MarkDownThemeDark markDownThemeDark;
 }
