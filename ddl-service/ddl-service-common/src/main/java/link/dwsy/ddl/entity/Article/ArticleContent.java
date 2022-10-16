@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.Article;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
@@ -26,6 +27,7 @@ public class ArticleContent extends BaseEntity {
 //    @OneToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "article_field_id",referencedColumnName = "id")
     @Column(name = "article_field_id")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long articleFieldId;
 
     @Lob

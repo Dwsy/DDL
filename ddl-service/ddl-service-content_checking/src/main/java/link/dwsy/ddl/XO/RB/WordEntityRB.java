@@ -14,7 +14,9 @@ import lombok.NoArgsConstructor;
 public class WordEntityRB {
 
     private Long id;
+
     private String word;
+
     private WordType type;
 
     public WordEntity toEntity() {

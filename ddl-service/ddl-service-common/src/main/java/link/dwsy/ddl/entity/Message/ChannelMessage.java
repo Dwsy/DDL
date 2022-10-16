@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.Message;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Message.MessageState;
 import link.dwsy.ddl.entity.BaseEntity;
@@ -25,8 +26,13 @@ import javax.persistence.Table;
 @JsonIgnoreProperties(value = {"deleted", "handler", "hibernateLazyInitializer", "createTime", "lastModifiedTime"})
 
 public class ChannelMessage extends BaseEntity {
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long channelId;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long userId;
+
     @Lob
     @Type(type = "text")
     private String message;

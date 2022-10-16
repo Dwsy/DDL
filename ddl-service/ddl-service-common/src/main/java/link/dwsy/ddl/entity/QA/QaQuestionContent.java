@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.QA;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
@@ -24,6 +25,7 @@ import javax.persistence.*;
 public class QaQuestionContent extends BaseEntity {
 
     @Column(name = "qa_question_field_id")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long questionFieldId;
 
     @Lob

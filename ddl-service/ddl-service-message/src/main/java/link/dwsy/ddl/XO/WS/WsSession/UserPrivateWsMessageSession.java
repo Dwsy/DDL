@@ -15,8 +15,12 @@ import java.util.Set;
 @Builder
 public class UserPrivateWsMessageSession {
     private Set<Session> BigIdUserSessionSet;
+
     private Set<Session> SmallIdUserSessionSet;
+
     private long BigId;
+
     private long SmallId;
+
     private boolean HasSubChannel=false;
 }

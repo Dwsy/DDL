@@ -53,6 +53,7 @@ public class ArticleComment extends BaseEntity {
 
 
     @Column(name = "parent_user_id")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long parentUserId;
 //    todo 增加字段 待修改
 
@@ -60,6 +61,7 @@ public class ArticleComment extends BaseEntity {
     private long parentCommentId = 0;
 
     @Builder.Default
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long replyUserCommentId = 0;
 
     private int commentSerialNumber;

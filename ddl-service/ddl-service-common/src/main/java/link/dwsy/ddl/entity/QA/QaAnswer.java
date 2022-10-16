@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.QA;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
@@ -31,8 +32,6 @@ public class QaAnswer extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private QaQuestionField questionField;
@@ -52,9 +51,11 @@ public class QaAnswer extends BaseEntity {
 
 
     @Column(name = "parent_user_id")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long parentUserId;
 
     @Builder.Default
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long parentAnswerId=0;
 
     @Transient

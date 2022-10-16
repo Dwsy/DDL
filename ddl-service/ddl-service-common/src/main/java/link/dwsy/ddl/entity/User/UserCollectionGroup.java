@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.User;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
@@ -25,7 +26,9 @@ import javax.persistence.UniqueConstraint;
 public class UserCollectionGroup extends BaseEntity {
 
     @Column(name = "user_id")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long userId;
+
     @Column(name = "group_name")
     private String groupName;
 

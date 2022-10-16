@@ -15,7 +15,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ArticleTagEsDoc {
+
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
+
     private String name;
 }

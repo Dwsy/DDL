@@ -43,6 +43,4 @@ public class PageData<P> {
         this.content = new ArrayList<>();
         this.content=page.getContent();
     }
-
-
 }

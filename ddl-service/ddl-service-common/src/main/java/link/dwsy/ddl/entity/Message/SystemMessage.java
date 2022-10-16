@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.Message;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
@@ -23,8 +24,11 @@ import javax.persistence.Table;
 @Builder
 @JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer"})
 public class SystemMessage extends BaseEntity {
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long formSystemUserId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long toUserId;
 
     private String conversationId;

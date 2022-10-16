@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.User;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.User.CollectionType;
@@ -22,10 +23,12 @@ import javax.persistence.*;
 @JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted", "lastModifiedTime", "articleFields"})
 public class UserCollection extends BaseEntity {
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long userId;
 
     private CollectionType collectionType;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long sourceId;
 
     private String sourceTitle;

@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.User;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.entity.BaseEntity;
@@ -20,13 +21,14 @@ import javax.persistence.Table;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime"})
-public class  UserPoints  extends BaseEntity {
+@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted", "createTime", "lastModifiedTime"})
+public class UserPoints extends BaseEntity {
 
+    int point;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long userId;
 
     private PointsType pointsType;
-
-    int point;
 
 }

@@ -9,6 +9,8 @@ import lombok.Data;
 @Data
 public class UserCollectionGroupRB {
     private String groupName;
+
     private Long groupId;
+
     private int order;
 }

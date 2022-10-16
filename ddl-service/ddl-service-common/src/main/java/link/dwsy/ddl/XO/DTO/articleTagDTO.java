@@ -1,5 +1,6 @@
 package link.dwsy.ddl.XO.DTO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class articleTagDTO {
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
 
     private String name;

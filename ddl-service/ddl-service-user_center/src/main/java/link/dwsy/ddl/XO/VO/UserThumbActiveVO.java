@@ -1,5 +1,6 @@
 package link.dwsy.ddl.XO.VO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.entity.User.User;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import java.util.Date;
 @Data
 @Builder
 public class UserThumbActiveVO {
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long id;
 
     private Date createTime;

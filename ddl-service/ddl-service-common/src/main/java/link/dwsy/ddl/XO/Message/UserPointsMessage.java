@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserPointsMessage {
+//    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long userId;
 
     private PointsType pointsType;

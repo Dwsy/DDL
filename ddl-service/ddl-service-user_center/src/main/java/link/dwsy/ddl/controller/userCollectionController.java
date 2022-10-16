@@ -84,29 +84,29 @@ public class userCollectionController {
         uce.ifPresent(userCollection -> {
             if (userCollection.isDeleted()) {
                 userCollection.setDeleted(false);
-                CollectionType type = userCollectionRB.getCollectionType();
 
-                switch (type) {
-                    // todo
-                    case Article:
-                        log.info("user:{}收藏文章:{}",uid,sid);
-                        articleFieldRepository.collectNumIncrement(sid, 1);
-                        break;
-                    case Question:
-                        qaQuestionFieldRepository.collectNumIncrement(sid, 1);
-                        break;
-//                    case Answer:
-//                        break;
-//                    case Comment:
-//                        break;
-                }
 
                 userCollectionRepository.save(userCollection);
             } else {
                 throw new CodeException(CustomerErrorCode.UserCollectionAlreadyExist);
             }
         });
+        CollectionType type = userCollectionRB.getCollectionType();
 
+        switch (type) {
+            // todo
+            case Article:
+                log.info("user:{}收藏文章:{}",uid,sid);
+                articleFieldRepository.collectNumIncrement(sid, 1);
+                break;
+            case Question:
+                qaQuestionFieldRepository.collectNumIncrement(sid, 1);
+                break;
+//                    case Answer:
+//                        break;
+//                    case Comment:
+//                        break;
+        }
         userCollectionGroup.setCollectionNum(userCollectionGroup.getCollectionNum() + 1);
         UserCollectionGroup g = userCollectionGroupRepository.save(userCollectionGroup);
         if (uce.isPresent()) {

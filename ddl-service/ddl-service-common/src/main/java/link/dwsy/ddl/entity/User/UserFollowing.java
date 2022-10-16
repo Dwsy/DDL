@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.User;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
@@ -22,9 +23,10 @@ import javax.persistence.Transient;
 @JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime","articleFields"})
 public class UserFollowing extends BaseEntity {
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long userId;
 
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long followingUserId;
 
     @Transient

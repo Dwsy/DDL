@@ -1,5 +1,6 @@
 package link.dwsy.ddl.XO.RB.VO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,8 +12,14 @@ import lombok.Data;
 @Data
 @Builder
 public class ChannelMessageVo {
+
     private String username;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long userid;
+
     private String message;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long channel;
 }

@@ -13,8 +13,10 @@ import javax.validation.constraints.NotNull;
 public class UserCollectionRB {
     @NotNull(message = "收藏分组不能为空")
     private Long groupId;
+
     @NotNull(message = "收藏内容不能为空")
     private Long sourceId;
+
     @NotNull(message = "收藏类型不能为空")
     private CollectionType collectionType;
 }

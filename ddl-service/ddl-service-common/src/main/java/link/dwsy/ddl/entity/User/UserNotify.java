@@ -27,16 +27,23 @@ import javax.persistence.Transient;
 @NoArgsConstructor
 @JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime"})
 public class UserNotify extends BaseEntity {
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long fromUserId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long toUserId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long articleId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long commentId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long questionId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long answerId;
 
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
@@ -50,6 +57,7 @@ public class UserNotify extends BaseEntity {
     @Type(type = "org.hibernate.type.TextType")
     private String toContent;//他方
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long replayCommentId;//回复后返回的评论id
 
     @Builder.Default
