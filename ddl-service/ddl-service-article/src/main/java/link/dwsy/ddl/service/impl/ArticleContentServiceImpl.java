@@ -100,7 +100,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         UserActionVO userActionVO = new UserActionVO();
 
 
-        if (currentUser != null) {//ssr 没token需要放在前端加载 所有加一个接口
+        if (currentUser != null) {//ssr 没token需要放在前端加载 所有加一个接口 todo 迁移
             Optional<ArticleComment> action = articleCommentRepository
                     .findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentTypeInAndArticleField_Id
                             (currentUser.getId(), -1L,
@@ -125,6 +125,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
 
     public String getContent(long id, int type) {
+        //todo 权限校验 use 投影
         if (type == 0) {
             return articleContentRepository.getHtmlTextById(id);
         }

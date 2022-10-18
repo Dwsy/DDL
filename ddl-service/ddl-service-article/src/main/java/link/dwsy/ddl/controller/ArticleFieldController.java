@@ -130,19 +130,17 @@ public class ArticleFieldController {
     @PostMapping
     @AuthAnnotation
 //    todo 历史版本
-    public Long createArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
-        Long articleId = articleFieldService.createArticle(articleContentRB);
-        return articleId;
+    public String createArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
+        return String.valueOf(articleFieldService.createArticle(articleContentRB));
     }
 
     @PutMapping
     @AuthAnnotation
-    public Long updateArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
+    public String updateArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
         if (articleContentRB.getArticleId() == null || articleContentRB.getArticleId() < 0) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
-        Long articleId = articleFieldService.updateArticle(articleContentRB);
-        return articleId;
+        return String.valueOf(articleFieldService.updateArticle(articleContentRB));
     }
 
     @DeleteMapping("{articleId}")

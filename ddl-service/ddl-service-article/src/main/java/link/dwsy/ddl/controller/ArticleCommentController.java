@@ -27,10 +27,9 @@ import javax.annotation.Resource;
 @RequestMapping("comment")
 public class ArticleCommentController {
     @Resource
-    private ArticleCommentServiceImpl articleCommentService;
-
-    @Resource
     ArticleFieldServiceImpl articleFieldService;
+    @Resource
+    private ArticleCommentServiceImpl articleCommentService;
 
     @GetMapping("/{id}")
     public PageData<ArticleComment> getUCommentById(
@@ -45,6 +44,7 @@ public class ArticleCommentController {
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         return articleCommentService.getByArticleId(aid, pageRequest);
     }
+
     @GetMapping("/child/{aid}-{pid}")
     public PageData<ArticleComment> getChildCommentsById(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
@@ -58,12 +58,12 @@ public class ArticleCommentController {
             throw new CodeException(CustomerErrorCode.ParamError);
 //        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
         PageRequest pageRequest = PRHelper.order(Sort.Direction.ASC, "createTime", page, size);
-        return articleCommentService.getChildCommentsByParentId(aid,pid, pageRequest);
+        return articleCommentService.getChildCommentsByParentId(aid, pid, pageRequest);
     }
 
     @PostMapping()
-    public long reply(@RequestBody ArticleCommentRB articleCommentRB) {
-        return articleCommentService.reply(articleCommentRB, CommentType.comment);
+    public String reply(@RequestBody ArticleCommentRB articleCommentRB) {
+        return String.valueOf(articleCommentService.reply(articleCommentRB, CommentType.comment));
     }
 
     @AuthAnnotation(Level = 999)

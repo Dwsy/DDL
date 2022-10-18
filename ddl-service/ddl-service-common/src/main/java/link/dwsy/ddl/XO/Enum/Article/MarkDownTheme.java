@@ -27,5 +27,39 @@ public enum MarkDownTheme {
     orange,
     devuiBlue,
     nico,
-    ChineseRed
-}
+    ChineseRed,
+    //-----purpleLightList
+    purple,
+    purplePlain,
+    purpleBlue,
+    purpleGreen,
+    purpleClassic,
+    purpleCesno,
+    //-----mwebLightNameList
+    ayu,
+    contrast,
+    dBoring,
+    duotoneHeat,
+    indigo,
+    larkBoldColor,
+    gandalf,
+    lark,
+    duotoneLight,
+    oliveDunk,
+    redGraphite,
+    solarizedLight,
+    //-----mwebDarkList
+    eekBlackDark,
+    ayuMirage,
+    charcoal,
+    cobalt,
+    darkGraphite,
+    dieci,
+    dracula,
+    lighthouse,
+    nord,
+    panic,
+    gotham,
+    solarizedDark,
+    toothpaste
+    }

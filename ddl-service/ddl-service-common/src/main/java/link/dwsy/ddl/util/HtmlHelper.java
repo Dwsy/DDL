@@ -2,6 +2,8 @@ package link.dwsy.ddl.util;
 
 import cn.hutool.http.HtmlUtil;
 import com.vladsch.flexmark.ast.AutoLink;
+import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.html.AttributeProvider;
 import com.vladsch.flexmark.html.AttributeProviderFactory;
@@ -31,6 +33,7 @@ public class HtmlHelper {
      */
 
     private static final String SITE_HOST = "ddl.dwsy.clink";
+
     public static String filter(String html) {
         return HtmlUtil.filter(html);
     }
@@ -66,42 +69,21 @@ public class HtmlHelper {
 
     //jdk 11 var好像挺好玩的
     public static void main(String[] args) {
-        var md2 = "# 分布式搜索引擎03\n" +
+        var md2 = "> [https://www.cnblogs.com/bmilk/p/13225817.html](https://www.cnblogs.com/bmilk/p/13225817.html)\n" +
                 "\n" +
+                "[Buffer简介](#buffer简介)\n" +
+                "---------------------\n" +
                 "\n" +
+                "缓冲区(Buffer):本质上是一个数组，用于临时保存、写入以及读取数据。在Java NIO中，该内存块包含在NIO Buffer对象当中，NIO Buffer对象还提供了一组接口来访问该内存块。  \n" +
+                "根据数据类型的不同，Java为除了boolean类型之外的其余7种基本类型提供了相应类型的缓冲区，分别是ByteBuffer、CharBuffer、ShortBuffer、IntBuffer、LongBuffer、FloatBuffer、DoubleBuffer。他们都继承自抽象类Buffer类，他们的管理方式也都几乎一样。UML类图如下：  \n" +
+                "![image.png](https://cdn.nlark.com/yuque/0/2022/png/2853013/1645865638270-e8a946e6-58e2-4b49-9897-5deb1032dd23.png#clientId=u553119fb-8c4f-4&crop=0&crop=0&crop=1&crop=1&from=paste&id=ub971b1ef&margin=%5Bobject%20Object%5D&name=image.png&originHeight=166&originWidth=1285&originalType=url&ratio=1&rotation=0&showTitle=false&size=16392&status=done&style=none&taskId=u530d4693-6f60-4613-9d14-8be48462aaa&title=)  \n" +
                 "\n" +
-                "# 0.学习目标\n" +
+                "[![image.png](https://cdn.nlark.com/yuque/0/2022/png/2853013/1645866062612-d4a94d0a-72ac-471d-a30b-0f8220867671.png#clientId=u352ceb3e-7f07-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=709&id=u6600b435&margin=%5Bobject%20Object%5D&name=image.png&originHeight=709&originWidth=1173&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1019200&status=done&style=none&taskId=ub49e9b87-8bc0-46cd-8561-1b496a256c9&title=&width=1173)](#imagepng)\n" +
+                "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n" +
                 "\n" +
+                "![image.png](https://cdn.nlark.com/yuque/0/2022/png/2853013/1645866108724-171b4292-0436-4af6-938b-37889e0e5528.png#clientId=u352ceb3e-7f07-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=363&id=u2e42ab89&margin=%5Bobject%20Object%5D&name=image.png&originHeight=363&originWidth=1184&originalType=binary&ratio=1&rotation=0&showTitle=false&size=729502&status=done&style=none&taskId=u825a8448-2b87-401a-a0eb-83dbae46660&title=&width=1184)  \n" +
                 "\n" +
-                "\n" +
-                "# 1.数据聚合\n" +
-                "\n" +
-                "**[聚合（](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html)[aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html)[）](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html)**可以让我们极其方便的实现对数据的统计、分析、运算。例如：\n" +
-                "\n" +
-                "- 什么品牌的手机最受欢迎？\n" +
-                "- 这些手机的平均价格、最高价格、最低价格？\n" +
-                "- 这些手机每月的销售情况如何？\n" +
-                "\n" +
-                "实现这些统计功能的比数据库的sql要方便的多，而且查询速度非常快，可以实现近实时搜索效果。\n" +
-                "\n" +
-                "## 1.1.聚合的种类\n" +
-                "\n" +
-                "聚合常见的有三类：\n" +
-                "\n" +
-                "- **桶（Bucket）**聚合：用来对文档做分组\n" +
-                "  - TermAggregation：按照文档字段值分组，例如按照品牌值分组、按照国家分组\n" +
-                "  - Date Histogram：按照日期阶梯分组，例如一周为一组，或者一月为一组\n" +
-                "\n" +
-                "- **度量（Metric）**聚合：用以计算一些值，比如：最大值、最小值、平均值等\n" +
-                "  - Avg：求平均值\n" +
-                "  - Max：求最大值\n" +
-                "  - Min：求最小值\n" +
-                "  - Stats：同时求max、min、avg、sum等\n" +
-                "- **管道（pipeline）**聚合：其它聚合的结果为基础做聚合\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "> **注意：**参加聚合的字段必须是keyword、日期、数值、布尔类型\n";
+                "[Buffer的核心属性](#buffer的核心属性)";
         var html2 = HtmlHelper.toHTML("```c\n" +
                 "#include <stdio.h>\n" +
                 "\n" +
@@ -127,7 +109,7 @@ public class HtmlHelper {
                 "    }\n" +
                 "```");
         System.out.println(HtmlHelper.toHTML(md2));
-        System.out.println(html2);
+//        System.out.println(html2);
     }
 
 
@@ -175,17 +157,31 @@ public class HtmlHelper {
 
 
         @Override
-        public void setAttributes(@NotNull Node node, @NotNull AttributablePart attributablePart, @NotNull MutableAttributes mutableAttributes) {
+        public void setAttributes(@NotNull Node node, @NotNull AttributablePart attributablePart,
+                                  @NotNull MutableAttributes mutableAttributes) {
+            var href = mutableAttributes.get("href");
             if ((node instanceof Link || node instanceof AutoLink) && attributablePart == AttributablePart.LINK) {
 
 // 如果非本站地址添加：ref="nofollow"
-                var href = mutableAttributes.get("href");
+
 //                final var href = attributes.get("href");
 
                 if (href != null && href.getValue() != null && !href.getValue().contains(SITE_HOST)) {
                     mutableAttributes.replaceValue("rel", "nofollow");
                 }
 
+            }
+
+            if ((node instanceof Image)) {
+                mutableAttributes.addValue("loading", "lazy");
+                var src = mutableAttributes.get("src");
+                if (src != null && src.getValue().startsWith("https://cdn.nlark")) {
+                    mutableAttributes.addValue("referrerPolicy", "no-referrer");
+                }
+
+            }
+            if (node instanceof Heading) {
+                mutableAttributes.addValue("id", ((Heading) node).getText());
             }
         }
     }

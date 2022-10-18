@@ -58,7 +58,7 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public R<String> handlerBindException(BindException e) {
-        R<String> response = new R<>(R.FAIL,"请求体错误");
+        R<String> response = new R<>(R.FAIL,"请求体错误R");
         BindingResult bindingResult = e.getBindingResult();
         // 判断异常中是否有错误信息，如果存在就使用异常中的消息，否则使用默认消息
         if (bindingResult.hasErrors()) {
