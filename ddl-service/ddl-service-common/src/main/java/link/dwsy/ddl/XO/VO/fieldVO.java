@@ -5,7 +5,7 @@ import link.dwsy.ddl.entity.Article.ArticleGroup;
 import link.dwsy.ddl.entity.Article.ArticleTag;
 import link.dwsy.ddl.entity.User.User;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 /**
  * @Author Dwsy
@@ -25,16 +25,17 @@ public interface fieldVO {
 
     boolean isAllowComment();
 
-    long getViewNum();
+    int getCommentNum();
+    int getViewNum();
 
-    long getCollectNum();
+    int getCollectNum();
 
     String getBanner();
 
     //    long getArticleContentId();
 //    private ArticleContent articleContent;
     String getCreateTime();
-    Set<ArticleTag> getArticleTags();
+    LinkedHashSet<ArticleTag> getArticleTags();
 
     ArticleGroup getArticleGroup();
 

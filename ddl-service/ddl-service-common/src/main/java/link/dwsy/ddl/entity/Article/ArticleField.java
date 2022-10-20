@@ -13,7 +13,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @Author Dwsy
@@ -49,6 +48,10 @@ public class ArticleField extends BaseEntity {
 
     @Builder.Default
     private boolean allowComment = true;
+
+    @Builder.Default
+    private int commentNum = 0;
+
 
     @Builder.Default
     private int viewNum = 0;
@@ -91,7 +94,7 @@ public class ArticleField extends BaseEntity {
     @JoinTable(name = "article_tag_ref",
             joinColumns = {@JoinColumn(name = "article_field_id")},
             inverseJoinColumns = {@JoinColumn(name = "article_tag_id")})
-    private Set<ArticleTag> articleTags;
+    private List<ArticleTag> articleTags;
 
     @ManyToOne()
     private ArticleGroup articleGroup;

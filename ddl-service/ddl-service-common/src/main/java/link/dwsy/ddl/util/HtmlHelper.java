@@ -122,25 +122,25 @@ public class HtmlHelper {
 //        Stupid and stupid approach
         boolean tip = false;
         for (int i = 0; i < strings.length; i++) {
-            if (strings[i].startsWith("> x")) {
-                strings[i] = strings[i].replace("> x", "");
-                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-error\"><//p>{}<\\p><\\blockquote>", strings[i]);
+            if (strings[i].startsWith("> x")||strings[i].startsWith("> bad:")) {
+                strings[i] = strings[i].replace("> x", "").replace("> bad:", "");
+                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-error\"><//p class=\"mdi mdi-close\">{}<\\p><\\blockquote>", strings[i]);
                 tip = true;
-            } else if (strings[i].startsWith("> √")) {
-                strings[i] = strings[i].replace("> √", "");
-                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-success\"><//p>{}<\\p><\\blockquote>", strings[i]);
+            } else if (strings[i].startsWith("> √")||strings[i].startsWith("> right:")||strings[i].startsWith("> good:")) {
+                strings[i] = strings[i].replace("> √", "").replace("> right:", "").replace("> good:", "");
+                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-success\"><//p class=\"mdi mdi-check\">{}<\\p><\\blockquote>", strings[i]);
                 tip = true;
             } else if (strings[i].startsWith("> !")) {
                 strings[i] = strings[i].replace("> !", "");
-                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-warning\"><//p>{}<\\p><\\blockquote>", strings[i]);
+                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-warning\"><//p class=\"mdi mdi-exclamation-thick\">{}<\\p><\\blockquote>", strings[i]);
                 tip = true;
             } else if (strings[i].startsWith("> @")) {
                 strings[i] = strings[i].replace("> @", "");
-                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-share\"><//p>{}<\\p><\\blockquote>", strings[i]);
+                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-share\"><//p class=\"mdi mdi-at\">{}<\\p><\\blockquote>", strings[i]);
                 tip = true;
-            } else if (strings[i].startsWith("> i")) {
-                strings[i] = strings[i].replace("> i", "");
-                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-info\"><//p>{}<\\p><\\blockquote>", strings[i]);
+            } else if (strings[i].startsWith("> i")||strings[i].startsWith("> info:")) {
+                strings[i] = strings[i].replace("> i", "").replace("> info:", "");
+                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-info\"><//p class=\"mdi mdi-information-variant\">{}<\\p><\\blockquote>", strings[i]);
                 tip = true;
             }
         }

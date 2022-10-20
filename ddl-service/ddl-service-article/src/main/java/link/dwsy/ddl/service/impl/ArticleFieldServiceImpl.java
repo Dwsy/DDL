@@ -30,9 +30,10 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @Author Dwsy
@@ -74,11 +75,13 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     public Long createArticle(ArticleContentRB articleContentRB) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
 
-        HashSet<ArticleTag> articleTags;
+        ArrayList<ArticleTag> articleTags;
         if (articleContentRB.getArticleTagIds().isEmpty()) {
-            articleTags = new HashSet<>();
+            articleTags = new ArrayList<>();
         } else {
-            articleTags = new HashSet<>(articleTagRepository.findAllById(articleContentRB.getArticleTagIds()));
+            articleTags = new ArrayList<>(articleTagRepository.findAllById(
+                    articleContentRB.getArticleTagIds().stream().distinct().collect(Collectors.toList())
+            ));
         }
         ArticleGroup articleGroup = articleGroupRepository
                 .findById(articleContentRB.getArticleGroupId())
@@ -134,11 +137,13 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
 
-        HashSet<ArticleTag> articleTags = null;
+        ArrayList<ArticleTag> articleTags = null;
         if (articleContentRB.getArticleTagIds().isEmpty()) {
-            articleTags = new HashSet<>();
+            articleTags = new ArrayList<>();
         } else {
-            articleTags = new HashSet<>(articleTagRepository.findAllById(articleContentRB.getArticleTagIds()));
+            articleTags = new ArrayList<>(articleTagRepository.findAllById(
+                    articleContentRB.getArticleTagIds().stream().distinct().collect(Collectors.toList())
+            ));
         }
         ArticleGroup articleGroup = articleGroupRepository
                 .findById(articleContentRB.getArticleGroupId())

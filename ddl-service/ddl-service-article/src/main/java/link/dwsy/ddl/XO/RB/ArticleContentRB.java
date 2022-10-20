@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @Author Dwsy
@@ -42,7 +42,7 @@ public class ArticleContentRB {
     private String banner;
 
     @NotEmpty(message = "标签不能为空")
-    private Set<Long> articleTagIds;
+    private List<Long> articleTagIds;
 
     @NotNull(message = "分组不能为空")
     private Long articleGroupId;
