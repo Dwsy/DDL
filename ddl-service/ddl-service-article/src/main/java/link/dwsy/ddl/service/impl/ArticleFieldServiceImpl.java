@@ -86,7 +86,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         String html = HtmlHelper.toHTML(articleContentRB.getContent());
         String pure = HtmlHelper.toPure(html);
         if (StrUtil.isBlank(articleContentRB.getSummary())) {
-            articleContentRB.setSummary(pure.substring(0, 100));
+            articleContentRB.setSummary(pure.substring(0, 150));
         }
 
         ArticleContent content = ArticleContent.builder()
@@ -148,7 +148,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         String html = HtmlHelper.toHTML(articleContentRB.getContent());
         String pure = HtmlHelper.toPure(html);
         if (StrUtil.isBlank(articleContentRB.getSummary())) {
-            articleContentRB.setSummary(pure.substring(0, 100));
+            articleContentRB.setSummary(pure.substring(0, 150));
         }
 
 

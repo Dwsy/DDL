@@ -353,6 +353,14 @@
                 <artifactId>flexmark-profile-pegdown</artifactId>
                 <version>${flexmark.version}</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/com.vladsch.flexmark/flexmark-all -->
+            <dependency>
+                <groupId>com.vladsch.flexmark</groupId>
+                <artifactId>flexmark-all</artifactId>
+                <version>0.64.0</version>
+                <scope>test</scope>
+            </dependency>
+
             <!--markdown to html end-->
 
             <!--            <dependency>-->

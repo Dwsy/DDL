@@ -25,6 +25,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>42.5.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -33,22 +34,52 @@
         </dependency>
 
         <!--markdown to html-->
+<!--        <dependency>-->
+<!--            <groupId>com.vladsch.flexmark</groupId>-->
+<!--            <artifactId>flexmark</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.vladsch.flexmark</groupId>-->
+<!--            <artifactId>flexmark-util</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.vladsch.flexmark</groupId>-->
+<!--            <artifactId>flexmark-ext-tables</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.vladsch.flexmark</groupId>-->
+<!--            <artifactId>flexmark-profile-pegdown</artifactId>-->
+<!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/com.vladsch.flexmark/flexmark-all -->
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-all</artifactId>
+            <version>0.64.0</version>
+        </dependency>
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
-            <artifactId>flexmark-util</artifactId>
-        </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.vladsch.flexmark</groupId>-->
-<!--            <artifactId>flexmark-ext-tables</artifactId>-->
-<!--        </dependency>-->
-        <dependency>
-            <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-profile-pegdown</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-ext-gitlab</artifactId>
+            <version>0.64.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-util-builder</artifactId>
+            <version>0.64.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-util</artifactId>
+        </dependency>
+
         <!--markdown to html end-->
 
     </dependencies>
@@ -57,7 +88,6 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
 
 
 </project>
