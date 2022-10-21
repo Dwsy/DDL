@@ -67,7 +67,22 @@ public class HtmlHelper {
 //            "> i4这是浅蓝色的短代码框，用于显示一些信息。 `test`\n" +
 //            "\n" +
     static String hs =
-            "> √5这是绿色的短代码框，显示一些推荐信息。`test`";
+            "> √5这是绿色的短代码框，显示一些推荐信息。`test`\n" +
+                    "> √4这是绿色的短代码框，显示一些推荐信息。`test`\n" +
+                    "> √3这是绿色的短代码框，显示一些推荐信息。`test`\n" +
+                    "> √2这是绿色的短代码框，显示一些推荐信息。`test`\n";
+
+    static String hs1 =
+            "> 0正常的 正常的 正常的 正常的 正常的 `test` http://nuxt.localhost/article/editor/draft?id=16\n" +
+                    "\n" +
+                    "> @1这是灰色的短代码框，常用来引用资料什么的 http://nuxt.localhost/article/editor/draft?id=16\n" +
+                    "\n" +
+                    "> !2这是黄色的短代码框，常用来做提示，引起读者注意。 `test`\n" +
+                    "\n" +
+                    "> x3这是红色的短代码框，用于严重警告什么的。 `test` http://nuxt.localhost/article/editor/draft?id=16 \n" +
+                    "\n" +
+                    "> i4这是浅蓝色的短代码框，用于显示一些信息。 `test`\n";
+
 
     public static String filter(String html) {
         return HtmlUtil.filter(html);
@@ -121,33 +136,113 @@ public class HtmlHelper {
         String[] strings = markdown.split("\n");
 //        Stupid and stupid approach
         boolean tip = false;
-        for (int i = 0; i < strings.length; i++) {
-            if (strings[i].startsWith("> x")||strings[i].startsWith("> bad:")) {
-                strings[i] = strings[i].replace("> x", "").replace("> bad:", "");
-                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-error\"><//p class=\"mdi mdi-close\">{}<\\p><\\blockquote>", strings[i]);
+        StringBuilder sb = new StringBuilder();
+        var length = strings.length;
+        String[] badPrefix = {"> x", "> X", "> x:", "> X:", "> bad:", "> no:", "> error:"};
+        String[] goodPrefix = {"> √", "> good:", "> ok:", "> yes:", "> right:"};
+        String[] infoPrefix = {"> i", "> I", "> i:", "> I:", "> tip:"};
+        String[] warnPrefix = {"> !", "> ！", "> !:", "> ！:", "> warn:", "> warning:"};
+        String[] sharePrefix = {"> @", "> @:", "> at:"};
+
+        for (int i = 0; i < length; i++) {
+            var text = strings[i];
+            if (hasTipPrefix(text, badPrefix)) {
+                text = getReplaceString(text, badPrefix) + '\n';
+                for (int j = i + 1; j < length; j++) {
+                    if (hasTipPrefix(strings[j], badPrefix)) {
+                        String temp = strings[j];
+                        temp = getReplaceString(temp, badPrefix);
+                        i++;
+                        if (j != length - 1) {
+                            temp += '\n';
+                        }
+                        text += '\n' + temp;
+                    } else {
+                        break;
+                    }
+                }
+                text = StrUtil.format
+                        ("<//blockquote class=\"d-tip d-tip-error\"><//p class=\"mdi mdi-close\">{}<\\p><\\blockquote>", text);
                 tip = true;
-            } else if (strings[i].startsWith("> √")||strings[i].startsWith("> right:")||strings[i].startsWith("> good:")) {
-                strings[i] = strings[i].replace("> √", "").replace("> right:", "").replace("> good:", "");
-                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-success\"><//p class=\"mdi mdi-check\">{}<\\p><\\blockquote>", strings[i]);
+            } else if (hasTipPrefix(text, goodPrefix)) {
+                text = getReplaceString(text, goodPrefix) + '\n';
+                for (int j = i + 1; j < length; j++) {
+                    if (hasTipPrefix(strings[j], goodPrefix)) {
+                        String temp = strings[j];
+                        temp = getReplaceString(temp, goodPrefix);
+                        i++;
+                        if (j != length - 1) {
+                            temp += '\n';
+                        }
+                        text += '\n' + temp;
+                    } else {
+                        break;
+                    }
+                }
+                text = StrUtil.format
+                        ("<//blockquote class=\"d-tip d-tip-success\"><//p class=\"mdi mdi-check\">{}<\\p><\\blockquote>", text);
                 tip = true;
-            } else if (strings[i].startsWith("> !")) {
-                strings[i] = strings[i].replace("> !", "");
-                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-warning\"><//p class=\"mdi mdi-exclamation-thick\">{}<\\p><\\blockquote>", strings[i]);
+            } else if (hasTipPrefix(text, warnPrefix)) {
+                text = getReplaceString(text, warnPrefix) + '\n';
+                for (int j = i + 1; j < length; j++) {
+                    if (hasTipPrefix(strings[j], warnPrefix)) {
+                        String temp = strings[j];
+                        temp = getReplaceString(temp, warnPrefix);
+                        i++;
+                        if (j != length - 1) {
+                            temp += '\n';
+                        }
+                        text += '\n' + temp;
+                    } else {
+                        break;
+                    }
+                }
+                text = StrUtil.format
+                        ("<//blockquote class=\"d-tip d-tip-warning\"><//p class=\"mdi mdi-exclamation-thick\">{}<\\p><\\blockquote>", text);
                 tip = true;
-            } else if (strings[i].startsWith("> @")) {
-                strings[i] = strings[i].replace("> @", "");
-                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-share\"><//p class=\"mdi mdi-at\">{}<\\p><\\blockquote>", strings[i]);
+            } else if (hasTipPrefix(text, sharePrefix)) {
+                text = getReplaceString(text, sharePrefix) + '\n';
+                for (int j = i + 1; j < length; j++) {
+                    if (hasTipPrefix(strings[j], sharePrefix)) {
+                        String temp = strings[j];
+                        temp = getReplaceString(temp, sharePrefix);
+                        i++;
+                        if (j != length - 1) {
+                            temp += '\n';
+                        }
+                        text += '\n' + temp;
+                    } else {
+                        break;
+                    }
+                }
+                text = StrUtil.format
+                        ("<//blockquote class=\"d-tip d-tip-share\"><//p class=\"mdi mdi-at\">{}<\\p><\\blockquote>", text);
                 tip = true;
-            } else if (strings[i].startsWith("> i")||strings[i].startsWith("> info:")) {
-                strings[i] = strings[i].replace("> i", "").replace("> info:", "");
-                strings[i] = StrUtil.format("<//blockquote class=\"d-tip d-tip-info\"><//p class=\"mdi mdi-information-variant\">{}<\\p><\\blockquote>", strings[i]);
+            } else if (hasTipPrefix(text, infoPrefix)) {
+                text = getReplaceString(text, infoPrefix) + '\n';
+                for (int j = i + 1; j < length; j++) {
+                    if (hasTipPrefix(strings[j], infoPrefix)) {
+                        String temp = strings[j];
+                        temp = getReplaceString(temp, infoPrefix);
+                        i++;
+                        if (j != length - 1) {
+                            temp += '\n';
+                        }
+                        text += '\n' + temp;
+                    } else {
+                        break;
+                    }
+                }
+                text = StrUtil.format
+                        ("<//blockquote class=\"d-tip d-tip-info\"><//p class=\"mdi mdi-information-variant\">{}<\\p><\\blockquote>", text);
                 tip = true;
             }
+            sb.append(text).append('\n');
         }
-        StringBuilder sb = new StringBuilder();
-        for (String string : strings) {
-            sb.append(string).append('\n');
-        }
+        System.out.println(sb);
+//        for (String string : strings) {
+//            sb.append(string).append('\n');
+//        }
 
         final Node document = parser.parse(sb.toString());
 
@@ -156,6 +251,7 @@ public class HtmlHelper {
         if (renderer == null) {
             renderer = HtmlRenderer.builder(holder).build();
         }
+        System.out.println("--------------------");
         String render = renderer.render(document);
         if (tip) {
             return render.replaceAll("&lt;//", "<")
@@ -165,6 +261,25 @@ public class HtmlHelper {
                     .replaceAll("&lt;\\\\", "</");
         }
         return render;
+    }
+
+    @NotNull
+    private static String getReplaceString(String text, String[] replaceStrList) {
+        for (String s : replaceStrList) {
+            if (text.startsWith(s)) {
+                text = text.replaceFirst(s, "");
+            }
+        }
+        return text;
+    }
+
+    private static boolean hasTipPrefix(String text, String[] replaceStrList) {
+        for (String s : replaceStrList) {
+            if (text.startsWith(s)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static class LinkRefExtension implements HtmlRenderer.HtmlRendererExtension {
