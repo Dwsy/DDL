@@ -11,6 +11,7 @@ import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleField;
+import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleContentServiceImpl;
@@ -41,6 +42,9 @@ public class ArticleFieldController {
 
     @Resource
     private ArticleFieldServiceImpl articleFieldService;
+
+    @Resource
+    private ArticleFieldRepository articleFieldRepository;
 
     @Resource
     private UserActiveServiceImpl userActiveService;
@@ -92,6 +96,7 @@ public class ArticleFieldController {
     public ArticleField getArticleById(@PathVariable("id") Long id) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
+        articleFieldService.view(id);
         return articleContentService.getArticleById(id, ArticleState.published);
     }
 

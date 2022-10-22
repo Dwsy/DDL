@@ -224,4 +224,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         }
 
     }
+
+    public void view(Long id) {
+        articleFieldRepository.viewNumIncrement(id, 1);
+    }
 }

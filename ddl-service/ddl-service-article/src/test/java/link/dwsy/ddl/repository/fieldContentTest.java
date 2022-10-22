@@ -23,9 +23,7 @@ import org.springframework.data.domain.PageRequest;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @Author Dwsy
@@ -52,9 +50,9 @@ public class fieldContentTest {
 
     @Test
     public void save() {
-        Set<Long> longs = Set.of(1L, 2L, 3L);
+        List<Long> longs = Arrays.asList(1L, 2L, 3L);
         User user = userRepository.findById(3L).get();
-        HashSet<ArticleTag> articleTags = new HashSet<>(articleTagRepository.findAllById(longs));
+        List<ArticleTag> articleTags = articleTagRepository.findAllById(longs);
         ArticleGroup articleGroup = articleGroupRepository.findById(1L).get();
         ArticleContent content = ArticleContent.builder()
                 .textPure("pure").textMd("mdmdmdmdmdmdmdmdmdmdmdv").textHtml("html").build();

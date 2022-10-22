@@ -86,6 +86,7 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
             value = "update article_field set up_num=up_num+?2 where id=?1")
     void upNumIncrement(long aid, int num);
 
+
     @Modifying
     @Transactional
     @Query(nativeQuery = true,

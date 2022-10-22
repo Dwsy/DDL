@@ -94,7 +94,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return af;
     }
 
-    //todo 收藏 返回
+
     public UserActionVO getUserAction(long id) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         UserActionVO userActionVO = new UserActionVO();
