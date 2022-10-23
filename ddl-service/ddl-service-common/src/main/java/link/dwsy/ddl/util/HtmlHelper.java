@@ -28,6 +28,9 @@ import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.html.MutableAttributes;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * Markdown工具
@@ -67,10 +70,10 @@ public class HtmlHelper {
 //            "> i4这是浅蓝色的短代码框，用于显示一些信息。 `test`\n" +
 //            "\n" +
     static String hs =
-            "> √5这是绿色的短代码框，显示一些推荐信息。`test`\n" +
-                    "> √4这是绿色的短代码框，显示一些推荐信息。`test`\n" +
-                    "> √3这是绿色的短代码框，显示一些推荐信息。`test`\n" +
-                    "> √2这是绿色的短代码框，显示一些推荐信息。`test`\n";
+            "> x这是绿色的短代码框，显示一些推荐信息。`test`\n" +
+                    "> x这是绿色的短代码框，显示一些推荐信息。`test`\n" +
+                    "> x这是绿色的短代码框，显示一些推荐信息。`test`\n" +
+                    "> x这是绿色的短代码框，显示一些推荐信息。`test`\n";
 
     static String hs1 =
             "> 0正常的 正常的 正常的 正常的 正常的 `test` http://nuxt.localhost/article/editor/draft?id=16\n" +
@@ -83,6 +86,52 @@ public class HtmlHelper {
                     "\n" +
                     "> i4这是浅蓝色的短代码框，用于显示一些信息。 `test`\n";
 
+
+    //    public class BlockQuoteTipExtension implements HtmlRenderer.HtmlRendererExtension {
+//
+//        @Override
+//        public void parserOptions(MutableDataHolder options) {
+//
+//        }
+//
+//        @Override
+//        public void extend(Parser.Builder parserBuilder) {
+////            parserBuilder.customBlockParserFactory(new BlockQuoteTNodePostProcessor());
+//        }
+//    }
+//
+//    public class BlockQuoteTNodePostProcessor implements HtmlRenderer.HtmlRendererExtension {
+//        @Override
+//        public void rendererOptions(@NotNull MutableDataHolder options) {
+//
+//        }
+//
+//        @Override
+//        public void extend(HtmlRenderer.@NotNull Builder htmlRendererBuilder, @NotNull String rendererType) {
+//
+//        }
+//    }
+    private static Map<String, Object> prefixHandle
+    (String text, String[] prefix, int length, String[] strings, int i) {
+        text = getReplaceString(text, prefix) + '\n';
+        for (int j = i + 1; j < length; j++) {
+            if (hasTipPrefix(strings[j], prefix)) {
+                String temp = strings[j];
+                temp = getReplaceString(temp, prefix);
+                i++;
+                if (j != length - 1) {
+                    temp += '\n';
+                }
+                text += '\n' + temp;
+            } else {
+                break;
+            }
+        }
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("text", text);
+        map.put("i", i);
+        return map;
+    }
 
     public static String filter(String html) {
         return HtmlUtil.filter(html);
@@ -138,101 +187,46 @@ public class HtmlHelper {
         boolean tip = false;
         StringBuilder sb = new StringBuilder();
         var length = strings.length;
-        String[] badPrefix = {"> x", "> X", "> x:", "> X:", "> bad:", "> no:", "> error:"};
+        String[] badPrefix = {"> x:", "> X:", "> x", "> X", "> bad:", "> no:", "> error:"};
         String[] goodPrefix = {"> √", "> good:", "> ok:", "> yes:", "> right:"};
-        String[] infoPrefix = {"> i", "> I", "> i:", "> I:", "> tip:"};
-        String[] warnPrefix = {"> !", "> ！", "> !:", "> ！:", "> warn:", "> warning:"};
-        String[] sharePrefix = {"> @", "> @:", "> at:"};
+        String[] infoPrefix = {"> i:", "> I:", "> i", "> I", "> tip:"};
+        String[] warnPrefix = {"> !:", "> ！:", "> !", "> ！", "> warn:", "> warning:"};
+        String[] sharePrefix = {"> @:", "> at:", "> @"};
 
         for (int i = 0; i < length; i++) {
             var text = strings[i];
             if (hasTipPrefix(text, badPrefix)) {
-                text = getReplaceString(text, badPrefix) + '\n';
-                for (int j = i + 1; j < length; j++) {
-                    if (hasTipPrefix(strings[j], badPrefix)) {
-                        String temp = strings[j];
-                        temp = getReplaceString(temp, badPrefix);
-                        i++;
-                        if (j != length - 1) {
-                            temp += '\n';
-                        }
-                        text += '\n' + temp;
-                    } else {
-                        break;
-                    }
-                }
+                Map<String, Object> prefixHandleRet = prefixHandle(text, badPrefix, length, strings, i);
+                text = (String) prefixHandleRet.get("text");
+                i = (int) prefixHandleRet.get("i");
                 text = StrUtil.format
                         ("<//blockquote class=\"d-tip d-tip-error\"><//p class=\"mdi mdi-close\">{}<\\p><\\blockquote>", text);
                 tip = true;
             } else if (hasTipPrefix(text, goodPrefix)) {
-                text = getReplaceString(text, goodPrefix) + '\n';
-                for (int j = i + 1; j < length; j++) {
-                    if (hasTipPrefix(strings[j], goodPrefix)) {
-                        String temp = strings[j];
-                        temp = getReplaceString(temp, goodPrefix);
-                        i++;
-                        if (j != length - 1) {
-                            temp += '\n';
-                        }
-                        text += '\n' + temp;
-                    } else {
-                        break;
-                    }
-                }
+                Map<String, Object> prefixHandleRet = prefixHandle(text, goodPrefix, length, strings, i);
+                text = (String) prefixHandleRet.get("text");
+                i = (int) prefixHandleRet.get("i");
                 text = StrUtil.format
                         ("<//blockquote class=\"d-tip d-tip-success\"><//p class=\"mdi mdi-check\">{}<\\p><\\blockquote>", text);
                 tip = true;
             } else if (hasTipPrefix(text, warnPrefix)) {
-                text = getReplaceString(text, warnPrefix) + '\n';
-                for (int j = i + 1; j < length; j++) {
-                    if (hasTipPrefix(strings[j], warnPrefix)) {
-                        String temp = strings[j];
-                        temp = getReplaceString(temp, warnPrefix);
-                        i++;
-                        if (j != length - 1) {
-                            temp += '\n';
-                        }
-                        text += '\n' + temp;
-                    } else {
-                        break;
-                    }
-                }
+                Map<String, Object> prefixHandleRet = prefixHandle(text, warnPrefix, length, strings, i);
+                text = (String) prefixHandleRet.get("text");
+                i = (int) prefixHandleRet.get("i");
                 text = StrUtil.format
                         ("<//blockquote class=\"d-tip d-tip-warning\"><//p class=\"mdi mdi-exclamation-thick\">{}<\\p><\\blockquote>", text);
                 tip = true;
             } else if (hasTipPrefix(text, sharePrefix)) {
-                text = getReplaceString(text, sharePrefix) + '\n';
-                for (int j = i + 1; j < length; j++) {
-                    if (hasTipPrefix(strings[j], sharePrefix)) {
-                        String temp = strings[j];
-                        temp = getReplaceString(temp, sharePrefix);
-                        i++;
-                        if (j != length - 1) {
-                            temp += '\n';
-                        }
-                        text += '\n' + temp;
-                    } else {
-                        break;
-                    }
-                }
+                Map<String, Object> prefixHandleRet = prefixHandle(text, sharePrefix, length, strings, i);
+                text = (String) prefixHandleRet.get("text");
+                i = (int) prefixHandleRet.get("i");
                 text = StrUtil.format
                         ("<//blockquote class=\"d-tip d-tip-share\"><//p class=\"mdi mdi-at\">{}<\\p><\\blockquote>", text);
                 tip = true;
             } else if (hasTipPrefix(text, infoPrefix)) {
-                text = getReplaceString(text, infoPrefix) + '\n';
-                for (int j = i + 1; j < length; j++) {
-                    if (hasTipPrefix(strings[j], infoPrefix)) {
-                        String temp = strings[j];
-                        temp = getReplaceString(temp, infoPrefix);
-                        i++;
-                        if (j != length - 1) {
-                            temp += '\n';
-                        }
-                        text += '\n' + temp;
-                    } else {
-                        break;
-                    }
-                }
+                Map<String, Object> prefixHandleRet = prefixHandle(text, infoPrefix, length, strings, i);
+                text = (String) prefixHandleRet.get("text");
+                i = (int) prefixHandleRet.get("i");
                 text = StrUtil.format
                         ("<//blockquote class=\"d-tip d-tip-info\"><//p class=\"mdi mdi-information-variant\">{}<\\p><\\blockquote>", text);
                 tip = true;
@@ -362,31 +356,6 @@ public class HtmlHelper {
 //            }
         }
     }
-
-//    public class BlockQuoteTipExtension implements HtmlRenderer.HtmlRendererExtension {
-//
-//        @Override
-//        public void parserOptions(MutableDataHolder options) {
-//
-//        }
-//
-//        @Override
-//        public void extend(Parser.Builder parserBuilder) {
-////            parserBuilder.customBlockParserFactory(new BlockQuoteTNodePostProcessor());
-//        }
-//    }
-//
-//    public class BlockQuoteTNodePostProcessor implements HtmlRenderer.HtmlRendererExtension {
-//        @Override
-//        public void rendererOptions(@NotNull MutableDataHolder options) {
-//
-//        }
-//
-//        @Override
-//        public void extend(HtmlRenderer.@NotNull Builder htmlRendererBuilder, @NotNull String rendererType) {
-//
-//        }
-//    }
 }
 
 

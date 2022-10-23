@@ -41,6 +41,9 @@ public class ArticleEsDoc {
 
     private int viewNum;
 
+    //todo add
+//    private int commentNum;
+
     private int collectNum;
 
     private int upNum;

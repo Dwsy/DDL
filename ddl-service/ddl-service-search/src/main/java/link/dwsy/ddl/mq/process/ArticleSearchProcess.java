@@ -78,6 +78,10 @@ public class ArticleSearchProcess {
                         .build()).collect(Collectors.toList()))
                 .suggestion(ArticleEsSuggestion.
                         create(af.getTitle(), af.getArticleGroup().getName(), af.getArticleTags()))
+                .upNum(af.getUpNum())
+                .viewNum(af.getViewNum())
+                .downNum(af.getDownNum())
+                .collectNum(af.getCollectNum())
                 .build();
         ArticleEsDoc.builder().title("updateTest").build();
         try {

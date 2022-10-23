@@ -25,7 +25,7 @@ import javax.persistence.Transient;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime"})
+@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted"})
 public class UserNotify extends BaseEntity {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -62,7 +62,7 @@ public class UserNotify extends BaseEntity {
 
     @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.NUMBER) //返回值
-    private NotifyState notifyState=NotifyState.UNREAD;
+    private NotifyState notifyState = NotifyState.UNREAD;
 //    private  read=false;
 
     @Transient

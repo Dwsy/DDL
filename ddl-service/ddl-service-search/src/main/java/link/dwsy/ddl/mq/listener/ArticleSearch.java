@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class ArticleSearch {
 
     public final String scoreKey = "article:search:update:score";
-    public final int bufferSize = 100;
+    public final int bufferSize = 10;
     @Resource
     ArticleSearchProcess articleSearchProcess;
     @Resource

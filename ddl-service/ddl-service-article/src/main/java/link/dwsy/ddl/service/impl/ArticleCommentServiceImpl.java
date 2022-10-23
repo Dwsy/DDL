@@ -93,7 +93,6 @@ public class ArticleCommentServiceImpl {
 
     public long reply(ArticleCommentRB articleCommentRB, CommentType commentType) {
 
-
         long articleFieldId = articleCommentRB.getArticleFieldId();
         if (!articleFieldRepository.existsByDeletedFalseAndAllowCommentTrueAndId(articleFieldId)) {
             throw new CodeException(CustomerErrorCode.ArticleCommentIsClose);
@@ -139,6 +138,7 @@ public class ArticleCommentServiceImpl {
             sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getParentCommentId(),
                     commentType, false, content, title, save.getId());
 //            }
+            articleFieldRepository.commentNumIncrement(articleFieldId, 1);
             return save.getId();
         } else {
             if (!articleCommentRepository.isFirstAnswer(articleCommentRB.getParentCommentId())) {
@@ -155,6 +155,7 @@ public class ArticleCommentServiceImpl {
                 commentSerialNumber = lastComment.getCommentSerialNumber() + 1;
             }
             //回复评论
+            articleFieldRepository.commentNumIncrement(articleFieldId, 1);
             if (articleCommentRB.getReplyUserCommentId() == 0) {
 
 

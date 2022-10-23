@@ -83,6 +83,13 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
     @Modifying
     @Transactional
     @Query(nativeQuery = true,
+            value = "update article_field set comment_num=comment_num+?2 where id=?1")
+    void commentNumIncrement(long aid, int num);
+
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true,
             value = "update article_field set up_num=up_num+?2 where id=?1")
     void upNumIncrement(long aid, int num);
 
@@ -132,8 +139,7 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
     int countByDeletedFalseAndUser_IdAndArticleStateNot(long id, ArticleState articleState);
 
 
-
 //    ArticleField findArticleFieldsByDeletedIsFalse(Long articleId);
-    
-    
+
+
 }
