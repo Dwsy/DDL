@@ -79,6 +79,11 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
 <!--            <optional>true</optional>-->
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.experimental/spring-native -->
+
+
+
     </dependencies>
 
     <properties>
