@@ -79,7 +79,7 @@ public class TokenUtil {
             throw new CodeException(CustomerErrorCode.UserTokenExpired);
         } catch (Exception e) {
             log.error("token解析失败");
-            throw new CodeException(CustomerErrorCode.TokenParseError);
+            throw new CodeException(CustomerErrorCode.UserTokenExpired);
         }
         return claimsJws;
     }

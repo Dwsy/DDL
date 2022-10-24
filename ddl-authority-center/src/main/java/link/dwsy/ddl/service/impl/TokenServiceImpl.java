@@ -174,7 +174,7 @@ public class TokenServiceImpl implements TokenService {
                 loginUserInfo = TokenParseUtil.parseUserInfoFromToken(token);
             } catch (Exception ex) {
                 log.error("parse user info from token error: [{}]", ex.getMessage(), ex);
-                throw new CodeException(CustomerErrorCode.TokenParseError);
+                throw new CodeException(CustomerErrorCode.UserTokenExpired);
             }
         }
         assert loginUserInfo != null;

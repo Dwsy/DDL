@@ -79,7 +79,7 @@ public class AuthorityController {
     public String refresh(HttpServletRequest request) throws Exception {
         String token = request.getHeader(TokenConstants.AUTHENTICATION);
         if (StrUtil.isBlank(token)) {
-            throw new CodeException(CustomerErrorCode.TokenNotFound);
+            throw new CodeException(CustomerErrorCode.UserTokenExpired);
         }
         request.getSession().invalidate();
         return tokenService.refreshToken(token);

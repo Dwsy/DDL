@@ -63,7 +63,8 @@ public class UserNotify extends BaseEntity {
     @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.NUMBER) //返回值
     private NotifyState notifyState = NotifyState.UNREAD;
-//    private  read=false;
+
+//    private boolean read;
 
     @Transient
     private String formUserAvatar;
