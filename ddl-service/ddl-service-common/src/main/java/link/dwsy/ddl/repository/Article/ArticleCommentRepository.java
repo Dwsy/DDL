@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,9 +50,9 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
     ArticleComment findByDeletedFalseAndIdAndCommentType(long id, CommentType commentType);
 
 
-    @Query(value = "update article_comment set deleted=true where user_id=?1 and id=?2", nativeQuery = true)
+    @Query(value = "update article_comment set deleted=true id=?2", nativeQuery = true)
     @Modifying
-    int logicallyDelete(Long id, Long aLong);
+    int logicallyDelete(Long commentId);
 
     @Query(value = "update article_comment set deleted=false where user_id=?1 and id=?2", nativeQuery = true)
     @Modifying
@@ -98,6 +99,12 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
     ArticleComment findFirstByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentTypeOrderByCommentSerialNumberDesc
             (long afId, long parentCommentId, CommentType commentType);
 
+    boolean existsByDeletedFalseAndArticleField_IdAndIdAndCommentType(long articleFieldId, long commentId, CommentType commentType);
 
+    List<ArticleComment> findByParentCommentIdAndDeletedFalseAndCommentTypeIn(long parentCommentId, Collection<CommentType> commentTypes);
+
+
+    
+    
 
 }

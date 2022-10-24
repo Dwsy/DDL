@@ -32,7 +32,7 @@ public class ArticleCommentController {
     private ArticleCommentServiceImpl articleCommentService;
 
     @GetMapping("/{id}")
-    public PageData<ArticleComment> getUCommentById(
+    public PageData<ArticleComment> getUCommentListById(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
@@ -66,11 +66,11 @@ public class ArticleCommentController {
         return String.valueOf(articleCommentService.reply(articleCommentRB, CommentType.comment));
     }
 
-    @AuthAnnotation(Level = 999)
-    @DeleteMapping("/{id}")//todo time
+    @AuthAnnotation(Level = 0)
+    @DeleteMapping("/{articleId}/{commentId}")//todo time
 //    logically delete a comment
-    public boolean delete(@PathVariable("id") Long id) {
-        return articleCommentService.logicallyDelete(id);
+    public boolean delete(@PathVariable long articleId, @PathVariable long commentId) {
+        return articleCommentService.logicallyDelete(articleId,commentId);
     }
 
     @AuthAnnotation(Level = 999)

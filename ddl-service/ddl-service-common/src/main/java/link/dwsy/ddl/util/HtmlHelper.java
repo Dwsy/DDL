@@ -138,7 +138,7 @@ public class HtmlHelper {
     }
 
     public static String toPure(String html) {
-        return HtmlUtil.cleanHtmlTag(html);
+        return HtmlUtil.unescape(HtmlUtil.cleanHtmlTag(html));
     }
 
     public static String mdToPure(String md) {

@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import link.dwsy.ddl.XO.RB.UserRB;
 import link.dwsy.ddl.XO.RB.UserRegisterRB;
 import link.dwsy.ddl.annotation.IgnoreResponseAdvice;
+import link.dwsy.ddl.constant.AuthorityConstant;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.constant.TokenConstants;
@@ -12,10 +13,13 @@ import link.dwsy.ddl.core.domain.JwtToken;
 import link.dwsy.ddl.core.utils.RSAUtil;
 import link.dwsy.ddl.service.impl.TokenServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <h1>对外暴露的授权服务接口</h1>
@@ -27,6 +31,8 @@ public class AuthorityController {
 
     @Resource
     private TokenServiceImpl tokenService;
+    @Resource
+    private RedisTemplate<String,String> redisTemplate;
 
 
     @GetMapping("/rsa-pks")
@@ -45,18 +51,25 @@ public class AuthorityController {
 
         log.info("request to get token with param: [{}]",
                 JSONUtil.toJsonStr(userRB));
-        return new JwtToken(tokenService.generateToken(
-                userRB
-        ));
+        JwtToken jwtToken = new JwtToken(tokenService.generateToken(userRB));
+        redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_ACTIVE_TIME_KEY + jwtToken.getToken(), String.valueOf(new Date().getTime()),
+                AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
+        return jwtToken;
+    }
+
+    @PostMapping("/active")
+    public boolean active(HttpServletRequest request) {
+        String tokenHead = request.getHeader(TokenConstants.AUTHENTICATION);
+        return tokenService.active(tokenHead.split(" ")[1]);
     }
 
     @PostMapping("logout")
     public boolean logout(HttpServletRequest request) {
-        String token = request.getHeader(TokenConstants.AUTHENTICATION);
-        if (StrUtil.isBlank(token)) {
+        String tokenHead = request.getHeader(TokenConstants.AUTHENTICATION);
+        if (StrUtil.isBlank(tokenHead)) {
             return false;
         }
-        tokenService.blackToken(token);
+        tokenService.blackToken(tokenHead.split(" ")[1]);
         request.getSession().invalidate();
         return true;
     }
@@ -66,7 +79,7 @@ public class AuthorityController {
     public String refresh(HttpServletRequest request) throws Exception {
         String token = request.getHeader(TokenConstants.AUTHENTICATION);
         if (StrUtil.isBlank(token)) {
-            throw  new CodeException(CustomerErrorCode.TokenNotFound);
+            throw new CodeException(CustomerErrorCode.TokenNotFound);
         }
         request.getSession().invalidate();
         return tokenService.refreshToken(token);

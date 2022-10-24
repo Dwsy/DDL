@@ -19,6 +19,7 @@ import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
 import link.dwsy.ddl.util.PageData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,6 +37,7 @@ import java.util.Set;
  */
 
 @Service
+@Slf4j
 public class ArticleCommentServiceImpl {
     @Resource
     private ArticleCommentRepository articleCommentRepository;
@@ -207,15 +210,75 @@ public class ArticleCommentServiceImpl {
         }
     }
 
-    public boolean logicallyDelete(Long id) {
+    public boolean logicallyDelete(long articleId, long commentId) {
         Long uid = userSupport.getCurrentUser().getId();
-        int i = articleCommentRepository.logicallyDelete(uid, id);
-//        if (articleCommentRepository.isFirstAnswer(id)) {
-//            sendActionMqMessage(articleCommentRepository.getArticleFieldById(id),id, CommentType.comment, true);
-//        } else {
-//            sendActionMqMessage(,id, CommentType.comment_comment, true);
-//        }
-        return i > 0;
+
+        Long articleUserId = articleFieldRepository.findUserIdById(articleId);
+
+        Long commentUserId = articleCommentRepository.getUserIdByCommentId(commentId);
+
+        if (uid.equals(articleUserId) || uid.equals(commentUserId)) {
+            Optional<ArticleComment> commentOptional = articleCommentRepository.findByDeletedFalseAndId(commentId);
+            if (commentOptional.isPresent()) {
+                ArticleComment comment = commentOptional.get();
+                if (comment.getParentCommentId() == 0) {//一级评论
+                    log.info("delete comment");
+                    articleCommentRepository
+                            .findByParentCommentIdAndDeletedFalseAndCommentTypeIn
+                                    (commentId, Arrays.asList
+                                            (CommentType.comment,CommentType.up, CommentType.down, CommentType.cancel))
+                            .forEach(c -> {
+                                if (c.getCommentType() == CommentType.comment) {
+                                    articleCommentRepository
+                                            .findByParentCommentIdAndDeletedFalseAndCommentTypeIn
+                                                    (c.getId(), Arrays.asList
+                                                            (CommentType.up, CommentType.down, CommentType.cancel))
+                                            .forEach(cc -> {
+                                                cc.setDeleted(true);
+                                                articleCommentRepository.save(cc);
+                                            });
+                                }
+                                c.setDeleted(true);
+                                articleCommentRepository.save(c);
+                            });
+                    comment.setDeleted(true);
+                    articleCommentRepository.save(comment);
+                    return true;
+                }
+                if (comment.getParentCommentId() > 0) {//二级评论
+                    articleCommentRepository
+                            .findByParentCommentIdAndDeletedFalseAndCommentTypeIn
+                                    (commentId, Arrays.asList
+                                            (CommentType.up, CommentType.down, CommentType.cancel))
+                            .forEach(c -> {
+                                c.setDeleted(true);
+                                articleCommentRepository.save(c);
+                            });
+                    comment.setDeleted(true);
+                    articleCommentRepository.save(comment);
+                    return true;
+                }
+            }
+            //todo 级联删除
+//            if (articleCommentRepository
+//                    .existsByDeletedFalseAndArticleField_IdAndIdAndCommentType(articleId, commentId, CommentType.comment)) {
+//                log.info("delete comment");
+////                if (articleCommentRepository.logicallyDelete(commentId) > 0) {
+////                    articleFieldRepository.commentNumIncrement(articleId, -1);
+//                return true;
+////                }
+//            }
+//            if (articleCommentRepository
+//                    .existsByDeletedFalseAndArticleField_IdAndIdAndCommentType(articleId, commentId, CommentType.comment_comment)) {
+//                if (articleCommentRepository.logicallyDelete(commentId) > 0) {
+//                    articleFieldRepository.commentNumIncrement(articleId, -1);
+//                    return true;
+//                }
+//            }
+        } else {
+            throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
+        }
+        return false;
     }
 
     public boolean logicallyRecovery(Long id) {

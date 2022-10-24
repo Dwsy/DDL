@@ -193,14 +193,14 @@ public class userCollectionController {
 
     @GetMapping("state")
     @AuthAnnotation
-    public Set<Long> getCollectionState(@RequestParam(name = "sourceId") long sourceId,
+    public Set<String> getCollectionState(@RequestParam(name = "sourceId") long sourceId,
                                         @RequestParam(name = "type") CollectionType collectionType) {
         Long uid = userSupport.getCurrentUser().getId();
         List<UserCollection> collectionListion = userCollectionRepository
                 .findByDeletedFalseAndUserIdAndSourceIdAndCollectionType(uid, sourceId, collectionType);
-        Set<Long> ret = new HashSet<>();
+        Set<String> ret = new HashSet<>();
         for (UserCollection userCollection : collectionListion) {
-            ret.add(userCollection.getUserCollectionGroup().getId());
+            ret.add(String.valueOf(userCollection.getUserCollectionGroup().getId()));
         }
         return ret;
     }

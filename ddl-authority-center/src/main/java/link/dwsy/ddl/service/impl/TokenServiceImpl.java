@@ -140,8 +140,8 @@ public class TokenServiceImpl implements TokenService {
                 .password(password)
                 .build();
         user.setUserInfo(UserInfo.builder()
-                        .avatar("https://tva4.sinaimg.cn/large/005NWBIgly1h6ffm4ez6bj30fo0fogra.jpg")
-                        .build());
+                .avatar("https://tva4.sinaimg.cn/large/005NWBIgly1h6ffm4ez6bj30fo0fogra.jpg")
+                .build());
         userRepository.save(user);
         // 注册一个新用户, 写一条记录到数据表中
         log.info("register user success: [{}], [{}],[{}]", user.getUsername(), user.getId(), user.getPassword());
@@ -161,6 +161,11 @@ public class TokenServiceImpl implements TokenService {
         redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY + token, "1",
                 AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
     }
+
+    public Boolean isBlackToken(String token) {
+        return redisTemplate.hasKey(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY + token);
+    }
+
 
     public String refreshToken(String token) throws Exception {
         LoginUserInfo loginUserInfo = null;
@@ -185,5 +190,38 @@ public class TokenServiceImpl implements TokenService {
         redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY + token, "1",
                 AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
         return newToken;
+    }
+
+    public boolean active(String token) {
+        if (isBlackToken(token)) {
+            throw new CodeException(CustomerErrorCode.UserTokenExpired);
+        }
+        String key = TokenConstants.REDIS_TOKEN_ACTIVE_TIME_KEY + token;
+        long nowTime = new Date().getTime();
+        String lastActiveTimeStr = redisTemplate.opsForValue().get(key);
+        Long expire = redisTemplate.getExpire(key);
+
+        if (lastActiveTimeStr == null) {
+            throw new CodeException(CustomerErrorCode.UserTokenExpired);
+//            redisTemplate.opsForValue().set(key, String.valueOf(time), AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
+        } else {
+            expire = expire == null ? 0 : expire;
+            long expireDate = nowTime + expire;
+            long lastActiveTime = Long.parseLong(lastActiveTimeStr);
+            if (lastActiveTime > expireDate) {
+                throw new CodeException(CustomerErrorCode.UserTokenExpired);
+            }
+            if (lastActiveTime < nowTime - (1000L * 60 * 60 * 24 * 30)) {
+                blackToken(token);
+                throw new CodeException(CustomerErrorCode.UserTokenExpired);
+            } else {
+                redisTemplate.opsForValue().set(key, String.valueOf(nowTime), AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
+                return true;
+            }
+        }
+
+//        redisTemplate.opsForValue().set(key, String.valueOf(new Date().getTime()));
+//        redisTemplate.opsForValue().set(key, String.valueOf(new Date().getTime()),
+//                AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
     }
 }

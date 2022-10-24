@@ -71,6 +71,7 @@ public class AuthorityConstant {
                     "F0PgzB4r0nKsi/qDL/5K9QR8prXZ9dVVvAaiVxNmKaRyS2A4Pgj5TWFuCCL9nJsM\n" +
                     "5EPg8Cor5bJbmttGz4sU+4+NTzqCbA==";
     /** 默认的 Token 超时时间, 7天 */
-    public static final Integer DEFAULT_EXPIRE_DAY = 7;
+    public static final Integer DEFAULT_EXPIRE_DAY = 365;
+
     public static final String BlackList = "BlackList:";
 }
