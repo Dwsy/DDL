@@ -26,21 +26,22 @@ import java.util.Set;
 public class QaQuestionTagServiceImpl implements QaQuestionTagService {
 
     @Resource
-    QaQuestionTagRepository qaQuestionTagRepository;
+    private QaQuestionTagRepository qaQuestionTagRepository;
 
     @Resource
-    QaQuestionFieldRepository qaQuestionFieldRepository;
+    private QaQuestionFieldRepository qaQuestionFieldRepository;
+
     public List<QaTag> getTagList(Sort sort) {
 
         return qaQuestionTagRepository.findByDeletedFalse(sort);
 
     }
 
-    public PageData<QaQuestionField> getQuestionListById(Long id, Set<QuestionState> questionStates, PageRequest pageRequest ) {
+    public PageData<QaQuestionField> getQuestionListById(Long id, Set<QuestionState> questionStates, PageRequest pageRequest) {
         Collection<Long> ids = qaQuestionTagRepository.findQuestionContentIdListById(id);
 
         Page<QaQuestionField> questionFields = qaQuestionFieldRepository
-                .findByDeletedFalseAndIdInAndQuestionStateIn(ids, questionStates,pageRequest);
+                .findByDeletedFalseAndIdInAndQuestionStateIn(ids, questionStates, pageRequest);
         return new PageData<>(questionFields);
     }
 

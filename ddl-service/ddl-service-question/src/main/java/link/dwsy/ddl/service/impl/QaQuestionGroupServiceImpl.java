@@ -26,10 +26,10 @@ public class QaQuestionGroupServiceImpl implements QaQuestionGroupService {
 
 
     @Resource
-    QaGroupRepository qaGroupRepository;
+    private  QaGroupRepository qaGroupRepository;
 
     @Resource
-    QaQuestionFieldRepository qaQuestionFieldRepository;
+    private  QaQuestionFieldRepository qaQuestionFieldRepository;
 
     public PageData<QaQuestionField> getFieldListByGroupId(Long gid, Set<QuestionState> questionStates,PageRequest pageRequest) {
         Page<QaQuestionField> questionFieldPage = qaQuestionFieldRepository.

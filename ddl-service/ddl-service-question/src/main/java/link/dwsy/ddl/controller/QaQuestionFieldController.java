@@ -30,13 +30,13 @@ public class QaQuestionFieldController {
 
 
     @Resource
-    QaQuestionFieldServiceImpl qaQuestionFieldService;
+    private  QaQuestionFieldServiceImpl qaQuestionFieldService;
 
     @Resource
-    QuestionContentServiceImpl questionContentService;
+    private QuestionContentServiceImpl questionContentService;
 
     @Resource
-    UserActiveServiceImpl userActiveService;
+    private  UserActiveServiceImpl userActiveService;
 
 
     @GetMapping("field/list")

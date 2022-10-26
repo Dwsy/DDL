@@ -20,7 +20,7 @@ import java.util.Collection;
 public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuestionFieldService {
 
     @Resource
-    QaQuestionFieldRepository qaQuestionFieldRepository;
+    private  QaQuestionFieldRepository qaQuestionFieldRepository;
 
     @Override
     public PageData<QaQuestionField> getPageList(Collection<QuestionState> questionStateCollection, PageRequest pageRequest) {

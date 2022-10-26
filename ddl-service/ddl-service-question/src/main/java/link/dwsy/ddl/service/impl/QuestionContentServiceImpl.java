@@ -15,10 +15,10 @@ import javax.annotation.Resource;
 public class QuestionContentServiceImpl implements QuestionContentService {
 
     @Resource
-    ArticleFieldRepository articleFieldRepository;
+    private  ArticleFieldRepository articleFieldRepository;
 
     @Resource
-    QaContentRepository qaContentRepository;
+    private  QaContentRepository qaContentRepository;
 
 
 

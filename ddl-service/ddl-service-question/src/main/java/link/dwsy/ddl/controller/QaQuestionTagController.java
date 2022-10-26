@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RequestMapping("tag")
 public class QaQuestionTagController {
     @Resource
-    QaQuestionTagServiceImpl qaQuestionTagService;
+    private  QaQuestionTagServiceImpl qaQuestionTagService;
 
     @GetMapping("list")
     public List<QaTag> GetTagList(

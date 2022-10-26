@@ -26,7 +26,7 @@ import java.util.Set;
 public class QaQuestionGroupController {
 
     @Resource
-    QaQuestionGroupServiceImpl qaQuestionGroupService;
+    private QaQuestionGroupServiceImpl qaQuestionGroupService;
 
     @GetMapping("list")
     public List<QaGroup> GetGroupList(
