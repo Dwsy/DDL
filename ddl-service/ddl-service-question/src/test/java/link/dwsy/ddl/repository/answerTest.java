@@ -34,7 +34,7 @@ public class answerTest {
         QaQuestionField qaQuestionField = null;
         qaQuestionField = qaQuestionFieldRepository.findById(qid).get();
 //        todo sql查询可通过projections优化
-        if (qaQuestionField.isAllow_answer()) {
+        if (qaQuestionField.isAllowAnswer()) {
             //            开启回答
             if (qaAnswerRepository.existsByIdAndQuestionFieldId(aid, qid)) {
                 QaAnswer qaAnswer = QaAnswer.builder().user(user).questionField(qaQuestionField).commentType(CommentType.comment)
@@ -68,7 +68,7 @@ public class answerTest {
         qaQuestionField = qaQuestionFieldRepository.findById(qid).get();
 //        qaAnswerRepository.
 //        判断是否允许评论
-        if (qaQuestionField.isAllow_answer()) {
+        if (qaQuestionField.isAllowAnswer()) {
 //            判断是否是相关的Q&A
             if (qaAnswerRepository.existsByIdAndQuestionFieldId(aid, qid)) {
 //                判断是否为一级评论

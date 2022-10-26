@@ -21,6 +21,10 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
 
     QaQuestionField findByDeletedFalseAndId(long id);
 
+    QaQuestionField findByDeletedFalseAndIdAndQuestionStateNot(long id, QuestionState questionState);
+
+
+
     Optional<QaQuestionField> findByIdAndDeletedFalse(long id);
 
     Page<QaQuestionField> findByDeletedFalseAndIdIn(Collection<Long> id, Pageable pageable);
@@ -55,7 +59,7 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     void downNumIncrement(long sid, int i);
 
     @Query(nativeQuery = true,
-            value = "update qa_question_field set views = views+?2 where id = ?1")
+            value = "update qa_question_field set viewNum = viewNum+?2 where id = ?1")
     @Modifying
     @Transactional
     void viewNumIncrement(long sid, int i);

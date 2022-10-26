@@ -24,7 +24,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.Size;
 import java.util.Optional;
 
 /**
@@ -116,7 +115,6 @@ public class ArticleFieldController {
     @GetMapping(value = "content/{id}", produces = "application/json")
 //    @IgnoreResponseAdvice
     public String getArticleContent(
-            @Size
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "0", name = "type") int type) {
         if (id < 0L)

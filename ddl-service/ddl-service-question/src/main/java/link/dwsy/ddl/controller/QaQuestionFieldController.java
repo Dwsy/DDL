@@ -1,7 +1,8 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
-import link.dwsy.ddl.XO.Enum.User.UserActiveType;
+import link.dwsy.ddl.XO.RB.CreateQuestionRB;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
@@ -11,11 +12,12 @@ import link.dwsy.ddl.service.impl.QuestionContentServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.Size;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -26,7 +28,6 @@ import java.util.Set;
 @RestController
 @RequestMapping("question")
 public class QaQuestionFieldController {
-
 
 
     @Resource
@@ -46,37 +47,45 @@ public class QaQuestionFieldController {
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "ask", name = "status") Set<String> statusStr
-            ) {
+    ) {
         if (size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
 
         Set<QuestionState> questionStates = new HashSet<>();
 
-        QaQuestionFieldController qaQuestionFieldController = new QaQuestionFieldController();
 
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
 
-        statusStr.forEach(status -> questionStates.add(QuestionState.valueOf(status.toUpperCase())));
-        return qaQuestionFieldService.getPageList(questionStates,pageRequest);
+        for (String status : statusStr) {
+            try {
+                questionStates.add(QuestionState.valueOf(status.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new CodeException(CustomerErrorCode.ParamError);
+            }
+        }
+
+        return qaQuestionFieldService.getPageList(questionStates, pageRequest);
     }
 
     @GetMapping("field/{id}")
     public QaQuestionField GetQuestionById(@PathVariable("id") Long id) {
         if (id < 1L)
             throw new CodeException(CustomerErrorCode.ParamError);
-        userActiveService.ActiveLog(UserActiveType.Browse_QA, id);
+//        userActiveService.ActiveLog(UserActiveType.Browse_QA, id);
+        qaQuestionFieldService.view(id);
         return qaQuestionFieldService.getQuestionById(id);
     }
+
+//    getUserAction
 
     /**
      * @param id   id
      * @param type 0 html 1 md 2 pure
      * @return String
      */
-    @GetMapping(value = "content/{id}",produces="application/json")
+    @GetMapping(value = "content/{id}", produces = "application/json")
 //    @IgnoreResponseAdvice
     public String GetArticleContent(
-            @Size
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "0", name = "type") int type) {
         if (id < 0L)
@@ -84,9 +93,28 @@ public class QaQuestionFieldController {
 
         if (type < 0 || type > 2)
             throw new CodeException(CustomerErrorCode.ParamError);
+        Optional<String> ret = Optional.ofNullable(questionContentService.getContent(id, type));
+        if (ret.isPresent()) {
+            return ret.get();
+        } else {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
 
-        return questionContentService.getContent(id, type);
     }
+
+    @PostMapping
+    @AuthAnnotation
+    public String createQuestion(@RequestBody @Validated CreateQuestionRB createQuestionRB) {
+        return String.valueOf(qaQuestionFieldService.createQuestion(createQuestionRB));
+    }
+
+    @PutMapping
+    @AuthAnnotation
+    public String updateQuestion(@RequestBody @Validated CreateQuestionRB createQuestionRB) {
+        return String.valueOf(qaQuestionFieldService.updateQuestion(createQuestionRB));
+    }
+
+
 
 
 }

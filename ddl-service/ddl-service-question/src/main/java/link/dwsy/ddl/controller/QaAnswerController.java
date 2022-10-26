@@ -22,7 +22,7 @@ public class QaAnswerController {
     private QaAnswerServiceServiceImpl qaAnswerServiceService;
 
     @GetMapping("/{id}")
-    public PageData<QaAnswer> GetCommentById(
+    public PageData<QaAnswer> getAnswerPageById(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
@@ -30,6 +30,7 @@ public class QaAnswerController {
             @PathVariable("id") Long qid) {
         if (qid < 1 || size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
+//        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         return qaAnswerServiceService.getByQuestionId(qid, pageRequest);
     }

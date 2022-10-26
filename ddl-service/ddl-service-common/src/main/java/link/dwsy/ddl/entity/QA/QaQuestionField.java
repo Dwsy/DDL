@@ -3,14 +3,17 @@ package link.dwsy.ddl.entity.QA;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import link.dwsy.ddl.XO.Enum.Article.CodeHighlightStyle;
+import link.dwsy.ddl.XO.Enum.Article.MarkDownTheme;
+import link.dwsy.ddl.XO.Enum.Article.MarkDownThemeDark;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.User.User;
 import lombok.*;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @Author Dwsy
@@ -25,6 +28,7 @@ import java.util.Set;
 @Builder()
 @AllArgsConstructor
 @NoArgsConstructor
+@Accessors(chain = true)
 @JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted", "lastModifiedTime"})
 public class QaQuestionField extends BaseEntity {
 
@@ -33,32 +37,24 @@ public class QaQuestionField extends BaseEntity {
     User user;
 
     String title;
-
-    private String summary;
-
     @Builder.Default
     @Enumerated(EnumType.ORDINAL)
-    QuestionState questionState=QuestionState.ASK;
-
+    QuestionState questionState = QuestionState.ASK;
     @Builder.Default
-    boolean allow_answer=true;
+    boolean allowAnswer = true;
     @Builder.Default
     int answerNum = 0;
-
     @Builder.Default
-    int views = 0;
-
+    int viewNum = 0;
     @Builder.Default
     int collectNum = 0;
-
     @Builder.Default
-    int upNum=0;
-
+    int upNum = 0;
     @Builder.Default
     int downNum = 0;
-
-    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE},
-            orphanRemoval = true,fetch = FetchType.LAZY,optional = true)
+    private String summary;
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
 //    @JoinColumn(name = "article_content_id")
     @JsonIgnore
     private QaQuestionContent qaQuestionContent;
@@ -68,16 +64,27 @@ public class QaQuestionField extends BaseEntity {
     @JoinTable(name = "qa_tag_ref",
             joinColumns = {@JoinColumn(name = "qa_field_id")},
             inverseJoinColumns = {@JoinColumn(name = "qa_tag_id")})
-    private Set<QaTag> questionTags;
+    private List<QaTag> questionTags;
 
     @ManyToOne()
     @JsonProperty(value = "group")
     private QaGroup qaGroup;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "questionField")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "questionField")
     @JsonIgnore
 //    @Fetch(FetchMode.SUBSELECT)
     private List<QaAnswer> qaAnswers;
 
+    @Enumerated(EnumType.STRING)
+    private CodeHighlightStyle codeHighlightStyle;
+
+    @Enumerated(EnumType.STRING)
+    private MarkDownTheme markDownTheme;
+
+    @Enumerated(EnumType.STRING)
+    private CodeHighlightStyle codeHighlightStyleDark;
+
+    @Enumerated(EnumType.STRING)
+    private MarkDownThemeDark markDownThemeDark;
 
 }
