@@ -17,6 +17,9 @@ public interface QaQuestionTagRepository extends JpaRepository<QaTag, Long> {
 
     List<QaTag> findByDeletedFalse(Sort sort);
 
+    List<QaTag> findByDeletedFalseAndQaGroup_IdNotNullAndIndexPageDisplayTrue(Sort sort);
+
+
 
     List<QaTag> findByDeletedFalseAndQaGroupId(long id, Sort sort);
 }

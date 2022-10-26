@@ -21,6 +21,9 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
 
     QaQuestionField findByDeletedFalseAndId(long id);
 
+    QaQuestionField findByDeletedFalseAndIdAndQuestionStateNot(long id, QuestionState questionState);
+
+
     Optional<QaQuestionField> findByIdAndDeletedFalse(long id);
 
     Page<QaQuestionField> findByDeletedFalseAndIdIn(Collection<Long> id, Pageable pageable);
@@ -30,17 +33,22 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     Optional<QaQuestionField> findByDeletedFalseAndIdAndQuestionState(long id, QuestionState questionState);
 
 
-
     List<QaQuestionField> findAllByDeletedIsFalse();
 
     Page<QaQuestionField> findByDeletedFalseAndQaGroupIdAndQuestionStateIn
             (long gid, Collection<QuestionState> questionStates, Pageable pageable);
 
     @Query(nativeQuery = true,
-    value = "update qa_question_field set collect_num = collect_num+?2 where id = ?1")
+            value = "update qa_question_field set collect_num = collect_num+?2 where id = ?1")
     @Modifying
     @Transactional
     void collectNumIncrement(long sid, int i);
+
+    @Query(nativeQuery = true,
+            value = "update qa_question_field set answer_num = answer_num+?2 where id = ?1")
+    @Modifying
+    @Transactional
+    void answerNumIncrement(long qid, int i);
 
     @Query(nativeQuery = true,
             value = "update qa_question_field set up_num = up_num+?2 where id = ?1")
@@ -55,16 +63,17 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     void downNumIncrement(long sid, int i);
 
     @Query(nativeQuery = true,
-            value = "update qa_question_field set views = views+?2 where id = ?1")
+            value = "update qa_question_field set viewNum = viewNum+?2 where id = ?1")
     @Modifying
     @Transactional
     void viewNumIncrement(long sid, int i);
+
+    boolean existsByDeletedFalseAndAllowAnswerTrueAndId(long id);
 
 
 //    findAllByDeletedIsFalseAndArticleGroupIdAndArticleState
 
 //    Page<fieldVO> findAllByIdInAndDeletedIsFalseAndArticleState(long[] ids, ArticleState open, PageRequest of);
-
 
 
 }

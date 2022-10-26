@@ -33,7 +33,7 @@ public class QaQuestionTagServiceImpl implements QaQuestionTagService {
 
     public List<QaTag> getTagList(Sort sort) {
 
-        return qaQuestionTagRepository.findByDeletedFalse(sort);
+        return qaQuestionTagRepository.findByDeletedFalseAndQaGroup_IdNotNullAndIndexPageDisplayTrue(sort);
 
     }
 

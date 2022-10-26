@@ -327,6 +327,7 @@ public class HtmlHelper {
                 if (href != null && href.getValue() != null && !href.getValue().contains(SITE_HOST)) {
                     mutableAttributes.replaceValue("rel", "nofollow");
                 }
+                mutableAttributes.addValue("target", "_blank");
             }
 
             if ((node instanceof Image)) {

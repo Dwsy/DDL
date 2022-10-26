@@ -7,23 +7,24 @@ import javax.validation.constraints.NotNull;
 
 /**
  * @Author Dwsy
- * @Date 2022/9/8
+ * @Date 2022/10/26
  */
 @Data
-public class ArticleCommentRB {
+public class QaAnswerRB {
 
-    @NotNull(message = "文章ID不能为空")
-    private long ArticleFieldId;
+    @NotNull(message = "问题ID不能为空")
+    private long QuestionId;
 
-    @NotBlank(message = "评论内容不能为空")
-    private String text;
+    @NotBlank(message = "回答或评论内容不能为空")
+    //md
+    private String mdText;
 
     @NotBlank(message = "can not be empty")
     private long replyUserId;
 
-    private long replyUserCommentId;
+    private long replyUserAnswerId;
 
     @NotBlank(message = "can not be empty")
-    private long parentCommentId;
+    private long parentAnswerId;
 
 }

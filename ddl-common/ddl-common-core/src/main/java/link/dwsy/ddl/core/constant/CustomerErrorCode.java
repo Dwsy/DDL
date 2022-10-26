@@ -75,6 +75,8 @@ public enum CustomerErrorCode {
 
     QuestionAnswerNotBelongToQuestion(604, "不是你的问题"),
 
+    QuestionNotFoundOrClose(605, "问题不存在或不已关闭"),
+
     WordNotFount(10001, "未找到该词"),
 
     WordExist(10002, "该词已存在"),

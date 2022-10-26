@@ -6,5 +6,5 @@ package link.dwsy.ddl.XO.Enum.QA;
  */
 public enum QuestionState {
     //   todo  前端入参转换全大写省事点
-    ASK, HAVE_ANSWER, RESOLVED, UNRESOLVED,
+    ASK, HAVE_ANSWER, RESOLVED, UNRESOLVED, HIDE
 }

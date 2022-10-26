@@ -30,6 +30,13 @@ public class QaTag extends BaseEntity {
     @Builder.Default
     private int questionNum = 0;
 
+    //排序权重
+    private Integer weight;
+
+    //是否在主页显示
+    @Builder.Default
+    private boolean indexPageDisplay = false;
+
     private String tagInfo;
 
 

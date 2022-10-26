@@ -7,14 +7,14 @@ import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.QA.QaTag;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.QA.QaContentRepository;
-import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.QA.QaGroupRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionTagRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -31,7 +31,7 @@ public class fieldContentTest {
         question = QaQuestionField.builder().title("发起提问").summary("问题简介").build();
         System.out.println(question.getQuestionState());
         System.out.println(question.getAnswerNum());
-        System.out.println(question.isAllow_answer());
+        System.out.println(question.isAllowAnswer());
         //枚举 boolean 在使用builder的时候无法使用默认值 需要使用 @Builder.Default
 
     }
@@ -48,7 +48,7 @@ public class fieldContentTest {
     @Test
     public void saveQuestion() {
         Set<Long> longs = Set.of(1L, 2L, 4L);
-        HashSet<QaTag> qaTags = new HashSet<>(qaQuestionTagRepository.findAllById(longs));
+        ArrayList<QaTag> qaTags = new ArrayList<>(qaQuestionTagRepository.findAllById(longs));
         QaGroup qaGroup = qaGroupRepository.findById(1L).get();
         User user = new User();
         user.setId(3L);

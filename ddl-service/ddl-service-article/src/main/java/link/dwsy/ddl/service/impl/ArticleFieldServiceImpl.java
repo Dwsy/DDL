@@ -72,7 +72,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         }
     }
 
-    public Long createArticle(ArticleContentRB articleContentRB) {
+    public long createArticle(ArticleContentRB articleContentRB) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
 
         ArrayList<ArticleTag> articleTags;
@@ -89,7 +89,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         String html = HtmlHelper.toHTML(articleContentRB.getContent());
         String pure = HtmlHelper.toPure(html);
         if (StrUtil.isBlank(articleContentRB.getSummary())) {
-            articleContentRB.setSummary(pure.substring(0, 150));
+            articleContentRB.setSummary(pure.substring(0, 200));
         }
 
         ArticleContent content = ArticleContent.builder()
@@ -131,7 +131,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     }
 
 
-    public Long updateArticle(ArticleContentRB articleContentRB) {
+    public long updateArticle(ArticleContentRB articleContentRB) {
         Long uid = userSupport.getCurrentUser().getId();
         if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleContentRB.getArticleId(), uid)) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);

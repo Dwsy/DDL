@@ -55,9 +55,9 @@ public class ArticleCommentServiceImpl {
     public PageData<ArticleComment> getByArticleId(long aid, PageRequest pageRequest) {
         Page<ArticleComment> parentComment = articleCommentRepository.
                 findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, 0L, pageRequest);
+        PageRequest pr = PageRequest.of(0, 8, Sort.by(Sort.Direction.ASC, "createTime"));
         for (ArticleComment articleComment : parentComment) {
             long pid = articleComment.getId();
-            PageRequest pr = PageRequest.of(0, 8, Sort.by(Sort.Direction.ASC, "createTime"));
 //            Set<ArticleComment> childCommentSet =
             Page<ArticleComment> childComments = articleCommentRepository.
                     findByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalse
@@ -144,29 +144,32 @@ public class ArticleCommentServiceImpl {
             articleFieldRepository.commentNumIncrement(articleFieldId, 1);
             return save.getId();
         } else {
-            if (!articleCommentRepository.isFirstAnswer(articleCommentRB.getParentCommentId())) {
+            long parentCommentId = articleCommentRB.getParentCommentId();
+            if (!articleCommentRepository.isFirstComment(parentCommentId)) {
                 throw new CodeException(CustomerErrorCode.ArticleCommentNotIsFirst);
             }
             if (!articleCommentRepository.existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType
-                    (articleCommentRB.getParentCommentId(), articleFieldId, CommentType.comment)) {
+                    (parentCommentId, articleFieldId, CommentType.comment)) {
                 throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
             }
             ArticleComment lastComment = articleCommentRepository
                     .findFirstByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentTypeOrderByCommentSerialNumberDesc
-                            (articleFieldId, articleCommentRB.getParentCommentId(), commentType);
+                            (articleFieldId, parentCommentId, commentType);
             if (lastComment != null) {
                 commentSerialNumber = lastComment.getCommentSerialNumber() + 1;
             }
             //回复评论
             articleFieldRepository.commentNumIncrement(articleFieldId, 1);
             if (articleCommentRB.getReplyUserCommentId() == 0) {
-
-
+                long replyUserId = articleCommentRB.getReplyUserId();
+                if (userRepository.findById(replyUserId).isEmpty()) {
+                    throw new CodeException(CustomerErrorCode.UserNotExist);
+                }
                 ArticleComment articleComment = ArticleComment.builder()
                         .user(user)
                         .articleField(af)
                         .text(articleCommentRB.getText())
-                        .parentCommentId(articleCommentRB.getParentCommentId())
+                        .parentCommentId(parentCommentId)
                         .parentUserId(articleCommentRB.getReplyUserId())
                         .commentType(commentType)
                         .ua(userSupport.getUserAgent())
@@ -174,8 +177,8 @@ public class ArticleCommentServiceImpl {
                         .build();
                 ArticleComment save = articleCommentRepository.save(articleComment);
                 String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
-                String parentText = articleCommentRepository.getText(articleCommentRB.getParentCommentId());
-                sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getParentCommentId(),
+                String parentText = articleCommentRepository.getText(parentCommentId);
+                sendActionMqMessage(user.getId(), articleFieldId, parentCommentId,
                         commentType, false, content, parentText, save.getId());
                 return save.getId();
             } else {
@@ -193,7 +196,7 @@ public class ArticleCommentServiceImpl {
                         .user(user)
                         .articleField(af)
                         .text(replyText)
-                        .parentCommentId(articleCommentRB.getParentCommentId())
+                        .parentCommentId(parentCommentId)
                         .parentUserId(articleCommentRB.getReplyUserId())
                         .commentType(commentType)
                         .replyUserCommentId(articleCommentRB.getReplyUserCommentId())

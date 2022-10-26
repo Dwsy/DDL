@@ -38,8 +38,11 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
 
 
 
+//    @Query(value = "select parent_comment_id=0 from article_comment a where id=?1", nativeQuery = true)
+//    boolean isFirstAnswer(long parentCommentId);
+
     @Query(value = "select parent_comment_id=0 from article_comment a where id=?1", nativeQuery = true)
-    boolean isFirstAnswer(long parentCommentId);
+    boolean isFirstComment(long parentCommentId);
 
     boolean existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType(long id, long articleField_id, CommentType commentType);
 
