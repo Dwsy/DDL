@@ -125,8 +125,9 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 
         ArticleField save = articleFieldRepository.save(field);
         articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
+
         rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, save.getId());
-        rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
+//        rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
         return save.getId();
     }
 

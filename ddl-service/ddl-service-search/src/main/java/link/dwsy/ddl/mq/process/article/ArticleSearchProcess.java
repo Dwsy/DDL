@@ -1,4 +1,4 @@
-package link.dwsy.ddl.mq.process;
+package link.dwsy.ddl.mq.process.article;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import link.dwsy.ddl.XO.ES.article.ArticleEsDoc;
@@ -6,6 +6,7 @@ import link.dwsy.ddl.XO.ES.article.ArticleEsSuggestion;
 import link.dwsy.ddl.XO.ES.article.ArticleTagEsDoc;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.entity.Article.ArticleField;
+import link.dwsy.ddl.mq.ArticleSearchConstants;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -23,18 +24,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ArticleSearchProcess {
 
+    private final String INDEX = ArticleSearchConstants.INDEX;
     @Resource
     ArticleFieldRepository articleFieldRepository;
-
     @Resource
     ArticleContentRepository articleContentRepository;
-
     @Resource
     ElasticsearchClient client;
 
-    private final String INDEX = "ddl_article";
-
-    public boolean updateScoreDataById(long aid)  {
+    public boolean updateScoreDataById(long aid) {
         ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.published);
         if (af == null) {
             return false;
@@ -47,13 +45,13 @@ public class ArticleSearchProcess {
                 .build();
         ArticleEsDoc.builder().title("updateTest").build();
         try {
-            client.update(req->req
+            client.update(req -> req
                             .index(INDEX).id(String.valueOf(aid))
                             .doc(esDoc)
-                    ,ArticleEsDoc.class);
+                    , ArticleEsDoc.class);
         } catch (IOException e) {
-            log.info("更新失败 aId ：{}",aid);
-            throw new RuntimeException(e);
+            log.info("更新失败 aId ：{}", aid);
+            return false;
         }
         return true;
     }
@@ -83,15 +81,15 @@ public class ArticleSearchProcess {
                 .downNum(af.getDownNum())
                 .collectNum(af.getCollectNum())
                 .build();
-        ArticleEsDoc.builder().title("updateTest").build();
+//        ArticleEsDoc.builder().title("updateTest").build();
         try {
-            client.update(req->req
+            client.update(req -> req
                             .index(INDEX).id(String.valueOf(aid))
                             .doc(articleEsDoc)
                             .docAsUpsert(true)
-                    ,ArticleEsDoc.class);
+                    , ArticleEsDoc.class);
         } catch (IOException e) {
-            log.info("更新失败 aId ：{}",aid);
+            log.info("更新失败 aId ：{}", aid);
             throw new RuntimeException(e);
         }
         return true;
@@ -99,9 +97,9 @@ public class ArticleSearchProcess {
 
     public boolean delDocById(long aid) {
         try {
-            client.delete(req->req.index(INDEX).id(String.valueOf(aid)));
+            client.delete(req -> req.index(INDEX).id(String.valueOf(aid)));
         } catch (IOException e) {
-            log.info("删除失败 aId ：{}",aid);
+            log.info("删除失败 aId ：{}", aid);
             throw new RuntimeException(e);
         }
         return true;

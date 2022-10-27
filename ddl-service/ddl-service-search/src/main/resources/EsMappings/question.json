@@ -86,7 +86,7 @@
       "downNum": {
         "type": "integer"
       },
-      "commentNum": {
+      "answerNum": {
         "type": "integer"
       },
       "createTime": {

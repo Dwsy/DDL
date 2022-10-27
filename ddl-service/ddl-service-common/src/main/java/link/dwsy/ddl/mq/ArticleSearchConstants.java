@@ -7,7 +7,7 @@ package link.dwsy.ddl.mq;
 
 public class ArticleSearchConstants {
 
-
+    public static final String INDEX = "ddl_article";
     public static final String EXCHANGE_DDL_ARTICLE_SEARCH = "ddl.article.search";
 
 
@@ -27,5 +27,6 @@ public class ArticleSearchConstants {
     public static final String RK_DDL_ARTICLE_SEARCH_DELETE = "ddl.article.search.delete";
 
     public static final String RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE = "ddl.article.search.update.score";
+
 
 }

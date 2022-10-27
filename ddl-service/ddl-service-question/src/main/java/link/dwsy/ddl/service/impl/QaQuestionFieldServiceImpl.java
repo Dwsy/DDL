@@ -10,6 +10,8 @@ import link.dwsy.ddl.entity.QA.QaGroup;
 import link.dwsy.ddl.entity.QA.QaQuestionContent;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.QA.QaTag;
+import link.dwsy.ddl.mq.QuestionSearchConstants;
+import link.dwsy.ddl.repository.QA.QaContentRepository;
 import link.dwsy.ddl.repository.QA.QaGroupRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionTagRepository;
@@ -17,6 +19,7 @@ import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
 import link.dwsy.ddl.util.PageData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -42,11 +45,17 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
     @Resource
     private QaGroupRepository qaGroupRepository;
+
+    @Resource
+    private QaContentRepository qaContentRepository;
     @Resource
     private UserSupport userSupport;
 
     @Resource
     private UserRepository userRepository;
+
+    @Resource
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public PageData<QaQuestionField> getPageList(Collection<QuestionState> questionStateCollection, PageRequest pageRequest) {
@@ -103,8 +112,8 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
         QaQuestionField save = qaQuestionFieldRepository.save(field);
         //todo search action mq
-//        articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
-//        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, save.getId());
+        qaContentRepository.setQuestionFieldLd(save.getId(), save.getQaQuestionContent().getId());
+        rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_CREATE, save.getId());
 //        rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
         return save.getId();
     }
@@ -150,7 +159,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         QaQuestionField save = qaQuestionFieldRepository.save(field);
         //todo search action mq
 //        articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
-//        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, save.getId());
+        rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE, save.getId());
 //        rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
         return save.getId();
     }

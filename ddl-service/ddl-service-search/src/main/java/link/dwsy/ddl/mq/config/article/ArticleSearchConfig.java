@@ -1,4 +1,4 @@
-package link.dwsy.ddl.mq.config;
+package link.dwsy.ddl.mq.config.article;
 
 import link.dwsy.ddl.mq.ArticleSearchConstants;
 import org.springframework.amqp.core.Binding;

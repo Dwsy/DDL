@@ -6,10 +6,12 @@ import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.entity.Article.ArticleGroup;
 import link.dwsy.ddl.entity.Article.ArticleTag;
+import link.dwsy.ddl.entity.QA.QaTag;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
 import link.dwsy.ddl.repository.Article.ArticleTagRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionTagRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -146,7 +148,7 @@ public class ArticleTagGroupTest {
                 "JavaScript",
                 "GitHub",
                 "面试",
-//                "Vue.js",
+                "Vue.js",
                 "架构",
                 "算法",
 //                "Java",
@@ -796,12 +798,22 @@ public class ArticleTagGroupTest {
                 "青训营",
                 "单片机",
                 "kerberos"};
-        List<ArticleTag> ArticleTagList = new ArrayList<>();
+//        List<ArticleTag> ArticleTagList = new ArrayList<>();
+//
+//        for (String s : tagList) {
+//            var tag = ArticleTag.builder().name(s).tagInfo(s).build();
+//            ArticleTagList.add(tag);
+//        }
+//        articleTagRepository.saveAll(ArticleTagList);
+        List<QaTag> qaTagArrayList = new ArrayList<>();
 
         for (String s : tagList) {
-            var tag = ArticleTag.builder().name(s).tagInfo(s).build();
-            ArticleTagList.add(tag);
+            var tag = QaTag.builder().name(s).tagInfo(s).build();
+            qaTagArrayList.add(tag);
         }
-        articleTagRepository.saveAll(ArticleTagList);
+        qaQuestionTagRepository.saveAll(qaTagArrayList);
     }
+
+    @Resource
+    QaQuestionTagRepository qaQuestionTagRepository;
 }
