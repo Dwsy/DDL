@@ -17,50 +17,50 @@ import org.springframework.context.annotation.Configuration;
 public class QuestionSearchConfig {
 
     @Bean
-    public TopicExchange topicExchange() {
+    public TopicExchange questionSearchTopicExchange() {
 
         return new TopicExchange(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, true, false);
     }
 
     @Bean
-    public Queue createQueue() {
+    public Queue questionCreateQueue() {
         return new Queue(QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_CREATE, true);
     }
 
     @Bean
-    public Queue updateQueue() {
+    public Queue questionUpdateQueue() {
         return new Queue(QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE, true);
     }
 
     @Bean
-    public Queue updateScoreQueue() {
+    public Queue questionUpdateScoreQueue() {
         return new Queue(QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE_SCORE, true);
     }
 
     @Bean
-    public Queue deleteQueue() {
+    public Queue questionDeleteQueue() {
         return new Queue(QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_DELETE, true);
     }
 
 
     @Bean
-    public Binding createQueueBinding() {
-        return BindingBuilder.bind(createQueue()).to(topicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_CREATE);
+    public Binding questionCreateQueueBinding() {
+        return BindingBuilder.bind(questionCreateQueue()).to(questionSearchTopicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_CREATE);
     }
 
     @Bean
-    public Binding deleteQueueBinding() {
-        return BindingBuilder.bind(deleteQueue()).to(topicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_DELETE);
+    public Binding questionDeleteQueueBinding() {
+        return BindingBuilder.bind(questionDeleteQueue()).to(questionSearchTopicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_DELETE);
     }
 
     @Bean
-    public Binding updateQueueBinding() {
-        return BindingBuilder.bind(createQueue()).to(topicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE);
+    public Binding questionUpdateQueueBinding() {
+        return BindingBuilder.bind(questionCreateQueue()).to(questionSearchTopicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE);
     }
 
     @Bean
-    public Binding updateScoreBinding() {
-        return BindingBuilder.bind(deleteQueue()).to(topicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE);
+    public Binding questionUpdateScoreBinding() {
+        return BindingBuilder.bind(questionDeleteQueue()).to(questionSearchTopicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE);
     }
 
 }

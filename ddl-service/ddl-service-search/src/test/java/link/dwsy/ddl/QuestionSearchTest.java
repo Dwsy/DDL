@@ -32,6 +32,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,6 +63,25 @@ public class QuestionSearchTest {
 
     @Resource
     private RedisTemplate<String, String> redisTemplate;
+
+    public static void main(String[] args) throws IOException {
+        String filePath = "/home/dwsy/code/ddl/ddl-service/ddl-service-search/src/main/resources/segmentfaultTag.json";
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map readValue = objectMapper.readValue(new File(filePath), Map.class);
+        ArrayList tags = (ArrayList) readValue.get("tag");
+        class tag {
+
+            public String name;
+            public String introduction;
+        }
+        for (int i = 0; i < 2020; i++) {
+//            System.out.println(objectMapper.writeValueAsString(tags.get(i)));
+            Map o = (Map) tags.get(i);
+            System.out.println(o.get("name"));
+            System.out.println(o.get("introduction"));
+            System.out.println("\n\n");
+        }
+    }
 
     @Test
     public void indices() throws IOException {

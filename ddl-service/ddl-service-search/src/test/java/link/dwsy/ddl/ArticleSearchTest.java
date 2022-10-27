@@ -12,6 +12,7 @@ import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.ElasticsearchIndicesClient;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import link.dwsy.ddl.XO.ES.Constants.ArticleSearchConstant;
 import link.dwsy.ddl.XO.ES.article.ArticleEsDoc;
 import link.dwsy.ddl.XO.ES.article.ArticleEsSuggestion;
 import link.dwsy.ddl.XO.ES.article.ArticleTagEsDoc;
@@ -28,7 +29,10 @@ import javax.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -40,13 +44,13 @@ import java.util.stream.Collectors;
 public class ArticleSearchTest {
     private final String INDEX = "ddl_article";
     @Resource
+    RedisTemplate<String, String> redisTemplate;
+    @Resource
     private ElasticsearchClient client;
     @Resource
     private ArticleFieldRepository articleFieldRepository;
     @Resource
     private ArticleContentRepository articleContentRepository;
-    @Resource
-    RedisTemplate<String, String> redisTemplate;
 
     @Test
     public void indices() throws IOException {
@@ -193,7 +197,6 @@ public class ArticleSearchTest {
     }
 
 
-
     public void search(String query) throws IOException {
         SearchResponse<ArticleEsDoc> search = client.search(
                 req -> {
@@ -281,7 +284,8 @@ public class ArticleSearchTest {
         String text = "t";
         try {
             SearchResponse<ArticleEsDoc> search = client.search(req -> {
-                        req.suggest(s ->
+                        req.index(ArticleSearchConstant.ArticleEsIndex)
+                                .suggest(s ->
                                         s.suggesters("suggestion", sug ->
                                                 sug.text(text)
                                                         .completion(com ->
