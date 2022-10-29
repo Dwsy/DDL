@@ -41,6 +41,12 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
 
     boolean existsByDeletedFalseAndIdAndQuestionField_IdAndAnswerType(long id, long qid, AnswerType answerType);
 
+    @Query(nativeQuery = true, value =
+            "select user_id from qa_answer where id=?1 and deleted=false")
+    Long getUserIdByAnswerId(Long id);
+
+    @Query(nativeQuery = true,value = "select text_pure from qa_answer where id=?1 and deleted=false")
+    String getPureText(Long answerId);
 //    findByUserIdAndParentCommentIdAndCommentTypeIn
 
 

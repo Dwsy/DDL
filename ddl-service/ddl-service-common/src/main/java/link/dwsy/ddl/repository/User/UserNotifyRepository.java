@@ -18,19 +18,28 @@ public interface UserNotifyRepository extends JpaRepository<UserNotify, Long> {
     boolean existsByDeletedFalseAndFromUserIdAndToUserIdAndCommentIdAndNotifyType
             (long fromUserId, long toUserId, long commentId, NotifyType notifyType);
 
-    boolean existsByDeletedFalseAndFromUserIdAndToUserIdAndCommentIdAndNotifyTypeAndArticleId(long fromUserId, long toUserId, long commentId, NotifyType notifyType, long articleId);
+    boolean existsByDeletedFalseAndFromUserIdAndToUserIdAndCommentIdAndNotifyTypeAndArticleId
+            (long fromUserId, long toUserId, long commentId, NotifyType notifyType, long articleId);
+
+    boolean existsByDeletedFalseAndFromUserIdAndToUserIdAndAnswerIdAndNotifyTypeAndQuestionId
+            (long fromUserId, long toUserId, long answerId, NotifyType notifyType, long questionId);
 
 
-    Page<UserNotify> findByDeletedFalseAndToUserIdAndNotifyType(long toUserId, NotifyType notifyType, Pageable pageable);
+    Page<UserNotify> findByDeletedFalseAndToUserIdAndNotifyType
+            (long toUserId, NotifyType notifyType, Pageable pageable);
 
-    Page<UserNotify> findByDeletedFalseAndToUserIdAndNotifyTypeIn(long toUserId, Collection<NotifyType> notifyTypes, Pageable pageable);
+    Page<UserNotify> findByDeletedFalseAndToUserIdAndNotifyTypeIn
+            (long toUserId, Collection<NotifyType> notifyTypes, Pageable pageable);
 
-    int countByDeletedFalseAndToUserIdAndNotifyStateIn(long toUserId, Collection<NotifyState> notifyStates);
+    int countByDeletedFalseAndToUserIdAndNotifyStateIn
+            (long toUserId, Collection<NotifyState> notifyStates);
 
     int countByDeletedFalseAndToUserIdAndNotifyState(long toUserId, NotifyState notifyState);
 
-    int countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyTypeIn(long toUserId, NotifyState notifyState, Collection<NotifyType> notifyTypes);
-    int countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyType(long toUserId, NotifyState notifyState, NotifyType notifyType);
+    int countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyTypeIn
+            (long toUserId, NotifyState notifyState, Collection<NotifyType> notifyTypes);
+    int countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyType
+            (long toUserId, NotifyState notifyState, NotifyType notifyType);
 
 
 

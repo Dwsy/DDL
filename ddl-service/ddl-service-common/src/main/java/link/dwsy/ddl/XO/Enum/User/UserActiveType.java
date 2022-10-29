@@ -2,6 +2,7 @@ package link.dwsy.ddl.XO.Enum.User;
 
 
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
+import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 
 /**
  * @Author Dwsy
@@ -27,6 +28,7 @@ public enum UserActiveType {
 
     Answer_Question,//回答问题 or 问题回答
 
+    CommentP_Question_Answer,//评论回答
     UP_Question,//点赞问题
 
     UP_Question_Answer,//点赞问题回答
@@ -54,5 +56,25 @@ public enum UserActiveType {
                 return null;
         }
 
+    }
+
+    public static UserActiveType Converter(AnswerType answerType, long parentAnswerId) {
+
+        switch (answerType) {
+            case answer:
+                if (parentAnswerId == 0) {
+                    return Answer_Question;
+                } else {
+                    return CommentP_Question_Answer;
+                }
+            case up:
+                if (parentAnswerId == -1) {
+                    return UP_Question;
+                } else {
+                    return UP_Question_Answer;
+                }
+            default:
+                return null;
+        }
     }
 }

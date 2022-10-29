@@ -75,10 +75,17 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
 
     @Query(nativeQuery = true,
             value = "select * from qa_question_field where deleted is false and question_state!=4")
-    //question_state 4 = hide
+        //question_state 4 = hide
     long[] findAllId();
 
+    @Query(nativeQuery = true, value =
+            "select user_id from qa_question_field where id=?1")
+    Long getUserIdByQuestionId(Long questionId);
 
+
+    @Query(nativeQuery = true,
+            value = "select title from qa_question_field  where deleted = false and id = ?1")
+    String getTitle(Long questionId);
 //    findAllByDeletedIsFalseAndArticleGroupIdAndArticleState
 
 //    Page<fieldVO> findAllByIdInAndDeletedIsFalseAndArticleState(long[] ids, ArticleState open, PageRequest of);

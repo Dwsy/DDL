@@ -11,6 +11,8 @@ import link.dwsy.ddl.entity.User.UserNotify;
 import link.dwsy.ddl.mq.UserNotifyConstants;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
+import link.dwsy.ddl.repository.QA.QaAnswerRepository;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserActiveRepository;
 import link.dwsy.ddl.repository.User.UserNotifyRepository;
 import link.dwsy.ddl.support.UserSupport;
@@ -29,18 +31,25 @@ import java.util.Optional;
 @Slf4j
 public class UserCommentActiveProcess {
     @Resource
-    UserSupport userSupport;
+    private UserSupport userSupport;
     @Resource
-    UserActiveRepository userActiveRepository;
+    private UserActiveRepository userActiveRepository;
     @Resource
-    ArticleCommentRepository articleCommentRepository;
-    @Resource
-    RedisTemplate<String, String> redisTemplate;
-    @Resource
-    ArticleFieldRepository articleFieldRepository;
+    private ArticleCommentRepository articleCommentRepository;
 
     @Resource
-    UserNotifyRepository userNotifyRepository;
+    private QaAnswerRepository qaAnswerRepository;
+
+    @Resource
+    private RedisTemplate<String, String> redisTemplate;
+    @Resource
+    private ArticleFieldRepository articleFieldRepository;
+
+    @Resource
+    private QaQuestionFieldRepository qaQuestionFieldRepository;
+
+    @Resource
+    private UserNotifyRepository userNotifyRepository;
 
     @Resource
     private ObjectMapper objectMapper;
@@ -54,13 +63,15 @@ public class UserCommentActiveProcess {
         }
         Long formUserId = message.getFormUserId();
         Long articleId = message.getArticleId();
+        Long questionId = message.getQuestionId();
         Long commentId = message.getCommentId();
+        Long answerId = message.getAnswerId();
         String toContent = message.getToContent();
         String formContent = message.getFormContent();
         UserActiveType userActiveType = message.getUserActiveType();
         CommentNotifyVO notify = null;
         UserNotify userNotify = null;
-        Long toUserId;
+        Long toUserId = null;
         boolean sendNotify = false;
         switch (userActiveType) {
             case Comment_Article:
@@ -129,7 +140,7 @@ public class UserCommentActiveProcess {
                     return;
                 }
                 break;
-                // to do 二级评论跳转 直接跳转好像遍历次数有点多 二级评论跳转 先详细在文章？
+            // to do 二级评论跳转 直接跳转好像遍历次数有点多 二级评论跳转 先详细在文章？
             case UP_Article_Comment:
                 toUserId = articleCommentRepository.getUserIdByCommentId(commentId);
                 if (userNotifyRepository.existsByDeletedFalseAndFromUserIdAndToUserIdAndCommentIdAndNotifyType(
@@ -139,7 +150,7 @@ public class UserCommentActiveProcess {
                 }
                 sendNotify = !toUserId.equals(formUserId);
                 if (sendNotify) {
-                    toContent= String.valueOf(articleCommentRepository.getText(commentId));
+                    toContent = String.valueOf(articleCommentRepository.getText(commentId));
                     userNotify = UserNotify.builder()
                             .fromUserId(formUserId)
                             .toUserId(toUserId)
@@ -153,8 +164,83 @@ public class UserCommentActiveProcess {
                 } else {
                     return;
                 }
-
-
+                break;
+            case Answer_Question:
+                toUserId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
+                if (toUserId != null) {
+                    userNotify = UserNotify.builder()
+                            .fromUserId(formUserId)
+                            .toUserId(toUserId)
+//                            .articleId(articleId)
+                            .questionId(questionId)
+                            .answerId(answerId)
+//                            .commentId(commentId)
+                            .notifyType(NotifyType.answer)
+                            .formContent(formContent)
+                            .toContent(toContent)
+                            .replayCommentId(message.getReplayAnswerId())
+                            .build();
+//                    notify = new CommentNotifyVO(userNotify);
+                    if (!toUserId.equals(formUserId)) {
+                        sendNotify = true;
+                    } else {
+                        sendNotify = false;
+                    }
+                } else {
+                    log.error("用户{}回答问题{}失败", formUserId, articleId);
+                    return;
+                }
+                break;
+            case UP_Question:
+                toUserId = qaQuestionFieldRepository.getUserIdByQuestionId(answerId);
+                if (userNotifyRepository.existsByDeletedFalseAndFromUserIdAndToUserIdAndAnswerIdAndNotifyTypeAndQuestionId(
+                        formUserId, toUserId, answerId, NotifyType.up_question, questionId)) {
+                    log.info("用户{}已经通知过用户{}了", formUserId, toUserId);
+                    return;
+                }
+                sendNotify = !toUserId.equals(formUserId);
+                if (sendNotify) {
+                    toContent = qaQuestionFieldRepository.getTitle(questionId);
+                    userNotify = UserNotify.builder()
+                            .fromUserId(formUserId)
+                            .toUserId(toUserId)
+//                            .articleId(articleId)
+                            .questionId(questionId)
+//                            .commentId(commentId)
+                            .answerId(answerId)
+                            .notifyType(NotifyType.up_question)
+                            .toContent(toContent)
+                            .build();
+//                    notify = new CommentNotifyVO(userNotify);
+                } else {
+                    return;
+                }
+                break;
+            case UP_Question_Answer:
+                toUserId=  qaAnswerRepository.getUserIdByAnswerId(answerId);
+                if (userNotifyRepository.existsByDeletedFalseAndFromUserIdAndToUserIdAndAnswerIdAndNotifyTypeAndQuestionId(
+                        formUserId, toUserId, answerId, NotifyType.up_question_answer, questionId)) {
+                    log.info("用户{}已经通知过用户{}了", formUserId, toUserId);
+                    return;
+                }
+                sendNotify = !toUserId.equals(formUserId);
+                if (sendNotify) {
+                    String toContent_pureText = qaAnswerRepository.getPureText(answerId);
+                    userNotify = UserNotify.builder()
+                            .fromUserId(formUserId)
+                            .toUserId(toUserId)
+//                            .articleId(articleId)
+                            .questionId(questionId)
+//                            .commentId(commentId)
+                            .answerId(answerId)
+                            .notifyType(NotifyType.up_question_answer)
+                            .formContent(formContent)
+                            .toContent(toContent_pureText)
+                            .build();
+//                    notify = new CommentNotifyVO(userNotify);
+                } else {
+                    return;
+                }
                 break;
             //todo at cancel redis stack json
             default:

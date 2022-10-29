@@ -130,7 +130,7 @@ public class ArticleCommentServiceImpl {
                     .build();
             ArticleComment save = articleCommentRepository.save(articleComment);
 
-            String content = articleCommentRB.getText().substring(0, Math.min(50, articleCommentRB.getText().length()));
+            String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
             Optional<ArticleFieldInfo> t = articleFieldRepository.getTitle(articleFieldId);
             String title = "";
             if (t.isPresent()) {

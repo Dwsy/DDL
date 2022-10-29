@@ -24,6 +24,10 @@ public class UserCommentNotifyMessage {
 
     private Long commentId;//
 
+    private Long questionId;
+
+    private Long answerId;
+
     private UserActiveType userActiveType;
 
     private String ua;
@@ -33,6 +37,8 @@ public class UserCommentNotifyMessage {
     private String toContent;//他方
 
     private Long replayCommentId;//回复后返回的评论id
+
+    private Long replayAnswerId;
 
     private boolean cancel;
 }
