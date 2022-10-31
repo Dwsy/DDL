@@ -229,7 +229,7 @@ public class ArticleCommentServiceImpl {
                     articleCommentRepository
                             .findByParentCommentIdAndDeletedFalseAndCommentTypeIn
                                     (commentId, Arrays.asList
-                                            (CommentType.comment,CommentType.up, CommentType.down, CommentType.cancel))
+                                            (CommentType.comment, CommentType.up, CommentType.down, CommentType.cancel))
                             .forEach(c -> {
                                 if (c.getCommentType() == CommentType.comment) {
                                     articleCommentRepository
@@ -304,12 +304,12 @@ public class ArticleCommentServiceImpl {
 //            等于 -1  点赞 文章
             throw new CodeException(CustomerErrorCode.BodyError);
         }
-        boolean actionArticle = pid != -1;
+        boolean actionArticle = pid == -1;
         CommentType commentType = commentActionRB.getCommentType();
         if (commentType == CommentType.comment || commentType == CommentType.cancel) {
             throw new CodeException(CustomerErrorCode.BodyError);
         }
-        if (actionArticle) {
+        if (!actionArticle) {
             if (!articleCommentRepository.existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType
                     (commentActionRB.getActionCommentId(), commentActionRB.getArticleFieldId(), CommentType.comment)) {
                 throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
@@ -334,7 +334,7 @@ public class ArticleCommentServiceImpl {
                             (uid, fid, pid, CommentType.comment);
             if (comment.getCommentType() == CommentType.cancel) {
                 if (commentType == CommentType.up) {
-                    if (!actionArticle) {
+                    if (actionArticle) {
                         articleFieldRepository.upNumIncrement(fid, 1);
                     } else {
                         articleCommentRepository.upNumIncrement(pid, 1);
@@ -344,9 +344,8 @@ public class ArticleCommentServiceImpl {
                     comment.setCommentType(commentType);
                     articleCommentRepository.save(comment);
                     sendActionMqMessage(uid, fid, pid, commentType);
-                }
-                if (commentType == CommentType.down) {
-                    if (!actionArticle) {
+                } else if (commentType == CommentType.down) {
+                    if (actionArticle) {
                         articleFieldRepository.downNumIncrement(fid, 1);
                     } else {
                         articleCommentRepository.downNumIncrement(pid, 1);
@@ -361,7 +360,7 @@ public class ArticleCommentServiceImpl {
 
             if (comment.getCommentType() == commentType) {
                 if (commentType == CommentType.up) {//相同2次操作取消
-                    if (!actionArticle) {
+                    if (actionArticle) {
                         articleFieldRepository.upNumIncrement(fid, -1);
                     } else {
                         articleCommentRepository.upNumIncrement(pid, -1);//取消点赞-1
@@ -369,7 +368,7 @@ public class ArticleCommentServiceImpl {
                     sendActionMqMessage(uid, fid, pid, CommentType.cancel);
 //                    articleCommentRepository.updateCommentTypeByIdAndDeletedFalse(CommentType.cancel, comment.getId());
                 } else {
-                    if (!actionArticle) {
+                    if (actionArticle) {
                         articleFieldRepository.downNumIncrement(fid, -1);
                     } else {
                         articleCommentRepository.downNumIncrement(pid, -1); //取消踩  +1
@@ -383,7 +382,7 @@ public class ArticleCommentServiceImpl {
 
             } else {//点踩->点赞 / 点赞->点踩  先取消点赞 再点踩 返回叠加状态 to
                 if (commentType == CommentType.up) {
-                    if (!actionArticle) {
+                    if (actionArticle) {
                         articleFieldRepository.downNumIncrement(fid, -1);
                         articleFieldRepository.upNumIncrement(fid, 1);
                     } else {
@@ -395,7 +394,7 @@ public class ArticleCommentServiceImpl {
                     articleCommentRepository.save(comment);
                     return CommentType.downToUp;
                 } else {
-                    if (!actionArticle) {
+                    if (actionArticle) {
                         articleFieldRepository.upNumIncrement(fid, -1);
                         articleFieldRepository.downNumIncrement(fid, 1);
                     } else {
@@ -423,7 +422,7 @@ public class ArticleCommentServiceImpl {
 
         long ActionUserId;
 
-        if (actionArticle) {// -1 是啥玩意  想起来料 -1是点赞or点踩文章 0为评论文章这样查询可以少个类型判断
+        if (!actionArticle) {// -1 是啥玩意  想起来料 -1是点赞or点踩文章 0为评论文章这样查询可以少个类型判断
             ArticleComment actionComment = articleCommentRepository.
                     findByDeletedFalseAndIdAndCommentType(actionCommentId, CommentType.comment);
             ActionUserId = actionComment.getUser().getId();

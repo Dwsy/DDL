@@ -70,12 +70,14 @@ public class GlobalExceptionAdvice {
                 return response;
             }
         }
+        e.printStackTrace();
         return response;
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public R handlerHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        e.printStackTrace();
         return new R<String>(R.FAIL,"请求体错误");
     }
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -93,6 +95,7 @@ public class GlobalExceptionAdvice {
                 return response;
             }
         }
+        e.printStackTrace();
         return response;
     }
 
@@ -104,23 +107,26 @@ public class GlobalExceptionAdvice {
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.toList());
 
-
+        e.printStackTrace();
         return new R<>(R.FAIL,"请求参数错误",collect.toString());
 
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public R<String> handlerHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        e.printStackTrace();
         return new R<>(R.FAIL,"不支持的HttpMethod:HttpRequestMethodNotSupported");
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public R<String> handlerMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        e.printStackTrace();
         return new R<>(R.FAIL,"请求参数错误:MethodArgumentTypeMismatch");
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public R<String> handlerExceptionMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        e.printStackTrace();
         return new R<>(R.FAIL, "请求参数错误:MissingServletRequestParameterException");
     }
 
@@ -131,7 +137,8 @@ public class GlobalExceptionAdvice {
     }
 
     @ExceptionHandler(value = JsonProcessingException.class)
-    public R<String> handlerJsonProcessingException() {
+    public R<String> handlerJsonProcessingException(JsonProcessingException e) {
+        e.printStackTrace();
         return new R<>(R.FAIL, "JsonProcessingException");
     }
 }

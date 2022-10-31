@@ -4,6 +4,7 @@ import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserCommentNotifyMessage;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
+import link.dwsy.ddl.controller.QuestionAnswerOrCommentActionRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
@@ -25,6 +26,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -244,7 +247,6 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     }
 
 
-
     private void sendActionMqMessage(long userId, long questionFieldId, long parentAnswerId, AnswerType answerType) {
         UserCommentNotifyMessage activeMessage = UserCommentNotifyMessage.builder()
                 .userActiveType(UserActiveType.Converter(answerType, parentAnswerId))
@@ -263,6 +265,155 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 .build();
 
         rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
+    }
+
+    public AnswerType action(QuestionAnswerOrCommentActionRB actionRB) {
+        Long uid = userSupport.getCurrentUser().getId();
+        long questionFieldId = actionRB.getQuestionFieldId();
+        long actionAnswerOrCommentId = actionRB.getActionAnswerOrCommentId();
+//        long fid = commentActionRB.getArticleFieldId();
+//        long pid = commentActionRB.getActionCommentId();
+        if (actionAnswerOrCommentId < -1 || actionAnswerOrCommentId == 0) {
+//            等于 -1  点赞 文章
+            throw new CodeException(CustomerErrorCode.BodyError);
+        }
+        boolean actionQuestion = actionAnswerOrCommentId == -1;
+//        CommentType commentType = commentActionRB.getCommentType();
+        AnswerType answerType = actionRB.getAnswerType();
+        List<AnswerType> thumbAnswerType = Arrays.asList(AnswerType.up, AnswerType.down);
+        if (!thumbAnswerType.contains(answerType)) {
+            throw new CodeException(CustomerErrorCode.BodyError);
+        }
+        if (!actionQuestion) {
+            if (!qaAnswerRepository.existsByDeletedFalseAndIdAndQuestionField_IdAndAnswerTypeIn
+                    (actionRB.getActionAnswerOrCommentId(), questionFieldId, Arrays.asList(AnswerType.answer, AnswerType.comment))) {
+                throw new CodeException(CustomerErrorCode.QuestionAnswerOrCommentNotFount);
+            }
+        } else {
+            if (!qaQuestionFieldRepository.existsById(questionFieldId)) {
+                throw new CodeException(CustomerErrorCode.QuestionAnswerOrCommentNotFount);
+            }
+        }
+
+        if (qaAnswerRepository
+                .existsByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn
+                        (uid, questionFieldId, actionAnswerOrCommentId,
+                                Arrays.asList(AnswerType.up, AnswerType.down, AnswerType.cancel))) {
+//            exists cancel
+//            up -> cancel ->up state transfer base database ont is user action
+//            one row is one action
+
+            QaAnswer action = qaAnswerRepository
+                    .findByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn
+                            (uid, questionFieldId, actionAnswerOrCommentId,
+                                    Arrays.asList(AnswerType.up, AnswerType.down, AnswerType.cancel));
+            if (action.getAnswerType() == AnswerType.cancel) {
+                if (answerType == AnswerType.up) {
+                    if (actionQuestion) {
+                        qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
+                    } else {
+                        qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
+                        qaAnswerRepository.updateCommentTypeByIdAndDeletedFalse(answerType, action.getId());
+                    }
+                    action.setAnswerType(answerType);
+                    qaAnswerRepository.save(action);
+//                    sendActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+                } else if (answerType == AnswerType.down) {
+                    if (actionQuestion) {
+                        qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
+                    } else {
+                        qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, 1);
+                        qaAnswerRepository.updateCommentTypeByIdAndDeletedFalse(answerType, action.getId());
+                    }
+                    action.setAnswerType(answerType);
+                    qaAnswerRepository.save(action);
+                }
+                return action.getAnswerType();
+            }
+
+            if (action.getAnswerType() == answerType) {
+                if (answerType == AnswerType.up) {//相同2次操作取消
+                    if (actionQuestion) {
+                        qaQuestionFieldRepository.upNumIncrement(questionFieldId, -1);
+                    } else {
+                        qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, -1);
+                    }
+//                    sendActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, AnswerType.cancel);
+                } else {
+                    if (actionQuestion) {
+                        qaQuestionFieldRepository.downNumIncrement(questionFieldId, -1);
+                    } else {
+                        qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, -1); //取消踩  +1
+                    }
+                }
+                action.setAnswerType(AnswerType.cancel);
+            } else {//点踩->点赞 / 点赞->点踩  先取消点赞 再点踩 返回叠加状态 to
+
+                if (answerType == AnswerType.up) {
+                    if (actionQuestion) {
+                        qaQuestionFieldRepository.downNumIncrement(questionFieldId, -1);
+                        qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
+                    } else {
+                        qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, -1);
+                        qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
+                    }
+//                    sendActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+
+                    action.setAnswerType(AnswerType.up);
+                    qaAnswerRepository.save(action);
+                    return AnswerType.downToUp;
+                } else {
+                    if (actionQuestion) {
+                        qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
+                        qaQuestionFieldRepository.upNumIncrement(questionFieldId, -1);
+                    } else {
+                        qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, 1);
+                        qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, -1);
+                    }
+//                sendActionMqMessage(uid, fid, pid, commentType);
+                    action.setAnswerType(AnswerType.down);
+                    qaAnswerRepository.save(action);
+                    return AnswerType.upToDown;
+                }
+            }
+            qaAnswerRepository.save(action);
+            return action.getAnswerType();
+        }
+        User user = new User();
+        user.setId(uid);
+        QaQuestionField qf = new QaQuestionField();
+        qf.setId(questionFieldId);
+
+        long ActionUserId;
+        if (!actionQuestion) {// -1 是啥玩意  想起来料 -1是点赞or点踩文章 0为评论文章这样查询可以少个类型判断
+
+
+            QaAnswer actionAnswer = qaAnswerRepository.findByDeletedFalseAndIdAndAnswerType(actionAnswerOrCommentId, AnswerType.answer);
+
+            ActionUserId = actionAnswer.getUser().getId();
+            qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
+//            sendActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+        } else {
+            ActionUserId = 0;//文章 避免前端参数错误 后端直接不管了 要用到时候从文章id查询用户id
+            if (answerType == AnswerType.up) {
+                qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
+//                sendActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+            } else {
+                qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
+            }
+        }
+
+
+        QaAnswer build = QaAnswer.builder()
+                .parentAnswerId(actionAnswerOrCommentId)
+                .parentUserId(ActionUserId)
+                .answerType(answerType)
+                .user(user)
+                .questionField(qf)
+                .ua(userSupport.getUserAgent())
+                .build();
+        qaAnswerRepository.save(build);
+        return answerType;
     }
 }
 

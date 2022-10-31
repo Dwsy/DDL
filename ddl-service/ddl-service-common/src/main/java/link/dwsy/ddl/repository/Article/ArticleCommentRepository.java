@@ -44,11 +44,14 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
     @Query(value = "select parent_comment_id=0 from article_comment a where id=?1", nativeQuery = true)
     boolean isFirstComment(long parentCommentId);
 
-    boolean existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType(long id, long articleField_id, CommentType commentType);
+    boolean existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType(
+            long id, long articleField_id, CommentType commentType);
 
-    boolean existsByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot(long user_id, long articleField_id, long parentCommentId, CommentType commentType);
+    boolean existsByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot
+            (long user_id, long articleField_id, long parentCommentId, CommentType commentType);
 
-    ArticleComment findByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot(long user_id, long articleField_id, long parentCommentId, CommentType commentType);
+    ArticleComment findByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot
+            (long user_id, long articleField_id, long parentCommentId, CommentType commentType);
 
     ArticleComment findByDeletedFalseAndIdAndCommentType(long id, CommentType commentType);
 
@@ -85,11 +88,13 @@ public interface ArticleCommentRepository extends JpaRepository<ArticleComment, 
     Optional<ArticleComment> findByUserIdAndParentCommentIdAndCommentTypeIn
             (long uid, long parentCommentId, Collection<CommentType> commentTypes);
 
-    Page<ArticleComment> findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentType(long uid, long parentCommentId, CommentType commentType, Pageable pageable);
+    Page<ArticleComment> findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentType
+            (long uid, long parentCommentId, CommentType commentType, Pageable pageable);
 
 
 
-    Optional<ArticleComment> findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentTypeInAndArticleField_Id(long id, long parentCommentId, Collection<CommentType> commentTypes, long id1);
+    Optional<ArticleComment> findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentTypeInAndArticleField_Id
+            (long id, long parentCommentId, Collection<CommentType> commentTypes, long id1);
 
 
     @Query(nativeQuery = true,value = "select text from article_comment where id=?1 and deleted=false")
