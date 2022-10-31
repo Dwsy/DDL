@@ -11,6 +11,7 @@ import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -67,4 +68,10 @@ public class QaAnswerController {
         return qaAnswerServiceService.logicallyDelete(questionId, answerId);
     }
 
+    @PostMapping("/action")
+    @AuthAnnotation
+    public int action(@Validated @RequestBody QuestionAnswerOrCommentActionRB commentActionRB) {
+        AnswerType action = qaAnswerServiceService.action(commentActionRB);
+        return action.ordinal();
+    }
 }

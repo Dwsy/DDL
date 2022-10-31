@@ -29,7 +29,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted", "lastModifiedTime"})
+@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted"})
 public class QaQuestionField extends BaseEntity {
 
     @ManyToOne

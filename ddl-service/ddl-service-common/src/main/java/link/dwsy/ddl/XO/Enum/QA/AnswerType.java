@@ -8,7 +8,7 @@ package link.dwsy.ddl.XO.Enum.QA;
 public enum AnswerType {
     answer,
 
-    answer_comment,
+    answer_comment,//todo
 
     comment,
 

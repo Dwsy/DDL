@@ -58,6 +58,8 @@ public enum CustomerErrorCode {
 
     UserCollectionAlreadyExist(214, "已收藏"),
 
+    QuestionAnswerOrCommentNotFount(250, "问题或评论不存在"),
+
     ParamError(400, "请求参数错误"),
     BodyError(401, "请求体错误"),
 

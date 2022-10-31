@@ -5,7 +5,9 @@ import link.dwsy.ddl.entity.QA.QaAnswer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
+
     Optional<QaAnswer> findByDeletedFalseAndId(long id);
 
     List<QaAnswer> findByUser_LevelBetween(int levelStart, int levelEnd, Pageable pageable);
@@ -41,6 +44,8 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
 
     boolean existsByDeletedFalseAndIdAndQuestionField_IdAndAnswerType(long id, long qid, AnswerType answerType);
 
+    boolean existsByDeletedFalseAndIdAndQuestionField_IdAndAnswerTypeIn(long id, long qid, Collection<AnswerType> answerTypes);
+
     @Query(nativeQuery = true, value =
             "select user_id from qa_answer where id=?1 and deleted=false")
     Long getUserIdByAnswerId(Long id);
@@ -48,6 +53,33 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
     @Query(nativeQuery = true,value = "select text_pure from qa_answer where id=?1 and deleted=false")
     String getPureText(Long answerId);
 //    findByUserIdAndParentCommentIdAndCommentTypeIn
+
+
+
+    QaAnswer findByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn
+            (long id, long id1, long parentAnswerId, Collection<AnswerType> answerTypes);
+
+    boolean existsByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn
+            (long id, long id1, long parentAnswerId, Collection<AnswerType> answerTypes);
+
+    @Query(nativeQuery = true,
+            value = "update qa_answer set up_num = up_num+?2 where id = ?1")
+    @Modifying
+    @Transactional
+    void upNumIncrement(long actionAnswerOrCommentId, int i);
+
+    @Transactional
+    @Modifying
+    @Query("update QaAnswer q set q.answerType = ?1 where q.deleted = false and q.id = ?2")
+    void updateCommentTypeByIdAndDeletedFalse(AnswerType answerType, long id);
+
+    @Query(nativeQuery = true,
+            value = "update qa_answer set down_num = down_num+?2 where id = ?1")
+    @Modifying
+    @Transactional
+    void downNumIncrement(long actionAnswerOrCommentId, int i);
+
+    QaAnswer findByDeletedFalseAndIdAndAnswerType(long id, AnswerType answerType);
 
 
 }
