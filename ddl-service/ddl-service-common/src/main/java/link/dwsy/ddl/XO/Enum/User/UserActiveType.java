@@ -28,16 +28,19 @@ public enum UserActiveType {
 
     Answer_Question,//回答问题 or 问题回答
 
-    CommentP_Question_Answer,//评论回答
+    Question_Or_Answer_Comment,//回复问题或回答
+
+    Question_Comment,//回复问题
+
+    Answer_Comment,//回复回答
     UP_Question,//点赞问题
 
     UP_Question_Answer,//点赞问题回答
 
 
-
     ;
 
-    public static UserActiveType Converter(CommentType commentType,long parentCommentId) {
+    public static UserActiveType Converter(CommentType commentType, long parentCommentId) {
 //        comment,up, down,cancel
         switch (commentType) {
             case comment:
@@ -62,17 +65,17 @@ public enum UserActiveType {
 
         switch (answerType) {
             case answer:
-                if (parentAnswerId == 0) {
-                    return Answer_Question;
-                } else {
-                    return CommentP_Question_Answer;
-                }
+                return Answer_Question;
             case up:
                 if (parentAnswerId == -1) {
                     return UP_Question;
                 } else {
                     return UP_Question_Answer;
                 }
+            case answer_comment:
+                return Answer_Comment;
+            case comment:
+                return Question_Comment;
             default:
                 return null;
         }

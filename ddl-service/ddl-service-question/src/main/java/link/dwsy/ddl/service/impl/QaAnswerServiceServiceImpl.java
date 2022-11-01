@@ -2,7 +2,7 @@ package link.dwsy.ddl.service.impl;
 
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
-import link.dwsy.ddl.XO.Message.UserCommentNotifyMessage;
+import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
 import link.dwsy.ddl.controller.QuestionAnswerOrCommentActionRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
@@ -11,6 +11,7 @@ import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.QA.QaAnswer;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.User.User;
+import link.dwsy.ddl.mq.UserActiveConstants;
 import link.dwsy.ddl.repository.QA.QaAnswerRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
@@ -164,7 +165,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
         QaAnswer save = qaAnswerRepository.save(qaAnswer);
         String textHtml = qaAnswer.getTextHtml();
-        String content = textHtml.substring(0, Math.min(100, textHtml.length()));
+        String content = textHtml.substring(0, Math.min(200, textHtml.length()));
         String parentText = qaAnswerRepository.getHtmlText(qaAnswerRB.getParentAnswerId());
 
         sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getReplyUserAnswerId(),
@@ -197,7 +198,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 .build();
         QaAnswer save = qaAnswerRepository.save(qaAnswer);
 
-        String content = mdText.substring(0, Math.min(100, mdText.length()));
+        String content = mdText.substring(0, Math.min(200, mdText.length()));
         String parentText = HtmlHelper.toPure(qaAnswerRepository.getHtmlText(qaAnswerRB.getParentAnswerId()));
         sendActionMqMessage(user.getId(), questionFieldId, parentAnswerId,
                 answerType, false, content, parentText, save.getId());
@@ -228,7 +229,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
         //todo mq notice
         String toPure = HtmlHelper.toPure(toHTML);
-        String content = toPure.substring(0, Math.min(100, toPure.length()));
+        String content = toPure.substring(0, Math.min(200, toPure.length()));
 
         String title = qaQuestionFieldRepository.getTitle(questionFieldId);
 //            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
@@ -266,7 +267,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             //todo mq notice
 
             String textHtml = qaAnswer.getTextHtml();
-            String content = textHtml.substring(0, Math.min(100, textHtml.length()));
+            String content = textHtml.substring(0, Math.min(200, textHtml.length()));
             String title = qaQuestionFieldRepository.getTitle(questionFieldId);
 //            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
             sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
@@ -275,47 +276,51 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 //                qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
             return save.getId();
         } else {
-            String replyText;
-
-            replyText = "回复@" + userRepository.findUserNicknameById
-                    (qaAnswerRB.getReplyUserId()) + "：" + qaAnswerRB.getMdText();
-            QaAnswer lastAnswer = qaAnswerRepository
-                    .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
-                            (questionFieldId, 0L, AnswerType.comment);
-            if (lastAnswer != null) {
-                answerSerialNumber = lastAnswer.getAnswerSerialNumber() + 1;
-            }
-
-            QaAnswer qaAnswer = QaAnswer.builder()
-                    .parentAnswerId(0)
-                    .parentUserId(0)
-                    .textHtml(replyText)//回复为纯文本
-                    .textMd(null)
-                    .answerType(answerType)
-                    .textPure(null)
-                    .user(user)
-                    .questionField(qaQuestionField)
-                    .ua(userSupport.getUserAgent())
-                    .answerSerialNumber(answerSerialNumber)
-                    .parentUserId(qaAnswerRB.getReplyUserId())
-                    .replyUserAnswerId(qaAnswerRB.getReplyUserAnswerId())
-                    .build();
-
-            QaAnswer save = qaAnswerRepository.save(qaAnswer);
-
-            //todo mq notice
-
-            String textHtml = qaAnswer.getTextHtml();
-            String content = textHtml.substring(0, Math.min(100, textHtml.length()));
-            String title = qaQuestionFieldRepository.getTitle(questionFieldId);
-//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
-            sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
-                    answerType, false, content, title, save.getId());
-//            }
-//                qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
-            return save.getId();
+            return replyQuestionSecondComment(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber);
         }
 
+    }
+
+    private long replyQuestionSecondComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
+        String replyText;
+
+        replyText = "回复@" + userRepository.findUserNicknameById
+                (qaAnswerRB.getReplyUserId()) + "：" + qaAnswerRB.getMdText();
+        QaAnswer lastAnswer = qaAnswerRepository
+                .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
+                        (questionFieldId, 0L, AnswerType.comment);
+        if (lastAnswer != null) {
+            answerSerialNumber = lastAnswer.getAnswerSerialNumber() + 1;
+        }
+
+        QaAnswer qaAnswer = QaAnswer.builder()
+                .parentAnswerId(0)
+                .parentUserId(0)
+                .textHtml(replyText)//回复为纯文本
+                .textMd(null)
+                .answerType(answerType)
+                .textPure(null)
+                .user(user)
+                .questionField(qaQuestionField)
+                .ua(userSupport.getUserAgent())
+                .answerSerialNumber(answerSerialNumber)
+                .parentUserId(qaAnswerRB.getReplyUserId())
+                .replyUserAnswerId(qaAnswerRB.getReplyUserAnswerId())
+                .build();
+
+        QaAnswer save = qaAnswerRepository.save(qaAnswer);
+
+        //todo mq notice
+
+        String textHtml = qaAnswer.getTextHtml();
+        String content = textHtml.substring(0, Math.min(200, textHtml.length()));
+        String title = qaQuestionFieldRepository.getTitle(questionFieldId);
+//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
+        sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
+                answerType, false, content, title, save.getId());
+//            }
+//                qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
+        return save.getId();
     }
 
 
@@ -326,17 +331,16 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     private void sendActionMqMessage(long userId, long questionFieldId, long parentAnswerId,
                                      AnswerType answerType, boolean cancel, String formContent, String toContent, long replayAnswerId) {
 //        评论
-        UserCommentNotifyMessage activeMessage = UserCommentNotifyMessage.builder()
+        UserQuestionAnswerNotifyMessage activeMessage = UserQuestionAnswerNotifyMessage.builder()
                 .userActiveType(UserActiveType.Converter(answerType, parentAnswerId))
 
                 .formUserId(userId)
 
-//                .articleId(articleFieldId)
                 .questionId(questionFieldId)
-//                .commentId(parentCommentId)
-                .answerId(parentAnswerId)
-                .ua(userSupport.getUserAgent())
 
+                .answerId(parentAnswerId)
+
+                .ua(userSupport.getUserAgent())
 
                 .cancel(cancel)
 
@@ -344,17 +348,16 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
                 .toContent(toContent)
 
-//                .replayCommentId(replayCommentId)
-
                 .replayAnswerId(replayAnswerId)
 
                 .build();
-//        rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
+        rabbitTemplate.convertAndSend
+                (UserActiveConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, activeMessage);
     }
 
 
-    private void sendActionMqMessage(long userId, long questionFieldId, long parentAnswerId, AnswerType answerType) {
-        UserCommentNotifyMessage activeMessage = UserCommentNotifyMessage.builder()
+    private void sendThumbUpActionMqMessage(long userId, long questionFieldId, long parentAnswerId, AnswerType answerType) {
+        UserQuestionAnswerNotifyMessage activeMessage = UserQuestionAnswerNotifyMessage.builder()
                 .userActiveType(UserActiveType.Converter(answerType, parentAnswerId))
 
                 .formUserId(userId)
@@ -370,15 +373,14 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
                 .build();
 
-//        rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
+        rabbitTemplate.convertAndSend
+                (UserActiveConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, activeMessage);
     }
 
     public AnswerType action(QuestionAnswerOrCommentActionRB actionRB) {
         Long uid = userSupport.getCurrentUser().getId();
         long questionFieldId = actionRB.getQuestionFieldId();
         long actionAnswerOrCommentId = actionRB.getActionAnswerOrCommentId();
-//        long fid = commentActionRB.getArticleFieldId();
-//        long pid = commentActionRB.getActionCommentId();
         if (actionAnswerOrCommentId < -1 || actionAnswerOrCommentId == 0) {
 //            等于 -1  点赞 文章
             throw new CodeException(CustomerErrorCode.BodyError);
@@ -392,7 +394,9 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         }
         if (!actionQuestion) {
             if (!qaAnswerRepository.existsByDeletedFalseAndIdAndQuestionField_IdAndAnswerTypeIn
-                    (actionRB.getActionAnswerOrCommentId(), questionFieldId, Arrays.asList(AnswerType.answer, AnswerType.comment))) {
+                    (actionRB.getActionAnswerOrCommentId(), questionFieldId,
+                            Arrays.asList(AnswerType.answer, AnswerType.comment))) {
+
                 throw new CodeException(CustomerErrorCode.QuestionAnswerOrCommentNotFount);
             }
         } else {
@@ -409,81 +413,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 //            up -> cancel ->up state transfer base database ont is user action
 //            one row is one action
 
-            QaAnswer action = qaAnswerRepository
-                    .findByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn
-                            (uid, questionFieldId, actionAnswerOrCommentId,
-                                    Arrays.asList(AnswerType.up, AnswerType.down, AnswerType.cancel));
-            if (action.getAnswerType() == AnswerType.cancel) {
-                if (answerType == AnswerType.up) {
-                    if (actionQuestion) {
-                        qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
-                    } else {
-                        qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
-                        qaAnswerRepository.updateCommentTypeByIdAndDeletedFalse(answerType, action.getId());
-                    }
-                    action.setAnswerType(answerType);
-                    qaAnswerRepository.save(action);
-//                    sendActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
-                } else if (answerType == AnswerType.down) {
-                    if (actionQuestion) {
-                        qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
-                    } else {
-                        qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, 1);
-                        qaAnswerRepository.updateCommentTypeByIdAndDeletedFalse(answerType, action.getId());
-                    }
-                    action.setAnswerType(answerType);
-                    qaAnswerRepository.save(action);
-                }
-                return action.getAnswerType();
-            }
-
-            if (action.getAnswerType() == answerType) {
-                if (answerType == AnswerType.up) {//相同2次操作取消
-                    if (actionQuestion) {
-                        qaQuestionFieldRepository.upNumIncrement(questionFieldId, -1);
-                    } else {
-                        qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, -1);
-                    }
-//                    sendActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, AnswerType.cancel);
-                } else {
-                    if (actionQuestion) {
-                        qaQuestionFieldRepository.downNumIncrement(questionFieldId, -1);
-                    } else {
-                        qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, -1); //取消踩  +1
-                    }
-                }
-                action.setAnswerType(AnswerType.cancel);
-            } else {//点踩->点赞 / 点赞->点踩  先取消点赞 再点踩 返回叠加状态 to
-
-                if (answerType == AnswerType.up) {
-                    if (actionQuestion) {
-                        qaQuestionFieldRepository.downNumIncrement(questionFieldId, -1);
-                        qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
-                    } else {
-                        qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, -1);
-                        qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
-                    }
-//                    sendActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
-
-                    action.setAnswerType(AnswerType.up);
-                    qaAnswerRepository.save(action);
-                    return AnswerType.downToUp;
-                } else {
-                    if (actionQuestion) {
-                        qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
-                        qaQuestionFieldRepository.upNumIncrement(questionFieldId, -1);
-                    } else {
-                        qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, 1);
-                        qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, -1);
-                    }
-//                sendActionMqMessage(uid, fid, pid, commentType);
-                    action.setAnswerType(AnswerType.down);
-                    qaAnswerRepository.save(action);
-                    return AnswerType.upToDown;
-                }
-            }
-            qaAnswerRepository.save(action);
-            return action.getAnswerType();
+            return existsAction(uid, questionFieldId, actionAnswerOrCommentId, actionQuestion, answerType);
         }
         User user = new User();
         user.setId(uid);
@@ -491,19 +421,18 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         qf.setId(questionFieldId);
 
         long ActionUserId;
-        if (!actionQuestion) {// -1 是啥玩意  想起来料 -1是点赞or点踩文章 0为评论文章这样查询可以少个类型判断
-
-
-            QaAnswer actionAnswer = qaAnswerRepository.findByDeletedFalseAndIdAndAnswerType(actionAnswerOrCommentId, AnswerType.answer);
+        if (!actionQuestion) {// -1是点赞or点踩文章 0为评论文章
+            QaAnswer actionAnswer = qaAnswerRepository.findByDeletedFalseAndIdAndAnswerType
+                    (actionAnswerOrCommentId, AnswerType.answer);
 
             ActionUserId = actionAnswer.getUser().getId();
             qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
-//            sendActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+            sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
         } else {
             ActionUserId = 0;//文章 避免前端参数错误 后端直接不管了 要用到时候从文章id查询用户id
             if (answerType == AnswerType.up) {
                 qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
-//                sendActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+                sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
             } else {
                 qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
             }
@@ -520,6 +449,83 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 .build();
         qaAnswerRepository.save(build);
         return answerType;
+    }
+
+    private AnswerType existsAction(Long uid, long questionFieldId, long actionAnswerOrCommentId, boolean actionQuestion, AnswerType answerType) {
+        QaAnswer action = qaAnswerRepository
+                .findByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn
+                        (uid, questionFieldId, actionAnswerOrCommentId,
+                                Arrays.asList(AnswerType.up, AnswerType.down, AnswerType.cancel));
+        if (action.getAnswerType() == AnswerType.cancel) {
+            if (answerType == AnswerType.up) {
+                if (actionQuestion) {
+                    qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
+                } else {
+                    qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
+                    qaAnswerRepository.updateCommentTypeByIdAndDeletedFalse(answerType, action.getId());
+                }
+                action.setAnswerType(answerType);
+                qaAnswerRepository.save(action);
+                    sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+            } else if (answerType == AnswerType.down) {
+                if (actionQuestion) {
+                    qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
+                } else {
+                    qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, 1);
+                    qaAnswerRepository.updateCommentTypeByIdAndDeletedFalse(answerType, action.getId());
+                }
+                action.setAnswerType(answerType);
+                qaAnswerRepository.save(action);
+            }
+            return action.getAnswerType();
+        }
+
+        if (action.getAnswerType() == answerType) {
+            if (answerType == AnswerType.up) {//相同2次操作取消
+                if (actionQuestion) {
+                    qaQuestionFieldRepository.upNumIncrement(questionFieldId, -1);
+                } else {
+                    qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, -1);
+                }
+                    sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, AnswerType.cancel);
+            } else {
+                if (actionQuestion) {
+                    qaQuestionFieldRepository.downNumIncrement(questionFieldId, -1);
+                } else {
+                    qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, -1); //取消踩  +1
+                }
+            }
+            action.setAnswerType(AnswerType.cancel);
+        } else {//点踩->点赞 / 点赞->点踩  先取消点赞 再点踩 返回叠加状态 to
+
+            if (answerType == AnswerType.up) {
+                if (actionQuestion) {
+                    qaQuestionFieldRepository.downNumIncrement(questionFieldId, -1);
+                    qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
+                } else {
+                    qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, -1);
+                    qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
+                }
+                    sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+
+                action.setAnswerType(AnswerType.up);
+                qaAnswerRepository.save(action);
+                return AnswerType.downToUp;
+            } else {
+                if (actionQuestion) {
+                    qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
+                    qaQuestionFieldRepository.upNumIncrement(questionFieldId, -1);
+                } else {
+                    qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, 1);
+                    qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, -1);
+                }
+                action.setAnswerType(AnswerType.down);
+                qaAnswerRepository.save(action);
+                return AnswerType.upToDown;
+            }
+        }
+        qaAnswerRepository.save(action);
+        return action.getAnswerType();
     }
 }
 

@@ -10,5 +10,9 @@ public class UserActiveConstants {
 
     public static final String QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE = "ddl.user.article.comment.action.queue";
 
+    public static final String QUEUE_DDL_USER_QUESTION_COMMENT_ACTIVE = "ddl.user.question.comment.action.queue";
+
+    public static final String QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE = "ddl.user.question.action.queue";
+
 
 }

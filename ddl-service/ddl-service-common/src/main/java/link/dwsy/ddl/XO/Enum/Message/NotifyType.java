@@ -11,10 +11,11 @@ public enum NotifyType {
     comment_article,
     comment_article_comment,
     up_article,
-    up_article_comment ,
+    up_article_comment,
     at,
     ///
     answer,
+    question_comment,
     answer_comment,
     up_question,
     up_question_answer,

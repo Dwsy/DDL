@@ -109,40 +109,7 @@ public class ArticleCommentServiceImpl {
         //评论文章
         if (articleCommentRB.getParentCommentId() == 0) {
 
-            ArticleComment lastComment = articleCommentRepository
-                    .findFirstByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentTypeOrderByCommentSerialNumberDesc
-                            (articleFieldId, 0L, CommentType.comment);
-            if (lastComment != null) {
-                commentSerialNumber = lastComment.getCommentSerialNumber() + 1;
-            }
-//            Optional<ArticleComment> lastComment = articleCommentRepository.
-//                    findFirstByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalseOrderByCommentSerialNumberDesc
-//                            (articleFieldId, 0L, CommentType.comment, PageRequest.of(0, 1));
-            ArticleComment articleComment = ArticleComment.builder()
-                    .parentCommentId(0)
-                    .parentUserId(0)
-                    .text(articleCommentRB.getText())
-                    .commentType(commentType)
-                    .user(user)
-                    .articleField(af)
-                    .ua(userSupport.getUserAgent())
-                    .commentSerialNumber(commentSerialNumber)
-                    .build();
-            ArticleComment save = articleCommentRepository.save(articleComment);
-
-            String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
-            Optional<ArticleFieldInfo> t = articleFieldRepository.getTitle(articleFieldId);
-            String title = "";
-            if (t.isPresent()) {
-                title = t.get().getTitle();
-            }
-
-//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
-            sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getParentCommentId(),
-                    commentType, false, content, title, save.getId());
-//            }
-            articleFieldRepository.commentNumIncrement(articleFieldId, 1);
-            return save.getId();
+            return replyArticle(articleCommentRB, commentType, articleFieldId, user, af, commentSerialNumber);
         } else {
             long parentCommentId = articleCommentRB.getParentCommentId();
             if (!articleCommentRepository.isFirstComment(parentCommentId)) {
@@ -161,56 +128,101 @@ public class ArticleCommentServiceImpl {
             //回复评论
             articleFieldRepository.commentNumIncrement(articleFieldId, 1);
             if (articleCommentRB.getReplyUserCommentId() == 0) {
-                long replyUserId = articleCommentRB.getReplyUserId();
-                if (userRepository.findById(replyUserId).isEmpty()) {
-                    throw new CodeException(CustomerErrorCode.UserNotExist);
-                }
-                ArticleComment articleComment = ArticleComment.builder()
-                        .user(user)
-                        .articleField(af)
-                        .text(articleCommentRB.getText())
-                        .parentCommentId(parentCommentId)
-                        .parentUserId(articleCommentRB.getReplyUserId())
-                        .commentType(commentType)
-                        .ua(userSupport.getUserAgent())
-                        .commentSerialNumber(commentSerialNumber)
-                        .build();
-                ArticleComment save = articleCommentRepository.save(articleComment);
-                String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
-                String parentText = articleCommentRepository.getText(parentCommentId);
-                sendActionMqMessage(user.getId(), articleFieldId, parentCommentId,
-                        commentType, false, content, parentText, save.getId());
-                return save.getId();
+                return replyArticleComment(articleCommentRB, commentType, articleFieldId, user, af, commentSerialNumber, parentCommentId);
             } else {
                 //回复二级评论
-                String replyText;
+                return replyArticleSecondComment(articleCommentRB, commentType, articleFieldId, user, af, commentSerialNumber, parentCommentId);
+            }
+        }
+    }
+
+    private long replyArticleSecondComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
+        String replyText;
 //                if(articleCommentRepository.notIsSecondaryComment(articleCommentRB.getReplyUserCommentId())){
-                replyText = "回复@" + userRepository.findUserNicknameById
-                        (articleCommentRB.getReplyUserId()) + "：" + articleCommentRB.getText();
+        replyText = "回复@" + userRepository.findUserNicknameById
+                (articleCommentRB.getReplyUserId()) + "：" + articleCommentRB.getText();
 //                }else {
 //                    String str = articleCommentRB.getText().split("：")[1];
 //                    replyText = "回复@" + userRepository.findUserNicknameById
 //                            (articleCommentRB.getReplyUserId()) + "：" + str;
 //                }
-                ArticleComment articleComment = ArticleComment.builder()
-                        .user(user)
-                        .articleField(af)
-                        .text(replyText)
-                        .parentCommentId(parentCommentId)
-                        .parentUserId(articleCommentRB.getReplyUserId())
-                        .commentType(commentType)
-                        .replyUserCommentId(articleCommentRB.getReplyUserCommentId())
-                        .ua(userSupport.getUserAgent())
-                        .commentSerialNumber(commentSerialNumber)
-                        .build();
-                String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
-                String parentText = articleCommentRepository.getText(articleCommentRB.getReplyUserCommentId());
-                ArticleComment save = articleCommentRepository.save(articleComment);
-                sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getReplyUserCommentId(),
-                        commentType, false, content, parentText, save.getId());
-                return save.getId();
-            }
+        ArticleComment articleComment = ArticleComment.builder()
+                .user(user)
+                .articleField(af)
+                .text(replyText)
+                .parentCommentId(parentCommentId)
+                .parentUserId(articleCommentRB.getReplyUserId())
+                .commentType(commentType)
+                .replyUserCommentId(articleCommentRB.getReplyUserCommentId())
+                .ua(userSupport.getUserAgent())
+                .commentSerialNumber(commentSerialNumber)
+                .build();
+        String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
+        String parentText = articleCommentRepository.getText(articleCommentRB.getReplyUserCommentId());
+        ArticleComment save = articleCommentRepository.save(articleComment);
+        sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getReplyUserCommentId(),
+                commentType, false, content, parentText, save.getId());
+        return save.getId();
+    }
+
+    private long replyArticleComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
+        long replyUserId = articleCommentRB.getReplyUserId();
+        if (userRepository.findById(replyUserId).isEmpty()) {
+            throw new CodeException(CustomerErrorCode.UserNotExist);
         }
+        ArticleComment articleComment = ArticleComment.builder()
+                .user(user)
+                .articleField(af)
+                .text(articleCommentRB.getText())
+                .parentCommentId(parentCommentId)
+                .parentUserId(articleCommentRB.getReplyUserId())
+                .commentType(commentType)
+                .ua(userSupport.getUserAgent())
+                .commentSerialNumber(commentSerialNumber)
+                .build();
+        ArticleComment save = articleCommentRepository.save(articleComment);
+        String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
+        String parentText = articleCommentRepository.getText(parentCommentId);
+        sendActionMqMessage(user.getId(), articleFieldId, parentCommentId,
+                commentType, false, content, parentText, save.getId());
+        return save.getId();
+    }
+
+    private long replyArticle(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber) {
+        ArticleComment lastComment = articleCommentRepository
+                .findFirstByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentTypeOrderByCommentSerialNumberDesc
+                        (articleFieldId, 0L, CommentType.comment);
+        if (lastComment != null) {
+            commentSerialNumber = lastComment.getCommentSerialNumber() + 1;
+        }
+//            Optional<ArticleComment> lastComment = articleCommentRepository.
+//                    findFirstByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalseOrderByCommentSerialNumberDesc
+//                            (articleFieldId, 0L, CommentType.comment, PageRequest.of(0, 1));
+        ArticleComment articleComment = ArticleComment.builder()
+                .parentCommentId(0)
+                .parentUserId(0)
+                .text(articleCommentRB.getText())
+                .commentType(commentType)
+                .user(user)
+                .articleField(af)
+                .ua(userSupport.getUserAgent())
+                .commentSerialNumber(commentSerialNumber)
+                .build();
+        ArticleComment save = articleCommentRepository.save(articleComment);
+
+        String content = articleCommentRB.getText().substring(0, Math.min(100, articleCommentRB.getText().length()));
+        Optional<ArticleFieldInfo> t = articleFieldRepository.getTitle(articleFieldId);
+        String title = "";
+        if (t.isPresent()) {
+            title = t.get().getTitle();
+        }
+
+//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
+        sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getParentCommentId(),
+                commentType, false, content, title, save.getId());
+//            }
+        articleFieldRepository.commentNumIncrement(articleFieldId, 1);
+        return save.getId();
     }
 
     public boolean logicallyDelete(long articleId, long commentId) {

@@ -60,6 +60,9 @@ public class UserNotify extends BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long replayCommentId;//回复后返回的评论id
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long replayAnswerId;//回答后返回的答案id
+
     @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.NUMBER) //返回值
     private NotifyState notifyState = NotifyState.UNREAD;
