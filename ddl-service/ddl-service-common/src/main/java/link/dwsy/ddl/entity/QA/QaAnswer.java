@@ -10,6 +10,7 @@ import lombok.*;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,6 +49,11 @@ public class QaAnswer extends BaseEntity {
     private String textMd;
     @Transient
     private String textPure;
+
+    private Boolean accepted;
+
+    private Date acceptedTime;
+
     @Column(name = "parent_user_id")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long parentUserId;

@@ -10,5 +10,5 @@ import java.util.Collection;
 public interface QaQuestionFieldService {
     PageData<QaQuestionField> getPageList(Collection<QuestionState> questionStateCollection, PageRequest pageRequest);
 
-    QaQuestionField getQuestionById(long qid);
+    QaQuestionField getQuestionById(long qid, boolean getQuestionComment);
 }

@@ -93,4 +93,12 @@ public class QaQuestionField extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MarkDownThemeDark markDownThemeDark;
 
+    @Transient
+    private List<QaAnswer> questionCommentList;
+
+    @Transient
+    private long questionCommentNum;
+
+    @Transient
+    private long questionCommentTotalPages;
 }

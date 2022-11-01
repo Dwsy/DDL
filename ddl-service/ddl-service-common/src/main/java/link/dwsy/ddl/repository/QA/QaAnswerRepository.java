@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
 
@@ -34,7 +33,11 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
 
     Page<QaAnswer> findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(long aid, long pid, Pageable pageable);
 
-    Set<QaAnswer> findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(long aid, long pid);
+    List<QaAnswer> findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(long aid, long pid);
+
+    Page<QaAnswer> findByDeletedFalseAndQuestionField_IdAndAnswerType(long id, AnswerType answerType, Pageable pageable);
+
+
 
     Optional<QaAnswer> findByDeletedFalseAndUser_IdAndParentAnswerIdAndAnswerTypeIn
             (long id, long parentAnswerId, Collection<AnswerType> answerTypes);
@@ -52,6 +55,9 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
 
     @Query(nativeQuery = true,value = "select text_pure from qa_answer where id=?1 and deleted=false")
     String getPureText(Long answerId);
+
+    @Query(nativeQuery = true,value = "select text_html from qa_answer where id=?1 and deleted=false")
+    String getHtmlText(Long answerId);
 //    findByUserIdAndParentCommentIdAndCommentTypeIn
 
 

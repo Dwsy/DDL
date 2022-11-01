@@ -11,7 +11,6 @@ import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.QA.QaAnswer;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.User.User;
-import link.dwsy.ddl.mq.UserActiveConstants;
 import link.dwsy.ddl.repository.QA.QaAnswerRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
@@ -69,8 +68,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 qaAnswerRepository.
                         findByDeletedFalseAndUser_IdAndParentAnswerIdAndAnswerTypeIn
                                 (user.getId(), pid,
-                                        Set.of(AnswerType.comment, AnswerType.answer,
-                                                AnswerType.answer_comment, AnswerType.comment_comment))
+                                        Set.of(AnswerType.up, AnswerType.down))
                         .ifPresent(c -> qaAnswer.setUserAction(c.getAnswerType()));
                 //添加子评论点赞状态
                 for (QaAnswer childQaAnswer : childQaAnswersPage.getContent()) {
@@ -104,41 +102,15 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         QaQuestionField qaQuestionField = new QaQuestionField();
         qaQuestionField.setId(questionFieldId);
         int answerSerialNumber = 1;
-        //评论文章
+
         long parentAnswerId = qaAnswerRB.getParentAnswerId();
-        if (parentAnswerId == 0) {
-
-            QaAnswer lastAnswer = qaAnswerRepository
-                    .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
-                            (questionFieldId, 0L, AnswerType.answer);
-            if (lastAnswer != null) {
-                answerSerialNumber = lastAnswer.getAnswerSerialNumber() + 1;
+        String toHTML = HtmlHelper.toHTML(qaAnswerRB.getMdText());
+        if (parentAnswerId == 0) {//问题
+            if (answerType == AnswerType.answer) {//回答
+                return answerQuestion(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber, toHTML);
+            } else if (answerType == AnswerType.comment) {//回复询问细节
+                return addComment(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber);
             }
-            QaAnswer qaAnswer = QaAnswer.builder()
-                    .parentAnswerId(0)
-                    .parentUserId(0)
-                    .textHtml(HtmlHelper.toHTML(qaAnswerRB.getMdText()))
-                    .textMd(qaAnswerRB.getMdText())
-                    .answerType(answerType)
-                    .user(user)
-                    .questionField(qaQuestionField)
-                    .ua(userSupport.getUserAgent())
-                    .answerSerialNumber(answerSerialNumber)
-                    .build();
-
-            QaAnswer save = qaAnswerRepository.save(qaAnswer);
-
-            //todo mq notice
-
-            String content = qaAnswer.getTextPure().substring(0, Math.min(100, qaAnswer.getTextPure().length()));
-
-            String title = qaQuestionFieldRepository.getTitle(questionFieldId);
-//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
-            sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
-                    answerType, false, content, title, save.getId());
-//            }
-            qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
-            return save.getId();
         } else {
             long replyUserId = qaAnswerRB.getReplyUserId();
             if (!qaAnswerRepository.isFirstAnswer(parentAnswerId)) {
@@ -150,66 +122,200 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
             }
 
-
             QaAnswer lastAnswer = qaAnswerRepository
                     .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
-                            (questionFieldId, parentAnswerId, AnswerType.answer);
+                            (questionFieldId, parentAnswerId, AnswerType.answer_comment);
             if (lastAnswer != null) {
                 answerSerialNumber = lastAnswer.getAnswerSerialNumber() + 1;
             }
-            //回复回答
-            qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
+            if (answerType == AnswerType.answer_comment) {
 
-
-            if (qaAnswerRB.getReplyUserAnswerId() == 0) {
-                if (userRepository.findById(replyUserId).isEmpty()) {
-                    throw new CodeException(CustomerErrorCode.UserNotExist);
+                if (qaAnswerRB.getReplyUserAnswerId() == 0) {//回复询问细节
+                    return replyComment(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber, parentAnswerId, replyUserId);
+                } else {
+                    //回复二级评论
+                    return replySecondComment(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber, replyUserId);
                 }
-                QaAnswer qaAnswer = QaAnswer.builder()
-                        .user(user)
-                        .questionField(qaQuestionField)
-                        .textHtml(HtmlHelper.toHTML(qaAnswerRB.getMdText()))
-                        .textMd(qaAnswerRB.getMdText())
-                        .parentAnswerId(qaAnswerRB.getParentAnswerId())
-                        .parentUserId(replyUserId)
-                        .answerType(answerType)
-                        .ua(userSupport.getUserAgent())
-                        .answerSerialNumber(answerSerialNumber)
-                        .build();
-                QaAnswer save = qaAnswerRepository.save(qaAnswer);
-
-                String content = qaAnswer.getTextPure().substring(0, Math.min(100, qaAnswer.getTextPure().length()));
-                String parentText = qaAnswerRepository.getPureText(qaAnswerRB.getParentAnswerId());
-                sendActionMqMessage(user.getId(), questionFieldId, parentAnswerId,
-                        answerType, false, content, parentText, save.getId());
-                return save.getId();
-            } else {
-                //回复二级评论
-                String replyText;
-                replyText = "回复@" + userRepository.findUserNicknameById
-                        (qaAnswerRB.getReplyUserId()) + "：" + qaAnswerRB.getMdText();
-                QaAnswer qaAnswer = QaAnswer.builder()
-                        .user(user)
-                        .questionField(qaQuestionField)
-                        .textHtml(HtmlHelper.toHTML(qaAnswerRB.getMdText()))
-                        .textMd(qaAnswerRB.getMdText())
-                        .parentAnswerId(qaAnswerRB.getParentAnswerId())
-                        .parentUserId(replyUserId)
-                        .answerType(answerType)
-                        .replyUserAnswerId(qaAnswerRB.getParentAnswerId())
-                        .ua(userSupport.getUserAgent())
-                        .answerSerialNumber(answerSerialNumber)
-                        .build();
-
-                QaAnswer save = qaAnswerRepository.save(qaAnswer);
-
-                String content = qaAnswer.getTextPure().substring(0, Math.min(100, qaAnswer.getTextPure().length()));
-                String parentText = qaAnswerRepository.getPureText(qaAnswerRB.getParentAnswerId());
-                sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getReplyUserAnswerId(),
-                        answerType, false, content, parentText, save.getId());
-                return save.getId();
             }
+
         }
+        throw new CodeException(CustomerErrorCode.BodyError);
+    }
+
+
+    private long replySecondComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber, long replyUserId) {
+        String replyText;
+
+        replyText = "回复@" + userRepository.findUserNicknameById
+                (qaAnswerRB.getReplyUserId()) + "：" + qaAnswerRB.getMdText();
+        QaAnswer qaAnswer = QaAnswer.builder()
+                .user(user)
+                .questionField(qaQuestionField)
+                .textHtml(replyText)
+                .textMd(null)
+                .textPure(null)
+                .parentAnswerId(qaAnswerRB.getParentAnswerId())
+                .parentUserId(replyUserId)
+                .answerType(answerType)
+                .replyUserAnswerId(qaAnswerRB.getParentAnswerId())
+                .ua(userSupport.getUserAgent())
+                .answerSerialNumber(answerSerialNumber)
+                .build();
+
+        QaAnswer save = qaAnswerRepository.save(qaAnswer);
+        String textHtml = qaAnswer.getTextHtml();
+        String content = textHtml.substring(0, Math.min(100, textHtml.length()));
+        String parentText = qaAnswerRepository.getHtmlText(qaAnswerRB.getParentAnswerId());
+
+        sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getReplyUserAnswerId(),
+                answerType, false, content, parentText, save.getId());
+        return save.getId();
+    }
+
+    private long replyComment
+            (QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber, long parentAnswerId, long replyUserId) {
+        //todo
+        if (replyUserId == 0) {
+            replyUserId = qaAnswerRepository.findUserIdByAnswerId(parentAnswerId);
+        }
+
+        if (userRepository.findById(replyUserId).isEmpty()) {
+            throw new CodeException(CustomerErrorCode.UserNotExist);
+        }
+        String mdText = qaAnswerRB.getMdText();
+        QaAnswer qaAnswer = QaAnswer.builder()
+                .user(user)
+                .questionField(qaQuestionField)
+                .textHtml(mdText)
+                .textMd(null)
+                .textPure(null)
+                .parentAnswerId(qaAnswerRB.getParentAnswerId())
+                .parentUserId(replyUserId)
+                .answerType(answerType)
+                .ua(userSupport.getUserAgent())
+                .answerSerialNumber(answerSerialNumber)
+                .build();
+        QaAnswer save = qaAnswerRepository.save(qaAnswer);
+
+        String content = mdText.substring(0, Math.min(100, mdText.length()));
+        String parentText = HtmlHelper.toPure(qaAnswerRepository.getHtmlText(qaAnswerRB.getParentAnswerId()));
+        sendActionMqMessage(user.getId(), questionFieldId, parentAnswerId,
+                answerType, false, content, parentText, save.getId());
+        return save.getId();
+    }
+
+    private long answerQuestion(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber, String toHTML) {
+        QaAnswer lastAnswer = qaAnswerRepository
+                .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
+                        (questionFieldId, 0L, AnswerType.answer);
+        if (lastAnswer != null) {
+            answerSerialNumber = lastAnswer.getAnswerSerialNumber() + 1;
+        }
+
+        QaAnswer qaAnswer = QaAnswer.builder()
+                .parentAnswerId(0)
+                .parentUserId(0)
+                .textHtml(toHTML)
+                .textMd(qaAnswerRB.getMdText())
+                .answerType(answerType)
+                .user(user)
+                .questionField(qaQuestionField)
+                .ua(userSupport.getUserAgent())
+                .answerSerialNumber(answerSerialNumber)
+                .build();
+
+        QaAnswer save = qaAnswerRepository.save(qaAnswer);
+
+        //todo mq notice
+        String toPure = HtmlHelper.toPure(toHTML);
+        String content = toPure.substring(0, Math.min(100, toPure.length()));
+
+        String title = qaQuestionFieldRepository.getTitle(questionFieldId);
+//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
+        sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
+                answerType, false, content, title, save.getId());
+//            }
+        qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
+        return save.getId();
+    }
+
+    private long addComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
+        if (qaAnswerRB.getReplyUserAnswerId() == 0) {
+            QaAnswer lastAnswer = qaAnswerRepository
+                    .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
+                            (questionFieldId, 0L, AnswerType.comment);
+            if (lastAnswer != null) {
+                answerSerialNumber = lastAnswer.getAnswerSerialNumber() + 1;
+            }
+
+            QaAnswer qaAnswer = QaAnswer.builder()
+                    .parentAnswerId(0)
+                    .parentUserId(0)
+                    .textHtml(qaAnswerRB.getMdText())//回复为纯文本
+                    .textMd(null)
+                    .answerType(answerType)
+                    .textPure(null)
+                    .user(user)
+                    .questionField(qaQuestionField)
+                    .ua(userSupport.getUserAgent())
+                    .answerSerialNumber(answerSerialNumber)
+                    .build();
+
+            QaAnswer save = qaAnswerRepository.save(qaAnswer);
+
+            //todo mq notice
+
+            String textHtml = qaAnswer.getTextHtml();
+            String content = textHtml.substring(0, Math.min(100, textHtml.length()));
+            String title = qaQuestionFieldRepository.getTitle(questionFieldId);
+//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
+            sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
+                    answerType, false, content, title, save.getId());
+//            }
+//                qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
+            return save.getId();
+        } else {
+            String replyText;
+
+            replyText = "回复@" + userRepository.findUserNicknameById
+                    (qaAnswerRB.getReplyUserId()) + "：" + qaAnswerRB.getMdText();
+            QaAnswer lastAnswer = qaAnswerRepository
+                    .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
+                            (questionFieldId, 0L, AnswerType.comment);
+            if (lastAnswer != null) {
+                answerSerialNumber = lastAnswer.getAnswerSerialNumber() + 1;
+            }
+
+            QaAnswer qaAnswer = QaAnswer.builder()
+                    .parentAnswerId(0)
+                    .parentUserId(0)
+                    .textHtml(replyText)//回复为纯文本
+                    .textMd(null)
+                    .answerType(answerType)
+                    .textPure(null)
+                    .user(user)
+                    .questionField(qaQuestionField)
+                    .ua(userSupport.getUserAgent())
+                    .answerSerialNumber(answerSerialNumber)
+                    .parentUserId(qaAnswerRB.getReplyUserId())
+                    .replyUserAnswerId(qaAnswerRB.getReplyUserAnswerId())
+                    .build();
+
+            QaAnswer save = qaAnswerRepository.save(qaAnswer);
+
+            //todo mq notice
+
+            String textHtml = qaAnswer.getTextHtml();
+            String content = textHtml.substring(0, Math.min(100, textHtml.length()));
+            String title = qaQuestionFieldRepository.getTitle(questionFieldId);
+//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
+            sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
+                    answerType, false, content, title, save.getId());
+//            }
+//                qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
+            return save.getId();
+        }
+
     }
 
 
@@ -243,7 +349,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 .replayAnswerId(replayAnswerId)
 
                 .build();
-        rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
+//        rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
     }
 
 
@@ -264,7 +370,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
                 .build();
 
-        rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
+//        rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
     }
 
     public AnswerType action(QuestionAnswerOrCommentActionRB actionRB) {

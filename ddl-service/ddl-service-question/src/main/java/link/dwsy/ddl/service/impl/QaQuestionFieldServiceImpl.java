@@ -1,27 +1,24 @@
 package link.dwsy.ddl.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.XO.RB.CreateQuestionRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
-import link.dwsy.ddl.entity.QA.QaGroup;
-import link.dwsy.ddl.entity.QA.QaQuestionContent;
-import link.dwsy.ddl.entity.QA.QaQuestionField;
-import link.dwsy.ddl.entity.QA.QaTag;
+import link.dwsy.ddl.entity.QA.*;
 import link.dwsy.ddl.mq.QuestionSearchConstants;
-import link.dwsy.ddl.repository.QA.QaContentRepository;
-import link.dwsy.ddl.repository.QA.QaGroupRepository;
-import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
-import link.dwsy.ddl.repository.QA.QaQuestionTagRepository;
+import link.dwsy.ddl.repository.QA.*;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
+import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -55,6 +52,9 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     private UserRepository userRepository;
 
     @Resource
+    private QaAnswerRepository qaAnswerRepository;
+
+    @Resource
     private RabbitTemplate rabbitTemplate;
 
     @Override
@@ -67,8 +67,16 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     }
 
     @Override
-    public QaQuestionField getQuestionById(long qid) {
+    public QaQuestionField getQuestionById(long qid, boolean getQuestionComment) {
         QaQuestionField questionField = qaQuestionFieldRepository.findByDeletedFalseAndIdAndQuestionStateNot(qid, QuestionState.HIDE);
+        if (getQuestionComment) {
+            PageRequest pageRequest = PRHelper.order(Sort.Direction.ASC, "createTime", 1, 8);
+            Page<QaAnswer> questionComment = qaAnswerRepository
+                    .findByDeletedFalseAndQuestionField_IdAndAnswerType(qid, AnswerType.comment, pageRequest);
+            questionField.setQuestionCommentList(questionComment.getContent());
+            questionField.setQuestionCommentTotalPages(questionComment.getTotalPages());
+            questionField.setQuestionCommentNum(questionComment.getTotalElements());
+        }
         return questionField;
     }
 

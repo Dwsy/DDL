@@ -1,7 +1,9 @@
 package link.dwsy.ddl.XO.RB;
 
+import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import lombok.Data;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -19,12 +21,13 @@ public class QaAnswerRB {
     //md
     private String mdText;
 
-    @NotBlank(message = "can not be empty")
     private long replyUserId;
 
     private long replyUserAnswerId;
 
-    @NotBlank(message = "can not be empty")
+    @Min(value = -1, message = "min")
     private long parentAnswerId;
 
+    @NotNull(message = "can not be empty")
+    private AnswerType answerType;
 }

@@ -12,7 +12,7 @@ public enum AnswerType {
 
     comment,
 
-    comment_comment,
+    comment_comment,//del
 
     up, down,
 

@@ -57,8 +57,8 @@ public class QaAnswerController {
     }
 
     @PostMapping()
-    public String answer(@RequestBody QaAnswerRB qaAnswerRB) {
-        return String.valueOf(qaAnswerServiceService.answer(qaAnswerRB, AnswerType.answer));
+    public String answer(@Validated @RequestBody QaAnswerRB qaAnswerRB) {
+        return String.valueOf(qaAnswerServiceService.answer(qaAnswerRB, qaAnswerRB.getAnswerType()));
     }
 
     @AuthAnnotation(Level = 0)
@@ -70,8 +70,8 @@ public class QaAnswerController {
 
     @PostMapping("/action")
     @AuthAnnotation
-    public int action(@Validated @RequestBody QuestionAnswerOrCommentActionRB commentActionRB) {
-        AnswerType action = qaAnswerServiceService.action(commentActionRB);
+    public int action(@Validated @RequestBody QuestionAnswerOrCommentActionRB actionRB) {
+        AnswerType action = qaAnswerServiceService.action(actionRB);
         return action.ordinal();
     }
 }

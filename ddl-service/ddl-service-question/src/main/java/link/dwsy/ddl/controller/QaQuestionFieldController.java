@@ -68,12 +68,15 @@ public class QaQuestionFieldController {
     }
 
     @GetMapping("field/{id}")
-    public QaQuestionField GetQuestionById(@PathVariable("id") Long id) {
+    public QaQuestionField GetQuestionById(
+            @PathVariable("id") Long id,
+            @RequestParam(required = false, defaultValue = "false", name = "getQuestionComment") boolean getQuestionComment
+    ) {
         if (id < 1L)
             throw new CodeException(CustomerErrorCode.ParamError);
 //        userActiveService.ActiveLog(UserActiveType.Browse_QA, id);
         qaQuestionFieldService.view(id);
-        return qaQuestionFieldService.getQuestionById(id);
+        return qaQuestionFieldService.getQuestionById(id,getQuestionComment);
     }
 
 //    getUserAction
