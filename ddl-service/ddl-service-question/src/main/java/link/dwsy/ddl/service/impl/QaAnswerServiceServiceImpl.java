@@ -54,7 +54,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
     public PageData<QaAnswer> getByQuestionId(long qid, PageRequest pageRequest) {
         Page<QaAnswer> QaAnswerData = qaAnswerRepository
-                .findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(qid, 0L, pageRequest);
+                .findByDeletedFalseAndQuestionField_IdAndAnswerTypeAndParentAnswerId(qid, AnswerType.answer, 0L, pageRequest);
         PageRequest pr = PageRequest.of(0, 8, Sort.by(Sort.Direction.ASC, "createTime"));
         for (QaAnswer qaAnswer : QaAnswerData) {
             long pid = qaAnswer.getId();
@@ -466,7 +466,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 }
                 action.setAnswerType(answerType);
                 qaAnswerRepository.save(action);
-                    sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+                sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
             } else if (answerType == AnswerType.down) {
                 if (actionQuestion) {
                     qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
@@ -487,7 +487,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 } else {
                     qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, -1);
                 }
-                    sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, AnswerType.cancel);
+                sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, AnswerType.cancel);
             } else {
                 if (actionQuestion) {
                     qaQuestionFieldRepository.downNumIncrement(questionFieldId, -1);
@@ -506,7 +506,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                     qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, -1);
                     qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
                 }
-                    sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+                sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
 
                 action.setAnswerType(AnswerType.up);
                 qaAnswerRepository.save(action);

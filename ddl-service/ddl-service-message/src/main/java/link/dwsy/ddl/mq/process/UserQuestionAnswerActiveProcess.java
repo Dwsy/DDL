@@ -10,6 +10,7 @@ import link.dwsy.ddl.repository.QA.QaAnswerRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserNotifyRepository;
 import link.dwsy.ddl.support.UserSupport;
+import link.dwsy.ddl.util.HtmlHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,7 @@ public class UserQuestionAnswerActiveProcess {
         UserNotify userNotify;
         Long toUserId;
         boolean sendNotify;
+        log.info(userActiveType.toString());
         switch (userActiveType) {
             case Answer_Question:
                 toUserId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
@@ -132,7 +134,7 @@ public class UserQuestionAnswerActiveProcess {
                 }
                 break;
             case UP_Question:
-                toUserId = qaQuestionFieldRepository.getUserIdByQuestionId(answerId);
+                toUserId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
                 if (userNotifyRepository.existsByDeletedFalseAndFromUserIdAndToUserIdAndAnswerIdAndNotifyTypeAndQuestionId(
                         formUserId, toUserId, answerId, NotifyType.up_question, questionId)) {
                     log.info("用户{}已经通知过用户{}了", formUserId, toUserId);
@@ -163,7 +165,7 @@ public class UserQuestionAnswerActiveProcess {
                 }
                 sendNotify = !toUserId.equals(formUserId);
                 if (sendNotify) {
-                    String toContent_pureText = qaAnswerRepository.getPureText(answerId);
+                    String toContent_pureText = HtmlHelper.toPure(qaAnswerRepository.getHtmlText(answerId));
                     userNotify = UserNotify.builder()
                             .fromUserId(formUserId)
                             .toUserId(toUserId)

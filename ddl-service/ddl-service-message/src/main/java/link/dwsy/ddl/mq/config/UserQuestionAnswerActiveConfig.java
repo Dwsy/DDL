@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class UserQuestionAnswerActiveConfig {
 
-    @Bean(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE)
+    @Bean(UserActiveConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE)
     public Queue qaActiveQueue() {
         return new Queue(UserActiveConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE);
     }

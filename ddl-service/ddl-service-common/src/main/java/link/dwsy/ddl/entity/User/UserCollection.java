@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
@@ -31,7 +32,12 @@ public class UserCollection extends BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long sourceId;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String sourceTitle;
+
+    @Transient
+    private String link;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_collection_group_id")

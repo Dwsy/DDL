@@ -32,28 +32,28 @@ import java.util.Optional;
 @Slf4j
 public class UserCollectionGroupController {
     @Resource
-    UserCollectionGroupRepository userCollectionGroupRepository;
+    private UserCollectionGroupRepository userCollectionGroupRepository;
 
     @Resource
-    UserCollectionRepository userCollectionRepository;
+    private UserCollectionRepository userCollectionRepository;
 
     @Resource
-    ArticleFieldRepository articleFieldRepository;
+    private  ArticleFieldRepository articleFieldRepository;
 
     @Resource
-    ArticleCommentRepository articleCommentRepository;
+    private  ArticleCommentRepository articleCommentRepository;
 
     @Resource
-    QaAnswerRepository qaAnswerRepository;
+    private QaAnswerRepository qaAnswerRepository;
 
     @Resource
-    QaQuestionFieldRepository qaQuestionFieldRepository;
+    private QaQuestionFieldRepository qaQuestionFieldRepository;
 
     @Resource
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Resource
-    UserSupport userSupport;
+    private UserSupport userSupport;
 
     // 创建默认分组
 

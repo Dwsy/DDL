@@ -21,7 +21,7 @@ public class UserCommentActive {
     UserCommentActiveProcess userCommentActiveProcess;
 
     @RabbitListener(queues = UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE)
-    public void sendNotify(UserCommentNotifyMessage message) throws JsonProcessingException {
+    public void sendQaNotify(UserCommentNotifyMessage message) throws JsonProcessingException {
 
 //        System.out.println(JSON.toJSONString(message));
         userCommentActiveProcess.sendNotify(message);

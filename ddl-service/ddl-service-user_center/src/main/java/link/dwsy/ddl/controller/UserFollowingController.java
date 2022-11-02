@@ -28,13 +28,13 @@ import java.util.stream.Collectors;
 public class UserFollowingController {
 
     @Resource
-    UserFollowingRepository userFollowingRepository;
+    private   UserFollowingRepository userFollowingRepository;
 
     @Resource
-    UserRepository userRepository;
+    private   UserRepository userRepository;
 
     @Resource
-    UserSupport userSupport;
+    private   UserSupport userSupport;
 
     @GetMapping("follower/list")
     @AuthAnnotation
@@ -137,4 +137,5 @@ public class UserFollowingController {
             throw new CodeException(CustomerErrorCode.UserNotFollowed);
         }
     }
+
 }

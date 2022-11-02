@@ -21,10 +21,10 @@ import javax.annotation.Resource;
 public class UserPointsController {
 
     @Resource
-    UserPointsRepository userPointsRepository;
+    private UserPointsRepository userPointsRepository;
 
     @Resource
-    UserSupport userSupport;
+    private UserSupport userSupport;
 
 
     @GetMapping

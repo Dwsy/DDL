@@ -41,31 +41,52 @@ import java.util.*;
 @Slf4j
 public class userCollectionController {
     @Resource
-    UserCollectionGroupRepository userCollectionGroupRepository;
+    private UserCollectionGroupRepository userCollectionGroupRepository;
 
     @Resource
-    UserCollectionRepository userCollectionRepository;
+    private UserCollectionRepository userCollectionRepository;
 
     @Resource
-    ArticleFieldRepository articleFieldRepository;
+    private ArticleFieldRepository articleFieldRepository;
 
     @Resource
-    ArticleCommentRepository articleCommentRepository;
+    private ArticleCommentRepository articleCommentRepository;
 
     @Resource
-    QaAnswerRepository qaAnswerRepository;
+    private QaAnswerRepository qaAnswerRepository;
 
     @Resource
-    QaQuestionFieldRepository qaQuestionFieldRepository;
+    private QaQuestionFieldRepository qaQuestionFieldRepository;
 
     @Resource
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Resource
-    UserSupport userSupport;
+    private UserSupport userSupport;
 
+
+    @GetMapping("goto/link/{id}")
+    @AuthAnnotation
+    public String getCollectionToLink(@PathVariable long id) {
+        Optional<UserCollection> collection = userCollectionRepository.findById(id);
+        if (collection.isPresent()) {
+            UserCollection userCollection = collection.get();
+            CollectionType collectionType = userCollection.getCollectionType();
+            Long sourceId = userCollection.getSourceId();
+            switch (collectionType) {
+                case Answer:
+                    long questionId = qaAnswerRepository.findQuestionIdByAnswerId(sourceId);
+                    return "/question/" + questionId;//todo page calc location
+                default:
+                    return "~~";
+            }
+        } else {
+            throw new CodeException(CustomerErrorCode.UserCollectionNotExist);
+        }
+    }
 
     @PostMapping
+    @AuthAnnotation
     public String addCollectionToGroup(@Validated @RequestBody UserCollectionRB userCollectionRB) {
         CollectionType collectionType = userCollectionRB.getCollectionType();
         Long gid = userCollectionRB.getGroupId();
@@ -96,14 +117,16 @@ public class userCollectionController {
         switch (type) {
             // todo
             case Article:
-                log.info("user:{}收藏文章:{}",uid,sid);
+                log.info("user:{}收藏文章:{}", uid, sid);
                 articleFieldRepository.collectNumIncrement(sid, 1);
                 break;
             case Question:
+                log.info("user:{}收藏问题:{}", uid, sid);
                 qaQuestionFieldRepository.collectNumIncrement(sid, 1);
                 break;
-//                    case Answer:
-//                        break;
+            case Answer:
+                log.info("user:{}收藏问题答案:{}", uid, sid);
+                break;
 //                    case Comment:
 //                        break;
         }
@@ -138,12 +161,19 @@ public class userCollectionController {
         }
 
         if (collectionType == CollectionType.Answer) {
+
             QaAnswer qaAnswer = qaAnswerRepository.findByDeletedFalseAndId(sid).orElseThrow(() -> new CodeException(CustomerErrorCode.AnswerNotFound));
+
+            String title = qaQuestionFieldRepository.getTitleByAnswerId(qaAnswer.getId());
             String textHtml = qaAnswer.getTextHtml();
             String pure = HtmlHelper.toPure(textHtml);
-            if (pure.length() > 50) {
-                sourceTitle = pure.substring(0, 50);
+            if (pure.length() > 150) {
+                sourceTitle = pure.substring(0, 150);
             }
+
+            sourceTitle = String.format(
+                    "<div class=\"d-collect-answer-title\">%s</div>" +
+                            "<div class=\"d-collect-answer-content\">%s</div>", title, sourceTitle);
         }
 
         userCollectionRepository.save(UserCollection.builder()
@@ -194,12 +224,12 @@ public class userCollectionController {
     @GetMapping("state")
     @AuthAnnotation
     public Set<String> getCollectionState(@RequestParam(name = "sourceId") long sourceId,
-                                        @RequestParam(name = "type") CollectionType collectionType) {
+                                          @RequestParam(name = "type") CollectionType collectionType) {
         Long uid = userSupport.getCurrentUser().getId();
-        List<UserCollection> collectionListion = userCollectionRepository
+        List<UserCollection> collectionList = userCollectionRepository
                 .findByDeletedFalseAndUserIdAndSourceIdAndCollectionType(uid, sourceId, collectionType);
         Set<String> ret = new HashSet<>();
-        for (UserCollection userCollection : collectionListion) {
+        for (UserCollection userCollection : collectionList) {
             ret.add(String.valueOf(userCollection.getUserCollectionGroup().getId()));
         }
         return ret;
@@ -228,7 +258,12 @@ public class userCollectionController {
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         Page<UserCollection> userCollections = userCollectionRepository
                 .findByDeletedFalseAndCollectionTypeInAndUserCollectionGroup_Id(collectionTypeSet, groupId, pageRequest);
-
+        if (collectionType == CollectionType.Answer) {
+            for (UserCollection collection : userCollections) {
+                long questionId = qaAnswerRepository.findQuestionIdByAnswerId(collection.getSourceId());
+                collection.setLink("/question/" + questionId);
+            }
+        }
         return new PageData<>(userCollections);
     }
 

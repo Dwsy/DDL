@@ -26,13 +26,13 @@ import java.util.Objects;
 public class UserController {
 
     @Resource
-    UserSupport userSupport;
+    private  UserSupport userSupport;
 
     @Resource
-    UserRepository userRepository;
+    private   UserRepository userRepository;
 
     @Resource
-    RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
 
     @GetMapping("setting")

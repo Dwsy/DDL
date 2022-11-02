@@ -33,10 +33,12 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
 
     Page<QaAnswer> findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(long aid, long pid, Pageable pageable);
 
+    Page<QaAnswer> findByDeletedFalseAndQuestionField_IdAndAnswerTypeAndParentAnswerId(long id, AnswerType answerType, long parentAnswerId, Pageable pageable);
+
+
     List<QaAnswer> findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(long aid, long pid);
 
     Page<QaAnswer> findByDeletedFalseAndQuestionField_IdAndAnswerType(long id, AnswerType answerType, Pageable pageable);
-
 
 
     Optional<QaAnswer> findByDeletedFalseAndUser_IdAndParentAnswerIdAndAnswerTypeIn
@@ -53,13 +55,12 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
             "select user_id from qa_answer where id=?1 and deleted=false")
     Long getUserIdByAnswerId(Long id);
 
-    @Query(nativeQuery = true,value = "select text_pure from qa_answer where id=?1 and deleted=false")
+    @Query(nativeQuery = true, value = "select text_pure from qa_answer where id=?1 and deleted=false")
     String getPureText(Long answerId);
 
-    @Query(nativeQuery = true,value = "select text_html from qa_answer where id=?1 and deleted=false")
+    @Query(nativeQuery = true, value = "select text_html from qa_answer where id=?1 and deleted=false")
     String getHtmlText(Long answerId);
 //    findByUserIdAndParentCommentIdAndCommentTypeIn
-
 
 
     QaAnswer findByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn
@@ -86,6 +87,10 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
     void downNumIncrement(long actionAnswerOrCommentId, int i);
 
     QaAnswer findByDeletedFalseAndIdAndAnswerType(long id, AnswerType answerType);
+
+    @Query(nativeQuery = true,
+            value = "select question_field_id from qa_answer where id=?1")
+    long findQuestionIdByAnswerId(long answerId);
 
 
 }
