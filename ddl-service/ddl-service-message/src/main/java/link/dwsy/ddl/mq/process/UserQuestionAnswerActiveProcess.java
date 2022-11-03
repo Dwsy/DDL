@@ -68,7 +68,7 @@ public class UserQuestionAnswerActiveProcess {
                             .answerId(answerId)
 //                            .commentId(commentId)
                             .notifyType(NotifyType.answer)
-                            .formContent(formContent)
+                            .formContent(HtmlHelper.toPure(formContent))
                             .toContent(toContent)
                             .replayAnswerId(message.getReplayAnswerId())
                             .build();
@@ -119,7 +119,7 @@ public class UserQuestionAnswerActiveProcess {
 //                            .commentId(commentId)
                             .notifyType(NotifyType.answer_comment)
                             .formContent(formContent)
-                            .toContent(toContent)
+                            .toContent(HtmlHelper.toPure(toContent))
                             .replayAnswerId(message.getReplayAnswerId())
                             .build();
 //                    notify = new CommentNotifyVO(userNotify);

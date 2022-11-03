@@ -16,14 +16,19 @@ public class UnreadNotifyVo {
 
     private Integer unreadNotifyReplyCommentCount;
 
-    private Integer unreadNotifyThumbCount;
+    private Integer unreadNotifyArticleOrCommentThumbCount;
+
+    private Integer unreadNotifyQuestionOrAnswerThumbCount;
 
     private Integer unreadNotifyAnswerCount;
+
+    private Integer unreadNotifyAnswerCommentCount;
+
+    private Integer unreadNotifyQuestionCommentCount;
 
     private Integer unreadPrivateMessageCount;
 
     private Integer unreadSystemMessageCount;
 
     private Integer unreadAtMeCount;
-
 }
