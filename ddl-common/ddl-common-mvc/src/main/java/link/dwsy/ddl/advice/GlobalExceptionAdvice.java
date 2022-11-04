@@ -62,6 +62,7 @@ public class GlobalExceptionAdvice {
         BindingResult bindingResult = e.getBindingResult();
         // 判断异常中是否有错误信息，如果存在就使用异常中的消息，否则使用默认消息
         if (bindingResult.hasErrors()) {
+            log.error("service has error: [{}]", e.getMessage(), e);
             List<ObjectError> errors = bindingResult.getAllErrors();
             if (!errors.isEmpty()) {
                 // 这里列出了全部错误参数，按正常逻辑，只需要第一条错误即可
@@ -78,6 +79,7 @@ public class GlobalExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public R handlerHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         e.printStackTrace();
+        log.error("service has error: [{}]", e.getMessage(), e);
         return new R<String>(R.FAIL,"请求体错误");
     }
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -90,6 +92,7 @@ public class GlobalExceptionAdvice {
             List<ObjectError> errors = bindingResult.getAllErrors();
             if (!errors.isEmpty()) {
                 // 这里列出了全部错误参数，按正常逻辑，只需要第一条错误即可
+                log.error("service has error: [{}]", e.getMessage(), e);
                 FieldError fieldError = (FieldError) errors.get(0);
                 response.setMsg(fieldError.getDefaultMessage());
                 return response;

@@ -67,6 +67,7 @@ public class ArticleSearchProcess {
                 .title(af.getTitle())
                 .content(pureTextById)
                 .summary(af.getSummary())
+                .banner(af.getBanner())
                 .userNickName(af.getUser().getNickname())
                 .userId(String.valueOf(af.getUser().getId()))
                 .group(af.getArticleGroup().getName())

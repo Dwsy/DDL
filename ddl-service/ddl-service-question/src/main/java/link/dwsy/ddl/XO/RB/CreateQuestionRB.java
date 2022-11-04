@@ -9,10 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.util.List;
 
 /**
@@ -25,15 +22,15 @@ import java.util.List;
 @NoArgsConstructor
 public class CreateQuestionRB {
 
-    @NotBlank(message = "问题标题不能为空")
-    @Max(value = 249)
+//    @NotBlank(message = "问题标题不能为空")
+    @Size(min = 1, max = 255, message = "问题标题长度为1-255")
     private String title;
 
     @NotBlank(message = "问题内容不能为空")
 //  Markdown
     private String content;
 
-    @Max(value = 249)
+    @Size(min = 0, max = 255, message = "概述长度为0-255")
     private String summary;
 
     @Builder.Default
@@ -42,18 +39,12 @@ public class CreateQuestionRB {
     @Builder.Default
     private boolean allow_answer = true;
 
-//    private String banner;
 
     @NotEmpty(message = "标签不能为空")
     private List<Long> questionTagIds;
 
     @NotNull(message = "分组不能为空")
     private Long questionGroupId;
-
-//    @NotNull(message = "文章来源不能为空")
-//    private ArticleSource articleSource;
-
-//    private String articleSourceUrl;
 
     private Long questionId;//change
 

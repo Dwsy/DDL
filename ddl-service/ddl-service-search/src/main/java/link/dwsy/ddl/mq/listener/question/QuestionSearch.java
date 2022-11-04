@@ -56,11 +56,11 @@ public class QuestionSearch {
 
 
     @RabbitListener(queues = ArticleSearchConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE)
-    public void updateScore(Long articleId) {
-        if (articleId != null) {
+    public void updateScore(Long questionId) {
+        if (questionId != null) {
 
             Long size = redisTemplate.opsForValue().increment(scoreKey + "num");
-            redisTemplate.opsForSet().add(scoreKey, articleId.toString());
+            redisTemplate.opsForSet().add(scoreKey, questionId.toString());
             String timeOut = redisTemplate.opsForValue().get(scoreKey + "time:out");
             System.out.println("timeOut" + timeOut);
 
@@ -83,13 +83,13 @@ public class QuestionSearch {
                     redisTemplate.delete(scoreKey + "lock");
                     log.info("article doc:{} score字段更新成功", articleIds);
                 } else {
-                    redisTemplate.opsForSet().add(scoreKey, articleId.toString());
+                    redisTemplate.opsForSet().add(scoreKey, questionId.toString());
                 }
 
             } else {
                 redisTemplate.opsForValue().set(scoreKey + "time:out", "1", 10, TimeUnit.SECONDS);
                 log.info("bufferSize:{} QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE", size);
-                redisTemplate.opsForSet().add(scoreKey, articleId.toString());
+                redisTemplate.opsForSet().add(scoreKey, questionId.toString());
             }
 
         }

@@ -16,12 +16,12 @@ public interface QaContentRepository extends JpaRepository<QaQuestionContent, Lo
     @Query(value = "update qa_question_content set qa_question_field_id=?1 where id=?2", nativeQuery = true)
     int setQuestionFieldLd(long fid, long cid);
 
-    @Query(value = "select text_md from qa_question_content where id=?1 and deleted is false", nativeQuery = true)
+    @Query(value = "select text_md from qa_question_content where qa_question_field_id=?1 and deleted is false", nativeQuery = true)
     String getMdTextById(long id);
 
-    @Query(value = "select text_pure from qa_question_content where id=?1 and deleted is false", nativeQuery = true)
+    @Query(value = "select text_pure from qa_question_content where qa_question_field_id=?1 and deleted is false", nativeQuery = true)
     String getPureTextById(long id);
 
-    @Query(value = "select text_html from qa_question_content where id=?1 and deleted is false", nativeQuery = true)
+    @Query(value = "select text_html from qa_question_content where qa_question_field_id=?1 and deleted is false", nativeQuery = true)
     String getHtmlTextById(long id);
 }

@@ -3,12 +3,12 @@
     "analysis": {
       "analyzer": {
         "text_analyzer": {
-          "type":"custom",
+          "type": "custom",
           "tokenizer": "ik_max_word",
           "filter": "py"
         },
         "completion_analyzer": {
-          "type":"custom",
+          "type": "custom",
           "tokenizer": "keyword",
           "filter": "py"
         }
@@ -45,6 +45,10 @@
         "search_analyzer": "ik_smart"
       },
       "summary": {
+        "type": "keyword",
+        "index": false
+      },
+      "banner": {
         "type": "keyword",
         "index": false
       },

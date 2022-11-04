@@ -14,7 +14,7 @@ spring:
       matching-strategy: ant_path_matcher
   jpa:
     database: postgresql
-    show-sql: true
+    show-sql: off
     hibernate:
       ddl-auto: update
     properties:

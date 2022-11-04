@@ -55,13 +55,13 @@ public class ArticleSearchTest {
     @Test
     public void indices() throws IOException {
         ElasticsearchIndicesClient indices = client.indices();
-        BooleanResponse exists = indices.exists(e -> e.index("test"));
+        BooleanResponse exists = indices.exists(e -> e.index(INDEX));
         if (!exists.value()) {
-            indices.create(e -> e.index("test"));
+            indices.create(e -> e.index(INDEX));
             System.out.println("创建索引");
         } else {
             System.out.println("索引已存在");
-            indices.delete(d -> d.index("test"));
+            indices.delete(d -> d.index(INDEX));
             System.out.println("删除索引");
         }
     }
@@ -114,6 +114,7 @@ public class ArticleSearchTest {
                 .title(af.getTitle())
                 .content(pureTextById)
                 .summary(af.getSummary())
+                .banner(af.getBanner())
                 .userNickName(af.getUser().getNickname())
                 .userId(String.valueOf(af.getUser().getId()))
                 .group(af.getArticleGroup().getName())
@@ -173,6 +174,7 @@ public class ArticleSearchTest {
                 .summary(af.getSummary())
                 .userNickName(af.getUser().getNickname())
                 .userId(String.valueOf(af.getUser().getId()))
+                .banner(af.getBanner())
                 .group(af.getArticleGroup().getName())
                 .tagList(af.getArticleTags().stream().map(tag -> ArticleTagEsDoc.builder()
                         .id(tag.getId())
