@@ -31,11 +31,11 @@
         <!--            <artifactId>spring-boot-starter-data-redis</artifactId>-->
         <!--        </dependency>-->
         <!-- https://mvnrepository.com/artifact/org.springframework.experimental/spring-native -->
-        <dependency>
-            <groupId>org.springframework.experimental</groupId>
-            <artifactId>spring-native</artifactId>
-            <version>0.12.1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.experimental</groupId>-->
+<!--            <artifactId>spring-native</artifactId>-->
+<!--            <version>0.12.1</version>-->
+<!--        </dependency>-->
 
 
 
@@ -69,19 +69,19 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.springframework.experimental</groupId>
-                <artifactId>spring-aot-maven-plugin</artifactId>
-                <version>0.12.1</version>
-                <executions>
-                    <execution>
-                        <id>generate</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.experimental</groupId>-->
+<!--                <artifactId>spring-aot-maven-plugin</artifactId>-->
+<!--                <version>0.12.1</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>generate</id>-->
+<!--                        <goals>-->
+<!--                            <goal>generate</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 </project>

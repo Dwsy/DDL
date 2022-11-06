@@ -434,11 +434,11 @@
             <!--            </dependency>-->
 
             <!-- https://mvnrepository.com/artifact/org.springframework.experimental/spring-native -->
-            <dependency>
-                <groupId>org.springframework.experimental</groupId>
-                <artifactId>spring-native</artifactId>
-                <version>0.12.1</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.experimental</groupId>-->
+<!--                <artifactId>spring-native</artifactId>-->
+<!--                <version>0.12.1</version>-->
+<!--            </dependency>-->
 
         </dependencies>
     </dependencyManagement>
