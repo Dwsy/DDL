@@ -1,6 +1,6 @@
 package link.dwsy.ddl.mq.listener.article;
 
-import link.dwsy.ddl.mq.ArticleSearchConstants;
+import link.dwsy.ddl.constants.mq.ArticleSearchConstants;
 import link.dwsy.ddl.mq.process.article.ArticleSearchProcess;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -8,7 +8,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class ArticleSearch {
 
     public final String scoreKey = ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE;
-    public final int bufferSize = 10;
+    //    public final int bufferSize = 10;
     @Resource
     ArticleSearchProcess articleSearchProcess;
     @Resource
@@ -49,44 +48,50 @@ public class ArticleSearch {
     //todo
     @RabbitListener(queues = ArticleSearchConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE)
     public void updateScore(Long articleId) {
-        if (articleId != null) {
-
-            Long size = redisTemplate.opsForValue().increment(scoreKey + "num");
-            redisTemplate.opsForSet().add(scoreKey, articleId.toString());
-            String timeOut = redisTemplate.opsForValue().get(scoreKey + "time:out");
-            System.out.println("timeOut" + timeOut);
-
-            if (timeOut == null) {
-                if (size != null && size >= bufferSize / 10) {
-                    size = (long) bufferSize;
-                    redisTemplate.delete(scoreKey + "time:out");
-                }
-            }
-
-
-            if (size != null && size >= bufferSize) {
-                Boolean lock = redisTemplate.opsForValue().setIfAbsent(scoreKey + "lock", "1", 60, TimeUnit.SECONDS);
-                if (Boolean.TRUE.equals(lock)) {
-                    Set<String> articleIds = redisTemplate.opsForSet().members(scoreKey);
-                    redisTemplate.delete(scoreKey);
-                    redisTemplate.delete(scoreKey + "num");
-                    assert articleIds != null;
-                    articleIds.stream().map(Long::parseLong).forEach(articleSearchProcess::updateScoreDataById);
-                    redisTemplate.delete(scoreKey + "lock");
-                    log.info("article doc:{} score字段更新成功", articleIds);
-                } else {
-                    redisTemplate.opsForSet().add(scoreKey, articleId.toString());
-                }
-
-            } else {
-                redisTemplate.opsForValue().set(scoreKey + "time:out", "1", 10, TimeUnit.SECONDS);
-                log.info("bufferSize:{} QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE", size);
-                redisTemplate.opsForSet().add(scoreKey, articleId.toString());
-            }
-
+        Boolean lock = redisTemplate.opsForValue().setIfAbsent(scoreKey + "lock", String.valueOf(articleId), 600, TimeUnit.SECONDS);
+        if (Boolean.TRUE.equals(lock)) {
+            articleSearchProcess.updateScoreDataById(articleId);
+            redisTemplate.delete(scoreKey + "lock");
+            log.info("article doc:{} score字段更新成功", articleId);
         }
-
     }
+//        if (articleId != null) {
+//
+//            Long size = redisTemplate.opsForValue().increment(scoreKey + "num");
+//            redisTemplate.opsForSet().add(scoreKey, articleId.toString());
+//            String timeOut = redisTemplate.opsForValue().get(scoreKey + "time:out");
+//            System.out.println("timeOut" + timeOut);
+//
+//            if (timeOut == null) {
+//                if (size != null && size >= bufferSize / 10) {
+//                    size = (long) bufferSize;
+//                    redisTemplate.delete(scoreKey + "time:out");
+//                }
+//            }
+//
+//
+//            if (size != null && size >= bufferSize) {
+//                Boolean lock = redisTemplate.opsForValue().setIfAbsent(scoreKey + "lock", "1", 600, TimeUnit.SECONDS);
+//                if (Boolean.TRUE.equals(lock)) {
+//                    Set<String> articleIds = redisTemplate.opsForSet().members(scoreKey);
+//                    redisTemplate.delete(scoreKey);
+//                    redisTemplate.delete(scoreKey + "num");
+//                    assert articleIds != null;
+//                    articleIds.stream().map(Long::parseLong).forEach(articleSearchProcess::updateScoreDataById);
+//                    redisTemplate.delete(scoreKey + "lock");
+//                    log.info("article doc:{} score字段更新成功", articleIds);
+//                } else {
+//                    redisTemplate.opsForSet().add(scoreKey, articleId.toString());
+//                }
+//            } else {
+//                redisTemplate.opsForValue().set(scoreKey + "time:out", "1", 10, TimeUnit.SECONDS);
+//                log.info("bufferSize:{} QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE", size);
+//                redisTemplate.opsForSet().add(scoreKey, articleId.toString());
+//            }
+//
+//        }
+//
+//    }
 
 
 }

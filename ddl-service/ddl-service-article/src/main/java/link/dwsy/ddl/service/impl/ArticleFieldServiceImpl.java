@@ -8,6 +8,9 @@ import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserActiveMessage;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
+import link.dwsy.ddl.constants.mq.ArticleSearchConstants;
+import link.dwsy.ddl.constants.mq.UserActiveConstants;
+import link.dwsy.ddl.constants.task.RedisRecordKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
@@ -15,8 +18,6 @@ import link.dwsy.ddl.entity.Article.ArticleContent;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.Article.ArticleGroup;
 import link.dwsy.ddl.entity.Article.ArticleTag;
-import link.dwsy.ddl.mq.ArticleSearchConstants;
-import link.dwsy.ddl.mq.UserActiveConstants;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
@@ -27,6 +28,7 @@ import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -45,20 +47,22 @@ import java.util.stream.Collectors;
 public class ArticleFieldServiceImpl implements ArticleFieldService {
 
     @Resource
-    ArticleTagRepository articleTagRepository;
+    private ArticleTagRepository articleTagRepository;
     @Resource
-    ArticleFieldRepository articleFieldRepository;
+    private ArticleFieldRepository articleFieldRepository;
     @Resource
-    ArticleGroupRepository articleGroupRepository;
+    private ArticleGroupRepository articleGroupRepository;
     @Resource
-    ArticleContentRepository articleContentRepository;
+    private ArticleContentRepository articleContentRepository;
     @Resource
-    RabbitTemplate rabbitTemplate;
+    private RabbitTemplate rabbitTemplate;
     @Resource
-    UserSupport userSupport;
+    private UserSupport userSupport;
 
     @Resource
-    UserRepository userRepository;
+    private StringRedisTemplate redisTemplate;
+    @Resource
+    private UserRepository userRepository;
 
     public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
@@ -227,6 +231,13 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     }
 
     public void view(Long id) {
+        redisTemplate.opsForHash().increment(RedisRecordKey.RedisArticleRecordKey, id.toString(), 1);
+        String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisArticleRecordKey, id.toString());
+        if (num != null && Integer.parseInt(num) > 100) {
+            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE, id);
+        }
         articleFieldRepository.viewNumIncrement(id, 1);
     }
+
+
 }

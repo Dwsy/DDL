@@ -4,7 +4,7 @@ package link.dwsy.ddl.config;
 import com.github.houbb.sensitive.word.api.IWordDeny;
 import link.dwsy.ddl.entity.ContentChecking.WordEntity;
 import link.dwsy.ddl.XO.Enum.WordType;
-import link.dwsy.ddl.repository.ContentChecking.WordReptitory;
+import link.dwsy.ddl.repository.ContentChecking.WordRepository;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
 public class MyDdWordDeny implements IWordDeny {
 
     @Resource
-    private WordReptitory wordReptitory;
+    private WordRepository wordRepository;
 
     @Override
     public List<String> deny() {
 
-        List<WordEntity> wordList = wordReptitory.findByDeletedFalseAndType(WordType.Deny);
+        List<WordEntity> wordList = wordRepository.findByDeletedFalseAndType(WordType.Deny);
 
         return wordList.stream().map(WordEntity::getWord).collect(Collectors.toList());
     }

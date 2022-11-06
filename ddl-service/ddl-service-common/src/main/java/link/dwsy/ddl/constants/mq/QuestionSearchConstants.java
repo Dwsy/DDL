@@ -1,4 +1,4 @@
-package link.dwsy.ddl.mq;
+package link.dwsy.ddl.constants.mq;
 
 /**
  * @Author Dwsy

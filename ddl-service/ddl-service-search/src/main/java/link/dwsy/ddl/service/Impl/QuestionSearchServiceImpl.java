@@ -5,7 +5,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import link.dwsy.ddl.XO.ES.Question.QuestionEsDoc;
-import link.dwsy.ddl.mq.QuestionSearchConstants;
+import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
 import link.dwsy.ddl.util.PageData;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;

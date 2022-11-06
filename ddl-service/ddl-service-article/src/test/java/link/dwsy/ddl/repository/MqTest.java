@@ -2,7 +2,7 @@ package link.dwsy.ddl.repository;
 
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserActiveMessage;
-import link.dwsy.ddl.mq.ArticleSearchConstants;
+import link.dwsy.ddl.constants.mq.ArticleSearchConstants;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;

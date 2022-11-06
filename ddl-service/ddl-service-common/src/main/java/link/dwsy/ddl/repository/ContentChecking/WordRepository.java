@@ -10,7 +10,7 @@ import java.util.List;
  * @Date 2022/9/2
  */
 
-public interface WordReptitory extends JpaRepository<WordEntity, Long> {
+public interface WordRepository extends JpaRepository<WordEntity, Long> {
 
 
     List<WordEntity> findByDeletedFalseAndType(WordType type);

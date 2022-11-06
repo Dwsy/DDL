@@ -4,9 +4,9 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import link.dwsy.ddl.XO.ES.Question.QuestionEsDoc;
 import link.dwsy.ddl.XO.ES.Question.QuestionEsSuggestion;
 import link.dwsy.ddl.XO.ES.Question.QuestionTagEsDoc;
-import link.dwsy.ddl.XO.ES.article.ArticleEsDoc;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
+import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class QuestionSearchProcess {
 
-    private final String INDEX = "ddl_question";
+    private final String INDEX = QuestionSearchConstants.INDEX;
     @Resource
     ArticleFieldRepository articleFieldRepository;
     @Resource
@@ -42,28 +42,26 @@ public class QuestionSearchProcess {
     @Resource
     ElasticsearchClient client;
 
-    public boolean updateScoreDataById(long aid) {
-        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(aid, ArticleState.published);
+    public void updateScoreDataById(long questionId) {
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(questionId, ArticleState.published);
         if (af == null) {
-            return false;
+            return;
         }
-        ArticleEsDoc esDoc = ArticleEsDoc.builder()
+        QuestionEsDoc esDoc = QuestionEsDoc.builder()
                 .upNum(af.getUpNum())
                 .downNum(af.getDownNum())
                 .collectNum(af.getCollectNum())
                 .viewNum(af.getViewNum())
+                .answerNum(af.getCommentNum())
                 .build();
-        ArticleEsDoc.builder().title("updateTest").build();
         try {
             client.update(req -> req
-                            .index(INDEX).id(String.valueOf(aid))
+                            .index(INDEX).id(String.valueOf(questionId))
                             .doc(esDoc)
-                    , ArticleEsDoc.class);
+                    , QuestionEsDoc.class);
         } catch (IOException e) {
-            log.info("更新失败 aId ：{}", aid);
-            return false;
+            log.info("更新失败 questionId ：{}", questionId);
         }
-        return true;
     }
 
     public boolean updateOrSaveAllDataById(long qid) {
@@ -91,6 +89,7 @@ public class QuestionSearchProcess {
                         create(qf.getTitle(), qf.getQaGroup().getName(), qf.getQuestionTags()))
                 .createTime(qf.getCreateTime())
                 .answerNum(qf.getAnswerNum())
+
                 .viewNum(qf.getViewNum())
                 .upNum(qf.getUpNum())
                 .downNum(qf.getDownNum())

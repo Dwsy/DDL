@@ -125,6 +125,11 @@ public class ArticleSearchTest {
                 .suggestion(ArticleEsSuggestion.
                         create(af.getTitle(), af.getArticleGroup().getName(), af.getArticleTags()))
                 .createTime(af.getCreateTime())
+                .upNum(af.getUpNum())
+                .downNum(af.getDownNum())
+                .commentNum(af.getCommentNum())
+                .commentNum(af.getCommentNum())
+                .viewNum(af.getViewNum())
                 .build();
 
         Result result = client.create(req ->
@@ -182,6 +187,11 @@ public class ArticleSearchTest {
                         .build()).collect(Collectors.toList()))
                 .suggestion(ArticleEsSuggestion.
                         create(af.getTitle(), af.getArticleGroup().getName(), af.getArticleTags()))
+                .upNum(af.getUpNum())
+                .downNum(af.getDownNum())
+                .commentNum(af.getCommentNum())
+                .commentNum(af.getCommentNum())
+                .viewNum(af.getViewNum())
                 .build();
         ArticleEsDoc.builder().title("updateTest").build();
         client.update(req -> req

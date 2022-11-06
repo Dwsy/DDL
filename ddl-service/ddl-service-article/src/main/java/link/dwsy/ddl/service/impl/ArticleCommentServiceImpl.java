@@ -12,7 +12,7 @@ import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.User.User;
-import link.dwsy.ddl.mq.UserActiveConstants;
+import link.dwsy.ddl.constants.mq.UserActiveConstants;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;

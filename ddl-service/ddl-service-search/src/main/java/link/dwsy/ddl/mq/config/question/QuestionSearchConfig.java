@@ -1,6 +1,6 @@
 package link.dwsy.ddl.mq.config.question;
 
-import link.dwsy.ddl.mq.QuestionSearchConstants;
+import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;

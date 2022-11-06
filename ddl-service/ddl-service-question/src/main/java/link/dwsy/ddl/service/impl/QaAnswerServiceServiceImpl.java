@@ -11,7 +11,7 @@ import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.QA.QaAnswer;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.User.User;
-import link.dwsy.ddl.mq.UserActiveConstants;
+import link.dwsy.ddl.constants.mq.UserActiveConstants;
 import link.dwsy.ddl.repository.QA.QaAnswerRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;

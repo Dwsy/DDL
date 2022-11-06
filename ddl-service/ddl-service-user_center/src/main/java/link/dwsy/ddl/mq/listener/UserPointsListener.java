@@ -4,7 +4,7 @@ package link.dwsy.ddl.mq.listener;
 import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.XO.Message.UserPointsMessage;
 import link.dwsy.ddl.entity.User.UserPoints;
-import link.dwsy.ddl.mq.UserPointsConstants;
+import link.dwsy.ddl.constants.mq.UserPointsConstants;
 import link.dwsy.ddl.mq.process.UserPointsProcess;
 import link.dwsy.ddl.repository.User.UserPointsRepository;
 import lombok.extern.slf4j.Slf4j;

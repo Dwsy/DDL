@@ -6,7 +6,7 @@ import link.dwsy.ddl.XO.RB.WordEntityRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.ContentChecking.WordEntity;
-import link.dwsy.ddl.repository.ContentChecking.WordReptitory;
+import link.dwsy.ddl.repository.ContentChecking.WordRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +18,7 @@ import javax.annotation.Resource;
 public class WordController {
 
     @Resource
-    private WordReptitory wordReptitory;
+    private WordRepository wordRepository;
 
     @Resource
     private SensitiveWordBs sensitiveWordBs;
@@ -33,11 +33,11 @@ public class WordController {
     @PostMapping("/add")
     @ResponseBody
     public boolean add(@RequestBody WordEntityRB entity) {
-        WordEntity word = wordReptitory.findByDeletedFalseAndWord(entity.getWord());
+        WordEntity word = wordRepository.findByDeletedFalseAndWord(entity.getWord());
         if (word != null) {
             throw new CodeException(CustomerErrorCode.WordExist);
         }
-        wordReptitory.save(WordEntity.builder()
+        wordRepository.save(WordEntity.builder()
                 .type(entity.getType())
                 .word(entity.getWord()).build());
         refreshSensitiveWord();
@@ -53,10 +53,10 @@ public class WordController {
     @PutMapping("/edit")
     @ResponseBody
     public boolean edit(@RequestBody WordEntityRB entity) {
-        if (!wordReptitory.existsById(entity.getId())) {
+        if (!wordRepository.existsById(entity.getId())) {
             throw new CodeException(CustomerErrorCode.WordNotFount);
         }
-        wordReptitory.save(entity.toEntity());
+        wordRepository.save(entity.toEntity());
         refreshSensitiveWord();
         return true;
     }
@@ -70,10 +70,10 @@ public class WordController {
     @DeleteMapping("/remove/{id}")
     @ResponseBody
     public boolean remove(@PathVariable Long id) {
-        if (!wordReptitory.existsById(id)) {
+        if (!wordRepository.existsById(id)) {
             throw new CodeException(CustomerErrorCode.WordNotFount);
         }
-        wordReptitory.deleteById(id);
+        wordRepository.deleteById(id);
         refreshSensitiveWord();
         return true;
     }

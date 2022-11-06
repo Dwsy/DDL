@@ -1,7 +1,7 @@
 package link.dwsy.ddl.mq.listener;
 
 import link.dwsy.ddl.XO.Message.UserActiveMessage;
-import link.dwsy.ddl.mq.UserActiveConstants;
+import link.dwsy.ddl.constants.mq.UserActiveConstants;
 import link.dwsy.ddl.mq.process.UserActiveProcess;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
