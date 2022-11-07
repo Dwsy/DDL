@@ -59,7 +59,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     @Resource
     private UserSupport userSupport;
 
-    @Resource
+    @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
     @Resource
     private UserRepository userRepository;

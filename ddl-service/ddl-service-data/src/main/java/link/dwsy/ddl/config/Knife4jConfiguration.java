@@ -1,4 +1,4 @@
-package link.dwsy.DDL.config;
+package link.dwsy.ddl.config;
 
 
 import org.springframework.context.annotation.Bean;

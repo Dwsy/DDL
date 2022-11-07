@@ -1,4 +1,4 @@
-package link.dwsy.DDL.task;
+package link.dwsy.ddl.task;
 
 import link.dwsy.ddl.constants.task.RedisRecordKey;
 import link.dwsy.ddl.entity.Article.ArticleField;
@@ -26,11 +26,12 @@ public class ArticleDailyDataTask {
     @Resource
     private ArticleDailyDataRepository articleDailyDataRepository;
 
-    @Resource
+    @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
 
 
     @Scheduled(cron = "0 5 0 * * ? ")
+//    @Scheduled(cron = "0 * * * * ? ")
     public void record() {
         log.info("定时任务执行{}", Thread.currentThread().getName());
         Set<Object> ArticleIdSet = redisTemplate.opsForHash().keys(RedisRecordKey.RedisArticleRecordKey);
@@ -38,7 +39,8 @@ public class ArticleDailyDataTask {
             log.info("今日无文章访问");
             return;
         }
-        List<ArticleField> articleFieldList = articleFieldRepository.findAllById(ArticleIdSet.stream().map(Object::toString).map(Long::parseLong).collect(Collectors.toList()));
+        List<ArticleField> articleFieldList = articleFieldRepository.findAllById
+                (ArticleIdSet.stream().map(Object::toString).map(Long::parseLong).collect(Collectors.toList()));
         ArrayList<ArticleDailyData> dailyDataArrayList = new ArrayList<>(articleFieldList.size());
         for (ArticleField articleField : articleFieldList) {
             ArticleDailyData data = ArticleDailyData.builder()

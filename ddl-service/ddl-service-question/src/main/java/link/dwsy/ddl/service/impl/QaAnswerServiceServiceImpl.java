@@ -1,9 +1,11 @@
 package link.dwsy.ddl.service.impl;
 
+import cn.hutool.crypto.SecureUtil;
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
+import link.dwsy.ddl.constants.mq.UserActiveConstants;
 import link.dwsy.ddl.controller.QuestionAnswerOrCommentActionRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -11,7 +13,6 @@ import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.QA.QaAnswer;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.User.User;
-import link.dwsy.ddl.constants.mq.UserActiveConstants;
 import link.dwsy.ddl.repository.QA.QaAnswerRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
@@ -105,10 +106,9 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         int answerSerialNumber = 1;
 
         long parentAnswerId = qaAnswerRB.getParentAnswerId();
-        String toHTML = HtmlHelper.toHTML(qaAnswerRB.getMdText());
         if (parentAnswerId == 0) {//问题
             if (answerType == AnswerType.answer) {//回答
-                return answerQuestion(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber, toHTML);
+                return answerQuestion(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber);
             } else if (answerType == AnswerType.comment) {//回复询问细节
                 return addComment(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber);
             }
@@ -205,18 +205,18 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return save.getId();
     }
 
-    private long answerQuestion(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber, String toHTML) {
+    private long answerQuestion(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
         QaAnswer lastAnswer = qaAnswerRepository
                 .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
                         (questionFieldId, 0L, AnswerType.answer);
         if (lastAnswer != null) {
             answerSerialNumber = lastAnswer.getAnswerSerialNumber() + 1;
         }
-
+        String toHTML;
         QaAnswer qaAnswer = QaAnswer.builder()
                 .parentAnswerId(0)
                 .parentUserId(0)
-                .textHtml(toHTML)
+//                .textHtml(toHTML)
                 .textMd(qaAnswerRB.getMdText())
                 .answerType(answerType)
                 .user(user)
@@ -227,6 +227,11 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
         QaAnswer save = qaAnswerRepository.save(qaAnswer);
 
+        long answerId = save.getId();
+        String substring = SecureUtil.md5(String.valueOf(answerId)).substring(10, 14);
+        HtmlHelper.LinkRefAttributeProvider.answerId.set(substring);
+        toHTML = HtmlHelper.toHTML(qaAnswerRB.getMdText());
+        qaAnswerRepository.seAnswerHtml(answerId, toHTML);
         //todo mq notice
         String toPure = HtmlHelper.toPure(toHTML);
         String content = toPure.substring(0, Math.min(200, toPure.length()));
@@ -234,10 +239,10 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         String title = qaQuestionFieldRepository.getTitle(questionFieldId);
 //            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
         sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
-                answerType, false, content, title, save.getId());
+                answerType, false, content, title, answerId);
 //            }
         qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
-        return save.getId();
+        return answerId;
     }
 
     private long addComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {

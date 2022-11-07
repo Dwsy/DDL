@@ -1,4 +1,4 @@
-package link.dwsy.DDL.controller;
+package link.dwsy.ddl.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

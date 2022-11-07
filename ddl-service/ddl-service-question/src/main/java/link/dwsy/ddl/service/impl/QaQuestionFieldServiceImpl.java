@@ -58,6 +58,8 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
     @Resource
     private RabbitTemplate rabbitTemplate;
+    @Resource(name = "stringRedisTemplate")
+    private StringRedisTemplate redisTemplate;
 
     @Override
     public PageData<QaQuestionField> getPageList(Collection<QuestionState> questionStateCollection, PageRequest pageRequest) {
@@ -175,12 +177,9 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return save.getId();
     }
 
-    @Resource
-    private StringRedisTemplate redisTemplate;
-
     public void view(Long id) {
-        redisTemplate.opsForHash().increment(RedisRecordKey.RedisArticleRecordKey, id.toString(), 1);
-        String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisArticleRecordKey, id.toString());
+        redisTemplate.opsForHash().increment(RedisRecordKey.RedisQuestionRecordKey, id.toString(), 1);
+        String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisQuestionRecordKey, id.toString());
         if (num != null && Integer.parseInt(num) > 100) {
             rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE, id);
         }

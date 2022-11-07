@@ -75,8 +75,12 @@ public class QaQuestionFieldController {
         if (id < 1L)
             throw new CodeException(CustomerErrorCode.ParamError);
 //        userActiveService.ActiveLog(UserActiveType.Browse_QA, id);
+        QaQuestionField question = qaQuestionFieldService.getQuestionById(id, getQuestionComment);
+        if (question == null) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
         qaQuestionFieldService.view(id);
-        return qaQuestionFieldService.getQuestionById(id,getQuestionComment);
+        return question;
     }
 
 //    getUserAction

@@ -95,8 +95,11 @@ public class ArticleFieldController {
     public ArticleField getArticleById(@PathVariable("id") Long id) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
+        ArticleField article = articleContentService.getArticleById(id, ArticleState.published);
+        if (article == null)
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
         articleFieldService.view(id);
-        return articleContentService.getArticleById(id, ArticleState.published);
+        return article;
     }
 
 

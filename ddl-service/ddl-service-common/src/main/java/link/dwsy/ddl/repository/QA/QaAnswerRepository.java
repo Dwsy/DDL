@@ -92,5 +92,9 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
             value = "select question_field_id from qa_answer where id=?1")
     long findQuestionIdByAnswerId(long answerId);
 
-
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true,
+            value = "update qa_answer set text_html=?2 where id=?1")
+    int seAnswerHtml(long answerId, String html);
 }

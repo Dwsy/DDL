@@ -1,4 +1,4 @@
-package link.dwsy.DDL.task;
+package link.dwsy.ddl.task;
 
 import link.dwsy.ddl.constants.task.RedisRecordKey;
 import link.dwsy.ddl.entity.Data.Question.QuestionDailyData;
@@ -26,11 +26,12 @@ public class QuestionDailyDataTask {
     @Resource
     private QuestionDailyDataRepository questionDailyDataRepository;
 
-    @Resource
+    @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
 
 
     @Scheduled(cron = "0 5 0 * * ? ")
+//    @Scheduled(cron = "0 * * * * ? ")
     public void record() {
         log.info("定时任务执行{}", Thread.currentThread().getName());
         Set<Object> QuestionIdSet = redisTemplate.opsForHash().keys(RedisRecordKey.RedisQuestionRecordKey);
@@ -38,7 +39,8 @@ public class QuestionDailyDataTask {
             log.info("今日无访问");
             return;
         }
-        List<QaQuestionField> questionFields = qaQuestionFieldRepository.findAllById(QuestionIdSet.stream().map(q-> Long.parseLong(q.toString())).collect(Collectors.toList()));
+        List<QaQuestionField> questionFields = qaQuestionFieldRepository.findAllById
+                (QuestionIdSet.stream().map(q-> Long.parseLong(q.toString())).collect(Collectors.toList()));
         ArrayList<QuestionDailyData> dailyDataArrayList = new ArrayList<>(questionFields.size());
         for (QaQuestionField questionField : questionFields) {
             QuestionDailyData data = QuestionDailyData.builder()
