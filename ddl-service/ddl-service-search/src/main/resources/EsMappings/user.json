@@ -28,27 +28,15 @@
   },
   "mappings": {
     "properties": {
-      "id": {
+      "userId": {
         "type": "keyword"
       },
-      "name": {
-        "type": "completion",
-        "analyzer": "completion_analyzer",
-        "search_analyzer": "completion_analyzer"
-      },
-      "articleNum": {
-        "type": "integer"
-      },
-      "weight": {
-        "type": "integer"
-      },
-      "indexPageDisplay":{
-        "type": "boolean"
-      },
-      "groupName":{
+      "nickName": {
         "type": "text",
-        "analyzer": "text_analyzer",
-        "search_analyzer": "ik_smart"
+        "analyzer": "text_analyzer"
+      },
+      "avatar":{
+        "type": "keyword"
       }
     }
   }

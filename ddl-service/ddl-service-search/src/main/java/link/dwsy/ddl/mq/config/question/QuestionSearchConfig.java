@@ -60,7 +60,7 @@ public class QuestionSearchConfig {
 
     @Bean
     public Binding questionUpdateScoreBinding() {
-        return BindingBuilder.bind(questionDeleteQueue()).to(questionSearchTopicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE);
+        return BindingBuilder.bind(questionUpdateScoreQueue()).to(questionSearchTopicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE);
     }
 
 }

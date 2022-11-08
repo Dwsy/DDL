@@ -29,4 +29,8 @@ public interface QaContentRepository extends JpaRepository<QaQuestionContent, Lo
 
     @Query(value = "select text_html from qa_question_content where qa_question_field_id=?1 and deleted is false", nativeQuery = true)
     String getHtmlTextById(long id);
+
+    QaQuestionContent findByDeletedFalseAndQuestionFieldId(long questionFieldId);
+
+
 }

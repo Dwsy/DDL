@@ -32,7 +32,7 @@ public class QuestionSearchController {
     @Resource
     private ElasticsearchClient client;
     @Resource
-    private QuestionSearchServiceImpl quesionSearchService;
+    private QuestionSearchServiceImpl questionSearchService;
 
 
     @GetMapping("{query}")
@@ -42,7 +42,7 @@ public class QuestionSearchController {
                                           @RequestParam(defaultValue = "10") int size
     ) throws IOException {
         // todo 根据点赞 收藏 浏览量 算分排序
-        return quesionSearchService.getSearchPageData(page, size, query);
+        return questionSearchService.getSearchPageData(page, size, query);
 
     }
 

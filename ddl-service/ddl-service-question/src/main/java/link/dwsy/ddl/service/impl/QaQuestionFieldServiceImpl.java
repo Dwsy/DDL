@@ -132,6 +132,11 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
     public long updateQuestion(CreateQuestionRB createQuestionRB) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
+        Long questionId = createQuestionRB.getQuestionId();
+        Long userIdByQuestionId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
+        if (!(userIdByQuestionId.equals(currentUser.getId()))) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
 
         ArrayList<QaTag> qaTags = new ArrayList<>(qaQuestionTagRepository.findAllById(
                 createQuestionRB.getQuestionTagIds().stream().distinct().collect(Collectors.toList())
@@ -147,29 +152,26 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
             createQuestionRB.setSummary(pure.substring(0, 200));
         }
 
-        QaQuestionContent content = QaQuestionContent.builder()
-                .textPure(pure)
-                .textMd(createQuestionRB.getContent())
-                .textHtml(html)
-                .build();
+        QaQuestionField field = qaQuestionFieldRepository.findByDeletedFalseAndId(questionId);
+        QaQuestionContent questionContent = qaContentRepository.findByDeletedFalseAndQuestionFieldId(questionId);
+        questionContent.setTextMd(createQuestionRB.getContent());
+        questionContent.setTextHtml(html);
+        questionContent.setTextPure(pure);
+        field.setTitle(createQuestionRB.getTitle());
+        field.setQuestionState(createQuestionRB.getQuestionState());
+//        field.setAllowAnswer(createQuestionRB.getllowAnswer());
+        field.setSummary(createQuestionRB.getSummary());
+        field.setQaQuestionContent(questionContent);
+        field.setQuestionTags(qaTags);
+        field.setQaGroup(qaGroup);
+        field.setCodeHighlightStyle(createQuestionRB.getCodeHighlightStyle());
+        field.setMarkDownTheme(createQuestionRB.getMarkDownTheme());
+        field.setCodeHighlightStyleDark(createQuestionRB.getCodeHighlightStyleDark());
+        field.setMarkDownThemeDark(createQuestionRB.getMarkDownThemeDark());
 
-        QaQuestionField field = new QaQuestionField()
-                .setUser(userRepository.findUserByIdAndDeletedIsFalse(currentUser.getId()))
-                .setTitle(createQuestionRB.getTitle())
-                .setSummary(createQuestionRB.getSummary())
-                .setQuestionState(createQuestionRB.getQuestionState())
-                .setAllowAnswer(createQuestionRB.isAllow_answer())
-                .setQaQuestionContent(content)
-                .setQuestionTags(qaTags)
-                .setQaGroup(qaGroup)
-                .setMarkDownTheme(createQuestionRB.getMarkDownTheme())
-                .setMarkDownThemeDark(createQuestionRB.getMarkDownThemeDark())
-                .setCodeHighlightStyle(createQuestionRB.getCodeHighlightStyle())
-                .setCodeHighlightStyleDark(createQuestionRB.getCodeHighlightStyleDark());
 
-        field.setId(createQuestionRB.getQuestionId());
+        field.setId(questionId);
         QaQuestionField save = qaQuestionFieldRepository.save(field);
-        //todo search action mq
 //        articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
         rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE, save.getId());
 
