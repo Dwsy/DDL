@@ -5,8 +5,8 @@ import link.dwsy.ddl.XO.ES.article.ArticleEsDoc;
 import link.dwsy.ddl.XO.ES.article.ArticleEsSuggestion;
 import link.dwsy.ddl.XO.ES.article.ArticleTagEsDoc;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
-import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.constants.mq.ArticleSearchConstants;
+import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -48,9 +48,9 @@ public class ArticleSearchProcess {
         try {
             client.update(req -> req
                             .index(INDEX).id(String.valueOf(aid))
-                            .doc(esDoc)
+                            .doc(esDoc).docAsUpsert(true)
                     , ArticleEsDoc.class);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.info("更新失败 aId ：{}", aid);
             return false;
         }

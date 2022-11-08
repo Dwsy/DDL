@@ -180,7 +180,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     public void view(Long id) {
         redisTemplate.opsForHash().increment(RedisRecordKey.RedisQuestionRecordKey, id.toString(), 1);
         String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisQuestionRecordKey, id.toString());
-        if (num != null && Integer.parseInt(num) > 100) {
+        if (num != null && (Integer.parseInt(num)) % 10 == 0) {
             rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE, id);
         }
         qaQuestionFieldRepository.viewNumIncrement(id, 1);

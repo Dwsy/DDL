@@ -45,22 +45,26 @@ public class ArticleSearchConfig {
 
     @Bean
     public Binding articleSearchCreateQueueBinding() {
-        return BindingBuilder.bind(articleSearchCreateQueue()).to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE);
+        return BindingBuilder.bind(articleSearchCreateQueue())
+                .to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE);
     }
 
     @Bean
     public Binding deleteQueueBinding() {
-        return BindingBuilder.bind(articleSearchDeleteQueue()).to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_DELETE);
+        return BindingBuilder.bind(articleSearchDeleteQueue())
+                .to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_DELETE);
     }
 
     @Bean
     public Binding updateQueueBinding() {
-        return BindingBuilder.bind(articleSearchCreateQueue()).to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE);
+        return BindingBuilder.bind(articleSearchCreateQueue())
+                .to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE);
     }
 
     @Bean
     public Binding updateScoreBinding() {
-        return BindingBuilder.bind(articleSearchDeleteQueue()).to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE);
+        return BindingBuilder.bind(articleSearchUpdateScoreQueue())
+                .to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE);
     }
 
 }

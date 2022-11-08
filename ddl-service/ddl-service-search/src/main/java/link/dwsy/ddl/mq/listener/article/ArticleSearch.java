@@ -51,7 +51,6 @@ public class ArticleSearch {
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(scoreKey + "lock", String.valueOf(articleId), 600, TimeUnit.SECONDS);
         if (Boolean.TRUE.equals(lock)) {
             articleSearchProcess.updateScoreDataById(articleId);
-            redisTemplate.delete(scoreKey + "lock");
             log.info("article doc:{} score字段更新成功", articleId);
         }
     }

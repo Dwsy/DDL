@@ -57,7 +57,7 @@ public class QuestionSearchProcess {
         try {
             client.update(req -> req
                             .index(INDEX).id(String.valueOf(questionId))
-                            .doc(esDoc)
+                            .doc(esDoc).docAsUpsert(true)
                     , QuestionEsDoc.class);
         } catch (IOException e) {
             log.info("更新失败 questionId ：{}", questionId);

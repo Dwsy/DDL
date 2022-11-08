@@ -233,7 +233,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     public void view(Long id) {
         redisTemplate.opsForHash().increment(RedisRecordKey.RedisArticleRecordKey, id.toString(), 1);
         String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisArticleRecordKey, id.toString());
-        if (num != null && Integer.parseInt(num) > 100) {
+        if (num != null && (Integer.parseInt(num)) % 10 == 0) {
+            log.info("RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE:{}", id);
             rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE, id);
         }
         articleFieldRepository.viewNumIncrement(id, 1);
