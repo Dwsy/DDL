@@ -1,6 +1,7 @@
 package link.dwsy.ddl.mq.listener;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import link.dwsy.ddl.XO.Message.Question.InvitationUserAnswerQuestionMsg;
 import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
 import link.dwsy.ddl.constants.mq.UserActiveConstants;
 import link.dwsy.ddl.mq.process.UserQuestionAnswerActiveProcess;
@@ -25,6 +26,20 @@ public class UserQuestionAnswerActive {
 
 //        System.out.println(JSON.toJSONString(message));
         userQuestionAnswerActiveProcess.sendNotify(message);
+
+//        if (message.getUserActiveType() == null) {
+//            System.out.println(message.getCommentId());
+//            return;
+//
+//        }
+//
+    }
+
+    @RabbitListener(queues = UserActiveConstants.QUEUE_DDL_USER_INVITATION_USER_ANSWER_QUESTION)
+    public void sendNotify(InvitationUserAnswerQuestionMsg message) {
+
+//        System.out.println(JSON.toJSONString(message));
+        userQuestionAnswerActiveProcess.sendInvitationNotify(message);
 
 //        if (message.getUserActiveType() == null) {
 //            System.out.println(message.getCommentId());

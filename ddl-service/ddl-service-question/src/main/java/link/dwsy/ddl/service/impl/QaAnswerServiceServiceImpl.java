@@ -1,9 +1,12 @@
 package link.dwsy.ddl.service.impl;
 
 import cn.hutool.crypto.SecureUtil;
+import link.dwsy.ddl.XO.Enum.Message.NotifyType;
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
+import link.dwsy.ddl.XO.Message.Question.InvitationUserAnswerQuestionMsg;
 import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
+import link.dwsy.ddl.XO.RB.InvitationUserRB;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
 import link.dwsy.ddl.constants.mq.UserActiveConstants;
 import link.dwsy.ddl.controller.QuestionAnswerOrCommentActionRB;
@@ -13,8 +16,10 @@ import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.QA.QaAnswer;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.User.User;
+import link.dwsy.ddl.entity.User.UserNotify;
 import link.dwsy.ddl.repository.QA.QaAnswerRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
+import link.dwsy.ddl.repository.User.UserNotifyRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.QaAnswerService;
 import link.dwsy.ddl.support.UserSupport;
@@ -29,6 +34,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -49,6 +55,10 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
     @Resource
     private UserRepository userRepository;
+
+
+    @Resource
+    private UserNotifyRepository userNotifyRepository;
 
     @Resource
     private RabbitTemplate rabbitTemplate;
@@ -531,6 +541,48 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         }
         qaAnswerRepository.save(action);
         return action.getAnswerType();
+    }
+
+    public void invitationUserAnswerQuestion(InvitationUserRB invitationUserRB) {
+        LoginUserInfo currentUser = userSupport.getCurrentUser();
+        Long userId = currentUser.getId();
+        boolean Invited = userNotifyRepository
+                .existsByDeletedFalseAndQuestionIdAndCancelFalseAndFromUserIdAndToUserIdAndNotifyType
+                        (invitationUserRB.getQuestionId(), userId, invitationUserRB.getUserId(), NotifyType.invitation_user_answer_question);
+        if (Invited && !invitationUserRB.isCancel()) {
+            throw new CodeException(CustomerErrorCode.TheUserHasBeenInvitedToAnswer);
+        }
+        if (invitationUserRB.getUserId() == userId) {
+            throw new CodeException(CustomerErrorCode.YouCanTInviteYourself);
+        }
+        if (!userRepository.existsByDeletedFalseAndId(invitationUserRB.getUserId())) {
+            throw new CodeException(CustomerErrorCode.UserNotExist);
+        }
+        Optional<QaQuestionField> questionField = qaQuestionFieldRepository.findByIdAndDeletedFalse(invitationUserRB.getQuestionId());
+        if (questionField.isEmpty()) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
+        QaQuestionField qaQuestionField = questionField.get();
+        if (!qaQuestionField.isAllowAnswer()) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFoundOrClose);
+        }
+
+        if (invitationUserRB.isCancel() && Invited) {
+            UserNotify notify = userNotifyRepository.findByDeletedFalseAndQuestionIdAndCancelFalseAndFromUserIdAndToUserIdAndNotifyType
+                    (invitationUserRB.getQuestionId(), userId, invitationUserRB.getUserId(), NotifyType.invitation_user_answer_question);
+            notify.setCancel(Invited);
+            userNotifyRepository.save(notify);
+            return;
+        }
+        InvitationUserAnswerQuestionMsg msg = new InvitationUserAnswerQuestionMsg();
+        msg.setQuestionId(invitationUserRB.getQuestionId());
+        msg.setFormUserId(userId);
+        msg.setToUserId(invitationUserRB.getUserId());
+        msg.setAnswerTitle(qaQuestionField.getTitle());
+        msg.setCancel(invitationUserRB.isCancel());
+        rabbitTemplate.convertAndSend
+                (UserActiveConstants.QUEUE_DDL_USER_INVITATION_USER_ANSWER_QUESTION, msg);
+
     }
 }
 

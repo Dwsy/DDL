@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
+import link.dwsy.ddl.XO.RB.InvitationUserRB;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
@@ -73,5 +74,11 @@ public class QaAnswerController {
     public int action(@Validated @RequestBody QuestionAnswerOrCommentActionRB actionRB) {
         AnswerType action = qaAnswerServiceService.action(actionRB);
         return action.ordinal();
+    }
+
+    @PostMapping("invitation")
+    @AuthAnnotation
+    public void invitationUserAnswerQuestion(@Validated @RequestBody InvitationUserRB invitationUserRB) {
+        qaAnswerServiceService.invitationUserAnswerQuestion(invitationUserRB);
     }
 }

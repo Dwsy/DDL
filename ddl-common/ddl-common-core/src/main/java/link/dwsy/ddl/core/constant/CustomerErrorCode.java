@@ -61,7 +61,6 @@ public enum CustomerErrorCode {
     QuestionAnswerOrCommentNotFount(250, "问题或评论不存在"),
 
 
-
     ParamError(400, "请求参数错误"),
     BodyError(401, "请求体错误"),
 
@@ -80,6 +79,10 @@ public enum CustomerErrorCode {
     QuestionAnswerNotBelongToQuestion(604, "不是你的问题"),
 
     QuestionNotFoundOrClose(605, "问题不存在或不已关闭"),
+
+    YouCanTInviteYourself(606, "不能邀请自己"),
+
+    TheUserHasBeenInvitedToAnswer(606, "已经邀请了用户回答"),
 
     WordNotFount(10001, "未找到该词"),
 

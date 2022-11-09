@@ -3,6 +3,7 @@ package link.dwsy.ddl.mq.process;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import link.dwsy.ddl.XO.Enum.Message.NotifyType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
+import link.dwsy.ddl.XO.Message.Question.InvitationUserAnswerQuestionMsg;
 import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
 import link.dwsy.ddl.XO.VO.Notify.CommentNotifyVO;
 import link.dwsy.ddl.entity.User.UserNotify;
@@ -199,5 +200,22 @@ public class UserQuestionAnswerActiveProcess {
 
 //        redisTemplate.opsForSet().add("Article:Comment:Notify:UID:" + toUserId, notifyJson);
 
+    }
+
+    public void sendInvitationNotify(InvitationUserAnswerQuestionMsg message) {
+        long formUserId = message.getFormUserId();
+        long toUserId = message.getToUserId();
+        long questionId = message.getQuestionId();
+        String answerTitle = message.getAnswerTitle();
+        UserNotify userNotify = UserNotify.builder()
+                .fromUserId(formUserId)
+                .toUserId(toUserId)
+                .questionId(questionId)
+                .notifyType(NotifyType.invitation_user_answer_question)
+                .formContent(answerTitle)
+                .cancel(false)
+                .build();
+        userNotifyRepository.save(userNotify);
+        log.info("用户:{}邀请:{}回答:{}/{}成功", formUserId, toUserId, answerTitle, questionId);
     }
 }

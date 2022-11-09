@@ -18,4 +18,9 @@ public class UserQuestionAnswerActiveConfig {
         return new Queue(UserActiveConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE);
     }
 
+    @Bean(UserActiveConstants.QUEUE_DDL_USER_INVITATION_USER_ANSWER_QUESTION)
+    public Queue invitationUserAnswerQuestion() {
+        return new Queue(UserActiveConstants.QUEUE_DDL_USER_INVITATION_USER_ANSWER_QUESTION);
+    }
+
 }

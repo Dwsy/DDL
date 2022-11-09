@@ -20,4 +20,6 @@ public enum NotifyType {
     up_question,
     up_question_answer,
 
+    invitation_user_answer_question
+
 }

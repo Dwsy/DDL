@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 @Service
 @Slf4j
-public class UserCommentActiveProcess {
+public class UserArticleCommentActiveProcess {
     @Resource
     private ArticleCommentRepository articleCommentRepository;
 

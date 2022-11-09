@@ -3,7 +3,7 @@ package link.dwsy.ddl.mq.listener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import link.dwsy.ddl.XO.Message.UserCommentNotifyMessage;
 import link.dwsy.ddl.constants.mq.UserActiveConstants;
-import link.dwsy.ddl.mq.process.UserCommentActiveProcess;
+import link.dwsy.ddl.mq.process.UserArticleCommentActiveProcess;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -16,9 +16,9 @@ import javax.annotation.Resource;
  */
 @Component
 @Slf4j
-public class UserCommentActive {
+public class UserArticleCommentActive {
     @Resource
-    UserCommentActiveProcess userCommentActiveProcess;
+    UserArticleCommentActiveProcess userCommentActiveProcess;
 
     @RabbitListener(queues = UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE)
     public void sendQaNotify(UserCommentNotifyMessage message) throws JsonProcessingException {
