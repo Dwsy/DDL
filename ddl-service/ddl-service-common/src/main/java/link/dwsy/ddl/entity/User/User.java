@@ -7,6 +7,8 @@ import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.Message.Channel;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.List;
@@ -25,7 +27,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"username","handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime","articleFields"})
+@JsonIgnoreProperties(value = {"username", "handler", "hibernateLazyInitializer", "deleted", "createTime", "lastModifiedTime", "articleFields"})
 public class User extends BaseEntity {
 
     private String username;
@@ -48,7 +50,15 @@ public class User extends BaseEntity {
     @JsonIgnore
     private String area;
 
-    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE},orphanRemoval = true)
+
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @JoinTable(name = "user_tag_ref",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_tag_id")})
+    @Fetch(FetchMode.SUBSELECT)
+    private List<UserTag> userTags;
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private UserInfo userInfo;
 
     @Builder.Default
@@ -57,7 +67,12 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<ArticleField> articleFields;
-
+    @ManyToMany(mappedBy = "user",
+            fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Channel> channels;
+    @Transient
+    private boolean following;
 
     @Override
     public String toString() {
@@ -71,15 +86,6 @@ public class User extends BaseEntity {
                 ", level=" + level +
                 '}';
     }
-
-
-    @ManyToMany(mappedBy = "user",
-            fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Channel> channels;
-
-    @Transient
-    private boolean following;
 
 
 }

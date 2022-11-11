@@ -32,6 +32,9 @@ public class UserInfo extends BaseEntity {
 
     private Date birth;
 
+
+
+
     @Transient
     private int level;
 
