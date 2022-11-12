@@ -3,7 +3,9 @@ package link.dwsy.ddl.service.impl;
 import cn.hutool.core.util.StrUtil;
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
+import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.XO.RB.CreateQuestionRB;
+import link.dwsy.ddl.XO.VO.UserActionVO;
 import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
 import link.dwsy.ddl.constants.task.RedisRecordKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
@@ -11,6 +13,8 @@ import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.QA.*;
 import link.dwsy.ddl.repository.QA.*;
+import link.dwsy.ddl.repository.User.UserCollectionRepository;
+import link.dwsy.ddl.repository.User.UserFollowingRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
@@ -26,6 +30,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +60,12 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
     @Resource
     private QaAnswerRepository qaAnswerRepository;
+
+    @Resource
+    private UserFollowingRepository userFollowingRepository;
+
+    @Resource
+    private UserCollectionRepository userCollectionRepository;
 
     @Resource
     private RabbitTemplate rabbitTemplate;
@@ -188,5 +199,40 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
                             QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE, id);
         }
         qaQuestionFieldRepository.viewNumIncrement(id, 1);
+    }
+
+    public UserActionVO getUserToQuestionAction(long questionId) {
+        LoginUserInfo currentUser = userSupport.getCurrentUser();
+        UserActionVO userActionVO = new UserActionVO();
+
+
+        if (currentUser != null) {
+//            Optional<ArticleComment> action = articleCommentRepository
+//                    .findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentTypeInAndArticleField_Id
+//                            (currentUser.getId(), -1L,
+//                                    Set.of(CommentType.up, CommentType.down, CommentType.cancel), questionId);
+//
+//
+//
+//            userActionVO.setThumb(action.map(ArticleComment::getCommentType).orElse(null));
+//
+            QaAnswer answer = qaAnswerRepository.findByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn(
+                    currentUser.getId(), questionId, -1L, Set.of(AnswerType.up, AnswerType.down, AnswerType.cancel));
+            if (answer != null) {
+                AnswerType answerType = answer.getAnswerType();
+                userActionVO.setSupport(answerType);
+            }
+            userActionVO.setCollect(userCollectionRepository
+                    .existsByUserIdAndSourceIdAndCollectionTypeAndDeletedFalse
+                            (currentUser.getId(), questionId, CollectionType.Question));
+
+            Long followUserId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
+            if (followUserId != null) {
+                userActionVO.setFollow(userFollowingRepository
+                        .existsByUserIdAndFollowingUserIdAndDeletedIsFalse(currentUser.getId(), followUserId));
+            }
+            return userActionVO;
+        }
+        return null;
     }
 }

@@ -2,6 +2,7 @@ package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.XO.RB.CreateQuestionRB;
+import link.dwsy.ddl.XO.VO.UserActionVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -9,6 +10,7 @@ import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
 import link.dwsy.ddl.service.impl.QaQuestionFieldServiceImpl;
 import link.dwsy.ddl.service.impl.QuestionContentServiceImpl;
+import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
@@ -31,14 +33,16 @@ public class QaQuestionFieldController {
 
 
     @Resource
-    private  QaQuestionFieldServiceImpl qaQuestionFieldService;
+    private QaQuestionFieldServiceImpl qaQuestionFieldService;
 
     @Resource
     private QuestionContentServiceImpl questionContentService;
 
     @Resource
-    private  UserActiveServiceImpl userActiveService;
+    private UserActiveServiceImpl userActiveService;
 
+    @Resource
+    private UserSupport userSupport;
 
     @GetMapping("field/list")
     public PageData<QaQuestionField> QuestionList(
@@ -122,6 +126,11 @@ public class QaQuestionFieldController {
     }
 
 
+    @GetMapping("/action/{questionId}")
+    @AuthAnnotation
+    public UserActionVO getUserToQuestionAction(@PathVariable long questionId) {
+        return qaQuestionFieldService.getUserToQuestionAction(questionId);
+    }
 
 
 }

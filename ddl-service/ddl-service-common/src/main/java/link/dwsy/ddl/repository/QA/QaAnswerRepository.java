@@ -64,7 +64,7 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
 
 
     QaAnswer findByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn
-            (long id, long id1, long parentAnswerId, Collection<AnswerType> answerTypes);
+            (long userId, long questionId, long parentAnswerId, Collection<AnswerType> answerTypes);
 
     boolean existsByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn
             (long id, long id1, long parentAnswerId, Collection<AnswerType> answerTypes);
