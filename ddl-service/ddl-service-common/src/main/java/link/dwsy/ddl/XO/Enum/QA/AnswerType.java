@@ -12,6 +12,7 @@ public enum AnswerType {
 
     comment,
 
+    @Deprecated
     comment_comment,//del
 
     up, down,

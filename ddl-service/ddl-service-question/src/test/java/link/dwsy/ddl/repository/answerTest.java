@@ -77,9 +77,9 @@ public class answerTest {
                 } else {
 //                    回复id
 
-                    long pid = qaAnswerRepository.findParentUserIdByAnswerId(aid);
+                    long pid = qaAnswerRepository.getParentUserIdByAnswerId(aid);
                     if (pid == 0) {
-                        pid = qaAnswerRepository.findUserIdByAnswerId(aid);
+                        pid = qaAnswerRepository.getUserIdByAnswerId(aid);
                     }
                     String userNickname = userRepository.findUserNicknameById(pid);
                     QaAnswer qaAnswer = QaAnswer.builder().user(user).questionField(qaQuestionField)

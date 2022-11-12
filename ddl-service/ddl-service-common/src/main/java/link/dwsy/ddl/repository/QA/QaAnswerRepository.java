@@ -26,10 +26,10 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
     boolean isFirstAnswer(long aid);
 
     @Query(value = "select parent_user_id from qa_answer where id=?1", nativeQuery = true)
-    long findParentUserIdByAnswerId(long aid);
+    Long getParentUserIdByAnswerId(long aid);
 
     @Query(value = "select user_id from qa_answer where id=?1", nativeQuery = true)
-    long findUserIdByAnswerId(long aid);
+    Long getUserIdByAnswerId(long aid);
 
     Page<QaAnswer> findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(long aid, long pid, Pageable pageable);
 
@@ -90,11 +90,17 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
 
     @Query(nativeQuery = true,
             value = "select question_field_id from qa_answer where id=?1")
-    long findQuestionIdByAnswerId(long answerId);
+    Long getQuestionIdByAnswerId(long answerId);
 
     @Transactional
     @Modifying
     @Query(nativeQuery = true,
             value = "update qa_answer set text_html=?2 where id=?1")
-    int seAnswerHtml(long answerId, String html);
+    Integer seAnswerHtml(long answerId, String html);
+
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true,
+            value = "update qa_answer set accepted=?2,accepted_time=now() where id=?1")
+    Integer setAcceptState(long answerId, boolean accept);
 }

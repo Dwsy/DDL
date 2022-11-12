@@ -75,7 +75,7 @@ public class userCollectionController {
             Long sourceId = userCollection.getSourceId();
             switch (collectionType) {
                 case Answer:
-                    long questionId = qaAnswerRepository.findQuestionIdByAnswerId(sourceId);
+                    long questionId = qaAnswerRepository.getQuestionIdByAnswerId(sourceId);
                     return "/question/" + questionId;//todo page calc location
                 default:
                     return "~~";
@@ -260,7 +260,7 @@ public class userCollectionController {
                 .findByDeletedFalseAndCollectionTypeInAndUserCollectionGroup_Id(collectionTypeSet, groupId, pageRequest);
         if (collectionType == CollectionType.Answer) {
             for (UserCollection collection : userCollections) {
-                long questionId = qaAnswerRepository.findQuestionIdByAnswerId(collection.getSourceId());
+                long questionId = qaAnswerRepository.getQuestionIdByAnswerId(collection.getSourceId());
                 collection.setLink("/question/" + questionId);
             }
         }

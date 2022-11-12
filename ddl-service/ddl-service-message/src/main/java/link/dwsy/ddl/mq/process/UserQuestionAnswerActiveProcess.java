@@ -73,7 +73,6 @@ public class UserQuestionAnswerActiveProcess {
                             .toContent(toContent)
                             .replayAnswerId(message.getReplayAnswerId())
                             .build();
-//                    notify = new CommentNotifyVO(userNotify);
                     if (!toUserId.equals(formUserId)) {
                         sendNotify = true;
                     } else {
@@ -92,18 +91,12 @@ public class UserQuestionAnswerActiveProcess {
                             .toUserId(toUserId)
                             .questionId(questionId)
                             .answerId(answerId)
-//                            .commentId(commentId)
                             .notifyType(NotifyType.question_comment)
                             .formContent(formContent)
                             .toContent(toContent)
                             .replayAnswerId(message.getReplayAnswerId())
                             .build();
-//                    notify = new CommentNotifyVO(userNotify);
-                    if (!toUserId.equals(formUserId)) {
-                        sendNotify = true;
-                    } else {
-                        sendNotify = false;
-                    }
+                    sendNotify = !toUserId.equals(formUserId);
                 } else {
                     log.error("用户{}回复问题{}失败", formUserId, questionId);
                     return;
@@ -124,11 +117,7 @@ public class UserQuestionAnswerActiveProcess {
                             .replayAnswerId(message.getReplayAnswerId())
                             .build();
 //                    notify = new CommentNotifyVO(userNotify);
-                    if (!toUserId.equals(formUserId)) {
-                        sendNotify = true;
-                    } else {
-                        sendNotify = false;
-                    }
+                    sendNotify = !toUserId.equals(formUserId);
                 } else {
                     log.error("用户{}回复回答{}失败", formUserId, questionId);
                     return;
@@ -177,6 +166,29 @@ public class UserQuestionAnswerActiveProcess {
                             .toContent(toContent_pureText)
                             .build();
 //                    notify = new CommentNotifyVO(userNotify);
+                } else {
+                    return;
+                }
+                break;
+            case Accepted_Question_Answer:
+                toUserId = qaAnswerRepository.getUserIdByAnswerId(answerId);
+                if (userNotifyRepository.existsByDeletedFalseAndFromUserIdAndToUserIdAndAnswerIdAndNotifyTypeAndQuestionId(
+                        formUserId, toUserId, answerId, NotifyType.accepted_question_answer, questionId)) {
+                    log.info("用户{}已经通知过用户{}了", formUserId, toUserId);
+                    return;
+                }
+                sendNotify = !toUserId.equals(formUserId);
+                if (sendNotify) {
+                    String toContent_pureText = HtmlHelper.toPure(qaAnswerRepository.getHtmlText(answerId));
+                    userNotify = UserNotify.builder()
+                            .fromUserId(formUserId)
+                            .toUserId(toUserId)
+                            .questionId(questionId)
+                            .answerId(answerId)
+                            .notifyType(NotifyType.accepted_question_answer)
+                            .formContent(qaQuestionFieldRepository.getTitle(questionId))
+                            .toContent(toContent_pureText)
+                            .build();
                 } else {
                     return;
                 }

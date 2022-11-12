@@ -20,7 +20,7 @@ public interface UserTagRepository extends JpaRepository<UserTag, Long> {
     ArrayList<Long> finduserByTagId(long tagId);
 
     @Query(nativeQuery = true,
-            value = "select user_id from user_tag_ref where  user_tag_id in (?1)")
-    ArrayList<Long> finduserByTagIdIn(Collection<Long> tagIds);
+            value = "select user_id from user_tag_ref where  user_tag_id in (?1) order by points desc")
+    ArrayList<Long> findUserByTagIdIn(Collection<Long> tagIds);
 
 }

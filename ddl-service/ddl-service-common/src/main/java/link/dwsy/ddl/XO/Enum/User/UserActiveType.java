@@ -37,7 +37,7 @@ public enum UserActiveType {
 
     UP_Question_Answer,//点赞问题回答
 
-
+    Accepted_Question_Answer,//采纳问题回答
     ;
 
     public static UserActiveType Converter(CommentType commentType, long parentCommentId) {
