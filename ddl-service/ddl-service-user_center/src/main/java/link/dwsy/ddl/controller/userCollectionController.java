@@ -73,13 +73,11 @@ public class userCollectionController {
             UserCollection userCollection = collection.get();
             CollectionType collectionType = userCollection.getCollectionType();
             Long sourceId = userCollection.getSourceId();
-            switch (collectionType) {
-                case Answer:
-                    long questionId = qaAnswerRepository.findQuestionIdByAnswerId(sourceId);
-                    return "/question/" + questionId;//todo page calc location
-                default:
-                    return "~~";
+            if (collectionType == CollectionType.Answer) {
+                long questionId = qaAnswerRepository.getQuestionIdByAnswerId(sourceId);
+                return "/question/" + questionId;//todo page calc location
             }
+            return "~~";
         } else {
             throw new CodeException(CustomerErrorCode.UserCollectionNotExist);
         }
@@ -260,7 +258,7 @@ public class userCollectionController {
                 .findByDeletedFalseAndCollectionTypeInAndUserCollectionGroup_Id(collectionTypeSet, groupId, pageRequest);
         if (collectionType == CollectionType.Answer) {
             for (UserCollection collection : userCollections) {
-                long questionId = qaAnswerRepository.findQuestionIdByAnswerId(collection.getSourceId());
+                long questionId = qaAnswerRepository.getQuestionIdByAnswerId(collection.getSourceId());
                 collection.setLink("/question/" + questionId);
             }
         }

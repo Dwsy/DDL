@@ -109,8 +109,6 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
         UserMessage save = userMessageRepository.save(greetMessage);
     }
 
-    ;
-
     public PageData<UserMessage> pullHistoryMessage(long latestId, long toUserId, int page, int size) {
         long formUserId = userSupport.getCurrentUser().getId();
         if (formUserId == toUserId) {

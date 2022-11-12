@@ -137,6 +137,39 @@ public class UserNotifyController {
         return new PageData<>(AnswerNotify);
     }
 
+    @GetMapping("qa/invitationAnswer")
+    @AuthAnnotation
+    public PageData<UserNotify> getInvitationAnswer(
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "15", name = "size") int size
+    ) {
+        Long userId = userSupport.getCurrentUser().getId();
+        PageRequest pageRequest = PRHelper.order(Sort.Direction.DESC, "createTime", page, size);
+        Page<UserNotify> AnswerNotify = userNotifyRepository
+                .findByDeletedFalseAndToUserIdAndNotifyType
+                        (userId, NotifyType.invitation_user_answer_question, pageRequest);
+        read(AnswerNotify);
+
+        return new PageData<>(AnswerNotify);
+    }
+
+
+    @GetMapping("qa/accepted")
+    @AuthAnnotation
+    public PageData<UserNotify> getAcceptedAnswer(
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "15", name = "size") int size
+    ) {
+        Long userId = userSupport.getCurrentUser().getId();
+        PageRequest pageRequest = PRHelper.order(Sort.Direction.DESC, "createTime", page, size);
+        Page<UserNotify> AnswerNotify = userNotifyRepository
+                .findByDeletedFalseAndToUserIdAndNotifyType
+                        (userId, NotifyType.accepted_question_answer, pageRequest);
+        read(AnswerNotify);
+
+        return new PageData<>(AnswerNotify);
+    }
+    //    invitationAnswer
     private void read(Page<UserNotify> QaSupportNotify) {
         for (UserNotify notify : QaSupportNotify) {
             User formUser = userRepository.findUserByIdAndDeletedIsFalse(notify.getFromUserId());
@@ -199,6 +232,14 @@ public class UserNotifyController {
 
             int userUnreadPrivateMsgCount = userMessageRepository.countByToUserIdAndStatus(userId, MessageState.UNREAD);
 
+            int userUnreadInvitationAnswerCount = userNotifyRepository
+                    .countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyType
+                            (userId, NotifyState.UNREAD, NotifyType.invitation_user_answer_question);
+
+            int unreadAdoptAnswerCount = userNotifyRepository
+                    .countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyType
+                            (userId, NotifyState.UNREAD, NotifyType.accepted_question_answer);
+
             unreadNotifyVo.setUnreadNotifyArticleOrCommentThumbCount(ArticleOrCommentThumbCount);
             unreadNotifyVo.setUnreadNotifyQuestionOrAnswerThumbCount(QuestionOrAnswerThumbCount);
             unreadNotifyVo.setUnreadNotifyReplyCommentCount(ReplyCommentCount);
@@ -206,7 +247,8 @@ public class UserNotifyController {
             unreadNotifyVo.setUnreadNotifyAnswerCommentCount(AnswerCommentCount);
             unreadNotifyVo.setUnreadNotifyQuestionCommentCount(QuestionCommentCount);
             unreadNotifyVo.setUnreadPrivateMessageCount(userUnreadPrivateMsgCount);
-
+            unreadNotifyVo.setUnreadInvitationAnswerCount(userUnreadInvitationAnswerCount);
+            unreadNotifyVo.setUnreadAcceptedAnswerCount(unreadAdoptAnswerCount);
             return unreadNotifyVo;
         }
         return unreadNotifyVo;

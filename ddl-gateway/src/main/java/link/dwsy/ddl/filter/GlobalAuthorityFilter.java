@@ -167,7 +167,7 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
         Future<ServiceInstance> future = executorService.submit(() -> loadBalancerClient.choose(Constants.AUTHORITY_CENTER_SERVICE_ID));
         ServiceInstance serviceInstance = null;
         try {
-            serviceInstance = (ServiceInstance) future.get();
+            serviceInstance = future.get();
         } catch (ExecutionException e) {
 //            throw new RuntimeException(e);
             return null;

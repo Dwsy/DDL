@@ -31,4 +31,8 @@ public class UnreadNotifyVo {
     private Integer unreadSystemMessageCount;
 
     private Integer unreadAtMeCount;
+
+    private Integer unreadInvitationAnswerCount;
+
+    private Integer unreadAcceptedAnswerCount;
 }

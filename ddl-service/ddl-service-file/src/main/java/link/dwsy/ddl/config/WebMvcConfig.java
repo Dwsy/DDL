@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Configuration
@@ -30,7 +30,7 @@ public class WebMvcConfig implements WebMvcConfigurer  {
 
     @Bean
     public HttpMessageConverter<String> responseBody(){
-        return new StringHttpMessageConverter(Charset.forName("UTF-8"));
+        return new StringHttpMessageConverter(StandardCharsets.UTF_8);
     }
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {

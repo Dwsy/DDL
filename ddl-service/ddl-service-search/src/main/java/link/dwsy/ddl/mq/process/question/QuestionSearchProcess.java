@@ -95,7 +95,6 @@ public class QuestionSearchProcess {
                 .downNum(qf.getDownNum())
                 .collectNum(qf.getCollectNum())
                 .build();
-;
         try {
             client.update(req -> req
                             .index(INDEX).id(String.valueOf(qid))

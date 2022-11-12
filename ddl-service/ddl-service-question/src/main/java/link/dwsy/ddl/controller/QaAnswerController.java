@@ -76,6 +76,14 @@ public class QaAnswerController {
         return action.ordinal();
     }
 
+
+    @GetMapping("/accept")
+    @AuthAnnotation
+    public boolean acceptedAnswer(@RequestParam long answerId,
+                                  @RequestParam boolean accepted) {
+        return qaAnswerServiceService.acceptedAnswer(answerId,accepted);
+    }
+
     @PostMapping("invitation")
     @AuthAnnotation
     public void invitationUserAnswerQuestion(@Validated @RequestBody InvitationUserRB invitationUserRB) {

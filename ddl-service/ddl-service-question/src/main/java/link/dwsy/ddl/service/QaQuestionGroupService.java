@@ -12,7 +12,7 @@ import java.util.Set;
 
 public interface QaQuestionGroupService {
 
-    public PageData<QaQuestionField> getFieldListByGroupId(Long gid, Set<QuestionState> questionStates, PageRequest pageRequest);
+    PageData<QaQuestionField> getFieldListByGroupId(Long gid, Set<QuestionState> questionStates, PageRequest pageRequest);
 
-    public List<QaGroup> getGroupList(Sort sort);
+    List<QaGroup> getGroupList(Sort sort);
 }

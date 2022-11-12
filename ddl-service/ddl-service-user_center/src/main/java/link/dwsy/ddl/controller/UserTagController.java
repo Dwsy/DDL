@@ -43,7 +43,7 @@ public class UserTagController {
             @RequestBody TagIdsRB tagIdsRB
     ) {
         Set<Long> tagIds = tagIdsRB.getTagIds();
-        ArrayList<Long> userId = tagRepository.finduserByTagIdIn(tagIds);
+        ArrayList<Long> userId = tagRepository.findUserByTagIdIn(tagIds);
         return userRepository.findAllById(userId);
     }
 

@@ -5,5 +5,5 @@ import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
 
 public interface QaAnswerService {
-    public PageData<QaAnswer> getByQuestionId(long qid, PageRequest pageRequest);
+    PageData<QaAnswer> getByQuestionId(long qid, PageRequest pageRequest);
 }

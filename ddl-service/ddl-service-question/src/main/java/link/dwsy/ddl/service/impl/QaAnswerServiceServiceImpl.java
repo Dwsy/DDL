@@ -70,7 +70,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         for (QaAnswer qaAnswer : QaAnswerData) {
             long pid = qaAnswer.getId();
             Page<QaAnswer> childQaAnswersPage = qaAnswerRepository
-                    .findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(qid, pid, pr);
+                    .findByDeletedFalseAndQuestionField_IdAndAnswerTypeAndParentAnswerId(qid, AnswerType.answer_comment, pid, pr);
             qaAnswer.setChildQaAnswers(childQaAnswersPage.getContent());
             qaAnswer.setChildQaAnswerTotalPages(childQaAnswersPage.getTotalPages());
             qaAnswer.setChildQaAnswerNum(childQaAnswersPage.getTotalElements());
@@ -187,7 +187,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             (QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber, long parentAnswerId, long replyUserId) {
         //todo
         if (replyUserId == 0) {
-            replyUserId = qaAnswerRepository.findUserIdByAnswerId(parentAnswerId);
+            replyUserId = qaAnswerRepository.getUserIdByAnswerId(parentAnswerId);
         }
 
         if (userRepository.findById(replyUserId).isEmpty()) {
@@ -583,6 +583,29 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         rabbitTemplate.convertAndSend
                 (UserActiveConstants.QUEUE_DDL_USER_INVITATION_USER_ANSWER_QUESTION, msg);
 
+    }
+
+    public boolean acceptedAnswer(long answerId, boolean accepted) {
+        Long userId = userSupport.getCurrentUser().getId();
+        Long questionId = qaAnswerRepository.getQuestionIdByAnswerId(answerId);
+        if (questionId != null) {
+            Long userIdByQuestionId = qaQuestionFieldRepository.getUserIdByQuestionId(userId);
+            if (userIdByQuestionId != null) {
+                if (userIdByQuestionId.equals(userId)) {
+                    qaAnswerRepository.setAcceptState(answerId, accepted);
+                    UserQuestionAnswerNotifyMessage message = UserQuestionAnswerNotifyMessage.builder()
+                            .formUserId(userId)
+                            .answerId(answerId)
+                            .userActiveType(UserActiveType.Accepted_Question_Answer)
+                            .questionId(questionId)
+                            .cancel(false).build();
+                    rabbitTemplate.convertAndSend
+                            (UserActiveConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, message);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 
