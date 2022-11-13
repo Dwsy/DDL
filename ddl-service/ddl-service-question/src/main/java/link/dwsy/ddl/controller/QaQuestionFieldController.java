@@ -141,4 +141,11 @@ public class QaQuestionFieldController {
     public boolean watchQuestion(@PathVariable long questionId) {
         return qaQuestionFieldService.watchQuestion(questionId);
     }
+
+    @PostMapping("unwatch/{questionId}")
+    @AuthAnnotation
+    @UserActiveLog
+    public boolean unWatchQuestion(@PathVariable long questionId) {
+        return qaQuestionFieldService.unWatchQuestion(questionId);
+    }
 }

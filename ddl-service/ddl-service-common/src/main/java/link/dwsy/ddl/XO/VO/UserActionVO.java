@@ -23,6 +23,9 @@ public class UserActionVO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private AnswerType support;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private boolean watch;
+
     private boolean collect;
 
     private boolean follow;

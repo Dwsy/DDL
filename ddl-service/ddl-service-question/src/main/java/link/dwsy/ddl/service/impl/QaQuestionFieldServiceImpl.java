@@ -203,28 +203,28 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
     public UserActionVO getUserToQuestionAction(long questionId) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
+        Long userId = currentUser.getId();
         UserActionVO userActionVO = new UserActionVO();
 
 
-        if (currentUser != null) {
-            QaAnswer answer = qaAnswerRepository.findByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn(
-                    currentUser.getId(), questionId, -1L, Set.of(AnswerType.up, AnswerType.down, AnswerType.cancel));
-            if (answer != null) {
-                AnswerType answerType = answer.getAnswerType();
-                userActionVO.setSupport(answerType);
-            }
-            userActionVO.setCollect(userCollectionRepository
-                    .existsByUserIdAndSourceIdAndCollectionTypeAndDeletedFalse
-                            (currentUser.getId(), questionId, CollectionType.Question));
-
-            Long followUserId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
-            if (followUserId != null) {
-                userActionVO.setFollow(userFollowingRepository
-                        .existsByUserIdAndFollowingUserIdAndDeletedIsFalse(currentUser.getId(), followUserId));
-            }
-            return userActionVO;
+        QaAnswer answer = qaAnswerRepository.findByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn(
+                userId, questionId, -1L, Set.of(AnswerType.up, AnswerType.down, AnswerType.cancel));
+        if (answer != null) {
+            AnswerType answerType = answer.getAnswerType();
+            userActionVO.setSupport(answerType);
         }
-        return null;
+        userActionVO.setCollect(userCollectionRepository
+                .existsByUserIdAndSourceIdAndCollectionTypeAndDeletedFalse
+                        (userId, questionId, CollectionType.Question));
+
+        Long followUserId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
+        if (followUserId != null) {
+            userActionVO.setFollow(userFollowingRepository
+                    .existsByUserIdAndFollowingUserIdAndDeletedIsFalse(userId, followUserId));
+        }
+
+        userActionVO.setWatch(qaQuestionFieldRepository.isWatch(userId, questionId) > 0);
+        return userActionVO;
     }
 
     public boolean watchQuestion(long questionId) {
@@ -233,12 +233,11 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         if (questionField == null) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
-        if (qaQuestionFieldRepository.watchQuestion(userId, questionId) > 0) {
+        return qaQuestionFieldRepository.watchQuestion(userId, questionId) > 0;
+    }
 
-            return true;
-        }
-
-        return false;
-
+    public boolean unWatchQuestion(long questionId) {
+        Long userId = userSupport.getCurrentUser().getId();
+        return qaQuestionFieldRepository.cancelWatchQuestion(userId, questionId) > 0;
     }
 }

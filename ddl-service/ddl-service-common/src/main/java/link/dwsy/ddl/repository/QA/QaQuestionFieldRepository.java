@@ -97,6 +97,12 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
             value = "insert into qa_user_watch_ref (user_id, question_id,delete,create_time) values (?1, ?2,false,now())")
     int watchQuestion(Long userId, long questionId);
 
+
+
+    @Query(nativeQuery = true,
+            value = "select count(*) from qa_user_watch_ref where user_id = ?1 and question_id = ?2 and delete = false")
+    int isWatch(long userId, long questionId);
+
     @Transactional
     @Modifying
     @Query(nativeQuery = true,
