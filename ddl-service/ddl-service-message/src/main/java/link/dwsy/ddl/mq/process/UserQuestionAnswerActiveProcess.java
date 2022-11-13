@@ -54,7 +54,7 @@ public class UserQuestionAnswerActiveProcess {
         String formContent = message.getFormContent();
         UserActiveType userActiveType = message.getUserActiveType();
         CommentNotifyVO notify = null;
-        UserNotify userNotify;
+        UserNotify userNotify = null;
         Long toUserId;
         boolean sendNotify;
         log.info(userActiveType.toString());
@@ -62,6 +62,7 @@ public class UserQuestionAnswerActiveProcess {
             case Answer_Question:
                 toUserId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
                 if (toUserId != null) {
+                    String formPure = HtmlHelper.toPure(formContent);
                     userNotify = UserNotify.builder()
                             .fromUserId(formUserId)
                             .toUserId(toUserId)
@@ -69,11 +70,27 @@ public class UserQuestionAnswerActiveProcess {
                             .answerId(answerId)
 //                            .commentId(commentId)
                             .notifyType(NotifyType.answer)
-                            .formContent(HtmlHelper.toPure(formContent))
+                            .formContent(formPure)
                             .toContent(toContent)
                             .replayAnswerId(message.getReplayAnswerId())
                             .build();
                     sendNotify = !toUserId.equals(formUserId);
+                    //todo batch
+                    long[] watchUsers = qaQuestionFieldRepository.getWatchUser(questionId);
+                    UserNotify watchMsg = UserNotify.builder()
+                            .fromUserId(formUserId)
+                            .questionId(questionId)
+                            .answerId(answerId)
+                            .notifyType(NotifyType.watch_answer)
+                            .formContent(formPure)
+                            .toContent(toContent)
+                            .build();
+                    for (long watchUserId : watchUsers) {
+                        if (watchUserId != toUserId) {
+                            watchMsg.setToUserId(watchUserId);
+                            userNotifyRepository.save(watchMsg);
+                        }
+                    }
                 } else {
                     log.error("用户{}回答问题{}失败", formUserId, questionId);
                     return;
@@ -174,8 +191,8 @@ public class UserQuestionAnswerActiveProcess {
                     return;
                 }
                 sendNotify = !toUserId.equals(formUserId);
+                String toContent_pureText = HtmlHelper.toPure(qaAnswerRepository.getHtmlText(answerId));
                 if (sendNotify) {
-                    String toContent_pureText = HtmlHelper.toPure(qaAnswerRepository.getHtmlText(answerId));
                     userNotify = UserNotify.builder()
                             .fromUserId(formUserId)
                             .toUserId(toUserId)
@@ -185,9 +202,23 @@ public class UserQuestionAnswerActiveProcess {
                             .formContent(qaQuestionFieldRepository.getTitle(questionId))
                             .toContent(toContent_pureText)
                             .build();
-                } else {
-                    return;
                 }
+                long[] watchUsers = qaQuestionFieldRepository.getWatchUser(questionId);
+                UserNotify watchMsg = UserNotify.builder()
+                        .fromUserId(formUserId)
+                        .questionId(questionId)
+                        .answerId(answerId)
+                        .notifyType(NotifyType.watch_accepted_question_answer)
+                        .formContent(qaQuestionFieldRepository.getTitle(questionId))
+                        .toContent(toContent_pureText)
+                        .build();
+                for (long watchUserId : watchUsers) {
+                    if (watchUserId != toUserId) {
+                        watchMsg.setToUserId(watchUserId);
+                        userNotifyRepository.save(watchMsg);
+                    }
+                }
+//                userNotifyRepository.saveAll(watchMsg);
                 break;
             //todo at cancel redis stack json
             default:

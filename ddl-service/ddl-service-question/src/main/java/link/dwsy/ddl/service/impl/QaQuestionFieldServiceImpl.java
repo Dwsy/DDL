@@ -207,15 +207,6 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
 
         if (currentUser != null) {
-//            Optional<ArticleComment> action = articleCommentRepository
-//                    .findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentTypeInAndArticleField_Id
-//                            (currentUser.getId(), -1L,
-//                                    Set.of(CommentType.up, CommentType.down, CommentType.cancel), questionId);
-//
-//
-//
-//            userActionVO.setThumb(action.map(ArticleComment::getCommentType).orElse(null));
-//
             QaAnswer answer = qaAnswerRepository.findByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn(
                     currentUser.getId(), questionId, -1L, Set.of(AnswerType.up, AnswerType.down, AnswerType.cancel));
             if (answer != null) {
@@ -234,5 +225,20 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
             return userActionVO;
         }
         return null;
+    }
+
+    public boolean watchQuestion(long questionId) {
+        Long userId = userSupport.getCurrentUser().getId();
+        QaQuestionField questionField = qaQuestionFieldRepository.findByDeletedFalseAndId(questionId);
+        if (questionField == null) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
+        if (qaQuestionFieldRepository.watchQuestion(userId, questionId) > 0) {
+
+            return true;
+        }
+
+        return false;
+
     }
 }

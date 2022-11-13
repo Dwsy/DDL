@@ -4,6 +4,7 @@ import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.XO.RB.CreateQuestionRB;
 import link.dwsy.ddl.XO.VO.UserActionVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.annotation.UserActiveLog;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
@@ -126,11 +127,18 @@ public class QaQuestionFieldController {
     }
 
 
-    @GetMapping("/action/{questionId}")
+    @GetMapping("action/{questionId}")
     @AuthAnnotation
+    @UserActiveLog
     public UserActionVO getUserToQuestionAction(@PathVariable long questionId) {
         return qaQuestionFieldService.getUserToQuestionAction(questionId);
     }
 
 
+    @PostMapping("watch/{questionId}")
+    @AuthAnnotation
+    @UserActiveLog
+    public boolean watchQuestion(@PathVariable long questionId) {
+        return qaQuestionFieldService.watchQuestion(questionId);
+    }
 }

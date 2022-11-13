@@ -21,6 +21,11 @@ public enum NotifyType {
     up_question_answer,
 
     invitation_user_answer_question,
-    accepted_question_answer
+    accepted_question_answer,
+
+    ///
+    watch_answer,
+
+    watch_accepted_question_answer,
 
 }
