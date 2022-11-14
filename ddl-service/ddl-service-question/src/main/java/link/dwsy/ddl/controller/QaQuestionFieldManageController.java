@@ -1,9 +1,11 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
 import link.dwsy.ddl.service.impl.QaQuestionFieldServiceImpl;
 import link.dwsy.ddl.service.impl.QuestionContentServiceImpl;
@@ -38,6 +40,9 @@ public class QaQuestionFieldManageController {
     private UserActiveServiceImpl userActiveService;
 
     @Resource
+    private QaQuestionFieldRepository qaQuestionFieldRepository;
+
+    @Resource
     private UserSupport userSupport;
 
     @GetMapping("field/list")
@@ -68,6 +73,7 @@ public class QaQuestionFieldManageController {
     }
 
     @GetMapping("field/{id}")
+    @AuthAnnotation
     public QaQuestionField GetQuestionById(
             @PathVariable("id") Long id,
             @RequestParam(required = false, defaultValue = "false", name = "getQuestionComment") boolean getQuestionComment,
@@ -75,6 +81,11 @@ public class QaQuestionFieldManageController {
     ) {
         if (id < 1L)
             throw new CodeException(CustomerErrorCode.ParamError);
+        Long userId = userSupport.getCurrentUser().getId();
+        Long questionOwnerUserId = qaQuestionFieldRepository.getUserIdByQuestionId(id);
+        if (!userId.equals(questionOwnerUserId)) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
         if (version > -1) {
             return qaQuestionFieldService.getQuestionByIdAndVersion(id, version);
         }
@@ -94,16 +105,22 @@ public class QaQuestionFieldManageController {
      * @return String
      */
     @GetMapping(value = "content/{id}", produces = "application/json")
+    @AuthAnnotation
 //    @IgnoreResponseAdvice
-    public String GetArticleContent(
+    public String GetQuestionContent(
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "0", name = "type") int type,
             @RequestParam(required = false, defaultValue = "-1", name = "version") int version) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
-
         if (type < 0 || type > 2)
             throw new CodeException(CustomerErrorCode.ParamError);
+        Long userId = userSupport.getCurrentUser().getId();
+        Long questionOwnerUserId = qaQuestionFieldRepository.getUserIdByQuestionContentId(id);
+        if (!userId.equals(questionOwnerUserId)) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
+
         if (version > -1) {
             return questionContentService.getContentAndVersion(id, version);
         }

@@ -79,8 +79,12 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     long[] findAllId();
 
     @Query(nativeQuery = true, value =
-            "select user_id from qa_question_field where id=?1")
+            "select user_id from qa_question_field where id=?1 and deleted is false")
     Long getUserIdByQuestionId(Long questionId);
+
+    @Query(nativeQuery = true, value =
+            "select user_id from qa_question_field where qa_question_content_id=?1 and deleted is false")
+    Long getUserIdByQuestionContentId(Long questionId);
 
 
     @Query(nativeQuery = true,
@@ -96,7 +100,6 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     @Query(nativeQuery = true,
             value = "insert into qa_user_watch_ref (user_id, question_id,delete,create_time) values (?1, ?2,false,now())")
     int watchQuestion(Long userId, long questionId);
-
 
 
     @Query(nativeQuery = true,

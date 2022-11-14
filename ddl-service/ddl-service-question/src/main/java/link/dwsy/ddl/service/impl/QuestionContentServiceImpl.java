@@ -1,6 +1,6 @@
 package link.dwsy.ddl.service.impl;
 
-import link.dwsy.ddl.constants.article.ArticleRedisKey;
+import link.dwsy.ddl.constants.question.QuestionRedisKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
@@ -43,7 +43,7 @@ public class QuestionContentServiceImpl implements QuestionContentService {
     }
 
     public String getContentAndVersion(Long id, int version) {
-        String contentStr = redisTemplate.opsForList().index(ArticleRedisKey.ArticleHistoryVersionContentKey + id, version);
+        String contentStr = redisTemplate.opsForList().index(QuestionRedisKey.QuestionHistoryVersionContentKey + id, version);
         if (contentStr == null) {
             throw new CodeException(CustomerErrorCode.QuestionVersionNotFound);
         }

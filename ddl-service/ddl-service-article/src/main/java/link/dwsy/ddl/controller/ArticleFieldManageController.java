@@ -97,6 +97,11 @@ public class ArticleFieldManageController {
                                        @RequestParam(required = false, defaultValue = "-1", name = "version") int version) {
         if (id < 0L)
             throw new CodeException(CustomerErrorCode.ParamError);
+        Long userId = userSupport.getCurrentUser().getId();
+        Long articleOwnerUserId = articleFieldRepository.findUserIdById(id);
+        if (!userId.equals(articleOwnerUserId)) {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
         if (version > -1) {
             return articleContentService.getArticleFieldByIdAndVersion(id, version);
         }
@@ -121,6 +126,11 @@ public class ArticleFieldManageController {
             throw new CodeException(CustomerErrorCode.ParamError);
         if (type < 0 || type > 2)
             throw new CodeException(CustomerErrorCode.ParamError);
+        Long userId = userSupport.getCurrentUser().getId();
+        Long articleOwnerUserId = articleFieldRepository.findUserIdByContentId(id);
+        if (!userId.equals(articleOwnerUserId)) {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
         if (version > -1) {
             return articleContentService.getArticleContentByIdAndVersion(id, version);
         }
