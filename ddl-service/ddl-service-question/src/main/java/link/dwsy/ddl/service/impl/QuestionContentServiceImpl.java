@@ -1,8 +1,12 @@
 package link.dwsy.ddl.service.impl;
 
+import link.dwsy.ddl.constants.article.ArticleRedisKey;
+import link.dwsy.ddl.core.CustomExceptions.CodeException;
+import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.QA.QaContentRepository;
 import link.dwsy.ddl.service.QuestionContentService;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -20,6 +24,9 @@ public class QuestionContentServiceImpl implements QuestionContentService {
     @Resource
     private  QaContentRepository qaContentRepository;
 
+    @Resource(name = "stringRedisTemplate")
+    private StringRedisTemplate redisTemplate;
+
 
 
     public String getContent(long id, int type) {
@@ -33,5 +40,13 @@ public class QuestionContentServiceImpl implements QuestionContentService {
             return qaContentRepository.getMdTextById(id);
         }
         return null;
+    }
+
+    public String getContentAndVersion(Long id, int version) {
+        String contentStr = redisTemplate.opsForList().index(ArticleRedisKey.ArticleHistoryVersionContentKey + id, version);
+        if (contentStr == null) {
+            throw new CodeException(CustomerErrorCode.QuestionVersionNotFound);
+        }
+        return contentStr;
     }
 }

@@ -54,11 +54,15 @@ public class ArticleContentRB {
 
     private Long articleId;//change
 
-    private CodeHighlightStyle codeHighlightStyle;
+    @Builder.Default
+    private CodeHighlightStyle codeHighlightStyle = CodeHighlightStyle.xcode;
 
-    private MarkDownTheme markDownTheme;
+    @Builder.Default
+    private MarkDownTheme markDownTheme = MarkDownTheme.cyanosis;
 
-    private CodeHighlightStyle codeHighlightStyleDark;
+    @Builder.Default
+    private CodeHighlightStyle codeHighlightStyleDark = CodeHighlightStyle.githubDark;
 
-    private MarkDownThemeDark markDownThemeDark;
+    @Builder.Default
+    private MarkDownThemeDark markDownThemeDark = MarkDownThemeDark.geekBlackDark;
 }

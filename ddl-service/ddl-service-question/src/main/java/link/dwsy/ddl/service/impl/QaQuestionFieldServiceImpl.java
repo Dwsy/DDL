@@ -1,12 +1,15 @@
 package link.dwsy.ddl.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSON;
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.XO.RB.CreateQuestionRB;
 import link.dwsy.ddl.XO.VO.UserActionVO;
+import link.dwsy.ddl.constants.mq.ArticleSearchConstants;
 import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
+import link.dwsy.ddl.constants.question.QuestionRedisKey;
 import link.dwsy.ddl.constants.task.RedisRecordKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -95,7 +98,20 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return questionField;
     }
 
+    public QaQuestionField getQuestionByIdAndVersion(Long id, int version) {
+        String fieldJsonStr = redisTemplate.opsForList().index(QuestionRedisKey.QuestionHistoryVersionFieldKey + id, version);
+        if (fieldJsonStr == null) {
+            throw new CodeException(CustomerErrorCode.QuestionVersionNotFound);
+        }
+        return JSON.parseObject(fieldJsonStr, QaQuestionField.class);
+    }
+
     public long createQuestion(CreateQuestionRB createQuestionRB) {
+        QuestionState questionState = createQuestionRB.getQuestionState();
+        Set<QuestionState> allowState = Set.of(QuestionState.ASK, QuestionState.HIDE, QuestionState.DRAFT);
+        if (!allowState.contains(questionState)) {
+            throw new CodeException(CustomerErrorCode.ParamError);
+        }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
 
         ArrayList<QaTag> qaTags = new ArrayList<>(qaQuestionTagRepository.findAllById(
@@ -134,14 +150,20 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
                 .build();
 
         QaQuestionField save = qaQuestionFieldRepository.save(field);
-        //todo search action mq
         qaContentRepository.setQuestionFieldLd(save.getId(), save.getQaQuestionContent().getId());
-        rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_CREATE, save.getId());
-//        rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
+        if (createQuestionRB.getQuestionState() == QuestionState.ASK) {
+            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, save.getId());
+        }
+
         return save.getId();
     }
 
     public long updateQuestion(CreateQuestionRB createQuestionRB) {
+        QuestionState questionState = createQuestionRB.getQuestionState();
+        Set<QuestionState> allowState = Set.of(QuestionState.ASK, QuestionState.HIDE);
+        if (!allowState.contains(questionState)) {
+            throw new CodeException(CustomerErrorCode.ParamError);
+        }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         Long questionId = createQuestionRB.getQuestionId();
         Long userIdByQuestionId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
@@ -165,11 +187,20 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
         QaQuestionField field = qaQuestionFieldRepository.findByDeletedFalseAndId(questionId);
         QaQuestionContent questionContent = qaContentRepository.findByDeletedFalseAndQuestionFieldId(questionId);
+        //历史版本保存
+        int version = field.getVersion() + 1;
+        if (questionState == QuestionState.ASK || questionState == QuestionState.DRAFT) {
+//            redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), JSON.toJSONString(field));
+//            redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), questionContent.getTextMd());
+            redisTemplate.opsForList().set(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), version, JSON.toJSONString(field));
+            redisTemplate.opsForList().set(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), version, questionContent.getTextMd());
+        }
         questionContent.setTextMd(createQuestionRB.getContent());
         questionContent.setTextHtml(html);
         questionContent.setTextPure(pure);
+        field.setVersion(version);
         field.setTitle(createQuestionRB.getTitle());
-        field.setQuestionState(createQuestionRB.getQuestionState());
+        field.setQuestionState(questionState);
 //        field.setAllowAnswer(createQuestionRB.getllowAnswer());
         field.setSummary(createQuestionRB.getSummary());
         field.setQaQuestionContent(questionContent);
@@ -184,8 +215,10 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         field.setId(questionId);
         QaQuestionField save = qaQuestionFieldRepository.save(field);
 //        articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
-        rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE, save.getId());
-
+        if (createQuestionRB.getQuestionState() == QuestionState.ASK) {
+            rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE, save.getId());
+        }
+        //todo hide search
 //        rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
         return save.getId();
     }
@@ -240,4 +273,6 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         Long userId = userSupport.getCurrentUser().getId();
         return qaQuestionFieldRepository.cancelWatchQuestion(userId, questionId) > 0;
     }
+
+
 }

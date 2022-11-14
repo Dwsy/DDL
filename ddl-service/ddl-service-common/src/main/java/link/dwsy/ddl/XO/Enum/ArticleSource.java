@@ -7,6 +7,8 @@ package link.dwsy.ddl.XO.Enum;
 
 public enum ArticleSource {
     original,//原创
+
     reprint,//转载
+
     translation//翻译
 }

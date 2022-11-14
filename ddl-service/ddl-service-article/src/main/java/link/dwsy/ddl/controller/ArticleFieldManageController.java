@@ -6,6 +6,7 @@ import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
+import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
@@ -17,14 +18,13 @@ import link.dwsy.ddl.util.PageData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @Author Dwsy
@@ -89,5 +89,46 @@ public class ArticleFieldManageController {
         countByState.put(ArticleState.auditing, articleFieldRepository.countByDeletedFalseAndUser_IdAndArticleState(user.getId(), ArticleState.auditing));
         countByState.put(ArticleState.rejected, articleFieldRepository.countByDeletedFalseAndUser_IdAndArticleState(user.getId(), ArticleState.rejected));
         return countByState;
+    }
+
+    @GetMapping("field/{id}")
+    @AuthAnnotation
+    public ArticleField getArticleById(@PathVariable("id") Long id,
+                                       @RequestParam(required = false, defaultValue = "-1", name = "version") int version) {
+        if (id < 0L)
+            throw new CodeException(CustomerErrorCode.ParamError);
+        if (version > -1) {
+            return articleContentService.getArticleFieldByIdAndVersion(id, version);
+        }
+        ArticleField article = articleContentService.getArticleById(id, Set.of(ArticleState.published, ArticleState.hide, ArticleState.draft));
+        if (article == null)
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        return article;
+    }
+
+    /**
+     * @param id   id
+     * @param type 0 html 1 md 2 pure
+     * @return String
+     */
+    @GetMapping(value = "content/{id}", produces = "application/json")
+    @AuthAnnotation
+    public String getArticleContent(
+            @PathVariable(name = "id") Long id,
+            @RequestParam(required = false, defaultValue = "0", name = "type") int type,
+            @RequestParam(required = false, defaultValue = "-1", name = "version") int version) {
+        if (id < 0L)
+            throw new CodeException(CustomerErrorCode.ParamError);
+        if (type < 0 || type > 2)
+            throw new CodeException(CustomerErrorCode.ParamError);
+        if (version > -1) {
+            return articleContentService.getArticleContentByIdAndVersion(id, version);
+        }
+        Optional<String> ret = Optional.ofNullable(articleContentService.getContent(id, type));
+        if (ret.isPresent()) {
+            return ret.get();
+        } else {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
     }
 }

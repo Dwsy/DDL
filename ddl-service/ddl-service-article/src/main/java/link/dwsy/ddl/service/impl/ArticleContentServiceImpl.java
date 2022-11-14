@@ -1,26 +1,33 @@
 package link.dwsy.ddl.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
 import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.XO.VO.UserActionVO;
 import link.dwsy.ddl.XO.VO.fieldVO;
+import link.dwsy.ddl.constants.article.ArticleRedisKey;
+import link.dwsy.ddl.core.CustomExceptions.CodeException;
+import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.entity.Article.ArticleField;
-import link.dwsy.ddl.repository.Article.*;
+import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
+import link.dwsy.ddl.repository.Article.ArticleContentRepository;
+import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserFollowingRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.ArticleContentService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PageData;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,16 +37,22 @@ import java.util.Set;
  */
 @Service
 public class ArticleContentServiceImpl implements ArticleContentService {
-    @Resource
-    private ArticleTagRepository articleTagRepository;
+    //    @Resource
+//    private ArticleTagRepository articleTagRepository;
     @Resource
     private ArticleFieldRepository articleFieldRepository;
-    @Resource
-    private ArticleGroupRepository articleGroupRepository;
+
+    //    @Resource
+//    private ArticleGroupRepository articleGroupRepository;
     @Resource
     private ArticleContentRepository articleContentRepository;
-    @Resource
-    private RabbitTemplate rabbitTemplate;
+
+//    @Resource
+//    private RabbitTemplate rabbitTemplate;
+
+    @Resource(name = "stringRedisTemplate")
+    private StringRedisTemplate redisTemplate;
+
     @Resource
     private UserSupport userSupport;
 
@@ -94,6 +107,28 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return af;
     }
 
+    public ArticleField getArticleById(long id, Collection<ArticleState> articleStates) {
+//
+        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleStateIn(id, articleStates);
+
+        return af;
+    }
+
+    public ArticleField getArticleFieldByIdAndVersion(Long id, Integer version) {
+        String fieldJsonStr = redisTemplate.opsForList().index(ArticleRedisKey.ArticleHistoryVersionFieldKey + id, version);
+        if (fieldJsonStr == null) {
+            throw new CodeException(CustomerErrorCode.ArticleVersionNotFound);
+        }
+        return JSON.parseObject(fieldJsonStr, ArticleField.class);
+    }
+
+    public String getArticleContentByIdAndVersion(Long id, Integer version) {
+        String contentStr = redisTemplate.opsForList().index(ArticleRedisKey.ArticleHistoryVersionContentKey + id, version);
+        if (contentStr == null) {
+            throw new CodeException(CustomerErrorCode.ArticleVersionNotFound);
+        }
+        return contentStr;
+    }
 
     public UserActionVO getUserAction(long id) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();

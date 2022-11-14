@@ -1,5 +1,6 @@
 package link.dwsy.ddl.entity.Article;
 
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
@@ -10,6 +11,8 @@ import link.dwsy.ddl.XO.Enum.ArticleSource;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.User.User;
 import lombok.*;
+import org.hibernate.annotations.Proxy;
+import org.springframework.data.annotation.Version;
 
 import javax.persistence.*;
 import java.util.List;
@@ -24,31 +27,25 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted"})
+@JsonIgnoreProperties(value = {"deleted"})
+@Proxy(lazy = false)
 public class ArticleField extends BaseEntity {
+
     @Builder.Default
     int upNum = 0;
-
     @Builder.Default
     int downNum = 0;
-
     @ManyToOne
     private User user;
-
     private String title;
-
     private String summary;
-
     @Enumerated(EnumType.ORDINAL)
     @Builder.Default
     private ArticleState articleState = ArticleState.published;
-
     @Builder.Default
     private boolean allowComment = true;
-
     @Builder.Default
     private int commentNum = 0;
 
@@ -83,6 +80,7 @@ public class ArticleField extends BaseEntity {
             orphanRemoval = true, fetch = FetchType.LAZY, optional = true)
 //    @JoinColumn(name = "article_content_id")
     @JsonIgnore
+    @JSONField
     private ArticleContent articleContent;
 
     private ArticleSource articleSource;
@@ -104,5 +102,7 @@ public class ArticleField extends BaseEntity {
 //    @Fetch(FetchMode.SUBSELECT)
     private List<ArticleComment> articleComments;
 
+    @Builder.Default
+    private Integer version = -1;
 
 }

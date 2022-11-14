@@ -81,17 +81,20 @@ public class QaQuestionField extends BaseEntity {
 //    @Fetch(FetchMode.SUBSELECT)
     private List<QaAnswer> qaAnswers;
 
-    @Enumerated(EnumType.STRING)
-    private CodeHighlightStyle codeHighlightStyle;
 
-    @Enumerated(EnumType.STRING)
-    private MarkDownTheme markDownTheme;
+    @Builder.Default
+    private CodeHighlightStyle codeHighlightStyle = CodeHighlightStyle.xcode;
 
-    @Enumerated(EnumType.STRING)
-    private CodeHighlightStyle codeHighlightStyleDark;
 
-    @Enumerated(EnumType.STRING)
-    private MarkDownThemeDark markDownThemeDark;
+    @Builder.Default
+    private MarkDownTheme markDownTheme = MarkDownTheme.cyanosis;
+
+
+    @Builder.Default
+    private CodeHighlightStyle codeHighlightStyleDark = CodeHighlightStyle.githubDark;
+
+    @Builder.Default
+    private MarkDownThemeDark markDownThemeDark = MarkDownThemeDark.geekBlackDark;
 
     @Transient
     private List<QaAnswer> questionCommentList;
@@ -101,4 +104,7 @@ public class QaQuestionField extends BaseEntity {
 
     @Transient
     private long questionCommentTotalPages;
+
+    @Builder.Default
+    private Integer version = -1;
 }

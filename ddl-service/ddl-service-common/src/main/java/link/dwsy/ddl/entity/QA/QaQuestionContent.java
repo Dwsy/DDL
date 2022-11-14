@@ -6,7 +6,10 @@ import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.Table;
 
 /**
  * @Author Dwsy
@@ -39,6 +42,5 @@ public class QaQuestionContent extends BaseEntity {
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String textPure;
-
 
 }

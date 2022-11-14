@@ -1,13 +1,13 @@
 package link.dwsy.ddl.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import link.dwsy.ddl.XO.Enum.Article.CodeHighlightStyle;
-import link.dwsy.ddl.XO.Enum.Article.MarkDownTheme;
-import link.dwsy.ddl.XO.Enum.Article.MarkDownThemeDark;
+import com.alibaba.fastjson2.JSON;
+import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserActiveMessage;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
+import link.dwsy.ddl.constants.article.ArticleRedisKey;
 import link.dwsy.ddl.constants.mq.ArticleSearchConstants;
 import link.dwsy.ddl.constants.mq.UserActiveConstants;
 import link.dwsy.ddl.constants.task.RedisRecordKey;
@@ -35,6 +35,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +65,9 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     @Resource
     private UserRepository userRepository;
 
+//    @Resource
+//    private Gson
+
     public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         if (currentUser != null) {
@@ -77,6 +81,11 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     }
 
     public long createArticle(ArticleContentRB articleContentRB) {
+        ArticleState articleState = articleContentRB.getArticleState();
+        Set<ArticleState> allowState = Set.of(ArticleState.draft, ArticleState.published, ArticleState.hide);
+        if (!allowState.contains(articleState)) {
+            throw new CodeException(CustomerErrorCode.ArticleStateError);
+        }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
 
         ArrayList<ArticleTag> articleTags;
@@ -107,42 +116,34 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
                 .title(articleContentRB.getTitle())
                 .summary(articleContentRB.getSummary())
                 .banner(articleContentRB.getBanner())
-                .articleState(articleContentRB.getArticleState())
+                .articleState(articleState)
                 .articleTags(articleTags)
                 .articleGroup(articleGroup)
                 .articleContent(content).build();
-        if (articleContentRB.getMarkDownTheme() == null) {
-            field.setMarkDownTheme(MarkDownTheme.cyanosis);
-        } else {
-            field.setMarkDownTheme(articleContentRB.getMarkDownTheme());
-        }
-        if (articleContentRB.getMarkDownThemeDark() == null) {
-            field.setMarkDownThemeDark(MarkDownThemeDark.geekBlackDark);
-        } else {
-            field.setMarkDownThemeDark(articleContentRB.getMarkDownThemeDark());
-        }
-        if (articleContentRB.getCodeHighlightStyle() == null) {
-            field.setCodeHighlightStyle(CodeHighlightStyle.xcode);
-        } else {
-            field.setCodeHighlightStyle(articleContentRB.getCodeHighlightStyle());
-        }
+
 
         ArticleField save = articleFieldRepository.save(field);
         articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
 
-        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, save.getId());
-//        rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
+        if (articleState == ArticleState.published) {
+            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, save.getId());
+        }
         return save.getId();
     }
 
 
     public long updateArticle(ArticleContentRB articleContentRB) {
+        ArticleState articleState = articleContentRB.getArticleState();
+        Set<ArticleState> allowState = Set.of(ArticleState.draft, ArticleState.published, ArticleState.hide);
+        if (!allowState.contains(articleState)) {
+            throw new CodeException(CustomerErrorCode.ArticleStateError);
+        }
         Long uid = userSupport.getCurrentUser().getId();
         if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleContentRB.getArticleId(), uid)) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
 
-        ArrayList<ArticleTag> articleTags = null;
+        ArrayList<ArticleTag> articleTags;
         if (articleContentRB.getArticleTagIds().isEmpty()) {
             articleTags = new ArrayList<>();
         } else {
@@ -155,7 +156,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
                 .orElseThrow(() -> new CodeException(CustomerErrorCode.GroupNotFound));
 
 
-        String html = HtmlHelper.toHTML(articleContentRB.getContent());
+        String MdText = articleContentRB.getContent();
+        String html = HtmlHelper.toHTML(MdText);
         String pure = HtmlHelper.toPure(html);
         if (StrUtil.isBlank(articleContentRB.getSummary())) {
             articleContentRB.setSummary(pure.substring(0, 150));
@@ -168,37 +170,36 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         if (articleContentOptional.isEmpty()) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
+        //历史版本保存
+        int version = field.getVersion() + 1;
+        if (articleState == ArticleState.published || articleState == ArticleState.draft) {
+            redisTemplate.opsForList().set(ArticleRedisKey.ArticleHistoryVersionFieldKey + field.getId(), version, JSON.toJSONString(field));
+            redisTemplate.opsForList().set(ArticleRedisKey.ArticleHistoryVersionContentKey + field.getId(), version, MdText);
+        }
         ArticleContent articleContent = articleContentOptional.get();
         articleContent.setTextHtml(html);
-        articleContent.setTextMd(articleContentRB.getContent());
+        articleContent.setTextMd(MdText);
         articleContent.setTextPure(pure);
+        field.setVersion(version);
+        field.setArticleContent(articleContent);
         field.setTitle(articleContentRB.getTitle());
         field.setSummary(articleContentRB.getSummary());
         field.setBanner(articleContentRB.getBanner());
-        field.setArticleState(articleContentRB.getArticleState());
+        field.setArticleState(articleState);
         field.setArticleTags(articleTags);
         field.setArticleGroup(articleGroup);
         field.setArticleSource(articleContentRB.getArticleSource());
         field.setArticleSourceUrl(articleContentRB.getArticleSourceUrl());
-        field.setArticleContent(articleContent);
-        if (articleContentRB.getMarkDownTheme() == null) {
-            field.setMarkDownTheme(MarkDownTheme.cyanosis);
-        } else {
-            field.setMarkDownTheme(articleContentRB.getMarkDownTheme());
-        }
-        if (articleContentRB.getMarkDownThemeDark() == null) {
-            field.setMarkDownThemeDark(MarkDownThemeDark.geekBlackDark);
-        } else {
-            field.setMarkDownThemeDark(articleContentRB.getMarkDownThemeDark());
-        }
-        if (articleContentRB.getCodeHighlightStyle() == null) {
-            field.setCodeHighlightStyle(CodeHighlightStyle.xcode);
-        } else {
-            field.setCodeHighlightStyle(articleContentRB.getCodeHighlightStyle());
-        }
+
+
         ArticleField save = articleFieldRepository.save(field);
-        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE, save.getId());
+        if (articleContentRB.getArticleState() == ArticleState.published) {
+            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
+                    ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE, save.getId());
+        } else {
+            //todo 隐藏搜索项
+        }
+
         return save.getId();
     }
 

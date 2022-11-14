@@ -58,6 +58,10 @@ public enum CustomerErrorCode {
 
     UserCollectionAlreadyExist(214, "已收藏"),
 
+    ArticleStateError(230, "文章状态错误"),
+
+    ArticleVersionNotFound(230, "文章历史版本不存在"),
+
     QuestionAnswerOrCommentNotFount(250, "问题或评论不存在"),
 
 
@@ -84,12 +88,15 @@ public enum CustomerErrorCode {
 
     TheUserHasBeenInvitedToAnswer(606, "已经邀请了用户回答"),
 
+    QuestionVersionNotFound(620, "问题历史版本不存在"),
+
     WordNotFount(10001, "未找到该词"),
 
     WordExist(10002, "该词已存在"),
     CaptchaWrong(100004, "验证码错误"),
     EmailEqualsOld(100005, "邮箱未更改"),
-    EmailExists(100006, "邮箱已被绑定");
+    EmailExists(100006, "邮箱已被绑定"),
+    ;
 
 
     private final int code;

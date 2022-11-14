@@ -41,6 +41,8 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
 
     ArticleField findByIdAndDeletedIsFalseAndArticleState(long id, ArticleState articleState);
 
+    ArticleField findByIdAndDeletedIsFalseAndArticleStateIn(long id, Collection<ArticleState> articleStates);
+
     ArticleField findByDeletedFalseAndId(long id);
 
 
