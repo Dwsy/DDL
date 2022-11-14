@@ -190,10 +190,8 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         //历史版本保存
         int version = field.getVersion() + 1;
         if (questionState == QuestionState.ASK || questionState == QuestionState.DRAFT) {
-//            redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), JSON.toJSONString(field));
-//            redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), questionContent.getTextMd());
-            redisTemplate.opsForList().set(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), version, JSON.toJSONString(field));
-            redisTemplate.opsForList().set(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), version, questionContent.getTextMd());
+            redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), JSON.toJSONString(field));
+            redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionContentKey + field.getId(), questionContent.getTextMd());
         }
         questionContent.setTextMd(createQuestionRB.getContent());
         questionContent.setTextHtml(html);

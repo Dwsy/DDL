@@ -83,17 +83,21 @@ public class QaQuestionField extends BaseEntity {
 
 
     @Builder.Default
+    @Enumerated(EnumType.STRING)
     private CodeHighlightStyle codeHighlightStyle = CodeHighlightStyle.xcode;
 
 
     @Builder.Default
+    @Enumerated(EnumType.STRING)
     private MarkDownTheme markDownTheme = MarkDownTheme.cyanosis;
 
 
     @Builder.Default
+    @Enumerated(EnumType.STRING)
     private CodeHighlightStyle codeHighlightStyleDark = CodeHighlightStyle.githubDark;
 
     @Builder.Default
+    @Enumerated(EnumType.STRING)
     private MarkDownThemeDark markDownThemeDark = MarkDownThemeDark.geekBlackDark;
 
     @Transient

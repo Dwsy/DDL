@@ -173,8 +173,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         //历史版本保存
         int version = field.getVersion() + 1;
         if (articleState == ArticleState.published || articleState == ArticleState.draft) {
-            redisTemplate.opsForList().set(ArticleRedisKey.ArticleHistoryVersionFieldKey + field.getId(), version, JSON.toJSONString(field));
-            redisTemplate.opsForList().set(ArticleRedisKey.ArticleHistoryVersionContentKey + field.getId(), version, MdText);
+            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionFieldKey + field.getId(), JSON.toJSONString(field));
+            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionContentKey + field.getId(), MdText);
         }
         ArticleContent articleContent = articleContentOptional.get();
         articleContent.setTextHtml(html);
