@@ -13,13 +13,11 @@ import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -169,6 +167,7 @@ public class UserNotifyController {
 
         return new PageData<>(AnswerNotify);
     }
+
     //    invitationAnswer
     private void read(Page<UserNotify> QaSupportNotify) {
         for (UserNotify notify : QaSupportNotify) {
@@ -183,6 +182,31 @@ public class UserNotifyController {
         }
     }
 
+    @GetMapping("qa/watch")
+    @AuthAnnotation
+    public PageData<UserNotify> getQaWatch(
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "15", name = "size") int size,
+            @RequestParam(required = false, defaultValue = "0", name = "type") int type
+    ) {
+        Long userId = userSupport.getCurrentUser().getId();
+        PageRequest pageRequest = PRHelper.order(Sort.Direction.DESC, "createTime", page, size);
+        Page<UserNotify> QaSupportNotify = null;
+        if (type == 0) {
+            QaSupportNotify = userNotifyRepository
+                    .findByDeletedFalseAndToUserIdAndNotifyType(userId, NotifyType.watch_answer, pageRequest);
+        } else if (type == 1) {
+            QaSupportNotify = userNotifyRepository
+                    .findByDeletedFalseAndToUserIdAndNotifyType(userId, NotifyType.watch_accepted_question_answer, pageRequest);
+        }
+        if (QaSupportNotify != null) {
+            read(QaSupportNotify);
+            return new PageData<>(QaSupportNotify);
+        } else {
+            return null;
+        }
+    }
+
     //    export enum CountType {
 //        all,//只显示总数
 //        detail//明细
@@ -192,9 +216,20 @@ public class UserNotifyController {
     public UnreadNotifyVo getUserUnreadNotifyNum(
             @RequestParam(required = false, defaultValue = "all", name = "type") String type
     ) {
-        UnreadNotifyVo unreadNotifyVo = new UnreadNotifyVo();
         Long userId = userSupport.getCurrentUser().getId();
+        return getUnreadNotifyVo(type, userId);
+    }
 
+    @GetMapping("count/{type}")
+    @AuthAnnotation
+    public int getUnreadNotifyCount(@PathVariable int type) {
+        Long userId = userSupport.getCurrentUser().getId();
+        return userNotifyRepository.countByDeletedFalseAndToUserIdAndNotifyType(userId, NotifyType.values()[type]);
+    }
+
+    @Nullable
+    private UnreadNotifyVo getUnreadNotifyVo(String type, Long userId) {
+        UnreadNotifyVo unreadNotifyVo = new UnreadNotifyVo();
         if (type.equals("all")) {
             int NotifyCount = userNotifyRepository
                     .countByDeletedFalseAndToUserIdAndNotifyState(userId, NotifyState.UNREAD);
@@ -211,7 +246,8 @@ public class UserNotifyController {
             int ArticleOrCommentThumbCount = userNotifyRepository
                     .countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyTypeIn
                             (userId, NotifyState.UNREAD,
-                                    List.of(NotifyType.up_article, NotifyType.up_article_comment, NotifyType.up_question, NotifyType.up_question_answer));
+                                    List.of(NotifyType.up_article, NotifyType.up_article_comment));
+//                                    List.of(NotifyType.up_article, NotifyType.up_article_comment, NotifyType.up_question, NotifyType.up_question_answer));
 
             int QuestionOrAnswerThumbCount = userNotifyRepository
                     .countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyTypeIn
@@ -240,6 +276,13 @@ public class UserNotifyController {
                     .countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyType
                             (userId, NotifyState.UNREAD, NotifyType.accepted_question_answer);
 
+            int unreadWatchAnswer = userNotifyRepository
+                    .countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyType
+                            (userId, NotifyState.UNREAD, NotifyType.watch_answer);
+            int unreadWatchAcceptedQuestionAnswer = userNotifyRepository
+                    .countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyType
+                            (userId, NotifyState.UNREAD, NotifyType.watch_accepted_question_answer);
+
             unreadNotifyVo.setUnreadNotifyArticleOrCommentThumbCount(ArticleOrCommentThumbCount);
             unreadNotifyVo.setUnreadNotifyQuestionOrAnswerThumbCount(QuestionOrAnswerThumbCount);
             unreadNotifyVo.setUnreadNotifyReplyCommentCount(ReplyCommentCount);
@@ -249,8 +292,10 @@ public class UserNotifyController {
             unreadNotifyVo.setUnreadPrivateMessageCount(userUnreadPrivateMsgCount);
             unreadNotifyVo.setUnreadInvitationAnswerCount(userUnreadInvitationAnswerCount);
             unreadNotifyVo.setUnreadAcceptedAnswerCount(unreadAdoptAnswerCount);
+            unreadNotifyVo.setUnreadWatchAnswer(unreadWatchAnswer);
+            unreadNotifyVo.setUnreadWatchAcceptedQuestionAnswer(unreadWatchAcceptedQuestionAnswer);
             return unreadNotifyVo;
         }
-        return unreadNotifyVo;
+        return null;
     }
 }

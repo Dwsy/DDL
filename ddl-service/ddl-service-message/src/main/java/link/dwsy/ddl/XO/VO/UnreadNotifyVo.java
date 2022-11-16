@@ -12,27 +12,31 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UnreadNotifyVo {
 
-    private Integer unreadNotifyCount;
+    private int unreadNotifyCount;
 
-    private Integer unreadNotifyReplyCommentCount;
+    private int unreadNotifyReplyCommentCount;
 
-    private Integer unreadNotifyArticleOrCommentThumbCount;
+    private int unreadNotifyArticleOrCommentThumbCount;
 
-    private Integer unreadNotifyQuestionOrAnswerThumbCount;
+    private int unreadNotifyQuestionOrAnswerThumbCount;
 
-    private Integer unreadNotifyAnswerCount;
+    private int unreadNotifyAnswerCount;
 
-    private Integer unreadNotifyAnswerCommentCount;
+    private int unreadNotifyAnswerCommentCount;
 
-    private Integer unreadNotifyQuestionCommentCount;
+    private int unreadNotifyQuestionCommentCount;
 
-    private Integer unreadPrivateMessageCount;
+    private int unreadPrivateMessageCount;
 
-    private Integer unreadSystemMessageCount;
+    private int unreadSystemMessageCount;
 
-    private Integer unreadAtMeCount;
+    private int unreadAtMeCount;
 
-    private Integer unreadInvitationAnswerCount;
+    private int unreadInvitationAnswerCount;
 
-    private Integer unreadAcceptedAnswerCount;
+    private int unreadAcceptedAnswerCount;
+
+    private int unreadWatchAnswer;
+
+    private int unreadWatchAcceptedQuestionAnswer;
 }

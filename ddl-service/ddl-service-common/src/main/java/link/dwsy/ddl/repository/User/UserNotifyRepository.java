@@ -39,6 +39,10 @@ public interface UserNotifyRepository extends JpaRepository<UserNotify, Long> {
 
     int countByDeletedFalseAndToUserIdAndNotifyState(long toUserId, NotifyState notifyState);
 
+    int countByDeletedFalseAndToUserIdAndNotifyType(long fromUserId, NotifyType notifyType);
+
+
+
     int countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyTypeIn
             (long toUserId, NotifyState notifyState, Collection<NotifyType> notifyTypes);
 
