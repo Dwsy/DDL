@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField, Long> {
     Page<QaQuestionField> findByDeletedFalseAndQuestionState(QuestionState questionState, Pageable pageable);
 
+    Page<QaQuestionField> findByDeletedFalseAndQuestionStateNot(QuestionState questionState, Pageable pageable);
+
     Page<QaQuestionField> findByDeletedFalseAndQuestionStateIn
             (Collection<QuestionState> questionStates, Pageable pageable);
 
@@ -115,9 +117,24 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     @Query(nativeQuery = true,
             value = "select user_id from qa_user_watch_ref where question_id = ?1")
     long[] getWatchUser(long questionId);
+
+    int countByDeletedFalseAndUser_IdAndQuestionState(long id, QuestionState questionState);
+
+    int countByDeletedFalseAndUser_IdAndQuestionStateNot(long id, QuestionState questionState);
 //    findAllByDeletedIsFalseAndArticleGroupIdAndArticleState
 
 //    Page<fieldVO> findAllByIdInAndDeletedIsFalseAndArticleState(long[] ids, ArticleState open, PageRequest of);
 
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true,
+            value = "update qa_question_field set question_state = ?2 where id = ?1")
+    int setQuestionState(long id, QuestionState questionState);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true,
+            value = "update qa_question_field set question_state = ?2 where id = ?1 and question_state = ?3")
+    void setQuestionStateIfNowStateIs(long id, int questionState, int nowState);
 
 }

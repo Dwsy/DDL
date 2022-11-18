@@ -77,12 +77,20 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
     @Override
     public PageData<QaQuestionField> getPageList(Collection<QuestionState> questionStateCollection, PageRequest pageRequest) {
-        questionStateCollection.remove(QuestionState.HIDE);
+        questionStateCollection.removeAll(Set.of(QuestionState.HIDE, QuestionState.UNRESOLVED, QuestionState.AUDITING));
         Page<QaQuestionField> questionFields = qaQuestionFieldRepository
                 .findByDeletedFalseAndQuestionStateIn(questionStateCollection, pageRequest);
         PageData<QaQuestionField> fieldPageData = new PageData<>(questionFields);
         return fieldPageData;
     }
+
+    public PageData<QaQuestionField> getPageListManage(QuestionState questionState, PageRequest pageRequest) {
+//        questionStateCollection.removeAll(Set.of(QuestionState.HIDE,QuestionState.UNRESOLVED,QuestionState.AUDITING));
+        Page<QaQuestionField> questionFields = qaQuestionFieldRepository
+                .findByDeletedFalseAndQuestionState(questionState, pageRequest);
+        return new PageData<>(questionFields);
+    }
+
 
     @Override
     public QaQuestionField getQuestionById(long qid, boolean getQuestionComment) {
@@ -192,6 +200,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         if (questionState == QuestionState.ASK || questionState == QuestionState.DRAFT) {
             redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), JSON.toJSONString(field));
             redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionContentKey + field.getId(), questionContent.getTextMd());
+            redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionCreateDateKey + field.getId(), String.valueOf(System.currentTimeMillis()));
         }
         questionContent.setTextMd(createQuestionRB.getContent());
         questionContent.setTextHtml(html);
@@ -264,11 +273,17 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         if (questionField == null) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
+        if (qaQuestionFieldRepository.isWatch(userId, questionId) > 0) {
+            return false;
+        }
         return qaQuestionFieldRepository.watchQuestion(userId, questionId) > 0;
     }
 
     public boolean unWatchQuestion(long questionId) {
         Long userId = userSupport.getCurrentUser().getId();
+        if (qaQuestionFieldRepository.isWatch(userId, questionId) == 0) {
+            return false;
+        }
         return qaQuestionFieldRepository.cancelWatchQuestion(userId, questionId) > 0;
     }
 

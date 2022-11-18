@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.XO.VO.VersionData;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
@@ -21,10 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author Dwsy
@@ -127,9 +125,9 @@ public class ArticleFieldManageController {
         if (type < 0 || type > 2)
             throw new CodeException(CustomerErrorCode.ParamError);
         Long userId = userSupport.getCurrentUser().getId();
-        Long articleOwnerUserId = articleFieldRepository.findUserIdByContentId(id);
+        Long articleOwnerUserId = articleFieldRepository.findUserIdById(id);
         if (!userId.equals(articleOwnerUserId)) {
-            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+            throw new CodeException(CustomerErrorCode.ArticleGroupNotBelongToUser);
         }
         if (version > -1) {
             return articleContentService.getArticleContentByIdAndVersion(id, version);
@@ -141,4 +139,21 @@ public class ArticleFieldManageController {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
     }
+
+    @GetMapping("historyVersion/{id}")
+    @AuthAnnotation
+    public Map<String, VersionData> getHistoryVersion(@PathVariable long id) {
+
+        return articleContentService.getHistoryVersionTitle(id);
+    }
+
+//    @PostMapping("saveVersion/{id}")
+//    @AuthAnnotation
+//public void saveVersion(@PathVariable long id, @RequestBody Map<String, String> map) {
+//        String title = map.get("title");
+//        String content = map.get("content");
+//        if (title == null || content == null)
+//            throw new CodeException(CustomerErrorCode.ParamError);
+//        articleContentService.saveVersion(id, title, content);
+//    }
 }

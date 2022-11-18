@@ -3,6 +3,7 @@ package link.dwsy.ddl.service.impl;
 import cn.hutool.crypto.SecureUtil;
 import link.dwsy.ddl.XO.Enum.Message.NotifyType;
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
+import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.Question.InvitationUserAnswerQuestionMsg;
 import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
@@ -252,6 +253,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 answerType, false, content, title, answerId);
 //            }
         qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
+        qaQuestionFieldRepository.setQuestionStateIfNowStateIs(questionFieldId, QuestionState.HAVE_ANSWER.ordinal(), QuestionState.ASK.ordinal());
         return answerId;
     }
 
@@ -590,9 +592,18 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         Long questionId = qaAnswerRepository.getQuestionIdByAnswerId(answerId);
         if (questionId != null) {
             Long userIdByQuestionId = qaQuestionFieldRepository.getUserIdByQuestionId(userId);
+
             if (userIdByQuestionId != null) {
                 if (userIdByQuestionId.equals(userId)) {
                     qaAnswerRepository.setAcceptState(answerId, accepted);
+                    if (accepted) {
+                        qaQuestionFieldRepository.setQuestionStateIfNowStateIs
+                                (questionId, QuestionState.RESOLVED.ordinal(), QuestionState.HAVE_ANSWER.ordinal());
+                    } else {
+                        qaQuestionFieldRepository.setQuestionStateIfNowStateIs
+                                (questionId, QuestionState.HAVE_ANSWER.ordinal(), QuestionState.RESOLVED.ordinal());
+                    }
+
                     UserQuestionAnswerNotifyMessage message = UserQuestionAnswerNotifyMessage.builder()
                             .formUserId(userId)
                             .answerId(answerId)

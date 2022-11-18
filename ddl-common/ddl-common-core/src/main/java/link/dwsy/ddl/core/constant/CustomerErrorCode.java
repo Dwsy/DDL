@@ -62,6 +62,8 @@ public enum CustomerErrorCode {
 
     ArticleVersionNotFound(230, "文章历史版本不存在"),
 
+    ArticleVersionError(233, "文章历史版本错误"),
+
     QuestionAnswerOrCommentNotFount(250, "问题或评论不存在"),
 
 

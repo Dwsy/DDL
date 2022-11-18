@@ -5,6 +5,7 @@ import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
 import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.XO.VO.UserActionVO;
+import link.dwsy.ddl.XO.VO.VersionData;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.constants.article.ArticleRedisKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
@@ -21,21 +22,21 @@ import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.ArticleContentService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PageData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author Dwsy
  * @Date 2022/8/25
  */
 @Service
+@Slf4j
 public class ArticleContentServiceImpl implements ArticleContentService {
     //    @Resource
 //    private ArticleTagRepository articleTagRepository;
@@ -173,4 +174,27 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return null;
     }
 
+    public Map<String, VersionData> getHistoryVersionTitle(long articleId) {
+        Long userId = userSupport.getCurrentUser().getId();
+        Long articleOwnerUserId = articleFieldRepository.findUserIdById(articleId);
+        if (!userId.equals(articleOwnerUserId)) {
+            throw new CodeException(CustomerErrorCode.ArticleGroupNotBelongToUser);
+        }
+
+        List<String> titleList = redisTemplate.opsForList().range(ArticleRedisKey.ArticleHistoryVersionTitleKey + articleId, 0, -1);
+        List<String> dateList = redisTemplate.opsForList().range(ArticleRedisKey.ArticleHistoryVersionCreateDateKey + articleId, 0, -1);
+        if (titleList == null || dateList == null) {
+            throw new CodeException(CustomerErrorCode.ArticleVersionNotFound);
+        }
+        HashMap<String, VersionData> versionMap = new HashMap<>();
+        if (titleList.size() == dateList.size()) {
+            for (int i = 0; i < titleList.size(); i++) {
+                versionMap.put(String.valueOf(i), new VersionData(titleList.get(i), dateList.get(i)));
+            }
+        } else {
+            log.info("titleList.size() != dateList.size(),userId:{}articleId:{}", userId, articleId);
+            throw new CodeException(CustomerErrorCode.ArticleVersionNotFound);
+        }
+        return versionMap;
+    }
 }

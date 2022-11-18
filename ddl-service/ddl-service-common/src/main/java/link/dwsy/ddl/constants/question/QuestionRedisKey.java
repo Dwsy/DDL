@@ -9,4 +9,6 @@ public class QuestionRedisKey {
     public static final String QuestionHistoryVersionFieldKey = "question:history:version:id:field:";
 
     public static final String QuestionHistoryVersionContentKey = "question:history:version:id:content:";
+
+    public static final String QuestionHistoryVersionCreateDateKey = "question:history:version:id:date:";
 }

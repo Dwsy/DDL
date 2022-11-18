@@ -4,6 +4,7 @@ import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
+import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
@@ -16,9 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * @Author Dwsy
@@ -51,25 +52,39 @@ public class QaQuestionFieldManageController {
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
-            @RequestParam(required = false, defaultValue = "ask", name = "status") Set<String> statusStr
+            @RequestParam(required = false, defaultValue = "ask", name = "state") String state
     ) {
         if (size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
 
-        Set<QuestionState> questionStates = new HashSet<>();
-
 
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
 
-        for (String status : statusStr) {
-            try {
-                questionStates.add(QuestionState.valueOf(status.toUpperCase()));
-            } catch (IllegalArgumentException e) {
-                throw new CodeException(CustomerErrorCode.ParamError);
-            }
+        if (state.equals("all")) {
+            return new PageData<>(qaQuestionFieldRepository
+                    .findByDeletedFalseAndQuestionStateNot(QuestionState.DRAFT, pageRequest));
         }
+        QuestionState questionState = QuestionState.valueOf(state.toUpperCase());
 
-        return qaQuestionFieldService.getPageList(questionStates, pageRequest);
+        return qaQuestionFieldService.getPageListManage(questionState, pageRequest);
+
+    }
+
+
+    @GetMapping("field/num")
+    @AuthAnnotation
+    public Map<QuestionState, Integer> getQuestionCountByState() {
+        LoginUserInfo user = userSupport.getCurrentUser();
+        HashMap<QuestionState, Integer> countByState = new HashMap<>();
+        countByState.put(QuestionState.ASK, qaQuestionFieldRepository.countByDeletedFalseAndUser_IdAndQuestionState(user.getId(), QuestionState.ASK));
+        countByState.put(QuestionState.DRAFT, qaQuestionFieldRepository.countByDeletedFalseAndUser_IdAndQuestionState(user.getId(), QuestionState.DRAFT));
+        countByState.put(QuestionState.HAVE_ANSWER, qaQuestionFieldRepository.countByDeletedFalseAndUser_IdAndQuestionState(user.getId(), QuestionState.HAVE_ANSWER));
+        countByState.put(QuestionState.RESOLVED, qaQuestionFieldRepository.countByDeletedFalseAndUser_IdAndQuestionState(user.getId(), QuestionState.RESOLVED));
+        countByState.put(QuestionState.UNRESOLVED, qaQuestionFieldRepository.countByDeletedFalseAndUser_IdAndQuestionState(user.getId(), QuestionState.UNRESOLVED));
+        countByState.put(QuestionState.HIDE, qaQuestionFieldRepository.countByDeletedFalseAndUser_IdAndQuestionState(user.getId(), QuestionState.HIDE));
+        countByState.put(QuestionState.AUDITING, qaQuestionFieldRepository.countByDeletedFalseAndUser_IdAndQuestionState(user.getId(), QuestionState.AUDITING));
+        countByState.put(QuestionState.REJECTED, qaQuestionFieldRepository.countByDeletedFalseAndUser_IdAndQuestionState(user.getId(), QuestionState.REJECTED));
+        return countByState;
     }
 
     @GetMapping("field/{id}")

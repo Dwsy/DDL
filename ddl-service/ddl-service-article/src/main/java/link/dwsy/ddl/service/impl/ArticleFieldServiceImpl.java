@@ -3,6 +3,9 @@ package link.dwsy.ddl.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.XO.Enum.Article.CodeHighlightStyle;
+import link.dwsy.ddl.XO.Enum.Article.MarkDownTheme;
+import link.dwsy.ddl.XO.Enum.Article.MarkDownThemeDark;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserActiveMessage;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
@@ -119,6 +122,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
                 .articleState(articleState)
                 .articleTags(articleTags)
                 .articleGroup(articleGroup)
+                .articleSource(articleContentRB.getArticleSource())
+                .articleSourceUrl(articleContentRB.getArticleSourceUrl())
                 .articleContent(content).build();
 
 
@@ -174,7 +179,9 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         int version = field.getVersion() + 1;
         if (articleState == ArticleState.published || articleState == ArticleState.draft) {
             redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionFieldKey + field.getId(), JSON.toJSONString(field));
+            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionTitleKey + field.getId(), field.getTitle());
             redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionContentKey + field.getId(), MdText);
+            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionCreateDateKey + field.getId(), String.valueOf(System.currentTimeMillis()));
         }
         ArticleContent articleContent = articleContentOptional.get();
         articleContent.setTextHtml(html);
@@ -191,6 +198,21 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         field.setArticleSource(articleContentRB.getArticleSource());
         field.setArticleSourceUrl(articleContentRB.getArticleSourceUrl());
 
+        if (articleContentRB.getMarkDownTheme() == null) {
+            field.setMarkDownTheme(MarkDownTheme.cyanosis);
+        } else {
+            field.setMarkDownTheme(articleContentRB.getMarkDownTheme());
+        }
+        if (articleContentRB.getMarkDownThemeDark() == null) {
+            field.setMarkDownThemeDark(MarkDownThemeDark.geekBlackDark);
+        } else {
+            field.setMarkDownThemeDark(articleContentRB.getMarkDownThemeDark());
+        }
+        if (articleContentRB.getCodeHighlightStyle() == null) {
+            field.setCodeHighlightStyle(CodeHighlightStyle.xcode);
+        } else {
+            field.setCodeHighlightStyle(articleContentRB.getCodeHighlightStyle());
+        }
 
         ArticleField save = articleFieldRepository.save(field);
         if (articleContentRB.getArticleState() == ArticleState.published) {

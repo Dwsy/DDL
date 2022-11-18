@@ -92,6 +92,7 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
             value = "select question_field_id from qa_answer where id=?1")
     Long getQuestionIdByAnswerId(long answerId);
 
+
     @Transactional
     @Modifying
     @Query(nativeQuery = true,
@@ -102,5 +103,5 @@ public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
     @Modifying
     @Query(nativeQuery = true,
             value = "update qa_answer set accepted=?2,accepted_time=now() where id=?1")
-    Integer setAcceptState(long answerId, boolean accept);
+    int setAcceptState(long answerId, boolean accept);
 }
