@@ -6,6 +6,8 @@ package link.dwsy.ddl.constants.question;
  */
 
 public class QuestionRedisKey {
+    public static final String QuestionHistoryVersionTitleKey = "question:history:version:id:title:";
+
     public static final String QuestionHistoryVersionFieldKey = "question:history:version:id:field:";
 
     public static final String QuestionHistoryVersionContentKey = "question:history:version:id:content:";

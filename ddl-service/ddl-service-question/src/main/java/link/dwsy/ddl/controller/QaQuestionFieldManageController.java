@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
+import link.dwsy.ddl.XO.VO.VersionData;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -146,6 +147,13 @@ public class QaQuestionFieldManageController {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
 
+    }
+
+    @GetMapping("historyVersion/{id}")
+    @AuthAnnotation
+    public Map<String, VersionData> getHistoryVersion(@PathVariable long id) {
+
+        return questionContentService.getHistoryVersionTitle(id);
     }
 
 }
