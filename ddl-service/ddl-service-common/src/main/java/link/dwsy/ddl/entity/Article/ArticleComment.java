@@ -54,7 +54,7 @@ public class ArticleComment extends BaseEntity {
 
     @Column(name = "parent_user_id")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private long parentUserId;
+    private long parentUserId;//二级评论父评论的用户ID
 //    todo 增加字段 待修改
 
     @Builder.Default // 0 为一级评论 -1 up or down 文章 1楼上面 -1 是内容好像没啥问题。。
@@ -62,7 +62,7 @@ public class ArticleComment extends BaseEntity {
 
     @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private long replyUserCommentId = 0;
+    private long replyUserCommentId = 0;//回复二级评论的Id
 
     private int commentSerialNumber;
 

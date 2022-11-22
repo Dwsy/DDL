@@ -21,17 +21,18 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","createTime","deleted","lastModifiedTime"})
+@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "createTime", "deleted", "lastModifiedTime"})
 public class ArticleGroup extends BaseEntity {
     private String name;
 
     private String info;
+
     @OneToMany(mappedBy = "articleGroup")
     @JsonIgnore
     private List<ArticleField> articleFields;
 
     @Builder.Default
-    private int articleNum=0;
+    private int articleNum = 0;
 
     @Override
     public String toString() {
