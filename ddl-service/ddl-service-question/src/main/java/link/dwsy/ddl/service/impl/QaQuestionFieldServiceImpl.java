@@ -84,10 +84,10 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return fieldPageData;
     }
 
-    public PageData<QaQuestionField> getPageListManage(QuestionState questionState, PageRequest pageRequest) {
+    public PageData<QaQuestionField> getPageListManage(long userId,QuestionState questionState, PageRequest pageRequest) {
 //        questionStateCollection.removeAll(Set.of(QuestionState.HIDE,QuestionState.UNRESOLVED,QuestionState.AUDITING));
         Page<QaQuestionField> questionFields = qaQuestionFieldRepository
-                .findByDeletedFalseAndQuestionState(questionState, pageRequest);
+                .findByDeletedFalseAndUserIdAndQuestionState(userId,questionState, pageRequest);
         return new PageData<>(questionFields);
     }
 

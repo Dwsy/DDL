@@ -2,6 +2,7 @@ package link.dwsy.ddl.entity.Message;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import link.dwsy.ddl.XO.Enum.Message.MessageState;
 import link.dwsy.ddl.entity.BaseEntity;
 import lombok.*;
@@ -11,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
 /**
  * @Author Dwsy
  * @Date 2022/9/1
@@ -36,12 +38,6 @@ public class UserMessage extends BaseEntity {
     @Transient
     private String chatUserNickname;
 
-    @Transient
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private long chatUserId;
-
-    @Transient
-    private String chatUserAvatar;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String conversationId;
@@ -52,7 +48,18 @@ public class UserMessage extends BaseEntity {
 
     @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.NUMBER) //返回值
-    private MessageState status=MessageState.UNREAD;
+    private MessageState status = MessageState.UNREAD;
+
+    @Transient
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private long chatUserId;
+
+    @Transient
+    private String chatUserAvatar;
+
+    @Transient
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private int unreadMsgCount = 0;
 
     @Override
     public String toString() {

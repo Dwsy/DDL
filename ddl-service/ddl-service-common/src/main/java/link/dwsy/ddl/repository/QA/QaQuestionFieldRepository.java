@@ -18,6 +18,10 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
 
     Page<QaQuestionField> findByDeletedFalseAndQuestionStateNot(QuestionState questionState, Pageable pageable);
 
+    Page<QaQuestionField> findByDeletedFalseAndUserIdAndQuestionState(long user_id, QuestionState questionState, Pageable pageable);
+
+    Page<QaQuestionField> findByDeletedFalseAndUserIdAndQuestionStateNot(long user_id, QuestionState questionState, Pageable pageable);
+
     Page<QaQuestionField> findByDeletedFalseAndQuestionStateIn
             (Collection<QuestionState> questionStates, Pageable pageable);
 

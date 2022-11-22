@@ -18,12 +18,13 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "users")
+// todo user是关键字要用得加双引号但是jpa并不会。。
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"username","handler","hibernateLazyInitializer","deleted","createTime","lastModifiedTime","articleFields"})
+@JsonIgnoreProperties(value = {"username", "handler", "hibernateLazyInitializer", "deleted", "lastModifiedTime", "articleFields"})
 public class User extends BaseEntity {
 
     private String username;
@@ -46,12 +47,13 @@ public class User extends BaseEntity {
     @JsonIgnore
     private String area;
 
-    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE},orphanRemoval = true)
+
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private UserInfo userInfo;
 
     @Builder.Default
     private int level = 0;
-
 
 
 
@@ -67,5 +69,6 @@ public class User extends BaseEntity {
                 ", level=" + level +
                 '}';
     }
+
 
 }

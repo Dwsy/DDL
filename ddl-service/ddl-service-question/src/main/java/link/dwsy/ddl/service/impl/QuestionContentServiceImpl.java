@@ -52,7 +52,7 @@ public class QuestionContentServiceImpl implements QuestionContentService {
         return null;
     }
 
-    public String getContentAndVersion(Long id, int version) {
+    public String getContentByVersion(Long id, int version) {
         String contentStr = redisTemplate.opsForList().index(QuestionRedisKey.QuestionHistoryVersionContentKey + id, version);
         if (contentStr == null) {
             throw new CodeException(CustomerErrorCode.QuestionVersionNotFound);

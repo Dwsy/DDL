@@ -24,6 +24,7 @@
         <module>ddl-gateway</module>
         <module>ddl-service</module>
         <module>ddl-service/ddl-service-search</module>
+        <module>ddl-service/ddl-service-infinity</module>
         <!--        <module>ddl-service/ddl-service-common</module>-->
         <!--        <module>ddl-service/ddl-service-article</module>-->
         <!--        <module>ddl-service/ddl-service-question</module>-->

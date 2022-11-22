@@ -46,7 +46,7 @@ public interface UserMessageRepository extends JpaRepository<UserMessage, Long> 
 
     int countByToUserIdAndStatus(long toUserId, MessageState status);
 
-
+    int countByToUserIdAndFormUserIdAndStatusAndDeletedFalse(Long uid, long chatUserId, MessageState unread);
 
 
 //    List<UserMessage> findDistinctByToUserIdOrFormUserIdAndDeletedIsFalseAndOrderByConversationId(long toUserId, long formUserId);

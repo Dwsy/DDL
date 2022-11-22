@@ -155,5 +155,9 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
         }
         return false;
     }
+
+    public int getUnreadMsgCount(Long uid, long chatUserId) {
+        return userMessageRepository.countByToUserIdAndFormUserIdAndStatusAndDeletedFalse(uid, chatUserId, MessageState.UNREAD);
+    }
 }
 

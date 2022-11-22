@@ -30,6 +30,8 @@
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-data/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-file/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-file/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-infinity/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-infinity/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-message/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-message/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ddl-service/ddl-service-question/src/main/java" charset="UTF-8" />

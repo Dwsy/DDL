@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.XO.Enum.Gender;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -21,6 +18,9 @@ import java.util.Date;
 public class UserInfo extends BaseEntity {
 
 
+    @OneToOne(mappedBy = "userInfo",fetch = FetchType.LAZY)
+    private User user;
+
     @Builder.Default
     private String avatar = "default";
 
@@ -30,5 +30,11 @@ public class UserInfo extends BaseEntity {
     private Gender gender;
 
     private Date birth;
+
+
+
+
+    @Transient
+    private int level;
 
 }

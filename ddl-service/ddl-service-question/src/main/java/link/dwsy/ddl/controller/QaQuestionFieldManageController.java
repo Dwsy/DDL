@@ -48,6 +48,7 @@ public class QaQuestionFieldManageController {
     private UserSupport userSupport;
 
     @GetMapping("field/list")
+    @AuthAnnotation
     public PageData<QaQuestionField> QuestionList(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
@@ -61,13 +62,14 @@ public class QaQuestionFieldManageController {
 
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
 
+        Long userId = userSupport.getCurrentUser().getId();
         if (state.equals("all")) {
             return new PageData<>(qaQuestionFieldRepository
-                    .findByDeletedFalseAndQuestionStateNot(QuestionState.DRAFT, pageRequest));
+                    .findByDeletedFalseAndUserIdAndQuestionStateNot(userId, QuestionState.DRAFT, pageRequest));
         }
         QuestionState questionState = QuestionState.valueOf(state.toUpperCase());
 
-        return qaQuestionFieldService.getPageListManage(questionState, pageRequest);
+        return qaQuestionFieldService.getPageListManage(userId, questionState, pageRequest);
 
     }
 
@@ -138,7 +140,7 @@ public class QaQuestionFieldManageController {
         }
 
         if (version > -1) {
-            return questionContentService.getContentAndVersion(id, version);
+            return questionContentService.getContentByVersion(id, version);
         }
         Optional<String> ret = Optional.ofNullable(questionContentService.getContent(id, type));
         if (ret.isPresent()) {

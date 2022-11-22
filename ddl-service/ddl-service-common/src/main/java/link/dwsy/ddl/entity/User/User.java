@@ -27,7 +27,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(value = {"username", "handler", "hibernateLazyInitializer", "deleted", "createTime", "lastModifiedTime", "articleFields"})
+@JsonIgnoreProperties(value = {"username", "handler", "hibernateLazyInitializer", "deleted", "lastModifiedTime", "articleFields"})
 public class User extends BaseEntity {
 
     private String username;

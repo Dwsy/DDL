@@ -45,7 +45,7 @@ public class AuthorityController {
      * <h2>从授权中心获取 Token (其实就是登录功能), 且返回信息中没有统一响应的包装</h2>
      */
     @IgnoreResponseAdvice
-    @PostMapping("/token")
+    @PostMapping("token")
     public JwtToken token(@RequestBody UserRB userRB)
             throws Exception {
 
@@ -57,7 +57,7 @@ public class AuthorityController {
         return jwtToken;
     }
 
-    @PostMapping("/active")
+    @PostMapping("active")
     public boolean active(HttpServletRequest request) {
         String tokenHead = request.getHeader(TokenConstants.AUTHENTICATION);
         return tokenService.active(tokenHead.split(" ")[1]);
@@ -89,7 +89,7 @@ public class AuthorityController {
      * <h2>注册用户并返回当前注册用户的 Token, 即通过授权中心创建用户</h2>
      */
     @IgnoreResponseAdvice
-    @PostMapping("/register")
+    @PostMapping("register")
     public JwtToken register(@RequestBody UserRegisterRB userRegisterRB)
             throws Exception {
 

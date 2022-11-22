@@ -59,8 +59,10 @@ public class UserPrivateMessageController {
                 chatUserId = message.getToUserId();
             }
             User chatUser = userRepository.findUserByIdAndDeletedIsFalse(chatUserId);
+          int unreadMsgCount= userPrivateMessageService.getUnreadMsgCount(uid, chatUserId);
             message.setChatUserId(chatUserId);
             message.setChatUserNickname(chatUser.getNickname());
+            message.setUnreadMsgCount(unreadMsgCount);
             message.setChatUserAvatar(chatUser.getUserInfo().getAvatar());
         }
         return new PageData<>(privateMessagePage);

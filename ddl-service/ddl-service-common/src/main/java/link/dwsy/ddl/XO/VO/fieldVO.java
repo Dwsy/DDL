@@ -35,6 +35,7 @@ public interface fieldVO {
     //    long getArticleContentId();
 //    private ArticleContent articleContent;
     String getCreateTime();
+    String getLastModifiedTime();
     LinkedHashSet<ArticleTag> getArticleTags();
 
     ArticleGroup getArticleGroup();
