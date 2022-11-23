@@ -2,9 +2,11 @@ package link.dwsy.ddl.entity.Infinity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import link.dwsy.ddl.entity.BaseEntity;
+import link.dwsy.ddl.entity.User.User;
 import lombok.*;
 
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -20,6 +22,10 @@ import javax.persistence.Table;
 @Builder
 @JsonIgnoreProperties(value = {"deleted", "handler", "hibernateLazyInitializer", "lastModifiedTime"})
 public class InfinityClub extends BaseEntity {
+
+    @OneToOne
+    private User createUser;
+
     private String name;
 
     private String description;

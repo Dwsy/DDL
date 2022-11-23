@@ -15,13 +15,17 @@ public interface InfinityClubRepository extends JpaRepository<InfinityClub, Long
 
     @Transactional
     @Modifying
-    @Query(nativeQuery = true, value = "insert into infinity_club_ref (club_id, user_id,delete,create_time) values (?1, ?,false,now())")
-    void followClub(long clubId, long userId);
+    @Query(nativeQuery = true, value = "insert into infinity_club_follow_ref (club_id, user_id,create_time) values (?1, ?2,now())")
+    int followClub(long clubId, long userId);
 
     @Transactional
     @Modifying
-    @Query(nativeQuery = true, value = "insert into infinity_club_ref (club_id, user_id,delete,create_time) values (?1, ?,false,now())")
-    void unFollowClub(long clubId, long userId);
+    @Query(nativeQuery = true, value = "delete from infinity_club_follow_ref where club_id = ?1 and user_id = ?2 ")
+    int unFollowClub(long clubId, long userId);
+
+    @Query(nativeQuery = true,
+            value = "select count(*) from infinity_club_follow_ref where club_id = ?1 and user_id = ?2")
+    int isFollow(long clubId, long userId);
 
     @Modifying
     @Transactional
@@ -36,4 +40,7 @@ public interface InfinityClubRepository extends JpaRepository<InfinityClub, Long
     void followerNumIncrement(long id, int num);
 
 
+    boolean existsByDeletedFalseAndName(String name);
+
+    boolean existsByDeletedAndId(boolean deleted, long topicId);
 }

@@ -18,11 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 public interface InfinityRepository extends JpaRepository<Infinity, Long> {
     Infinity findByDeletedFalseAndId(long id);
 
+    Infinity findByDeletedFalseAndUser_IdAndId(long userId, long id);
+    
+    
+
     Page<Infinity> findByDeletedFalseAndInfinityTopic(InfinityTopic infinityTopic, Pageable pageable);
 
     Page<Infinity> findByDeletedFalseAndInfinityClub(InfinityClub infinityClub, Pageable pageable);
 
     Page<Infinity> findByDeletedFalseAndUser_Id(long id, Pageable pageable);
+
 
 
     @Modifying

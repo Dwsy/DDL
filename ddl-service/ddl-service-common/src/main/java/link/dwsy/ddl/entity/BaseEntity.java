@@ -38,4 +38,8 @@ public class BaseEntity {
     @LastModifiedDate
     private Date lastModifiedTime;
 
+    public BaseEntity setId(long id) {
+        this.id = id;
+        return this;
+    }
 }

@@ -98,7 +98,21 @@ public enum CustomerErrorCode {
     CaptchaWrong(100004, "验证码错误"),
     EmailEqualsOld(100005, "邮箱未更改"),
     EmailExists(100006, "邮箱已被绑定"),
-    ;
+    INFINITY_CLUB_NOT_EXIST(704, "圈子不存在"),
+    INFINITY_TOPIC_NOT_EXIST(703, "主题不存在"),
+    INFINITY_TOPIC_EXIST(703, "主题已存在"),
+
+    INFINITY_TOPIC_NOT_BELONG_TO_USER(705, "主题不属于你"),
+
+    INFINITY_NOT_EXIST(710, "动态不存在"),
+
+    INFINITY_TOPIC_FOLLOWED(720, "已关注主题"),
+
+    INFINITY_TOPIC_UNFOLLOWED(721, "未关注主题"),
+
+    INFINITY_CLUB_FOLLOWED(722, "已关注圈子"),
+
+    INFINITY_CLUB_UNFOLLOWED(723, "未关注圈子");
 
 
     private final int code;

@@ -14,13 +14,18 @@ import org.springframework.transaction.annotation.Transactional;
 public interface InfinityTopicRepository extends JpaRepository<InfinityTopic, Long> {
     @Transactional
     @Modifying
-    @Query(nativeQuery = true, value = "insert into infinity_club_ref (club_id, user_id,delete,create_time) values (?1, ?,false,now())")
-    void followTopic(long clubId, long userId);
+    @Query(nativeQuery = true, value = "insert into infinity_topic_follow_ref (topic_id, user_id,create_time) values (?1, ?2,now())")
+    int followTopic(long topicId, long userId);
 
     @Transactional
     @Modifying
-    @Query(nativeQuery = true, value = "insert into infinity_topic_ref (club_id, user_id,delete,create_time) values (?1, ?,false,now())")
-    void unFollowTopic(long clubId, long userId);
+    @Query(nativeQuery = true, value = "delete from infinity_topic_follow_ref where topic_id = ?1 and user_id = ?2 ")
+    int unFollowTopic(long topicId, long userId);
+
+    @Query(nativeQuery = true,
+            value = "select count(*) from infinity_topic_follow_ref where user_id = ?2 and topic_id = ?1")
+    int isFollow(long topicId, long userId);
+
 
     @Modifying
     @Transactional
@@ -28,9 +33,16 @@ public interface InfinityTopicRepository extends JpaRepository<InfinityTopic, Lo
             value = "update infinity_topic set view_num=view_num+?2 where id=?1")
     void viewNumIncrement(long id, int num);
 
+
     @Modifying
     @Transactional
     @Query(nativeQuery = true,
             value = "update infinity_topic set follower_num=follower_num+?2 where id=?1")
     void followerNumIncrement(long id, int num);
+
+    boolean existsByDeletedFalseAndName(String name);
+
+    boolean existsByDeletedAndId(boolean deleted, long id);
+
+
 }

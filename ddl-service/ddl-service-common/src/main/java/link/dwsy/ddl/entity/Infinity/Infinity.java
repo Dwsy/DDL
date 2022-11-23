@@ -58,7 +58,7 @@ public class Infinity extends BaseEntity {
 
     @Builder.Default // 0 为一级评论 -1 up or down other reply null Tweet
     @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
-    private Long parentCommentId;
+    private Long parentCommentId = null;
 
     @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -108,5 +108,93 @@ public class Infinity extends BaseEntity {
 
     public void setImgUrlList() {
         this.imgUrlList = List.of(imgUrl1, imgUrl2, imgUrl3, imgUrl4, imgUrl5, imgUrl6, imgUrl7, imgUrl8, imgUrl9);
+    }
+
+    public void setImgUrlByList(List<String> imgUrlList) {
+        this.imgUrlList = imgUrlList;
+        int size = imgUrlList.size();
+        switch (size) {
+            case 9:
+                this.imgUrl9 = imgUrlList.get(8);
+            case 8:
+                this.imgUrl8 = imgUrlList.get(7);
+            case 7:
+                this.imgUrl7 = imgUrlList.get(6);
+            case 6:
+                this.imgUrl6 = imgUrlList.get(5);
+            case 5:
+                this.imgUrl5 = imgUrlList.get(4);
+            case 4:
+                this.imgUrl4 = imgUrlList.get(3);
+            case 3:
+                this.imgUrl3 = imgUrlList.get(2);
+            case 2:
+                this.imgUrl2 = imgUrlList.get(1);
+            case 1:
+                this.imgUrl1 = imgUrlList.get(0);
+        }
+//        if (size == 1) {
+//            this.imgUrl1 = imgUrlList.get(0);
+//        }
+//        if (size == 2) {
+//            this.imgUrl1 = imgUrlList.get(0);
+//            this.imgUrl2 = imgUrlList.get(1);
+//        }
+//        if (size == 3) {
+//            this.imgUrl1 = imgUrlList.get(0);
+//            this.imgUrl2 = imgUrlList.get(1);
+//            this.imgUrl3 = imgUrlList.get(2);
+//        }
+//        if (size == 4) {
+//            this.imgUrl1 = imgUrlList.get(0);
+//            this.imgUrl2 = imgUrlList.get(1);
+//            this.imgUrl3 = imgUrlList.get(2);
+//            this.imgUrl4 = imgUrlList.get(3);
+//        }
+//        if (size == 5) {
+//            this.imgUrl1 = imgUrlList.get(0);
+//            this.imgUrl2 = imgUrlList.get(1);
+//            this.imgUrl3 = imgUrlList.get(2);
+//            this.imgUrl4 = imgUrlList.get(3);
+//            this.imgUrl5 = imgUrlList.get(4);
+//        }
+//        if (size == 6) {
+//            this.imgUrl1 = imgUrlList.get(0);
+//            this.imgUrl2 = imgUrlList.get(1);
+//            this.imgUrl3 = imgUrlList.get(2);
+//            this.imgUrl4 = imgUrlList.get(3);
+//            this.imgUrl5 = imgUrlList.get(4);
+//            this.imgUrl6 = imgUrlList.get(5);
+//        }
+//        if (size == 7) {
+//            this.imgUrl1 = imgUrlList.get(0);
+//            this.imgUrl2 = imgUrlList.get(1);
+//            this.imgUrl3 = imgUrlList.get(2);
+//            this.imgUrl4 = imgUrlList.get(3);
+//            this.imgUrl5 = imgUrlList.get(4);
+//            this.imgUrl6 = imgUrlList.get(5);
+//            this.imgUrl7 = imgUrlList.get(6);
+//        }
+//        if (size == 8) {
+//            this.imgUrl1 = imgUrlList.get(0);
+//            this.imgUrl2 = imgUrlList.get(1);
+//            this.imgUrl3 = imgUrlList.get(2);
+//            this.imgUrl4 = imgUrlList.get(3);
+//            this.imgUrl5 = imgUrlList.get(4);
+//            this.imgUrl6 = imgUrlList.get(5);
+//            this.imgUrl7 = imgUrlList.get(6);
+//            this.imgUrl8 = imgUrlList.get(7);
+//        }
+//        if (size == 9) {
+//            this.imgUrl1 = imgUrlList.get(0);
+//            this.imgUrl2 = imgUrlList.get(1);
+//            this.imgUrl3 = imgUrlList.get(2);
+//            this.imgUrl4 = imgUrlList.get(3);
+//            this.imgUrl5 = imgUrlList.get(4);
+//            this.imgUrl6 = imgUrlList.get(5);
+//            this.imgUrl7 = imgUrlList.get(6);
+//            this.imgUrl8 = imgUrlList.get(7);
+//            this.imgUrl9 = imgUrlList.get(8);
+//        }
     }
 }
