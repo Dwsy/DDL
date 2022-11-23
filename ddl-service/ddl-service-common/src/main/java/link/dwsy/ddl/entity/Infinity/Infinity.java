@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import link.dwsy.ddl.XO.Enum.InfinityType;
-import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.User.User;
 import lombok.*;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -45,6 +45,8 @@ public class Infinity extends BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long refId;
 
+    private String ua;
+
     @ManyToOne
     private InfinityTopic infinityTopic;
 
@@ -56,46 +58,57 @@ public class Infinity extends BaseEntity {
     @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
     private Long parentUserId = 0L;//二级评论父评论的用户ID
 
-    @Builder.Default // 0 为一级评论 -1 up or down other reply null Tweet
+    @Builder.Default //null 为动态 -1为action
     @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
-    private Long parentCommentId = null;
+    private Long parentTweetId = null;
 
     @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
-    private Long replyUserCommentId = 0L;//回复二级评论的Id
+    private Long replyUserTweetId = 0L;//回复二级评论的Id
 
 
     private int replySerialNumber;
 
     @Transient
+    private boolean up;
+
+    @Transient
     private User parentUser;
 
     @Transient
-    private Collection<ArticleComment> childComments;
+    private Collection<Infinity> childComments;
 
     @Transient
     private long childCommentNum;
 
     @Transient
-    private long childCommentTotalPages;
+    private int childCommentTotalPages;
 
     @JsonIgnore
     private String imgUrl1;
+
     @JsonIgnore
     private String imgUrl2;
+
     @JsonIgnore
     private String imgUrl3;
+
     @JsonIgnore
     private String imgUrl4;
+
     @JsonIgnore
     private String imgUrl5;
+
     @JsonIgnore
     private String imgUrl6;
+
     @JsonIgnore
     private String imgUrl7;
+
     @JsonIgnore
     private String imgUrl8;
+
     @JsonIgnore
     private String imgUrl9;
 
@@ -107,7 +120,35 @@ public class Infinity extends BaseEntity {
     }
 
     public void setImgUrlList() {
-        this.imgUrlList = List.of(imgUrl1, imgUrl2, imgUrl3, imgUrl4, imgUrl5, imgUrl6, imgUrl7, imgUrl8, imgUrl9);
+        ArrayList<String> urlList = new ArrayList<>();
+        if (imgUrl1 != null) {
+            urlList.add(imgUrl1);
+        }
+        if (imgUrl2 != null) {
+            urlList.add(imgUrl2);
+        }
+        if (imgUrl3 != null) {
+            urlList.add(imgUrl3);
+        }
+        if (imgUrl4 != null) {
+            urlList.add(imgUrl4);
+        }
+        if (imgUrl5 != null) {
+            urlList.add(imgUrl5);
+        }
+        if (imgUrl6 != null) {
+            urlList.add(imgUrl6);
+        }
+        if (imgUrl7 != null) {
+            urlList.add(imgUrl7);
+        }
+        if (imgUrl8 != null) {
+            urlList.add(imgUrl8);
+        }
+        if (imgUrl9 != null) {
+            urlList.add(imgUrl9);
+        }
+        this.imgUrlList = urlList;
     }
 
     public void setImgUrlByList(List<String> imgUrlList) {
@@ -133,68 +174,10 @@ public class Infinity extends BaseEntity {
             case 1:
                 this.imgUrl1 = imgUrlList.get(0);
         }
-//        if (size == 1) {
-//            this.imgUrl1 = imgUrlList.get(0);
-//        }
-//        if (size == 2) {
-//            this.imgUrl1 = imgUrlList.get(0);
-//            this.imgUrl2 = imgUrlList.get(1);
-//        }
-//        if (size == 3) {
-//            this.imgUrl1 = imgUrlList.get(0);
-//            this.imgUrl2 = imgUrlList.get(1);
-//            this.imgUrl3 = imgUrlList.get(2);
-//        }
-//        if (size == 4) {
-//            this.imgUrl1 = imgUrlList.get(0);
-//            this.imgUrl2 = imgUrlList.get(1);
-//            this.imgUrl3 = imgUrlList.get(2);
-//            this.imgUrl4 = imgUrlList.get(3);
-//        }
-//        if (size == 5) {
-//            this.imgUrl1 = imgUrlList.get(0);
-//            this.imgUrl2 = imgUrlList.get(1);
-//            this.imgUrl3 = imgUrlList.get(2);
-//            this.imgUrl4 = imgUrlList.get(3);
-//            this.imgUrl5 = imgUrlList.get(4);
-//        }
-//        if (size == 6) {
-//            this.imgUrl1 = imgUrlList.get(0);
-//            this.imgUrl2 = imgUrlList.get(1);
-//            this.imgUrl3 = imgUrlList.get(2);
-//            this.imgUrl4 = imgUrlList.get(3);
-//            this.imgUrl5 = imgUrlList.get(4);
-//            this.imgUrl6 = imgUrlList.get(5);
-//        }
-//        if (size == 7) {
-//            this.imgUrl1 = imgUrlList.get(0);
-//            this.imgUrl2 = imgUrlList.get(1);
-//            this.imgUrl3 = imgUrlList.get(2);
-//            this.imgUrl4 = imgUrlList.get(3);
-//            this.imgUrl5 = imgUrlList.get(4);
-//            this.imgUrl6 = imgUrlList.get(5);
-//            this.imgUrl7 = imgUrlList.get(6);
-//        }
-//        if (size == 8) {
-//            this.imgUrl1 = imgUrlList.get(0);
-//            this.imgUrl2 = imgUrlList.get(1);
-//            this.imgUrl3 = imgUrlList.get(2);
-//            this.imgUrl4 = imgUrlList.get(3);
-//            this.imgUrl5 = imgUrlList.get(4);
-//            this.imgUrl6 = imgUrlList.get(5);
-//            this.imgUrl7 = imgUrlList.get(6);
-//            this.imgUrl8 = imgUrlList.get(7);
-//        }
-//        if (size == 9) {
-//            this.imgUrl1 = imgUrlList.get(0);
-//            this.imgUrl2 = imgUrlList.get(1);
-//            this.imgUrl3 = imgUrlList.get(2);
-//            this.imgUrl4 = imgUrlList.get(3);
-//            this.imgUrl5 = imgUrlList.get(4);
-//            this.imgUrl6 = imgUrlList.get(5);
-//            this.imgUrl7 = imgUrlList.get(6);
-//            this.imgUrl8 = imgUrlList.get(7);
-//            this.imgUrl9 = imgUrlList.get(8);
-//        }
+    }
+
+    public void noRetCreateUser() {
+        this.infinityTopic.setCreateUser(null);
+        this.infinityClub.setCreateUser(null);
     }
 }

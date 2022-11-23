@@ -1,6 +1,7 @@
 package link.dwsy.ddl.entity.Infinity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.User.User;
 import lombok.*;
@@ -24,6 +25,7 @@ import javax.persistence.Table;
 public class InfinityClub extends BaseEntity {
 
     @OneToOne
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private User createUser;
 
     private String name;
