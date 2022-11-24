@@ -92,10 +92,11 @@ public class InfinityTopicController {
         if (!infinityTopicRepository.existsByDeletedAndId(false, topicId)) {
             throw new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST);
         }
-        if (infinityTopicRepository.isFollow(topicId,userId) > 0) {
+        if (infinityTopicRepository.isFollow(topicId, userId) > 0) {
             throw new CodeException(CustomerErrorCode.INFINITY_TOPIC_FOLLOWED);
         }
-        return infinityTopicRepository.followTopic( topicId,userId) > 0;
+        infinityTopicRepository.followerNumIncrement(topicId, 1);
+        return infinityTopicRepository.followTopic(topicId, userId) > 0;
     }
 
     @PostMapping("unfollow/{topicId}")
@@ -105,9 +106,10 @@ public class InfinityTopicController {
         if (!infinityTopicRepository.existsByDeletedAndId(false, topicId)) {
             throw new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST);
         }
-        if (infinityTopicRepository.isFollow(topicId,userId) == 0) {
+        if (infinityTopicRepository.isFollow(topicId, userId) == 0) {
             throw new CodeException(CustomerErrorCode.INFINITY_TOPIC_UNFOLLOWED);
         }
-        return infinityTopicRepository.unFollowTopic(topicId,userId) > 0;
+        infinityTopicRepository.followerNumIncrement(topicId, -1);
+        return infinityTopicRepository.unFollowTopic(topicId, userId) > 0;
     }
 }

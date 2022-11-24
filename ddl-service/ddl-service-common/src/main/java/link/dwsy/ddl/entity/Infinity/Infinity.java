@@ -177,7 +177,11 @@ public class Infinity extends BaseEntity {
     }
 
     public void noRetCreateUser() {
-        this.infinityTopic.setCreateUser(null);
-        this.infinityClub.setCreateUser(null);
+        if (this.infinityTopic !=null) {
+            this.infinityTopic.setCreateUser(null);
+        }
+        if (this.infinityClub !=null) {
+            this.infinityClub.setCreateUser(null);
+        }
     }
 }

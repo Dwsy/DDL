@@ -93,6 +93,7 @@ public class InfinityClubController {
         if (infinityClubRepository.isFollow(clubId, userId) > 0) {
             throw new CodeException(CustomerErrorCode.INFINITY_CLUB_FOLLOWED);
         }
+        infinityClubRepository.followerNumIncrement(clubId, 1);
         return infinityClubRepository.followClub(clubId, userId) > 0;
     }
 
@@ -106,6 +107,7 @@ public class InfinityClubController {
         if (infinityClubRepository.isFollow(clubId, userId) == 0) {
             throw new CodeException(CustomerErrorCode.INFINITY_CLUB_UNFOLLOWED);
         }
+        infinityClubRepository.followerNumIncrement(clubId, -1);
         return infinityClubRepository.unFollowClub(clubId, userId) > 0;
     }
 }

@@ -53,6 +53,10 @@ public interface InfinityRepository extends JpaRepository<Infinity, Long> {
 
     boolean existsByDeletedFalseAndUser_IdAndIdAndType(long userId, long id, InfinityType type);
 
+    boolean existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(long id, Long parentTweetId, InfinityType type);
+
+
+
     Infinity findByDeletedFalseAndUser_IdAndParentTweetIdAndType(long userId, Long parentTweetId, InfinityType type);
 
 

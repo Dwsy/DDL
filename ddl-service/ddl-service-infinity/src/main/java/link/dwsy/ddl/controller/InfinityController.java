@@ -85,7 +85,7 @@ public class InfinityController {
             childComment.noRetCreateUser();
             childComment.setImgUrlList();
             if (currentUser != null) {
-                if (infinityRepository.existsByDeletedFalseAndUser_IdAndIdAndType(currentUser.getId(), childComment.getId(), InfinityType.upTweet)) {
+                if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUser.getId(), childComment.getId(), InfinityType.upTweet)) {
                     childComment.setUp(true);
                 }
             }
@@ -116,21 +116,21 @@ public class InfinityController {
             List<Infinity> childCommentsContent = childComments.getContent();
             if (currentUser != null) {
                 Long currentUserId = currentUser.getId();
-                if (infinityRepository.existsByDeletedFalseAndUser_IdAndIdAndType(currentUserId, id, InfinityType.upTweet)) {
+                if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUserId, id, InfinityType.upTweet)) {
                     infinity.setUp(true);
                 }
                 //--
                 childCommentsContent.forEach(childComment -> {
                     childComment.noRetCreateUser();
                     childComment.setImgUrlList();
-                    if (infinityRepository.existsByDeletedFalseAndUser_IdAndIdAndType(currentUserId, childComment.getId(), InfinityType.upTweet)) {
+                    if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUserId, childComment.getId(), InfinityType.upTweet)) {
                         childComment.setUp(true);
                     }
                 });
             }
             infinity.setChildComments(childCommentsContent);
             infinity.setChildCommentTotalPages(childComments.getTotalPages());
-            infinity.setCollectNum(childComments.getTotalElements());
+            infinity.setChildCommentNum(childComments.getTotalElements());
         });
         return infinityPage;
     }
@@ -216,14 +216,14 @@ public class InfinityController {
         List<Infinity> childCommentsContent = childComments.getContent();
         if (currentUser != null) {
             Long currentUserId = currentUser.getId();
-            if (infinityRepository.existsByDeletedFalseAndUser_IdAndIdAndType(currentUserId, id, InfinityType.upTweet)) {
+            if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUserId, id, InfinityType.upTweet)) {
                 infinity.setUp(true);
             }
             //--
             childCommentsContent.forEach(childComment -> {
                 childComment.noRetCreateUser();
                 childComment.setImgUrlList();
-                if (infinityRepository.existsByDeletedFalseAndUser_IdAndIdAndType(currentUserId, childComment.getId(), InfinityType.upTweet)) {
+                if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUserId, childComment.getId(), InfinityType.upTweet)) {
                     childComment.setUp(true);
                 }
             });
