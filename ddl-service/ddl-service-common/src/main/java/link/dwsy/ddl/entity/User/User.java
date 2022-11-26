@@ -3,6 +3,7 @@ package link.dwsy.ddl.entity.User;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.Message.Channel;
@@ -71,8 +72,10 @@ public class User extends BaseEntity {
             fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Channel> channels;
+
     @Transient
-    private boolean following;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Boolean following;
 
     @Override
     public String toString() {

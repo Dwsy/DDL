@@ -36,6 +36,7 @@ public class Infinity extends BaseEntity {
     @Type(type = "org.hibernate.type.TextType")
     private String content;
 
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private InfinityType type;
 
     private long upNum;
@@ -47,10 +48,14 @@ public class Infinity extends BaseEntity {
 
     private String ua;
 
-    @ManyToOne
-    private InfinityTopic infinityTopic;
+    @ManyToMany(
+            fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
+    @JoinTable(name = "infinity_topic__ref",
+            joinColumns = {@JoinColumn(name = "infinity_id")},
+            inverseJoinColumns = {@JoinColumn(name = "topic_id")})
+    private List<InfinityTopic> infinityTopics;
 
-    @ManyToOne
+    @OneToOne
     private InfinityClub infinityClub;
 
     @Builder.Default
@@ -67,6 +72,7 @@ public class Infinity extends BaseEntity {
     @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
     private Long replyUserTweetId = 0L;//回复二级评论的Id
 
+    private Long viewNum = 0L;
 
     private int replySerialNumber;
 
@@ -177,10 +183,12 @@ public class Infinity extends BaseEntity {
     }
 
     public void noRetCreateUser() {
-        if (this.infinityTopic !=null) {
-            this.infinityTopic.setCreateUser(null);
+        if (this.infinityTopics != null) {
+            for (InfinityTopic infinityTopic : this.infinityTopics) {
+                infinityTopic.setCreateUser(null);
+            }
         }
-        if (this.infinityClub !=null) {
+        if (this.infinityClub != null) {
             this.infinityClub.setCreateUser(null);
         }
     }

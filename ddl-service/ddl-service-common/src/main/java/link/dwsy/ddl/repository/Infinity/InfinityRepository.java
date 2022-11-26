@@ -22,7 +22,11 @@ public interface InfinityRepository extends JpaRepository<Infinity, Long> {
     Infinity findByDeletedFalseAndUser_IdAndIdAndType(long user_id, long id, InfinityType type);
 
 
-    Page<Infinity> findByDeletedFalseAndInfinityTopic_IdAndType(long id, InfinityType type, Pageable pageable);
+
+    Page<Infinity> findByDeletedFalseAndInfinityTopics_IdIn(Collection<Long> ids, Pageable pageable);
+    Page<Infinity> findByDeletedFalseAndInfinityTopics_IdInAndType(Collection<Long> ids, InfinityType type, Pageable pageable);
+
+
 
     Page<Infinity> findByDeletedFalseAndInfinityClub_IdAndType(long id, InfinityType type, Pageable pageable);
 

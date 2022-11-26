@@ -21,10 +21,9 @@ public class InfinityRB {
     @NotNull
     private InfinityType type;
 
-    @NotNull
     private Long refId;
 
-    private Long infinityTopicId;
+    private List<Long> infinityTopicIds;
 
     private Long infinityClubId;
 

@@ -1,10 +1,15 @@
 package link.dwsy.ddl.repository.Infinity;
 
 import link.dwsy.ddl.entity.Infinity.InfinityTopic;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @Author Dwsy
@@ -43,6 +48,12 @@ public interface InfinityTopicRepository extends JpaRepository<InfinityTopic, Lo
     boolean existsByDeletedFalseAndName(String name);
 
     boolean existsByDeletedAndId(boolean deleted, long id);
+
+    Page<InfinityTopic> findByDeletedFalseOrderByViewNumDesc(Pageable pageable);
+
+    List<InfinityTopic> findByDeletedFalseAndIdIn(Collection<Long> id);
+
+
 
 
 }

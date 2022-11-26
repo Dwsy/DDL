@@ -42,6 +42,9 @@ public class PRHelper {
             orders.add(new Sort.Order(Sort.Direction.valueOf(order[i].toUpperCase()), properties[i]));
         }
         return Sort.by(orders);
+    }
 
+    public static PageRequest page(int page, int size) {
+        return PageRequest.of(page <= 0 ? 0 : page - 1, Math.min(size, 20));
     }
 }

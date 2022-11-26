@@ -65,21 +65,23 @@ public class InfinityController {
         return new PageData<>(infinityPage);
     }
 
-    @GetMapping("childComment/{tweetId}")
+    //todo
+//    @GetMapping("childComments/{tweetId}")
+    @GetMapping("childComments/{id}")
     public PageData<Infinity> getInfinityChildCommentPageList(
             @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
-            @PathVariable long tweetId) {
+            @PathVariable long id
+    ) {
         if (size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
-
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         Page<Infinity> childComments = infinityRepository
                 .findByDeletedFalseAndParentTweetIdAndType
-                        (tweetId, InfinityType.TweetReply, pageRequest);
+                        (id, InfinityType.TweetReply, pageRequest);
         List<Infinity> childCommentsContent = childComments.getContent();
         childCommentsContent.forEach(childComment -> {
             childComment.noRetCreateUser();
@@ -99,13 +101,14 @@ public class InfinityController {
         if (clubId != 0) {
             infinityPage = infinityRepository.findByDeletedFalseAndInfinityClub_IdAndType(clubId, InfinityType.Tweet, pageRequest);
         } else if (topicId != 0) {
-            infinityPage = infinityRepository.findByDeletedFalseAndInfinityTopic_IdAndType(topicId, InfinityType.Tweet, pageRequest);
+//            todo
+            infinityPage = infinityRepository.findByDeletedFalseAndInfinityTopics_IdInAndType(Set.of(topicId), InfinityType.Tweet, pageRequest);
 
         } else {
             infinityPage = infinityRepository.findByDeletedFalseAndType(InfinityType.Tweet, pageRequest);
         }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
-        PageRequest replyPageRequest = PRHelper.order("DESC", new String[]{"createTime"}, 1, 10);
+        PageRequest replyPageRequest = PRHelper.order("DESC", new String[]{"createTime"}, 1, 8);
         infinityPage.forEach(infinity -> {
             infinity.setImgUrlList();
             infinity.noRetCreateUser();
@@ -141,19 +144,23 @@ public class InfinityController {
     public Infinity sendInfinity(@Validated @RequestBody InfinityRB infinityRB) {
         Long userId = userSupport.getCurrentUser().getId();
         Long infinityClubId = infinityRB.getInfinityClubId();
-        Long infinityTopicId = infinityRB.getInfinityTopicId();
+        List<Long> infinityTopicIds = infinityRB.getInfinityTopicIds();
         InfinityClub infinityClub;
-        InfinityTopic infinityTopic;
         Infinity infinity = new Infinity();
         if (infinityClubId != null) {
             infinityClub = infinityClubRepository.findById(infinityClubId)
                     .orElseThrow(() -> new CodeException(CustomerErrorCode.INFINITY_CLUB_NOT_EXIST));
             infinity.setInfinityClub(infinityClub);
         }
-        if (infinityTopicId != null) {
-            infinityTopic = infinityTopicRepository.findById(infinityTopicId)
-                    .orElseThrow(() -> new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST));
-            infinity.setInfinityTopic(infinityTopic);
+        if (infinityTopicIds != null) {
+//            infinityTopic = infinityTopicRepository.findById(infinityTopicId)
+//                    .orElseThrow(() -> new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST));
+//            infinity.setInfinityTopic(infinityTopic);
+            List<InfinityTopic> infinityTopics = infinityTopicRepository.findByDeletedFalseAndIdIn(infinityTopicIds);
+            if (infinityTopics.size() != infinityTopicIds.size()) {
+                throw new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST);
+            }
+            infinity.setInfinityTopics(infinityTopics);
         }
         infinity.setUser((User) new User().setId(userId));
         infinity.setContent(infinityRB.getContent());
@@ -175,7 +182,7 @@ public class InfinityController {
         }
         Long userId = userSupport.getCurrentUser().getId();
         Long infinityClubId = infinityRB.getInfinityClubId();
-        Long infinityTopicId = infinityRB.getInfinityTopicId();
+        List<Long> infinityTopicIds = infinityRB.getInfinityTopicIds();
         InfinityClub infinityClub;
         InfinityTopic infinityTopic;
         Infinity infinity = infinityRepository.findByDeletedFalseAndUser_IdAndIdAndType(userId, id, InfinityType.Tweet);
@@ -187,10 +194,12 @@ public class InfinityController {
                     .orElseThrow(() -> new CodeException(CustomerErrorCode.INFINITY_CLUB_NOT_EXIST));
             infinity.setInfinityClub(infinityClub);
         }
-        if (infinityTopicId != null) {
-            infinityTopic = infinityTopicRepository.findById(infinityTopicId)
-                    .orElseThrow(() -> new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST));
-            infinity.setInfinityTopic(infinityTopic);
+        if (infinityTopicIds != null) {
+            List<InfinityTopic> infinityTopics = infinityTopicRepository.findByDeletedFalseAndIdIn(infinityTopicIds);
+            if (infinityTopics.size() != infinityTopicIds.size()) {
+                throw new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST);
+            }
+            infinity.setInfinityTopics(infinityTopics);
         }
         infinity.setImgUrlByList(infinityRB.getImgUrlList());
         infinity.setContent(infinityRB.getContent());
@@ -206,7 +215,7 @@ public class InfinityController {
         }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
 
-        PageRequest replyPageRequest = PRHelper.order("DESC", new String[]{"createTime"}, 1, 10);
+        PageRequest replyPageRequest = PRHelper.order("DESC", new String[]{"createTime"}, 1, 8);
 
         infinity.setImgUrlList();
         infinity.noRetCreateUser();

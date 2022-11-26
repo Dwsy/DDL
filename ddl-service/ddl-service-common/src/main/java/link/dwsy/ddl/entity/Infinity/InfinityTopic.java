@@ -1,14 +1,14 @@
 package link.dwsy.ddl.entity.Infinity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.User.User;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * @Author Dwsy
@@ -23,6 +23,10 @@ import javax.persistence.Table;
 @Builder
 @JsonIgnoreProperties(value = {"deleted", "handler", "hibernateLazyInitializer", "lastModifiedTime"})
 public class InfinityTopic extends BaseEntity {
+    @ManyToMany(mappedBy = "infinityTopics",
+            fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Infinity> infinity;
 
     @OneToOne
     @JsonInclude(JsonInclude.Include.NON_NULL)

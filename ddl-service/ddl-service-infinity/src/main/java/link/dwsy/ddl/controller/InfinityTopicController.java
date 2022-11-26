@@ -10,7 +10,10 @@ import link.dwsy.ddl.repository.Infinity.InfinityClubRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
 import link.dwsy.ddl.support.UserSupport;
+import link.dwsy.ddl.util.PRHelper;
+import link.dwsy.ddl.util.PageData;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -111,5 +114,11 @@ public class InfinityTopicController {
         }
         infinityTopicRepository.followerNumIncrement(topicId, -1);
         return infinityTopicRepository.unFollowTopic(topicId, userId) > 0;
+    }
+
+    @GetMapping("list")
+    public PageData<InfinityTopic> TopicController() {
+        PageRequest pageRequest = PRHelper.page(1, 10);
+        return new PageData<>(infinityTopicRepository.findByDeletedFalseOrderByViewNumDesc(pageRequest));
     }
 }
