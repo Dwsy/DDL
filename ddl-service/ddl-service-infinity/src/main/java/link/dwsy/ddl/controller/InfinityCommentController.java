@@ -77,7 +77,7 @@ public class InfinityCommentController {
     }
 
 
-    @PostMapping("reply")
+    @PostMapping()
     @AuthAnnotation
     public Infinity replyInfinity(@Validated @RequestBody ReplyInfinityRB infinityRB) {
         Long userId = userSupport.getCurrentUser().getId();
@@ -110,6 +110,7 @@ public class InfinityCommentController {
                     .parentUserId(infinityRB.getReplyUserId())
                     .replyUserTweetId(replyUserTweetId)
                     .build();
+            infinity.setImgUrlByList(infinityRB.getImgUrlList());
             return infinityRepository.save(infinity);
             //todo reply@name:
         }

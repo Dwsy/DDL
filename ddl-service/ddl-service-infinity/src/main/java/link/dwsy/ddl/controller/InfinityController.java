@@ -2,7 +2,6 @@ package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.InfinityType;
 import link.dwsy.ddl.XO.RB.InfinityRB;
-import link.dwsy.ddl.XO.RB.ReplyInfinityRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -244,43 +243,43 @@ public class InfinityController {
         return infinity;
     }
 
-    @PostMapping("reply")
-    @AuthAnnotation
-    public Infinity replyInfinity(@Validated @RequestBody ReplyInfinityRB infinityRB) {
-        Long userId = userSupport.getCurrentUser().getId();
-        long replyId = infinityRB.getReplyId();
-        String content = infinityRB.getContent();
-        Long replyUserTweetId = infinityRB.getReplyUserTweetId();
-        if (replyUserTweetId == null) {
-            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyId, InfinityType.Tweet);
-            if (!exists) {
-                throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
-            }
-            Infinity infinity = Infinity.builder()
-                    .type(InfinityType.TweetReply)
-                    .content(content)
-                    .ua(userSupport.getUserAgent())
-                    .user((User) new User().setId(userId))
-                    .parentTweetId(replyId).build();
-
-            return infinityRepository.save(infinity);
-        } else {
-            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyUserTweetId, InfinityType.TweetReply);
-            if (!exists) {
-                throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
-            }
-            Infinity infinity = Infinity.builder()
-                    .type(InfinityType.TweetReply)
-                    .content(content)
-                    .user((User) new User().setId(userId))
-                    .parentTweetId(replyId)
-                    .parentUserId(infinityRB.getReplyUserId())
-                    .replyUserTweetId(replyUserTweetId)
-                    .build();
-            return infinityRepository.save(infinity);
-            //todo reply@name:
-        }
-    }
+//    @PostMapping("reply")
+//    @AuthAnnotation
+//    public Infinity replyInfinity(@Validated @RequestBody ReplyInfinityRB infinityRB) {
+//        Long userId = userSupport.getCurrentUser().getId();
+//        long replyId = infinityRB.getReplyId();
+//        String content = infinityRB.getContent();
+//        Long replyUserTweetId = infinityRB.getReplyUserTweetId();
+//        if (replyUserTweetId == null) {
+//            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyId, InfinityType.Tweet);
+//            if (!exists) {
+//                throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
+//            }
+//            Infinity infinity = Infinity.builder()
+//                    .type(InfinityType.TweetReply)
+//                    .content(content)
+//                    .ua(userSupport.getUserAgent())
+//                    .user((User) new User().setId(userId))
+//                    .parentTweetId(replyId).build();
+//
+//            return infinityRepository.save(infinity);
+//        } else {
+//            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyUserTweetId, InfinityType.TweetReply);
+//            if (!exists) {
+//                throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
+//            }
+//            Infinity infinity = Infinity.builder()
+//                    .type(InfinityType.TweetReply)
+//                    .content(content)
+//                    .user((User) new User().setId(userId))
+//                    .parentTweetId(replyId)
+//                    .parentUserId(infinityRB.getReplyUserId())
+//                    .replyUserTweetId(replyUserTweetId)
+//                    .build();
+//            return infinityRepository.save(infinity);
+//            //todo reply@name:
+//        }
+//    }
 
     @PostMapping("action/up/{id}")
     @AuthAnnotation
