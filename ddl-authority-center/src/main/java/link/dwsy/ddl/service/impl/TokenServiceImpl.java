@@ -91,6 +91,10 @@ public class TokenServiceImpl implements TokenService {
 //            throw new Exception("登录失败");
         }
         // Token 中塞入对象, 即 JWT 中存储的信息, 后端拿到这些信息就可以知道是哪个用户在操作
+        return getToken(expire, user);
+    }
+
+    public String getToken(int expire, User user) throws Exception {
         LoginUserInfo loginUserInfo = LoginUserInfo.builder()
                 .username(user.getUsername())
                 .id(user.getId())

@@ -83,3 +83,15 @@ knife4j:
 snowflake:
   datacenter-id: 0
   worker-id: 0
+
+jasypt:
+  encryptor:
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+    password: ${DDL_SALT}
+
+github:
+  oauth:
+    secret: ENC(hUSlpR4r0POJtfsZIwLC28i0PCuiVUYyBqWQgNu3Siqcz179+LODvdLMYc2zIMGXLC7ECfpm3IY=)
+    id: ENC(YJffy8vFYaxxUcGsIZ39v/Ij7Rcv/QZZCF+F4Fart9Q=)
+    redirect-uri: http://localhost:7002/authority/github

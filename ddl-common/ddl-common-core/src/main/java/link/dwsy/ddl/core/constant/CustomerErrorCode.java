@@ -112,7 +112,7 @@ public enum CustomerErrorCode {
 
     INFINITY_CLUB_FOLLOWED(722, "已关注圈子"),
 
-    INFINITY_CLUB_UNFOLLOWED(723, "未关注圈子");
+    INFINITY_CLUB_UNFOLLOWED(723, "未关注圈子"), GITHUB_OAUTH_ERROR(2000, "GITHUB_OAUTH_ERROR");
 
 
     private final int code;

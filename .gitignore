@@ -42,4 +42,5 @@ build/
 /ddl-service/ddl-service-user_center/src/main/resources/mail.setting
 /ddl-service/ddl-service-user_center/src/main/resources/test.cof
 
+ddl-authority-center/src/main/resources/github-oauth
 **/github-oauth

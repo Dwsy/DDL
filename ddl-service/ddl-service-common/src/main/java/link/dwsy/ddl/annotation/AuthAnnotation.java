@@ -13,6 +13,6 @@ import java.lang.annotation.*;
 @Documented
 @Component
 public @interface AuthAnnotation {
-    int Level() default 1;
+    int Level() default 0;
 
 }

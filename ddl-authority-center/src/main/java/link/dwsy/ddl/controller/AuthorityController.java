@@ -2,6 +2,7 @@ package link.dwsy.ddl.controller;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import link.dwsy.ddl.XO.DTO.GithubUserInfo;
 import link.dwsy.ddl.XO.RB.UserRB;
 import link.dwsy.ddl.XO.RB.UserRegisterRB;
 import link.dwsy.ddl.annotation.IgnoreResponseAdvice;
@@ -11,6 +12,7 @@ import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.constant.TokenConstants;
 import link.dwsy.ddl.core.domain.JwtToken;
 import link.dwsy.ddl.core.utils.RSAUtil;
+import link.dwsy.ddl.service.impl.GithubOauthService;
 import link.dwsy.ddl.service.impl.TokenServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +37,26 @@ public class AuthorityController {
     @Resource
     private RedisTemplate<String,String> redisTemplate;
 
+    @Resource
+    private GithubOauthService githubOauthService;
 
+
+
+    @GetMapping("/test")
+    public String test() {
+        return githubOauthService.test();
+    }
+
+    @GetMapping("/github")
+    @IgnoreResponseAdvice
+    public void github(@RequestParam("code") String code, HttpServletResponse response) throws Exception {
+        GithubUserInfo userInfo = githubOauthService.getUserInfo(code);
+        if (userInfo==null){
+            throw new CodeException(CustomerErrorCode.GITHUB_OAUTH_ERROR);
+        }
+        String token = githubOauthService.generateToken(userInfo);
+        response.sendRedirect("http://localhost:3000/user/login"+"?token="+token);
+    }
     @GetMapping("/rsa-pks")
     public String getRsaPublicKey() {
 

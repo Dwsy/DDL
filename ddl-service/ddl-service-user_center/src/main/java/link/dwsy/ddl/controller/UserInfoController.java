@@ -35,7 +35,7 @@ public class UserInfoController {
     private UserTagRepository tagRepository;
 
     @GetMapping
-    @AuthAnnotation(Level = 1)
+    @AuthAnnotation()
     public UserInfo getUserInfo() {
         Long id = userSupport.getCurrentUser().getId();
         UserInfo userInfo = userRepository.findUserByIdAndDeletedIsFalse(id).getUserInfo();
