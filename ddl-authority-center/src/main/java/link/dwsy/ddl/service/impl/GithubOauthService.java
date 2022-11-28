@@ -162,12 +162,13 @@ public class GithubOauthService {
                 .level(0)
                 .build());
         User save = userRepository.save(user);
-        OauthUserRef.builder().userId(save.getId())
+        OauthUserRef oauthUserRef = OauthUserRef.builder().userId(save.getId())
                 .oauthId(userInfo.getId())
                 .oauthNodeId(userInfo.getNode_id())
                 .oauthType(OauthType.Github)
                 .oauthAvatar(userInfo.getAvatar_url())
                 .build();
+        oauthUserRefRepository.save(oauthUserRef);
         // 注册一个新用户, 写一条记录到数据表中
         log.info("github register user success: [{}], [{}],[{}]", user.getUsername(), user.getId(), user.getPassword());
         // 生成 token 并返回
