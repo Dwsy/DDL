@@ -38,7 +38,7 @@ public class ChannelController {
     }
 
     @PostMapping("/send")
-    @AuthAnnotation(Level = 1)
+    @AuthAnnotation()
     public void sendMessage(@RequestBody channelSendMessageRB channelSendMessageRB) {
         LoginUserInfo user = userSupport.getCurrentUser();
         ChannelMessage message = ChannelMessage.builder()

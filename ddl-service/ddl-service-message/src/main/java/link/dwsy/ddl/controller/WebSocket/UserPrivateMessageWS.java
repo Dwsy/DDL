@@ -83,7 +83,7 @@ public class UserPrivateMessageWS {
     @OnOpen
     public void onOpen(@PathParam("conversationId") String conversationId, Session session) throws IOException {
 
-        List<Integer> s = Arrays.stream(conversationId.split("_")).map(Integer::valueOf).collect(Collectors.toList());
+        List<Long> s = Arrays.stream(conversationId.split("_")).map(Long::valueOf).collect(Collectors.toList());
         if (s.get(0) >= s.get(1)) {
             session.getBasicRemote().sendText("error");
             session.close();

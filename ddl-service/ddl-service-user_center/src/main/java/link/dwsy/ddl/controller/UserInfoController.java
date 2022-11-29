@@ -44,7 +44,7 @@ public class UserInfoController {
     }
 
     @GetMapping("{id}")
-//    @AuthAnnotation(Level = 1)
+//    @AuthAnnotation()
     public User getUserById(@PathVariable Long id) {
         User user = userRepository.findUserByIdAndDeletedIsFalse(id);
         if (user != null) {

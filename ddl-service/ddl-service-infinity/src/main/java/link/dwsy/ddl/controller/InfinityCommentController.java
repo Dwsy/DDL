@@ -11,6 +11,7 @@ import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Infinity.InfinityClubRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
+import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
@@ -21,7 +22,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author Dwsy
@@ -44,12 +47,12 @@ public class InfinityCommentController {
     @Resource
     private InfinityClubRepository infinityClubRepository;
 
-
-
+    @Resource
+    private UserRepository userRepository;
 
 
     @GetMapping("{id}")
-    public PageData<Infinity> getInfinityChildCommentPageList(
+    public Map<String, Object> getInfinityChildCommentPageList(
             @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
@@ -60,10 +63,12 @@ public class InfinityCommentController {
             throw new CodeException(CustomerErrorCode.ParamError);
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        PageRequest replyPageRequest = PRHelper.order("ASC", new String[]{"createTime"}, 1, 8);
         Page<Infinity> childComments = infinityRepository
-                .findByDeletedFalseAndParentTweetIdAndType
-                        (id, InfinityType.TweetReply, pageRequest);
+                .findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
+                        (id, InfinityType.TweetReply, 0L, pageRequest);
         List<Infinity> childCommentsContent = childComments.getContent();
+        HashMap<Long, List<Infinity>> commentReplyMap = new HashMap<>();
         childCommentsContent.forEach(childComment -> {
             childComment.noRetCreateUser();
             childComment.setImgUrlList();
@@ -72,8 +77,59 @@ public class InfinityCommentController {
                     childComment.setUp(true);
                 }
             }
+            List<Infinity> commentReplyList = infinityRepository.findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
+                    (id, InfinityType.TweetReply, childComment.getId(), replyPageRequest).getContent();
+            if (commentReplyList.size() != 0) {
+                commentReplyList.forEach(commentReply -> {
+                    commentReply.noRetCreateUser();
+                    commentReply.setImgUrlList();
+                    if (currentUser != null) {
+                        Long currentUserId = currentUser.getId();
+                        if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUserId, commentReply.getId(), InfinityType.upTweet)) {
+                            commentReply.setUp(true);
+                        }
+                    }
+                    String replyUserNickname = userRepository.findUserNicknameById(commentReply.getParentUserId());
+                    if (replyUserNickname != null) {
+                        commentReply.setReplyUserName(replyUserNickname);
+                    } else {
+                        childComment.setReplyUserName("已注销");
+                    }
+                    commentReplyMap.put(childComment.getId(), commentReplyList);
+                });
+            }
         });
-        return new PageData<>(childComments);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("childComments", new PageData<>(childComments));
+        map.put("commentReplyMap", commentReplyMap);
+        return map;
+    }
+
+    @GetMapping("reply/{id}")
+    public PageData<Infinity> getInfinityChildCommentReplyPageList(
+            @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "8", name = "size") int size,
+            @PathVariable long id
+    ) {
+        if (size < 1)
+            throw new CodeException(CustomerErrorCode.ParamError);
+        LoginUserInfo currentUser = userSupport.getCurrentUser();
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        Page<Infinity> commentReplyPage = infinityRepository
+                .findByDeletedFalseAndTypeAndReplyUserTweetId(InfinityType.TweetReply, id, pageRequest);
+        List<Infinity> commentReplyPageContent = commentReplyPage.getContent();
+        commentReplyPageContent.forEach(reply -> {
+            reply.noRetCreateUser();
+            reply.setImgUrlList();
+            if (currentUser != null) {
+                if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUser.getId(), reply.getId(), InfinityType.upTweet)) {
+                    reply.setUp(true);
+                }
+            }
+        });
+        return new PageData<>(commentReplyPage);
     }
 
 

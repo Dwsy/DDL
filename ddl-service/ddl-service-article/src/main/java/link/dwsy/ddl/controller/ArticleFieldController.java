@@ -104,7 +104,7 @@ public class ArticleFieldController {
 
 
     @GetMapping("field/action/{id}")
-    @AuthAnnotation(Level = 1)
+    @AuthAnnotation()
     public UserActionVO getUserAction(@PathVariable Long id) {
 
         return articleContentService.getUserAction(id);

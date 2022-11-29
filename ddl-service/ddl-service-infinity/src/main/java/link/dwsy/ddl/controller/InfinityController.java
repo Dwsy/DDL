@@ -13,6 +13,7 @@ import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Infinity.InfinityClubRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
+import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
@@ -20,10 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -47,6 +50,9 @@ public class InfinityController {
 
     @Resource
     private InfinityClubRepository infinityClubRepository;
+
+    @Resource
+    private UserRepository userRepository;
 
 
     @GetMapping("list")
@@ -78,9 +84,12 @@ public class InfinityController {
             throw new CodeException(CustomerErrorCode.ParamError);
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+//        Page<Infinity> childComments = infinityRepository
+//                .findByDeletedFalseAndParentTweetIdAndType
+//                        (id, InfinityType.TweetReply, pageRequest);
         Page<Infinity> childComments = infinityRepository
-                .findByDeletedFalseAndParentTweetIdAndType
-                        (id, InfinityType.TweetReply, pageRequest);
+                .findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
+                        (id, InfinityType.TweetReply, null, pageRequest);
         List<Infinity> childCommentsContent = childComments.getContent();
         childCommentsContent.forEach(childComment -> {
             childComment.noRetCreateUser();
@@ -213,30 +222,62 @@ public class InfinityController {
             throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
         }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
-
         PageRequest replyPageRequest = PRHelper.order("DESC", new String[]{"createTime"}, 1, 8);
 
         infinity.setImgUrlList();
         infinity.noRetCreateUser();
+//        Page<Infinity> childComments = infinityRepository
+//                .findByDeletedFalseAndParentTweetIdAndType
+//                        (id, InfinityType.TweetReply, replyPageRequest);
         Page<Infinity> childComments = infinityRepository
-                .findByDeletedFalseAndParentTweetIdAndType
-                        (id, InfinityType.TweetReply, replyPageRequest);
+                .findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
+                        (id, InfinityType.TweetReply, 0L, replyPageRequest);
         List<Infinity> childCommentsContent = childComments.getContent();
         if (currentUser != null) {
             Long currentUserId = currentUser.getId();
             if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUserId, id, InfinityType.upTweet)) {
                 infinity.setUp(true);
             }
-            //--
-            childCommentsContent.forEach(childComment -> {
-                childComment.noRetCreateUser();
-                childComment.setImgUrlList();
+        }
+        HashMap<Long, List<Infinity>> commentReplyMap = new HashMap<>();
+        childCommentsContent.forEach(childComment -> {
+            childComment.noRetCreateUser();
+            childComment.setImgUrlList();
+            if (currentUser != null) {
+                Long currentUserId = currentUser.getId();
                 if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUserId, childComment.getId(), InfinityType.upTweet)) {
                     childComment.setUp(true);
                 }
-            });
-        }
+            }
+            replyPageRequest.withSort(Sort.by(Sort.Direction.ASC, "createTime"));
+            Page<Infinity> childCommentPage = infinityRepository.findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
+                    (id, InfinityType.TweetReply, childComment.getId(), replyPageRequest);
+            List<Infinity> commentReplyList = childCommentPage.getContent();
+            childComment.setChildCommentNum(childCommentPage.getTotalElements());
+            if (commentReplyList.size()!=0) {
+                commentReplyList.forEach(commentReply -> {
+                    commentReply.noRetCreateUser();
+                    commentReply.setImgUrlList();
+                    if (currentUser != null) {
+                        Long currentUserId = currentUser.getId();
+                        if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUserId, commentReply.getId(), InfinityType.upTweet)) {
+                            commentReply.setUp(true);
+                        }
+                    }
+                    String replyUserNickname = userRepository.findUserNicknameById(commentReply.getParentUserId());
+                    if (replyUserNickname != null) {
+                        commentReply.setReplyUserName(replyUserNickname);
+                    } else {
+                        childComment.setReplyUserName("已注销");
+                    }
+                    commentReplyMap.put(childComment.getId(), commentReplyList);
+                });
+
+            }
+        });
+        infinity.setChildCommentReplyMap(commentReplyMap);
         infinity.setChildComments(childCommentsContent);
+        infinity.setChildCommentNum(childComments.getTotalElements());
         infinity.setChildCommentTotalPages(childComments.getTotalPages());
         infinity.setCollectNum(childComments.getTotalElements());
 

@@ -22,10 +22,9 @@ public interface InfinityRepository extends JpaRepository<Infinity, Long> {
     Infinity findByDeletedFalseAndUser_IdAndIdAndType(long user_id, long id, InfinityType type);
 
 
-
     Page<Infinity> findByDeletedFalseAndInfinityTopics_IdIn(Collection<Long> ids, Pageable pageable);
-    Page<Infinity> findByDeletedFalseAndInfinityTopics_IdInAndType(Collection<Long> ids, InfinityType type, Pageable pageable);
 
+    Page<Infinity> findByDeletedFalseAndInfinityTopics_IdInAndType(Collection<Long> ids, InfinityType type, Pageable pageable);
 
 
     Page<Infinity> findByDeletedFalseAndInfinityClub_IdAndType(long id, InfinityType type, Pageable pageable);
@@ -55,15 +54,16 @@ public interface InfinityRepository extends JpaRepository<Infinity, Long> {
 
     Page<Infinity> findByDeletedFalseAndParentTweetIdAndType(Long parentTweetId, InfinityType type, Pageable pageable);
 
+    Page<Infinity> findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId(Long parentTweetId, InfinityType type, Long replyUserTweetId, Pageable pageable);
+
+    Page<Infinity> findByDeletedFalseAndTypeAndReplyUserTweetId(InfinityType type, Long replyUserTweetId, Pageable pageable);
+
     boolean existsByDeletedFalseAndUser_IdAndIdAndType(long userId, long id, InfinityType type);
 
     boolean existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(long id, Long parentTweetId, InfinityType type);
 
 
-
     Infinity findByDeletedFalseAndUser_IdAndParentTweetIdAndType(long userId, Long parentTweetId, InfinityType type);
-
-
 
 
 }

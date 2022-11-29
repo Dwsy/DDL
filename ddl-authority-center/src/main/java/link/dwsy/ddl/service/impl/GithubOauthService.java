@@ -167,6 +167,7 @@ public class GithubOauthService {
                 .oauthNodeId(userInfo.getNode_id())
                 .oauthType(OauthType.Github)
                 .oauthAvatar(userInfo.getAvatar_url())
+                .oauthName(userInfo.getName())
                 .build();
         oauthUserRefRepository.save(oauthUserRef);
         // 注册一个新用户, 写一条记录到数据表中

@@ -14,6 +14,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author Dwsy
@@ -72,6 +73,10 @@ public class Infinity extends BaseEntity {
     @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
     private Long replyUserTweetId = 0L;//回复二级评论的Id
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Transient
+    private String replyUserName;
+
     private Long viewNum = 0L;
 
     private int replySerialNumber;
@@ -84,6 +89,9 @@ public class Infinity extends BaseEntity {
 
     @Transient
     private Collection<Infinity> childComments;
+
+    @Transient
+    private Map<Long,List<Infinity>> childCommentReplyMap;
 
     @Transient
     private long childCommentNum;
