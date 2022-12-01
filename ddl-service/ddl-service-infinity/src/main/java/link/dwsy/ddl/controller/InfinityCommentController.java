@@ -66,7 +66,7 @@ public class InfinityCommentController {
         PageRequest replyPageRequest = PRHelper.order("ASC", new String[]{"createTime"}, 1, 8);
         Page<Infinity> childComments = infinityRepository
                 .findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
-                        (id, InfinityType.TweetReply, 0L, pageRequest);
+                        (id, InfinityType.TweetCommentOrReply, null, pageRequest);
         List<Infinity> childCommentsContent = childComments.getContent();
         HashMap<Long, List<Infinity>> commentReplyMap = new HashMap<>();
         childCommentsContent.forEach(childComment -> {
@@ -78,7 +78,7 @@ public class InfinityCommentController {
                 }
             }
             List<Infinity> commentReplyList = infinityRepository.findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
-                    (id, InfinityType.TweetReply, childComment.getId(), replyPageRequest).getContent();
+                    (id, InfinityType.TweetCommentOrReply, childComment.getId(), replyPageRequest).getContent();
             if (commentReplyList.size() != 0) {
                 commentReplyList.forEach(commentReply -> {
                     commentReply.noRetCreateUser();
@@ -95,8 +95,8 @@ public class InfinityCommentController {
                     } else {
                         childComment.setReplyUserName("已注销");
                     }
-                    commentReplyMap.put(childComment.getId(), commentReplyList);
                 });
+                commentReplyMap.put(childComment.getId(), commentReplyList);
             }
         });
         HashMap<String, Object> map = new HashMap<>();
@@ -118,7 +118,7 @@ public class InfinityCommentController {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         Page<Infinity> commentReplyPage = infinityRepository
-                .findByDeletedFalseAndTypeAndReplyUserTweetId(InfinityType.TweetReply, id, pageRequest);
+                .findByDeletedFalseAndTypeAndReplyUserTweetId(InfinityType.TweetCommentOrReply, id, pageRequest);
         List<Infinity> commentReplyPageContent = commentReplyPage.getContent();
         commentReplyPageContent.forEach(reply -> {
             reply.noRetCreateUser();
@@ -146,7 +146,7 @@ public class InfinityCommentController {
                 throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
             }
             Infinity infinity = Infinity.builder()
-                    .type(InfinityType.TweetReply)
+                    .type(InfinityType.TweetCommentOrReply)
                     .content(content)
                     .ua(userSupport.getUserAgent())
                     .user((User) new User().setId(userId))
@@ -154,18 +154,24 @@ public class InfinityCommentController {
 
             return infinityRepository.save(infinity);
         } else {
-            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyUserTweetId, InfinityType.TweetReply);
+            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyUserTweetId, InfinityType.TweetCommentOrReply);
             if (!exists) {
                 throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
             }
             Infinity infinity = Infinity.builder()
-                    .type(InfinityType.TweetReply)
+                    .type(InfinityType.TweetCommentOrReply)
                     .content(content)
                     .user((User) new User().setId(userId))
                     .parentTweetId(replyId)
                     .parentUserId(infinityRB.getReplyUserId())
                     .replyUserTweetId(replyUserTweetId)
+                    .ua(userSupport.getUserAgent())
                     .build();
+            Long refId = infinityRB.getRefId();
+            if (refId != null) {
+                infinity.setRefId(refId);
+            }
+            //回复时间线二级评论关联上一级评论id
             infinity.setImgUrlByList(infinityRB.getImgUrlList());
             return infinityRepository.save(infinity);
             //todo reply@name:

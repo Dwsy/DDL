@@ -24,6 +24,8 @@ public class ReplyInfinityRB {
     @Min(value = 1, message = "回复对象id不合法")
     private Long replyUserTweetId;
 
+    private Long refId;
+
     @Size(max = 9, message = "图片数量最大为9张")
     private List<String> imgUrlList;
 

@@ -105,7 +105,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         String html = HtmlHelper.toHTML(articleContentRB.getContent());
         String pure = HtmlHelper.toPure(html);
         if (StrUtil.isBlank(articleContentRB.getSummary())) {
-            articleContentRB.setSummary(pure.substring(0, 200));
+            articleContentRB.setSummary(pure.substring(0, Math.min(pure.length(), 200)));
         }
 
         ArticleContent content = ArticleContent.builder()
@@ -176,14 +176,15 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
         //历史版本保存
+        ArticleContent articleContent = articleContentOptional.get();
         int version = field.getVersion() + 1;
         if (articleState == ArticleState.published || articleState == ArticleState.draft) {
             redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionFieldKey + field.getId(), JSON.toJSONString(field));
             redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionTitleKey + field.getId(), field.getTitle());
-            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionContentKey + field.getId(), MdText);
+            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionContentKey + field.getId(), articleContent.getTextMd());
             redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionCreateDateKey + field.getId(), String.valueOf(System.currentTimeMillis()));
         }
-        ArticleContent articleContent = articleContentOptional.get();
+
         articleContent.setTextHtml(html);
         articleContent.setTextMd(MdText);
         articleContent.setTextPure(pure);
@@ -217,9 +218,10 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         ArticleField save = articleFieldRepository.save(field);
         if (articleContentRB.getArticleState() == ArticleState.published) {
             rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                    ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE, save.getId());
+                    ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE,articleContentRB.getArticleId());
         } else {
-            //todo 隐藏搜索项
+            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
+                    ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleContentRB.getArticleId());
         }
 
         return save.getId();
@@ -230,6 +232,10 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 //        if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, uid)) {
 //            throw new CodeException(CustomerErrorCode.ArticleNotFound);
 //        }
+        Long userId = userSupport.getCurrentUser().getId();
+        if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, userId)) {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
         rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
                 ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleId);
         articleFieldRepository.logicallyDeleted(articleId);

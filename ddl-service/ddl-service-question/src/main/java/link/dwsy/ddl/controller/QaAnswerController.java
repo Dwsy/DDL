@@ -58,8 +58,8 @@ public class QaAnswerController {
     }
 
     @PostMapping()
-    public String answer(@Validated @RequestBody QaAnswerRB qaAnswerRB) {
-        return String.valueOf(qaAnswerServiceService.answer(qaAnswerRB, qaAnswerRB.getAnswerType()));
+    public QaAnswer answer(@Validated @RequestBody QaAnswerRB qaAnswerRB) {
+        return qaAnswerServiceService.answer(qaAnswerRB, qaAnswerRB.getAnswerType());
     }
 
     @AuthAnnotation(Level = 0)

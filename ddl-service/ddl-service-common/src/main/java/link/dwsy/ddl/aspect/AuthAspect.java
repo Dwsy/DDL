@@ -40,6 +40,7 @@ public class AuthAspect {
 //        int level = loginUserInfo.getLevel();
         int level = userRepository.getUserLevelById(loginUserInfo.getId());
         if (level < authAnnotation.Level()) {
+            //todo 等级改为经验区间
             throw new CodeException(CustomerErrorCode.UserLevelLow);
         }
     }

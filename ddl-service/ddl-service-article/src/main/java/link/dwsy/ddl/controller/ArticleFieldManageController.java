@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
 import link.dwsy.ddl.XO.VO.VersionData;
 import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
@@ -19,6 +20,7 @@ import link.dwsy.ddl.util.PageData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -147,6 +149,7 @@ public class ArticleFieldManageController {
         return articleContentService.getHistoryVersionTitle(id);
     }
 
+
 //    @PostMapping("saveVersion/{id}")
 //    @AuthAnnotation
 //public void saveVersion(@PathVariable long id, @RequestBody Map<String, String> map) {
@@ -156,4 +159,27 @@ public class ArticleFieldManageController {
 //            throw new CodeException(CustomerErrorCode.ParamError);
 //        articleContentService.saveVersion(id, title, content);
 //    }
+
+    @DeleteMapping("{articleId}")
+    @AuthAnnotation
+    public boolean deleteArticle(@PathVariable Long articleId) {
+        if (articleId == null || articleId < 0) {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
+
+        try {
+            articleFieldService.logicallyDeleted(articleId);
+        } catch (Exception e) {
+            log.info("删除文章{}失败", articleId);
+            return false;
+        }
+        return true;
+    }
+
+    @PostMapping("recovery")
+    @AuthAnnotation
+    public void recoveryArticle(@RequestBody @Validated ArticleRecoveryRB articleRecoveryRB) {
+        articleFieldService.logicallyRecovery(articleRecoveryRB);
+    }
+
 }

@@ -59,19 +59,19 @@ public class Infinity extends BaseEntity {
     @OneToOne
     private InfinityClub infinityClub;
 
-    @Builder.Default
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
-    private Long parentUserId = 0L;//二级评论父评论的用户ID
-
     @Builder.Default //null 为动态 -1为action
-    @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long parentTweetId = null;
 
     @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
-    private Long replyUserTweetId = 0L;//回复二级评论的Id
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long parentUserId = null;//二级评论父评论的用户ID
+
+    @Builder.Default
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long replyUserTweetId = null;//回复二级评论的Id
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Transient
@@ -84,19 +84,21 @@ public class Infinity extends BaseEntity {
     @Transient
     private boolean up;
 
-    @Transient
-    private User parentUser;
 
     @Transient
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Collection<Infinity> childComments;
 
     @Transient
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<Long,List<Infinity>> childCommentReplyMap;
 
     @Transient
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private long childCommentNum;
 
     @Transient
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private int childCommentTotalPages;
 
     @JsonIgnore
@@ -128,6 +130,7 @@ public class Infinity extends BaseEntity {
 
     @Transient
     private List<String> imgUrlList;
+
 
     public List<String> getImgUrlList() {
         return imgUrlList;
@@ -200,4 +203,5 @@ public class Infinity extends BaseEntity {
             this.infinityClub.setCreateUser(null);
         }
     }
+
 }

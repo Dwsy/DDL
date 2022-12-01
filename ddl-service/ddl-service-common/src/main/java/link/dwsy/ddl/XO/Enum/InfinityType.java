@@ -10,7 +10,7 @@ public enum InfinityType {
 
     upTweet,
 
-    TweetReply,
+    TweetCommentOrReply,
 
     Article,
 

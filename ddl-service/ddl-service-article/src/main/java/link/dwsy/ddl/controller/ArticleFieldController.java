@@ -149,27 +149,6 @@ public class ArticleFieldController {
         return String.valueOf(articleFieldService.updateArticle(articleContentRB));
     }
 
-    @DeleteMapping("{articleId}")
-    @AuthAnnotation
-    public boolean deleteArticle(@PathVariable Long articleId) {
-        if (articleId == null || articleId < 0) {
-            throw new CodeException(CustomerErrorCode.ArticleNotFound);
-        }
-
-        try {
-            articleFieldService.logicallyDeleted(articleId);
-        } catch (Exception e) {
-            log.info("删除文章{}失败", articleId);
-            return false;
-        }
-        return true;
-    }
-
-    @PostMapping("recovery")
-    @AuthAnnotation
-    public void recoveryArticle(@RequestBody @Validated ArticleRecoveryRB articleRecoveryRB) {
-        articleFieldService.logicallyRecovery(articleRecoveryRB);
-    }
 
 
     @PostMapping("action")

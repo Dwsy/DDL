@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -89,7 +88,7 @@ public class InfinityController {
 //                        (id, InfinityType.TweetReply, pageRequest);
         Page<Infinity> childComments = infinityRepository
                 .findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
-                        (id, InfinityType.TweetReply, null, pageRequest);
+                        (id, InfinityType.TweetCommentOrReply, null, pageRequest);
         List<Infinity> childCommentsContent = childComments.getContent();
         childCommentsContent.forEach(childComment -> {
             childComment.noRetCreateUser();
@@ -123,7 +122,7 @@ public class InfinityController {
             long id = infinity.getId();
             Page<Infinity> childComments = infinityRepository
                     .findByDeletedFalseAndParentTweetIdAndType
-                            (id, InfinityType.TweetReply, replyPageRequest);
+                            (id, InfinityType.TweetCommentOrReply, replyPageRequest);
             List<Infinity> childCommentsContent = childComments.getContent();
             if (currentUser != null) {
                 Long currentUserId = currentUser.getId();
@@ -185,7 +184,7 @@ public class InfinityController {
     @AuthAnnotation
     public void updateInfinity(@Validated @RequestBody InfinityRB infinityRB, @PathVariable long id) {
         InfinityType infinityType = infinityRB.getType();
-        if (!Set.of(InfinityType.Tweet, InfinityType.TweetReply).contains(infinityType)) {
+        if (!Set.of(InfinityType.Tweet, InfinityType.TweetCommentOrReply).contains(infinityType)) {
             throw new CodeException(CustomerErrorCode.ParamError);
         }
         Long userId = userSupport.getCurrentUser().getId();
@@ -231,7 +230,7 @@ public class InfinityController {
 //                        (id, InfinityType.TweetReply, replyPageRequest);
         Page<Infinity> childComments = infinityRepository
                 .findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
-                        (id, InfinityType.TweetReply, 0L, replyPageRequest);
+                        (id, InfinityType.TweetCommentOrReply, null, replyPageRequest);
         List<Infinity> childCommentsContent = childComments.getContent();
         if (currentUser != null) {
             Long currentUserId = currentUser.getId();
@@ -249,9 +248,9 @@ public class InfinityController {
                     childComment.setUp(true);
                 }
             }
-            replyPageRequest.withSort(Sort.by(Sort.Direction.ASC, "createTime"));
+//            replyPageRequest.withSort(Sort.by(Sort.Direction.ASC, "createTime"));
             Page<Infinity> childCommentPage = infinityRepository.findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
-                    (id, InfinityType.TweetReply, childComment.getId(), replyPageRequest);
+                    (id, InfinityType.TweetCommentOrReply, childComment.getId(),  PRHelper.order("ASC", new String[]{"createTime"}, 1, 8));
             List<Infinity> commentReplyList = childCommentPage.getContent();
             childComment.setChildCommentNum(childCommentPage.getTotalElements());
             if (commentReplyList.size()!=0) {

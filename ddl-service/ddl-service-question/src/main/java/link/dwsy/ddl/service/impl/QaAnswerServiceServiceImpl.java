@@ -102,7 +102,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return new PageData<>(childQaAnswersPage);
     }
 
-    public long answer(QaAnswerRB qaAnswerRB, AnswerType answerType) {
+    public QaAnswer answer(QaAnswerRB qaAnswerRB, AnswerType answerType) {
 
         //todo answer
         long questionFieldId = qaAnswerRB.getQuestionId();
@@ -155,7 +155,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     }
 
 
-    private long replySecondComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber, long replyUserId) {
+    private QaAnswer replySecondComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber, long replyUserId) {
         String replyText;
 
         replyText = "回复@" + userRepository.findUserNicknameById
@@ -181,10 +181,10 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
         sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getReplyUserAnswerId(),
                 answerType, false, content, parentText, save.getId());
-        return save.getId();
+        return save;
     }
 
-    private long replyComment
+    private QaAnswer replyComment
             (QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber, long parentAnswerId, long replyUserId) {
         //todo
         if (replyUserId == 0) {
@@ -213,10 +213,10 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         String parentText = HtmlHelper.toPure(qaAnswerRepository.getHtmlText(qaAnswerRB.getParentAnswerId()));
         sendActionMqMessage(user.getId(), questionFieldId, parentAnswerId,
                 answerType, false, content, parentText, save.getId());
-        return save.getId();
+        return save;
     }
 
-    private long answerQuestion(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
+    private QaAnswer answerQuestion(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
         QaAnswer lastAnswer = qaAnswerRepository
                 .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
                         (questionFieldId, 0L, AnswerType.answer);
@@ -224,10 +224,11 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             answerSerialNumber = lastAnswer.getAnswerSerialNumber() + 1;
         }
         String toHTML;
+        toHTML = HtmlHelper.toHTML(qaAnswerRB.getMdText());
         QaAnswer qaAnswer = QaAnswer.builder()
                 .parentAnswerId(0)
                 .parentUserId(0)
-//                .textHtml(toHTML)
+                .textHtml(toHTML)
                 .textMd(qaAnswerRB.getMdText())
                 .answerType(answerType)
                 .user(user)
@@ -235,14 +236,11 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 .ua(userSupport.getUserAgent())
                 .answerSerialNumber(answerSerialNumber)
                 .build();
-
         QaAnswer save = qaAnswerRepository.save(qaAnswer);
-
         long answerId = save.getId();
         String substring = SecureUtil.md5(String.valueOf(answerId)).substring(10, 14);
         HtmlHelper.LinkRefAttributeProvider.answerId.set(substring);
-        toHTML = HtmlHelper.toHTML(qaAnswerRB.getMdText());
-        qaAnswerRepository.seAnswerHtml(answerId, toHTML);
+//        qaAnswerRepository.seAnswerHtml(answerId, toHTML);
         //todo mq notice
         String toPure = HtmlHelper.toPure(toHTML);
         String content = toPure.substring(0, Math.min(200, toPure.length()));
@@ -254,10 +252,10 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 //            }
         qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
         qaQuestionFieldRepository.setQuestionStateIfNowStateIs(questionFieldId, QuestionState.HAVE_ANSWER.ordinal(), QuestionState.ASK.ordinal());
-        return answerId;
+        return save;
     }
 
-    private long addComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
+    private QaAnswer addComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
         if (qaAnswerRB.getReplyUserAnswerId() == 0) {
             QaAnswer lastAnswer = qaAnswerRepository
                     .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
@@ -291,14 +289,14 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                     answerType, false, content, title, save.getId());
 //            }
 //                qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
-            return save.getId();
+            return save;
         } else {
             return replyQuestionSecondComment(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber);
         }
 
     }
 
-    private long replyQuestionSecondComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
+    private QaAnswer replyQuestionSecondComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
         String replyText;
 
         replyText = "回复@" + userRepository.findUserNicknameById
@@ -337,7 +335,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 answerType, false, content, title, save.getId());
 //            }
 //                qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
-        return save.getId();
+        return save;
     }
 
 
@@ -591,7 +589,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         Long userId = userSupport.getCurrentUser().getId();
         Long questionId = qaAnswerRepository.getQuestionIdByAnswerId(answerId);
         if (questionId != null) {
-            Long userIdByQuestionId = qaQuestionFieldRepository.getUserIdByQuestionId(userId);
+            Long userIdByQuestionId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
 
             if (userIdByQuestionId != null) {
                 if (userIdByQuestionId.equals(userId)) {

@@ -30,7 +30,7 @@ public class BaseEntity {
     private long id;
 
     @Builder.Default
-    private boolean deleted = false;
+    private Boolean deleted = false;
 
     @CreatedDate
     private Date createTime;
