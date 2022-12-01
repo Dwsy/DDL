@@ -101,7 +101,7 @@ public class userCollectionController {
         Optional<UserCollection> uce = userCollectionRepository
                 .findByUserIdAndSourceIdAndUserCollectionGroup_IdAndCollectionType(uid, sid, gid, collectionType);
         uce.ifPresent(userCollection -> {
-            if (userCollection.isDeleted()) {
+            if (userCollection.getDeleted()) {
                 userCollection.setDeleted(false);
 
 

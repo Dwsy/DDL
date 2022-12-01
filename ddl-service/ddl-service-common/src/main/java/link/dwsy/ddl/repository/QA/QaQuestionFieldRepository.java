@@ -89,8 +89,8 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     Long getUserIdByQuestionId(Long questionId);
 
     @Query(nativeQuery = true, value =
-            "select user_id from qa_question_field where qa_question_content_id=?1 and deleted is false")
-    Long getUserIdByQuestionContentId(Long questionId);
+            "select user_id from qa_question_field where id=?1 and deleted is false")
+    Long getUserIdByQuestionFieldId(Long questionId);
 
 
     @Query(nativeQuery = true,
@@ -141,4 +141,9 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
             value = "update qa_question_field set question_state = ?2 where id = ?1 and question_state = ?3")
     void setQuestionStateIfNowStateIs(long id, int questionState, int nowState);
 
+
+    @Modifying
+    @Transactional
+    @Query(value = "update qa_question_field set deleted=?2 where id=?1", nativeQuery = true)
+    int updateDeleted(long questionFieldId, Boolean deleted);
 }

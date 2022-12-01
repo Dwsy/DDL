@@ -2,6 +2,7 @@ package link.dwsy.ddl.entity.QA;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import link.dwsy.ddl.XO.Enum.Article.CodeHighlightStyle;
 import link.dwsy.ddl.XO.Enum.Article.MarkDownTheme;
@@ -37,9 +38,16 @@ public class QaQuestionField extends BaseEntity {
     User user;
 
     String title;
+
     @Builder.Default
     @Enumerated(EnumType.ORDINAL)
     QuestionState questionState = QuestionState.ASK;
+
+    @Builder.Default
+    @Enumerated(EnumType.ORDINAL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    QuestionState beforeQuestionState = null;
+
     @Builder.Default
     boolean allowAnswer = true;
 

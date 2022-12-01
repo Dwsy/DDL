@@ -103,7 +103,7 @@ public class UserFollowingController {
 
         UserFollowing exist = userFollowingRepository.findByUserIdAndFollowingUserId(uid, Long.valueOf(fid));
         if (exist != null) {
-            if (exist.isDeleted()) {
+            if (exist.getDeleted()) {
                 exist.setDeleted(false);
                 userFollowingRepository.save(exist);
                 return "关注成功";
@@ -126,7 +126,7 @@ public class UserFollowingController {
         }
         UserFollowing exist = userFollowingRepository.findByUserIdAndFollowingUserId(uid, Long.valueOf(fid));
         if (exist != null) {
-            if (!exist.isDeleted()) {
+            if (!exist.getDeleted()) {
                 exist.setDeleted(true);
                 userFollowingRepository.save(exist);
                 return "取消关注成功";

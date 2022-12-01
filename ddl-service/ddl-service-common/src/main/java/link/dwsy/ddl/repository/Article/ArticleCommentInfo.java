@@ -16,7 +16,7 @@ public interface ArticleCommentInfo {
     interface ArticleFieldInfo {
         long getId();
 
-        boolean isDeleted();
+        boolean getDeleted();
 
         Date getCreateTime();
 

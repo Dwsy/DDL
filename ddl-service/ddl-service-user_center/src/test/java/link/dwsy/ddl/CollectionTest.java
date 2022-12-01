@@ -68,7 +68,7 @@ public class CollectionTest {
         Optional<UserCollection> uce = userCollectionRepository
                 .findByDeletedFalseAndUserIdAndSourceIdAndUserCollectionGroup_IdAndCollectionType(uid, sid, gid, collectionType);
         uce.ifPresent(userCollection -> {
-            if (userCollection.isDeleted()) {
+            if (userCollection.getDeleted()) {
                 userCollection.setDeleted(false);
                 userCollectionRepository.save(userCollection);
             } else {

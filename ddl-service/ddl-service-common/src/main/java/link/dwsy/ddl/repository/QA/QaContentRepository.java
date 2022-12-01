@@ -33,4 +33,10 @@ public interface QaContentRepository extends JpaRepository<QaQuestionContent, Lo
     QaQuestionContent findByDeletedFalseAndQuestionFieldId(long questionFieldId);
 
 
+    @Modifying
+    @Transactional
+    @Query(value = "update qa_question_content set deleted=?2 where qa_question_field_id=?1", nativeQuery = true)
+    int updateDeleted(long questionFieldId, Boolean deleted);
+
+
 }

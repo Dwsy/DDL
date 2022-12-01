@@ -7,7 +7,6 @@ import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.XO.Enum.User.CollectionType;
 import link.dwsy.ddl.XO.RB.CreateQuestionRB;
 import link.dwsy.ddl.XO.VO.UserActionVO;
-import link.dwsy.ddl.constants.mq.ArticleSearchConstants;
 import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
 import link.dwsy.ddl.constants.question.QuestionRedisKey;
 import link.dwsy.ddl.constants.task.RedisRecordKey;
@@ -84,10 +83,10 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return fieldPageData;
     }
 
-    public PageData<QaQuestionField> getPageListManage(long userId,QuestionState questionState, PageRequest pageRequest) {
+    public PageData<QaQuestionField> getPageListManage(long userId, QuestionState questionState, PageRequest pageRequest) {
 //        questionStateCollection.removeAll(Set.of(QuestionState.HIDE,QuestionState.UNRESOLVED,QuestionState.AUDITING));
         Page<QaQuestionField> questionFields = qaQuestionFieldRepository
-                .findByDeletedFalseAndUserIdAndQuestionState(userId,questionState, pageRequest);
+                .findByDeletedFalseAndUserIdAndQuestionState(userId, questionState, pageRequest);
         return new PageData<>(questionFields);
     }
 
@@ -133,7 +132,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         String html = HtmlHelper.toHTML(createQuestionRB.getContent());
         String pure = HtmlHelper.toPure(html);
         if (StrUtil.isBlank(createQuestionRB.getSummary())) {
-            createQuestionRB.setSummary(pure.substring(0, 200));
+            createQuestionRB.setSummary(pure.substring(0, Math.min(pure.length(), 200)));
         }
 
         QaQuestionContent content = QaQuestionContent.builder()
@@ -146,7 +145,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
                 .user(userRepository.findUserByIdAndDeletedIsFalse(currentUser.getId()))
                 .title(createQuestionRB.getTitle())
                 .summary(createQuestionRB.getSummary())
-                .questionState(QuestionState.ASK)
+                .questionState(createQuestionRB.getQuestionState())
                 .allowAnswer(true)
                 .qaQuestionContent(content)
                 .questionTags(qaTags)
@@ -160,7 +159,9 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         QaQuestionField save = qaQuestionFieldRepository.save(field);
         qaContentRepository.setQuestionFieldLd(save.getId(), save.getQaQuestionContent().getId());
         if (createQuestionRB.getQuestionState() == QuestionState.ASK) {
-            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, save.getId());
+            rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_CREATE, save.getId());
+        } else {
+            rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_DELETE, save.getId());
         }
 
         return save.getId();
@@ -168,7 +169,8 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
     public long updateQuestion(CreateQuestionRB createQuestionRB) {
         QuestionState questionState = createQuestionRB.getQuestionState();
-        Set<QuestionState> allowState = Set.of(QuestionState.ASK, QuestionState.HIDE);
+        //此次ask为还原状态
+        Set<QuestionState> allowState = Set.of(QuestionState.ASK, QuestionState.HIDE, QuestionState.DRAFT);
         if (!allowState.contains(questionState)) {
             throw new CodeException(CustomerErrorCode.ParamError);
         }
@@ -190,7 +192,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         String html = HtmlHelper.toHTML(createQuestionRB.getContent());
         String pure = HtmlHelper.toPure(html);
         if (StrUtil.isBlank(createQuestionRB.getSummary())) {
-            createQuestionRB.setSummary(pure.substring(0, 200));
+            createQuestionRB.setSummary(pure.substring(0, Math.min(200, pure.length())));
         }
 
         QaQuestionField field = qaQuestionFieldRepository.findByDeletedFalseAndId(questionId);
@@ -208,7 +210,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         questionContent.setTextPure(pure);
         field.setVersion(version);
         field.setTitle(createQuestionRB.getTitle());
-        field.setQuestionState(questionState);
+
 //        field.setAllowAnswer(createQuestionRB.getllowAnswer());
         field.setSummary(createQuestionRB.getSummary());
         field.setQaQuestionContent(questionContent);
@@ -218,15 +220,33 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         field.setMarkDownTheme(createQuestionRB.getMarkDownTheme());
         field.setCodeHighlightStyleDark(createQuestionRB.getCodeHighlightStyleDark());
         field.setMarkDownThemeDark(createQuestionRB.getMarkDownThemeDark());
-
-
         field.setId(questionId);
+        QuestionState fieldQuestionState = field.getQuestionState();
+        if (Set.of(QuestionState.HAVE_ANSWER, QuestionState.RESOLVED, QuestionState.UNRESOLVED, QuestionState.ASK).contains(fieldQuestionState)) {
+            if (questionState == QuestionState.HIDE || questionState == QuestionState.DRAFT) {
+                field.setBeforeQuestionState(fieldQuestionState);
+                field.setQuestionState(questionState);
+            }
+        } else if (fieldQuestionState == QuestionState.HIDE || fieldQuestionState == QuestionState.DRAFT) {
+            if (questionState == QuestionState.ASK) {
+                if (field.getBeforeQuestionState() != null) {
+                    field.setQuestionState(field.getBeforeQuestionState());
+                } else {
+                    field.setQuestionState(QuestionState.ASK);
+                }
+
+
+                field.setBeforeQuestionState(null);
+            }
+        }
+
         QaQuestionField save = qaQuestionFieldRepository.save(field);
 //        articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
-        if (createQuestionRB.getQuestionState() == QuestionState.ASK) {
-            rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE, save.getId());
+        if (questionState == QuestionState.ASK) {
+            rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_CREATE, save.getId());
+        } else {
+            rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_DELETE, save.getId());
         }
-        //todo hide search
 //        rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
         return save.getId();
     }

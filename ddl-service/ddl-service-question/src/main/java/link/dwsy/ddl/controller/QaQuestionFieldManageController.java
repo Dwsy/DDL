@@ -134,7 +134,7 @@ public class QaQuestionFieldManageController {
         if (type < 0 || type > 2)
             throw new CodeException(CustomerErrorCode.ParamError);
         Long userId = userSupport.getCurrentUser().getId();
-        Long questionOwnerUserId = qaQuestionFieldRepository.getUserIdByQuestionContentId(id);
+        Long questionOwnerUserId = qaQuestionFieldRepository.getUserIdByQuestionFieldId(id);
         if (!userId.equals(questionOwnerUserId)) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
@@ -158,4 +158,15 @@ public class QaQuestionFieldManageController {
         return questionContentService.getHistoryVersionTitle(id);
     }
 
+    @DeleteMapping("{id}")
+    @AuthAnnotation
+    public boolean logicallyDeleteQuestionById(@PathVariable long id) {
+        return questionContentService.logicallyDeleteQuestionById(id);
+    }
+
+    @PostMapping("recovery/{id}")
+    @AuthAnnotation
+    public boolean logicallyRecoveryQuestionById(@PathVariable long id) {
+        return questionContentService.logicallyRecoveryQuestionById(id);
+    }
 }

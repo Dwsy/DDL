@@ -46,7 +46,7 @@ public class QuestionSearch {
     @RabbitListener(queues = QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_DELETE)
     public void delById(Long questionId) {
         if (questionId != null && questionId > 0) {
-            if (articleSearchProcess.delDocById(questionId)) {
+            if (questionSearchProcess.delDocById(questionId)) {
                 log.info("question doc:{}删除成功", questionId);
             }
         }
