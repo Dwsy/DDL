@@ -3,6 +3,7 @@ package link.dwsy.ddl.controller;
 import link.dwsy.ddl.XO.Enum.InfinityType;
 import link.dwsy.ddl.XO.RB.InfinityRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.constants.OtherConstants;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
@@ -176,7 +177,7 @@ public class InfinityController {
         if (type == InfinityType.Tweet) {
             infinity.setType(InfinityType.Tweet);
             infinity.setImgUrlByList(infinityRB.getImgUrlList());
-        }//todo other
+        }//todo OtherConstants
         return infinityRepository.save(infinity);
     }
 
@@ -267,7 +268,7 @@ public class InfinityController {
                     if (replyUserNickname != null) {
                         commentReply.setReplyUserName(replyUserNickname);
                     } else {
-                        childComment.setReplyUserName("已注销");
+                        childComment.setReplyUserName(OtherConstants.Cancellation_User_Name);
                     }
                     commentReplyMap.put(childComment.getId(), commentReplyList);
                 });

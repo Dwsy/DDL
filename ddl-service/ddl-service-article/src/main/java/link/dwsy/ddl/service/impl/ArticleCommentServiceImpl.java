@@ -16,6 +16,7 @@ import link.dwsy.ddl.constants.mq.UserActiveConstants;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
 import link.dwsy.ddl.util.PageData;
@@ -52,29 +53,33 @@ public class ArticleCommentServiceImpl {
     @Resource
     private RabbitTemplate rabbitTemplate;
 
+    @Resource
+    private UserStateService userStateService;
+
     public PageData<ArticleComment> getByArticleId(long aid, PageRequest pageRequest) {
         Page<ArticleComment> parentComment = articleCommentRepository.
                 findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, 0L, pageRequest);
         PageRequest pr = PageRequest.of(0, 8, Sort.by(Sort.Direction.ASC, "createTime"));
         for (ArticleComment articleComment : parentComment) {
+            userStateService.cancellationUserHandel(articleComment.getUser());
             long pid = articleComment.getId();
-//            Set<ArticleComment> childCommentSet =
             Page<ArticleComment> childComments = articleCommentRepository.
                     findByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalse
                             (aid, pid, CommentType.comment, pr);
             articleComment.setChildComments(childComments.getContent());
             articleComment.setChildCommentNum(childComments.getTotalElements());
             articleComment.setChildCommentTotalPages(childComments.getTotalPages());
-//            ArticleComment.setChildComments(articleCommentRepository.findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, pid));
             //添加点赞状态
             LoginUserInfo user = userSupport.getCurrentUser();
             if (user != null) {
-                articleCommentRepository.
-                        findByUserIdAndParentCommentIdAndCommentTypeIn
-                                (user.getId(), pid, Set.of(CommentType.up, CommentType.down))
+                articleCommentRepository
+                        .findByUserIdAndParentCommentIdAndCommentTypeIn(user.getId(), pid, Set.of(CommentType.up, CommentType.down))
                         .ifPresent(c -> articleComment.setUserAction(c.getCommentType()));
-                //添加子评论点赞状态
-                for (ArticleComment childComment : childComments.getContent()) {
+            }
+            //添加子评论点赞状态 设置注销用户
+            for (ArticleComment childComment : childComments.getContent()) {
+                userStateService.cancellationUserHandel(childComment.getUser());
+                if (user != null) {
                     articleCommentRepository.
                             findByUserIdAndParentCommentIdAndCommentTypeIn
                                     (user.getId(), childComment.getId(), Set.of(CommentType.up, CommentType.down))
@@ -91,12 +96,18 @@ public class ArticleCommentServiceImpl {
         Page<ArticleComment> childComments = articleCommentRepository.
                 findByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalse
                         (aid, pid, CommentType.comment, pageRequest);
+        for (ArticleComment childComment : childComments) {
+            userStateService.cancellationUserHandel(childComment.getUser());
+        }
         return new PageData<>(childComments);
     }
 
     public long reply(ArticleCommentRB articleCommentRB, CommentType commentType) {
 
         long articleFieldId = articleCommentRB.getArticleFieldId();
+        if (articleFieldRepository.userIsCancellation(articleFieldId)>0) {
+            throw new CodeException(CustomerErrorCode.ArticleCommentIsClose);
+        }
         if (!articleFieldRepository.existsByDeletedFalseAndAllowCommentTrueAndId(articleFieldId)) {
             throw new CodeException(CustomerErrorCode.ArticleCommentIsClose);
         }
@@ -309,8 +320,11 @@ public class ArticleCommentServiceImpl {
 
 
     public CommentType action(ArticleCommentActionRB commentActionRB) {
-        Long uid = userSupport.getCurrentUser().getId();
         long fid = commentActionRB.getArticleFieldId();
+        if (articleFieldRepository.userIsCancellation(fid)>0) {
+            throw new CodeException(CustomerErrorCode.ArticleCommentIsClose);
+        }
+        Long uid = userSupport.getCurrentUser().getId();
         long pid = commentActionRB.getActionCommentId();
         if (pid < -1 || pid == 0) {
 //            等于 -1  点赞 文章

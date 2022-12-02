@@ -144,7 +144,11 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
     int countByDeletedFalseAndUser_IdAndArticleStateNot(long id, ArticleState articleState);
 
 
+
 //    ArticleField findArticleFieldsByDeletedIsFalse(Long articleId);
 
+
+    @Query(nativeQuery = true, value = "select count(*) from users where deleted is true and id=(select user_id from article_field  where deleted is false and id=?1) and  deleted = true")
+    int userIsCancellation(long userId);
 
 }

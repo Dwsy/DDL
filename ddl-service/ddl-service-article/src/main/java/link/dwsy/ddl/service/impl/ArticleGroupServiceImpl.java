@@ -9,6 +9,7 @@ import link.dwsy.ddl.entity.Article.ArticleGroup;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
 import link.dwsy.ddl.service.ArticleGroupService;
+import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,11 +31,16 @@ public class ArticleGroupServiceImpl implements ArticleGroupService {
     ArticleGroupRepository articleGroupRepository;
     @Resource
     ArticleFieldRepository articleFieldRepository;
+    @Resource
+    UserStateService userStateService;
 
     public PageData<fieldVO> getFieldListByGroupId(Long gid,PageRequest pageRequest) {
         Page<fieldVO> fieldVO = articleFieldRepository
                 .findAllByDeletedIsFalseAndArticleGroupIdAndArticleState
                         (gid, ArticleState.published, pageRequest);
+        fieldVO.forEach(f -> {
+userStateService.cancellationUserHandel(f.getUser());
+        });
         return new PageData<>(fieldVO);
     }
 

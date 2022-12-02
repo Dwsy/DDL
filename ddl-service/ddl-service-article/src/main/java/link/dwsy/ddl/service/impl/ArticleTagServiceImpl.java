@@ -9,6 +9,7 @@ import link.dwsy.ddl.entity.Article.ArticleTag;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Article.ArticleTagRepository;
 import link.dwsy.ddl.service.ArticleTagService;
+import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,10 +29,13 @@ import java.util.List;
 public class ArticleTagServiceImpl implements ArticleTagService {
 
     @Resource
-    ArticleTagRepository articleTagRepository;
+    private ArticleTagRepository articleTagRepository;
 
     @Resource
-    ArticleFieldRepository articleFieldRepository;
+    private  ArticleFieldRepository articleFieldRepository;
+
+    @Resource
+    private UserStateService userStateService;
     public List<ArticleTag> getTagList(Sort sort) {
 
         return articleTagRepository.findByDeletedFalseAndArticleGroup_IdNotNullAndIndexPageDisplayIsTrue(sort);
@@ -43,6 +47,9 @@ public class ArticleTagServiceImpl implements ArticleTagService {
         Page<fieldVO> fieldVOList = articleFieldRepository
                 .findAllByIdInAndDeletedIsFalseAndArticleState
                         (ids, ArticleState.published, pageRequest);
+        fieldVOList.forEach(f -> {
+            userStateService.cancellationUserHandel(f.getUser());
+        });
         return new PageData<>(fieldVOList);
 
 

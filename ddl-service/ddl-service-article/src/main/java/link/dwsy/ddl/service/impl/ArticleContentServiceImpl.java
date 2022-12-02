@@ -20,6 +20,7 @@ import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserFollowingRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.ArticleContentService;
+import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PageData;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +70,9 @@ public class ArticleContentServiceImpl implements ArticleContentService {
     @Resource
     private UserCollectionRepository userCollectionRepository;
 
+    @Resource
+    private UserStateService userStateService;
+
 
 //    public PageData<ArticleContent, ArticleContentDTO> getPageList(int page, int size) {
 //        PageRequest pageRequest = PageRequest.of(page-1, size);
@@ -77,10 +81,12 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 //    }
 
     public PageData<fieldVO> getPageList(PageRequest pageRequest, ArticleState articleState) {
-
+        //todo数据填充
         Page<fieldVO> fieldVOList = articleFieldRepository.findAllByDeletedIsFalseAndArticleState(articleState, pageRequest);
-        PageData<fieldVO> fieldVOPageData = new PageData<>(fieldVOList);
-        return fieldVOPageData;
+        for (fieldVO fieldVO : fieldVOList.getContent()) {
+            userStateService.cancellationUserHandel(fieldVO.getUser());
+        }
+        return new PageData<>(fieldVOList);
     }
 
 
@@ -88,11 +94,16 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
         Page<fieldVO> fieldVOList = articleFieldRepository.findByDeletedFalseAndArticleStateAndArticleTags_Id
                 (articleState, articleTagId, pageRequest);
+        for (fieldVO fieldVO : fieldVOList.getContent()) {
+            userStateService.cancellationUserHandel(fieldVO.getUser());
+        }
         return new PageData<>(fieldVOList);
     }
 
     public PageData<fieldVO> getArticleListByUserId(PageRequest pageRequest, ArticleState articleState, long userId) {
-
+        if (userStateService.isCancellationUserHandel(userId)) {
+            throw new CodeException(CustomerErrorCode.UserNotExist);
+        }
         Page<fieldVO> fieldVOList = articleFieldRepository.findByDeletedFalseAndArticleStateAndUser_Id
                 (articleState, userId, pageRequest);
         return new PageData<>(fieldVOList);
@@ -100,19 +111,22 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
     public ArticleField getArticleById(long id, ArticleState articleState) {
 //        LoginUserInfo currentUser = userSupport.getCurrentUser();
-        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(id, articleState);
-//        if (currentUser != null) {//ssr 没token需要放在前端加载 所有加一个接口
+        if (articleFieldRepository.userIsCancellation(id)>0) {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
+        //        if (currentUser != null) {//ssr 没token需要放在前端加载 所有加一个接口
 //            Optional<ArticleComment> userAction = articleCommentRepository.findByUserIdAndParentCommentIdAndCommentTypeIn(currentUser.getId(), -1L, Set.of(CommentType.up, CommentType.down));
 //            userAction.ifPresent(e-> af.setUserAction(e.getCommentType()));
 //        }
-        return af;
+        return articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(id, articleState);
     }
 
     public ArticleField getArticleById(long id, Collection<ArticleState> articleStates) {
-//
-        ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleStateIn(id, articleStates);
+        if (articleFieldRepository.userIsCancellation(id)>0) {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
 
-        return af;
+        return articleFieldRepository.findByIdAndDeletedIsFalseAndArticleStateIn(id, articleStates);
     }
 
     public ArticleField getArticleFieldByIdAndVersion(Long id, Integer version) {
@@ -161,6 +175,9 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
 
     public String getContent(long id, int type) {
+        if (articleFieldRepository.userIsCancellation(id)>0) {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
         //todo 权限校验 use 投影
         if (type == 0) {
             return articleContentRepository.getHtmlTextById(id);

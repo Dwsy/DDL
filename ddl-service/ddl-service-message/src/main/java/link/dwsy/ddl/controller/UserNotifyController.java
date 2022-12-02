@@ -5,6 +5,7 @@ import link.dwsy.ddl.XO.Enum.Message.NotifyState;
 import link.dwsy.ddl.XO.Enum.Message.NotifyType;
 import link.dwsy.ddl.XO.VO.UnreadNotifyVo;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.constants.OtherConstants;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.entity.User.UserNotify;
 import link.dwsy.ddl.repository.Meaasge.UserMessageRepository;
@@ -53,7 +54,7 @@ public class UserNotifyController {
                 .findByDeletedFalseAndToUserIdAndNotifyTypeIn
                         (userId, Set.of(NotifyType.comment_article, NotifyType.comment_article_comment), pageRequest);
 
-        read(replyMeNotify);
+        readAndSetUserInfo(replyMeNotify);
         return new PageData<>(replyMeNotify);
     }
 
@@ -68,7 +69,7 @@ public class UserNotifyController {
         Page<UserNotify> ThumbUpMeNotify = userNotifyRepository
                 .findByDeletedFalseAndToUserIdAndNotifyTypeIn
                         (userId, Set.of(NotifyType.up_article, NotifyType.up_article_comment), pageRequest);
-        read(ThumbUpMeNotify);
+        readAndSetUserInfo(ThumbUpMeNotify);
         return new PageData<>(ThumbUpMeNotify);
     }
 
@@ -92,7 +93,7 @@ public class UserNotifyController {
         }
         Page<UserNotify> qaCommentNotify = userNotifyRepository
                 .findByDeletedFalseAndToUserIdAndNotifyTypeIn(userId, notifyTypes, pageRequest);
-        read(qaCommentNotify);
+        readAndSetUserInfo(qaCommentNotify);
         return new PageData<>(qaCommentNotify);
     }
 
@@ -116,7 +117,7 @@ public class UserNotifyController {
         }
         Page<UserNotify> QaSupportNotify = userNotifyRepository
                 .findByDeletedFalseAndToUserIdAndNotifyTypeIn(userId, notifyTypes, pageRequest);
-        read(QaSupportNotify);
+        readAndSetUserInfo(QaSupportNotify);
         return new PageData<>(QaSupportNotify);
     }
 
@@ -131,7 +132,7 @@ public class UserNotifyController {
         Page<UserNotify> AnswerNotify = userNotifyRepository
                 .findByDeletedFalseAndToUserIdAndNotifyType
                         (userId, NotifyType.answer, pageRequest);
-        read(AnswerNotify);
+        readAndSetUserInfo(AnswerNotify);
         return new PageData<>(AnswerNotify);
     }
 
@@ -146,7 +147,7 @@ public class UserNotifyController {
         Page<UserNotify> AnswerNotify = userNotifyRepository
                 .findByDeletedFalseAndToUserIdAndNotifyType
                         (userId, NotifyType.invitation_user_answer_question, pageRequest);
-        read(AnswerNotify);
+        readAndSetUserInfo(AnswerNotify);
 
         return new PageData<>(AnswerNotify);
     }
@@ -163,17 +164,23 @@ public class UserNotifyController {
         Page<UserNotify> AnswerNotify = userNotifyRepository
                 .findByDeletedFalseAndToUserIdAndNotifyType
                         (userId, NotifyType.accepted_question_answer, pageRequest);
-        read(AnswerNotify);
+        readAndSetUserInfo(AnswerNotify);
 
         return new PageData<>(AnswerNotify);
     }
 
     //    invitationAnswer
-    private void read(Page<UserNotify> QaSupportNotify) {
+    private void readAndSetUserInfo(Page<UserNotify> QaSupportNotify) {
         for (UserNotify notify : QaSupportNotify) {
             User formUser = userRepository.findUserByIdAndDeletedIsFalse(notify.getFromUserId());
-            notify.setFormUserAvatar(formUser.getUserInfo().getAvatar());
-            notify.setFormUserNickname(formUser.getNickname());
+            if (formUser == null) {
+                notify.setFormUserAvatar(OtherConstants.Cancellation_User_Avatar_Url);
+                notify.setFormUserNickname(OtherConstants.Cancellation_User_Name);
+            } else {
+                notify.setFormUserAvatar(formUser.getUserInfo().getAvatar());
+                notify.setFormUserNickname(formUser.getNickname());
+            }
+
             if (notify.getNotifyState() == NotifyState.UNREAD) {
                 notify.setNotifyState(NotifyState.READ);
                 userNotifyRepository.save(notify);
@@ -200,7 +207,7 @@ public class UserNotifyController {
                     .findByDeletedFalseAndToUserIdAndNotifyType(userId, NotifyType.watch_accepted_question_answer, pageRequest);
         }
         if (QaSupportNotify != null) {
-            read(QaSupportNotify);
+            readAndSetUserInfo(QaSupportNotify);
             return new PageData<>(QaSupportNotify);
         } else {
             return null;

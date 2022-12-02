@@ -22,6 +22,7 @@ import link.dwsy.ddl.repository.QA.QaAnswerRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserNotifyRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.service.QaAnswerService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
@@ -64,11 +65,15 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     @Resource
     private RabbitTemplate rabbitTemplate;
 
+    @Resource
+    private UserStateService userStateService;
+
     public PageData<QaAnswer> getByQuestionId(long qid, PageRequest pageRequest) {
         Page<QaAnswer> QaAnswerData = qaAnswerRepository
                 .findByDeletedFalseAndQuestionField_IdAndAnswerTypeAndParentAnswerId(qid, AnswerType.answer, 0L, pageRequest);
         PageRequest pr = PageRequest.of(0, 8, Sort.by(Sort.Direction.ASC, "createTime"));
         for (QaAnswer qaAnswer : QaAnswerData) {
+            userStateService.cancellationUserHandel(qaAnswer.getUser());
             long pid = qaAnswer.getId();
             Page<QaAnswer> childQaAnswersPage = qaAnswerRepository
                     .findByDeletedFalseAndQuestionField_IdAndAnswerTypeAndParentAnswerId(qid, AnswerType.answer_comment, pid, pr);
@@ -83,8 +88,11 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                                 (user.getId(), pid,
                                         Set.of(AnswerType.up, AnswerType.down))
                         .ifPresent(c -> qaAnswer.setUserAction(c.getAnswerType()));
-                //添加子评论点赞状态
-                for (QaAnswer childQaAnswer : childQaAnswersPage.getContent()) {
+            }
+            //添加子评论点赞状态
+            for (QaAnswer childQaAnswer : childQaAnswersPage.getContent()) {
+                userStateService.cancellationUserHandel(childQaAnswer.getUser());
+                if (user != null) {
                     qaAnswerRepository.findByDeletedFalseAndUser_IdAndParentAnswerIdAndAnswerTypeIn
                                     (user.getId(), childQaAnswer.getId(), Set.of(AnswerType.up, AnswerType.down))
                             .ifPresent(c -> childQaAnswer.setUserAction(c.getAnswerType()));
@@ -98,6 +106,9 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     public PageData<QaAnswer> getChildAnswerPageByParentId(Long qid, Long pid, PageRequest pageRequest) {
         Page<QaAnswer> childQaAnswersPage = qaAnswerRepository
                 .findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(qid, pid, pageRequest);
+        for (QaAnswer qaAnswer : childQaAnswersPage) {
+            userStateService.cancellationUserHandel(qaAnswer.getUser());
+        }
 
         return new PageData<>(childQaAnswersPage);
     }
@@ -106,7 +117,9 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
         //todo answer
         long questionFieldId = qaAnswerRB.getQuestionId();
-
+        if (qaQuestionFieldRepository.userIsCancellation(questionFieldId)>0) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
         if (!qaQuestionFieldRepository.existsByDeletedFalseAndAllowAnswerTrueAndId(questionFieldId)) {
             throw new CodeException(CustomerErrorCode.QuestionNotFoundOrClose);
         }
@@ -393,8 +406,11 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     }
 
     public AnswerType action(QuestionAnswerOrCommentActionRB actionRB) {
-        Long uid = userSupport.getCurrentUser().getId();
         long questionFieldId = actionRB.getQuestionFieldId();
+        if (qaQuestionFieldRepository.userIsCancellation(questionFieldId)>0) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
+        Long uid = userSupport.getCurrentUser().getId();
         long actionAnswerOrCommentId = actionRB.getActionAnswerOrCommentId();
         if (actionAnswerOrCommentId < -1 || actionAnswerOrCommentId == 0) {
 //            等于 -1  点赞 文章
@@ -544,11 +560,15 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     }
 
     public void invitationUserAnswerQuestion(InvitationUserRB invitationUserRB) {
+        long questionId = invitationUserRB.getQuestionId();
+        if (qaQuestionFieldRepository.userIsCancellation(questionId)>0) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         Long userId = currentUser.getId();
         boolean Invited = userNotifyRepository
                 .existsByDeletedFalseAndQuestionIdAndCancelFalseAndFromUserIdAndToUserIdAndNotifyType
-                        (invitationUserRB.getQuestionId(), userId, invitationUserRB.getUserId(), NotifyType.invitation_user_answer_question);
+                        (questionId, userId, invitationUserRB.getUserId(), NotifyType.invitation_user_answer_question);
         if (Invited && !invitationUserRB.isCancel()) {
             throw new CodeException(CustomerErrorCode.TheUserHasBeenInvitedToAnswer);
         }
@@ -558,7 +578,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         if (!userRepository.existsByDeletedFalseAndId(invitationUserRB.getUserId())) {
             throw new CodeException(CustomerErrorCode.UserNotExist);
         }
-        Optional<QaQuestionField> questionField = qaQuestionFieldRepository.findByIdAndDeletedFalse(invitationUserRB.getQuestionId());
+        Optional<QaQuestionField> questionField = qaQuestionFieldRepository.findByIdAndDeletedFalse(questionId);
         if (questionField.isEmpty()) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
@@ -569,13 +589,13 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
         if (invitationUserRB.isCancel() && Invited) {
             UserNotify notify = userNotifyRepository.findByDeletedFalseAndQuestionIdAndCancelFalseAndFromUserIdAndToUserIdAndNotifyType
-                    (invitationUserRB.getQuestionId(), userId, invitationUserRB.getUserId(), NotifyType.invitation_user_answer_question);
+                    (questionId, userId, invitationUserRB.getUserId(), NotifyType.invitation_user_answer_question);
             notify.setCancel(Invited);
             userNotifyRepository.save(notify);
             return;
         }
         InvitationUserAnswerQuestionMsg msg = new InvitationUserAnswerQuestionMsg();
-        msg.setQuestionId(invitationUserRB.getQuestionId());
+        msg.setQuestionId(questionId);
         msg.setFormUserId(userId);
         msg.setToUserId(invitationUserRB.getUserId());
         msg.setAnswerTitle(qaQuestionField.getTitle());

@@ -18,6 +18,7 @@ import link.dwsy.ddl.repository.QA.*;
 import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserFollowingRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
 import link.dwsy.ddl.util.PRHelper;
@@ -74,6 +75,9 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
 
+    @Resource
+    private UserStateService userStateService;
+
     @Override
     public PageData<QaQuestionField> getPageList(Collection<QuestionState> questionStateCollection, PageRequest pageRequest) {
         questionStateCollection.removeAll(Set.of(QuestionState.HIDE, QuestionState.UNRESOLVED, QuestionState.AUDITING));
@@ -98,6 +102,9 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
             PageRequest pageRequest = PRHelper.order(Sort.Direction.ASC, "createTime", 1, 8);
             Page<QaAnswer> questionComment = qaAnswerRepository
                     .findByDeletedFalseAndQuestionField_IdAndAnswerType(qid, AnswerType.comment, pageRequest);
+            for (QaAnswer qaAnswer : questionComment) {
+                userStateService.cancellationUserHandel(qaAnswer.getUser());
+            }
             questionField.setQuestionCommentList(questionComment.getContent());
             questionField.setQuestionCommentTotalPages(questionComment.getTotalPages());
             questionField.setQuestionCommentNum(questionComment.getTotalElements());

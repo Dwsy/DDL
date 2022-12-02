@@ -146,4 +146,8 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     @Transactional
     @Query(value = "update qa_question_field set deleted=?2 where id=?1", nativeQuery = true)
     int updateDeleted(long questionFieldId, Boolean deleted);
+
+    @Query(nativeQuery = true, value = "select count(*) from users where deleted is true and " +
+            "id=(select user_id from qa_question_field  where deleted is false and id=?1) and  deleted = true")
+    int userIsCancellation(long id);
 }
