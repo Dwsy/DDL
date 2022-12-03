@@ -15,6 +15,7 @@ import link.dwsy.ddl.repository.Infinity.InfinityClubRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
@@ -29,6 +30,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Author Dwsy
@@ -54,6 +56,9 @@ public class InfinityController {
     @Resource
     private UserRepository userRepository;
 
+    @Resource
+    private UserStateService userStateService;
+
 
     @GetMapping("list")
     public PageData<Infinity> getInfinityPageList(
@@ -67,7 +72,12 @@ public class InfinityController {
             throw new CodeException(CustomerErrorCode.ParamError);
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         Page<Infinity> infinityPage = getInfinityPage(clubId, topicId, pageRequest);
-        return new PageData<>(infinityPage);
+//        for (Infinity infinity : infinityPage) {
+//            userStateService.cancellationUserHandel(infinity.getUser());
+//        }
+        List<Infinity> content = infinityPage.getContent();
+        List<Infinity> infinities = content.stream().filter(infinity -> !infinity.getUser().getDeleted()).collect(Collectors.toList());
+        return new PageData<>(infinityPage,infinities);
     }
 
     //todo
@@ -92,6 +102,8 @@ public class InfinityController {
                         (id, InfinityType.TweetCommentOrReply, null, pageRequest);
         List<Infinity> childCommentsContent = childComments.getContent();
         childCommentsContent.forEach(childComment -> {
+                userStateService.cancellationUserHandel(childComment.getUser());
+
             childComment.noRetCreateUser();
             childComment.setImgUrlList();
             if (currentUser != null) {
@@ -113,11 +125,12 @@ public class InfinityController {
             infinityPage = infinityRepository.findByDeletedFalseAndInfinityTopics_IdInAndType(Set.of(topicId), InfinityType.Tweet, pageRequest);
 
         } else {
-            infinityPage = infinityRepository.findByDeletedFalseAndType(InfinityType.Tweet, pageRequest);
+            infinityPage = infinityRepository.findByDeletedFalseAndTypeIn(List.of(InfinityType.Tweet,InfinityType.Article,InfinityType.Tweet,InfinityType.Question), pageRequest);
         }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest replyPageRequest = PRHelper.order("DESC", new String[]{"createTime"}, 1, 8);
         infinityPage.forEach(infinity -> {
+            userStateService.cancellationUserHandel(infinity.getUser());
             infinity.setImgUrlList();
             infinity.noRetCreateUser();
             long id = infinity.getId();
@@ -131,14 +144,17 @@ public class InfinityController {
                     infinity.setUp(true);
                 }
                 //--
-                childCommentsContent.forEach(childComment -> {
-                    childComment.noRetCreateUser();
-                    childComment.setImgUrlList();
-                    if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUserId, childComment.getId(), InfinityType.upTweet)) {
+            }
+            childCommentsContent.forEach(childComment -> {
+                childComment.noRetCreateUser();
+                childComment.setImgUrlList();
+                userStateService.cancellationUserHandel(childComment.getUser());
+                if (currentUser != null) {
+                    if (infinityRepository.existsByDeletedFalseAndUser_IdAndParentTweetIdAndType(currentUser.getId(), childComment.getId(), InfinityType.upTweet)) {
                         childComment.setUp(true);
                     }
-                });
-            }
+                }
+            });
             infinity.setChildComments(childCommentsContent);
             infinity.setChildCommentTotalPages(childComments.getTotalPages());
             infinity.setChildCommentNum(childComments.getTotalElements());
@@ -150,6 +166,7 @@ public class InfinityController {
     @PostMapping
     @AuthAnnotation
     public Infinity sendInfinity(@Validated @RequestBody InfinityRB infinityRB) {
+        //todo 注销禁止评论
         Long userId = userSupport.getCurrentUser().getId();
         Long infinityClubId = infinityRB.getInfinityClubId();
         List<Long> infinityTopicIds = infinityRB.getInfinityTopicIds();
@@ -221,6 +238,7 @@ public class InfinityController {
         if (infinity == null) {
             throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
         }
+        userStateService.cancellationUserHandel(infinity.getUser());
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest replyPageRequest = PRHelper.order("DESC", new String[]{"createTime"}, 1, 8);
 
@@ -241,6 +259,7 @@ public class InfinityController {
         }
         HashMap<Long, List<Infinity>> commentReplyMap = new HashMap<>();
         childCommentsContent.forEach(childComment -> {
+                            userStateService.cancellationUserHandel(childComment.getUser());
             childComment.noRetCreateUser();
             childComment.setImgUrlList();
             if (currentUser != null) {
@@ -256,6 +275,7 @@ public class InfinityController {
             childComment.setChildCommentNum(childCommentPage.getTotalElements());
             if (commentReplyList.size()!=0) {
                 commentReplyList.forEach(commentReply -> {
+                    userStateService.cancellationUserHandel(commentReply.getUser());
                     commentReply.noRetCreateUser();
                     commentReply.setImgUrlList();
                     if (currentUser != null) {

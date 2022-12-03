@@ -9,7 +9,7 @@ import link.dwsy.ddl.XO.Message.Question.InvitationUserAnswerQuestionMsg;
 import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
 import link.dwsy.ddl.XO.RB.InvitationUserRB;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
-import link.dwsy.ddl.constants.mq.UserActiveConstants;
+import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
 import link.dwsy.ddl.controller.QuestionAnswerOrCommentActionRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -380,7 +380,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
                 .build();
         rabbitTemplate.convertAndSend
-                (UserActiveConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, activeMessage);
+                (UserActiveMQConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, activeMessage);
     }
 
 
@@ -402,7 +402,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 .build();
 
         rabbitTemplate.convertAndSend
-                (UserActiveConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, activeMessage);
+                (UserActiveMQConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, activeMessage);
     }
 
     public AnswerType action(QuestionAnswerOrCommentActionRB actionRB) {
@@ -601,7 +601,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         msg.setAnswerTitle(qaQuestionField.getTitle());
         msg.setCancel(invitationUserRB.isCancel());
         rabbitTemplate.convertAndSend
-                (UserActiveConstants.QUEUE_DDL_USER_INVITATION_USER_ANSWER_QUESTION, msg);
+                (UserActiveMQConstants.QUEUE_DDL_USER_INVITATION_USER_ANSWER_QUESTION, msg);
 
     }
 
@@ -629,7 +629,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                             .questionId(questionId)
                             .cancel(false).build();
                     rabbitTemplate.convertAndSend
-                            (UserActiveConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, message);
+                            (UserActiveMQConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, message);
                     return true;
                 }
             }

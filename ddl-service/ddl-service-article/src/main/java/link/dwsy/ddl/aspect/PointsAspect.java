@@ -4,7 +4,7 @@ package link.dwsy.ddl.aspect;
 import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.XO.Message.UserPointsMessage;
 import link.dwsy.ddl.annotation.Points;
-import link.dwsy.ddl.constants.mq.UserPointsConstants;
+import link.dwsy.ddl.constants.mq.UserPointsMQConstants;
 import link.dwsy.ddl.support.UserSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.After;
@@ -36,6 +36,6 @@ public class PointsAspect {
         var uid = 3L;
         PointsType type = points.TYPE();
         UserPointsMessage message = UserPointsMessage.builder().pointsType(type).userId(uid).build();
-        rabbitTemplate.convertAndSend(UserPointsConstants.QUEUE_DDL_USER_POINTS, message);
+        rabbitTemplate.convertAndSend(UserPointsMQConstants.QUEUE_DDL_USER_POINTS, message);
     }
 }

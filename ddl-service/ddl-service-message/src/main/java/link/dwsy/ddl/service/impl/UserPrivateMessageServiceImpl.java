@@ -10,6 +10,7 @@ import link.dwsy.ddl.entity.Message.UserMessage;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Meaasge.UserMessageRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.service.UserPrivateMessageService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PageData;
@@ -30,22 +31,28 @@ import java.util.Optional;
 @Service
 public class UserPrivateMessageServiceImpl implements UserPrivateMessageService {
     @Resource
-    UserMessageRepository userMessageRepository;
+    private UserMessageRepository userMessageRepository;
     @Resource
-    UserSupport userSupport;
+    private   UserSupport userSupport;
     @Resource
-    UserRepository userRepository;
+    private  UserRepository userRepository;
 
     @Resource
-    StringRedisTemplate stringRedisTemplate;
+    private  StringRedisTemplate stringRedisTemplate;
 
     @Resource
-    ObjectMapper objectMapper;
+    private  ObjectMapper objectMapper;
+
+    @Resource
+   private UserStateService userStateService;
 
     @Override
     public boolean sendPrivateMessage(SendPrivateMessageRB sendPrivateMessageRB) {
-        long formUserId = userSupport.getCurrentUser().getId();
         long toUserId = sendPrivateMessageRB.getToUserId();
+        if (userRepository.existsByDeletedTrueAndId(toUserId)) {
+            throw new CodeException(CustomerErrorCode.UserCancellation);
+        }
+        long formUserId = userSupport.getCurrentUser().getId();
         String content = sendPrivateMessageRB.getContent();
         String conversationId;
         if (formUserId < toUserId) {
@@ -91,7 +98,8 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
         messageStates.add(MessageState.UNREAD);
         Page<UserMessage> messages = userMessageRepository
                 .findByConversationIdAndIdGreaterThanAndDeletedFalseAndStatusIn(conversationId, latestId, messageStates, pr);
-        User toUser = userRepository.findUserByIdAndDeletedIsFalse(toUserId);
+        User toUser = userRepository.findUserById(toUserId);
+        userStateService.cancellationUserHandel(toUser);
         for (UserMessage message : messages.getContent()) {
             message.setChatUserNickname(toUser.getNickname());
             message.setChatUserId(toUser.getId());
@@ -126,7 +134,8 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
         Page<UserMessage> messages = userMessageRepository
                 .findByConversationIdAndIdLessThanAndDeletedFalseAndStatusIn(conversationId, latestId, messageStates, pr);
         //todo 优化
-        User toUser = userRepository.findUserByIdAndDeletedIsFalse(toUserId);
+        User toUser = userRepository.findUserById(toUserId);
+        userStateService.cancellationUserHandel(toUser);
         for (UserMessage message : messages.getContent()) {
             message.setChatUserNickname(toUser.getNickname());
             message.setChatUserId(toUser.getId());

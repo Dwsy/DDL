@@ -3,7 +3,7 @@ package link.dwsy.ddl.mq.listener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import link.dwsy.ddl.XO.Message.Question.InvitationUserAnswerQuestionMsg;
 import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
-import link.dwsy.ddl.constants.mq.UserActiveConstants;
+import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
 import link.dwsy.ddl.mq.process.UserQuestionAnswerActiveProcess;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -21,7 +21,7 @@ public class UserQuestionAnswerActive {
     @Resource
     private UserQuestionAnswerActiveProcess userQuestionAnswerActiveProcess;
 
-    @RabbitListener(queues = UserActiveConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE)
+    @RabbitListener(queues = UserActiveMQConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE)
     public void sendNotify(UserQuestionAnswerNotifyMessage message) throws JsonProcessingException {
 
 //        System.out.println(JSON.toJSONString(message));
@@ -35,7 +35,7 @@ public class UserQuestionAnswerActive {
 //
     }
 
-    @RabbitListener(queues = UserActiveConstants.QUEUE_DDL_USER_INVITATION_USER_ANSWER_QUESTION)
+    @RabbitListener(queues = UserActiveMQConstants.QUEUE_DDL_USER_INVITATION_USER_ANSWER_QUESTION)
     public void sendNotify(InvitationUserAnswerQuestionMsg message) {
 
 //        System.out.println(JSON.toJSONString(message));

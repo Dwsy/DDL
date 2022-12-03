@@ -4,7 +4,7 @@ package link.dwsy.ddl.mq.listener;
 import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.XO.Message.UserPointsMessage;
 import link.dwsy.ddl.entity.User.UserPoints;
-import link.dwsy.ddl.constants.mq.UserPointsConstants;
+import link.dwsy.ddl.constants.mq.UserPointsMQConstants;
 import link.dwsy.ddl.mq.process.UserPointsProcess;
 import link.dwsy.ddl.repository.User.UserPointsRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class UserPointsListener {
     @Resource
     UserPointsProcess userPointsProcess;
 
-    @RabbitListener(queues = UserPointsConstants.QUEUE_DDL_USER_POINTS)
+    @RabbitListener(queues = UserPointsMQConstants.QUEUE_DDL_USER_POINTS)
     public void points(UserPointsMessage message) {
         System.out.println(11);
         if (!userPointsProcess.pointsLimit(message))

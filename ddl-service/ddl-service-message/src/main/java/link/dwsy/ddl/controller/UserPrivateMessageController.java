@@ -8,6 +8,7 @@ import link.dwsy.ddl.entity.Message.UserMessage;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Meaasge.UserMessageRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.service.impl.UserPrivateMessageServiceImpl;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
@@ -40,6 +41,9 @@ public class UserPrivateMessageController {
     @Resource
     private UserSupport userSupport;
 
+    @Resource
+    private UserStateService userStateService;
+
     @GetMapping("/list")
     @AuthAnnotation
     public PageData<UserMessage> getPrivateMessageList(
@@ -58,7 +62,8 @@ public class UserPrivateMessageController {
             } else {
                 chatUserId = message.getToUserId();
             }
-            User chatUser = userRepository.findUserByIdAndDeletedIsFalse(chatUserId);
+            User chatUser = userRepository.findUserById(chatUserId);
+            userStateService.cancellationUserHandel(chatUser);
           int unreadMsgCount= userPrivateMessageService.getUnreadMsgCount(uid, chatUserId);
             message.setChatUserId(chatUserId);
             message.setChatUserNickname(chatUser.getNickname());

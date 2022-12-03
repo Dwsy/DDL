@@ -1,6 +1,6 @@
 package link.dwsy.ddl.mq.config;
 
-import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
+import link.dwsy.ddl.constants.mq.InfinityMQConstants;
 import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,11 +11,11 @@ import org.springframework.context.annotation.Configuration;
  */
 
 @Configuration
-public class UserActiveConfig {
+public class InfinityConfig {
 
-    @Bean(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE)
-    public Queue activeQueue() {
-        return new Queue(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE);
+    @Bean(InfinityMQConstants.QUEUE_DDL_INFINITY_SEND)
+    public Queue infinitySendQueue() {
+        return new Queue(InfinityMQConstants.QUEUE_DDL_INFINITY_SEND);
     }
 
 }

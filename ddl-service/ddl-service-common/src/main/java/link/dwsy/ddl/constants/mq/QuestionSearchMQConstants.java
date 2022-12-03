@@ -5,7 +5,7 @@ package link.dwsy.ddl.constants.mq;
  * @Date 2022/9/11
  */
 
-public class QuestionSearchConstants {
+public class QuestionSearchMQConstants {
     public static final String INDEX = "ddl_question";
 
     public static final String EXCHANGE_DDL_QUESTION_SEARCH = "ddl.question.search";

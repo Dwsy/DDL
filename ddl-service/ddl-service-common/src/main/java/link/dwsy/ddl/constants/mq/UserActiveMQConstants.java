@@ -5,7 +5,7 @@ package link.dwsy.ddl.constants.mq;
  * @Date 2022/9/12
  */
 
-public class UserActiveConstants {
+public class UserActiveMQConstants {
     public static final String QUEUE_DDL_USER_ACTIVE = "ddl.user.active.queue";
 
     public static final String QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE = "ddl.user.article.comment.action.queue";

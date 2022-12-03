@@ -2,12 +2,15 @@ package link.dwsy.ddl.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
+import link.dwsy.ddl.XO.Enum.InfinityType;
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.XO.Enum.User.CollectionType;
+import link.dwsy.ddl.XO.Message.InfinityMessage;
 import link.dwsy.ddl.XO.RB.CreateQuestionRB;
 import link.dwsy.ddl.XO.VO.UserActionVO;
-import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
+import link.dwsy.ddl.constants.mq.InfinityMQConstants;
+import link.dwsy.ddl.constants.mq.QuestionSearchMQConstants;
 import link.dwsy.ddl.constants.question.QuestionRedisKey;
 import link.dwsy.ddl.constants.task.RedisRecordKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
@@ -164,14 +167,23 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
                 .build();
 
         QaQuestionField save = qaQuestionFieldRepository.save(field);
-        qaContentRepository.setQuestionFieldLd(save.getId(), save.getQaQuestionContent().getId());
+        long saveId = save.getId();
+        qaContentRepository.setQuestionFieldLd(saveId, save.getQaQuestionContent().getId());
         if (createQuestionRB.getQuestionState() == QuestionState.ASK) {
-            rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_CREATE, save.getId());
+            rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_CREATE, saveId);
+
+            if (createQuestionRB.isSendInfinity()) {
+                InfinityMessage infinityMessage = InfinityMessage.builder()
+                        .infinityType(InfinityType.Question)
+                        .refId(saveId)
+                        .build();
+                rabbitTemplate.convertAndSend(InfinityMQConstants.QUEUE_DDL_INFINITY_SEND, infinityMessage);
+            }
         } else {
-            rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_DELETE, save.getId());
+            rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_DELETE, saveId);
         }
 
-        return save.getId();
+        return saveId;
     }
 
     public long updateQuestion(CreateQuestionRB createQuestionRB) {
@@ -250,9 +262,9 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         QaQuestionField save = qaQuestionFieldRepository.save(field);
 //        articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
         if (questionState == QuestionState.ASK) {
-            rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_CREATE, save.getId());
+            rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_CREATE, save.getId());
         } else {
-            rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_DELETE, save.getId());
+            rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_DELETE, save.getId());
         }
 //        rabbitTemplate.convertAndSend("ddl.article.search.update.all", save.getId());
         return save.getId();
@@ -263,8 +275,8 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisQuestionRecordKey, id.toString());
         if (num != null && (Integer.parseInt(num)) % 10 == 0) {
             rabbitTemplate.convertAndSend
-                    (QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH,
-                            QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE, id);
+                    (QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH,
+                            QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE, id);
         }
         qaQuestionFieldRepository.viewNumIncrement(id, 1);
     }

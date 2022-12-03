@@ -36,6 +36,8 @@ public enum CustomerErrorCode {
     UserNotFollowed(131, "未关注用户"),
 
     FOLLOW_SELF(134, "不能关注自己"),
+    UserCancellation(150, "用户已注销"),
+
     ArticleNotFound(201, "文章不存在"),
     GroupNotFound(202, "分组不出存在"),
 
@@ -112,7 +114,7 @@ public enum CustomerErrorCode {
 
     INFINITY_CLUB_FOLLOWED(722, "已关注圈子"),
 
-    INFINITY_CLUB_UNFOLLOWED(723, "未关注圈子"), GITHUB_OAUTH_ERROR(2000, "GITHUB_OAUTH_ERROR");
+    INFINITY_CLUB_UNFOLLOWED(723, "未关注圈子"), GITHUB_OAUTH_ERROR(2000, "GITHUB_OAUTH_ERROR"), ;
 
 
     private final int code;

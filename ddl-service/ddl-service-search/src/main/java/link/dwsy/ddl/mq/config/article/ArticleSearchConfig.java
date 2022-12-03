@@ -1,6 +1,6 @@
 package link.dwsy.ddl.mq.config.article;
 
-import link.dwsy.ddl.constants.mq.ArticleSearchConstants;
+import link.dwsy.ddl.constants.mq.ArticleSearchMQConstants;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -19,52 +19,52 @@ public class ArticleSearchConfig {
     @Bean
     public TopicExchange articleSearchTopicExchange() {
 
-        return new TopicExchange(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, true, false);
+        return new TopicExchange(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, true, false);
     }
 
     @Bean
     public Queue articleSearchCreateQueue() {
-        return new Queue(ArticleSearchConstants.QUEUE_DDL_ARTICLE_SEARCH_CREATE, true);
+        return new Queue(ArticleSearchMQConstants.QUEUE_DDL_ARTICLE_SEARCH_CREATE, true);
     }
 
     @Bean
     public Queue articleSearchUpdateQueue() {
-        return new Queue(ArticleSearchConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE, true);
+        return new Queue(ArticleSearchMQConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE, true);
     }
 
     @Bean
     public Queue articleSearchUpdateScoreQueue() {
-        return new Queue(ArticleSearchConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE, true);
+        return new Queue(ArticleSearchMQConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE, true);
     }
 
     @Bean
     public Queue articleSearchDeleteQueue() {
-        return new Queue(ArticleSearchConstants.QUEUE_DDL_ARTICLE_SEARCH_DELETE, true);
+        return new Queue(ArticleSearchMQConstants.QUEUE_DDL_ARTICLE_SEARCH_DELETE, true);
     }
 
 
     @Bean
     public Binding articleSearchCreateQueueBinding() {
         return BindingBuilder.bind(articleSearchCreateQueue())
-                .to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE);
+                .to(articleSearchTopicExchange()).with(ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_CREATE);
     }
 
     @Bean
     public Binding deleteQueueBinding() {
         return BindingBuilder.bind(articleSearchDeleteQueue())
-                .to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_DELETE);
+                .to(articleSearchTopicExchange()).with(ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_DELETE);
     }
 
     @Bean
     public Binding updateQueueBinding() {
         return BindingBuilder.bind(articleSearchCreateQueue())
-                .to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE);
+                .to(articleSearchTopicExchange()).with(ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE);
     }
 
     @Bean
     public Binding updateScoreBinding() {
         return BindingBuilder.bind(articleSearchUpdateScoreQueue())
-                .to(articleSearchTopicExchange()).with(ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE);
+                .to(articleSearchTopicExchange()).with(ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE);
     }
 
 }

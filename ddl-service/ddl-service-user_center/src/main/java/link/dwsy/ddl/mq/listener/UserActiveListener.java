@@ -1,7 +1,7 @@
 package link.dwsy.ddl.mq.listener;
 
 import link.dwsy.ddl.XO.Message.UserActiveMessage;
-import link.dwsy.ddl.constants.mq.UserActiveConstants;
+import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
 import link.dwsy.ddl.mq.process.UserActiveProcess;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -19,7 +19,7 @@ public class UserActiveListener {
     @Resource
     UserActiveProcess userActiveProcess;
 
-    @RabbitListener(queues = UserActiveConstants.QUEUE_DDL_USER_ACTIVE)
+    @RabbitListener(queues = UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE)
     public void userActive(UserActiveMessage message) {
         userActiveProcess.ActiveLog(message.getUserActiveType(), message.getSourceId(), message.getUserId(),message.getUa());
         log.info("用户{}活跃记录{}成功", message.getUserId(), message.getUserActiveType().toString());

@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,7 +39,15 @@ public class PageData<P> {
         this.totalPages = page.getTotalPages();
         this.totalElements = page.getTotalElements();
         this.pageSize = page.getSize();
-        this.content = new ArrayList<>();
+//        this.content = new ArrayList<>();
         this.content=page.getContent();
+    }
+    public PageData(Page<P> page, List<P> content) {
+        this.pageNumber = page.getNumber()+1;
+        this.totalPages = page.getTotalPages();
+        this.totalElements = page.getTotalElements();
+        this.pageSize = page.getSize();
+//        this.content = new ArrayList<>();
+        this.content=content;
     }
 }

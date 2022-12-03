@@ -1,6 +1,6 @@
 package link.dwsy.ddl.mq.config;
 
-import link.dwsy.ddl.constants.mq.UserPointsConstants;
+import link.dwsy.ddl.constants.mq.UserPointsMQConstants;
 import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class UserPointsConfig {
 
-    @Bean(UserPointsConstants.QUEUE_DDL_USER_POINTS)
+    @Bean(UserPointsMQConstants.QUEUE_DDL_USER_POINTS)
     public Queue pointsQueue() {
-        return new Queue(UserPointsConstants.QUEUE_DDL_USER_POINTS);
+        return new Queue(UserPointsMQConstants.QUEUE_DDL_USER_POINTS);
     }
 
 }

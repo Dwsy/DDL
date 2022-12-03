@@ -6,7 +6,7 @@ import link.dwsy.ddl.XO.ES.Question.QuestionEsSuggestion;
 import link.dwsy.ddl.XO.ES.Question.QuestionTagEsDoc;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
-import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
+import link.dwsy.ddl.constants.mq.QuestionSearchMQConstants;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class QuestionSearchProcess {
 
-    private final String INDEX = QuestionSearchConstants.INDEX;
+    private final String INDEX = QuestionSearchMQConstants.INDEX;
     @Resource
     ArticleFieldRepository articleFieldRepository;
     @Resource

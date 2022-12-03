@@ -65,4 +65,6 @@ public class ArticleContentRB {
 
     @Builder.Default
     private MarkDownThemeDark markDownThemeDark = MarkDownThemeDark.geekBlackDark;
+
+    private boolean sendInfinity;
 }

@@ -1,6 +1,6 @@
 package link.dwsy.ddl.mq.listener.question;
 
-import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
+import link.dwsy.ddl.constants.mq.QuestionSearchMQConstants;
 import link.dwsy.ddl.mq.process.article.ArticleSearchProcess;
 import link.dwsy.ddl.mq.process.question.QuestionSearchProcess;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 public class QuestionSearch {
-    public final String scoreKey = QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE;
+    public final String scoreKey = QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE;
     //    public final int bufferSize = 10;
     @Resource
     private ArticleSearchProcess articleSearchProcess;
@@ -30,8 +30,8 @@ public class QuestionSearch {
 
 
     @RabbitListener(queues = {
-            QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE,
-            QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_CREATE
+            QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE,
+            QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_CREATE
     })
     public void updateAllDataById(Long questionId) {
         if (questionId != null && questionId > 0) {
@@ -43,7 +43,7 @@ public class QuestionSearch {
         }
     }
 
-    @RabbitListener(queues = QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_DELETE)
+    @RabbitListener(queues = QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_DELETE)
     public void delById(Long questionId) {
         if (questionId != null && questionId > 0) {
             if (questionSearchProcess.delDocById(questionId)) {
@@ -53,7 +53,7 @@ public class QuestionSearch {
     }
 
 
-    @RabbitListener(queues = QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE_SCORE)
+    @RabbitListener(queues = QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE_SCORE)
     public void updateScore(Long questionId) {
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(scoreKey + "lock", String.valueOf(questionId), 600, TimeUnit.SECONDS);
         if (Boolean.TRUE.equals(lock)) {

@@ -1,6 +1,6 @@
 package link.dwsy.ddl.mq.listener.article;
 
-import link.dwsy.ddl.constants.mq.ArticleSearchConstants;
+import link.dwsy.ddl.constants.mq.ArticleSearchMQConstants;
 import link.dwsy.ddl.mq.process.article.ArticleSearchProcess;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ArticleSearch {
 
-    public final String scoreKey = ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE;
+    public final String scoreKey = ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE;
     //    public final int bufferSize = 10;
     @Resource
     ArticleSearchProcess articleSearchProcess;
@@ -26,8 +26,8 @@ public class ArticleSearch {
     RedisTemplate<String, String> redisTemplate;
 
     @RabbitListener(queues = {
-            ArticleSearchConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE,
-            ArticleSearchConstants.QUEUE_DDL_ARTICLE_SEARCH_CREATE})
+            ArticleSearchMQConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE,
+            ArticleSearchMQConstants.QUEUE_DDL_ARTICLE_SEARCH_CREATE})
     public void updateAllDataById(Long articleId) {
         if (articleId != null) {
             if (articleSearchProcess.updateOrSaveAllDataById(articleId)) {
@@ -36,7 +36,7 @@ public class ArticleSearch {
         }
     }
 
-    @RabbitListener(queues = ArticleSearchConstants.QUEUE_DDL_ARTICLE_SEARCH_DELETE)
+    @RabbitListener(queues = ArticleSearchMQConstants.QUEUE_DDL_ARTICLE_SEARCH_DELETE)
     public void delById(Long articleId) {
         if (articleId != null) {
             if (articleSearchProcess.delDocById(articleId)) {
@@ -46,7 +46,7 @@ public class ArticleSearch {
     }
 
     //todo
-    @RabbitListener(queues = ArticleSearchConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE)
+    @RabbitListener(queues = ArticleSearchMQConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE)
     public void updateScore(Long articleId) {
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(scoreKey + "lock", String.valueOf(articleId), 600, TimeUnit.SECONDS);
         if (Boolean.TRUE.equals(lock)) {

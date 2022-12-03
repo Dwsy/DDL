@@ -6,13 +6,16 @@ import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.Enum.Article.CodeHighlightStyle;
 import link.dwsy.ddl.XO.Enum.Article.MarkDownTheme;
 import link.dwsy.ddl.XO.Enum.Article.MarkDownThemeDark;
+import link.dwsy.ddl.XO.Enum.InfinityType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
+import link.dwsy.ddl.XO.Message.InfinityMessage;
 import link.dwsy.ddl.XO.Message.UserActiveMessage;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
 import link.dwsy.ddl.constants.article.ArticleRedisKey;
-import link.dwsy.ddl.constants.mq.ArticleSearchConstants;
-import link.dwsy.ddl.constants.mq.UserActiveConstants;
+import link.dwsy.ddl.constants.mq.ArticleSearchMQConstants;
+import link.dwsy.ddl.constants.mq.InfinityMQConstants;
+import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
 import link.dwsy.ddl.constants.task.RedisRecordKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -78,7 +81,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
                     .userActiveType(userActiveType).userId(userSupport.getCurrentUser().getId())
                     .sourceId(sourceId).ua(userSupport.getUserAgent()).build();
             log.info(userActiveMessage.toString());
-            rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ACTIVE, userActiveMessage);
+            rabbitTemplate.convertAndSend(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE, userActiveMessage);
 
         }
     }
@@ -128,12 +131,19 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 
 
         ArticleField save = articleFieldRepository.save(field);
-        articleContentRepository.setArticleFieldId(save.getId(), save.getArticleContent().getId());
-
+        long articleId = save.getId();
+        articleContentRepository.setArticleFieldId(articleId, save.getArticleContent().getId());
         if (articleState == ArticleState.published) {
-            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, save.getId());
+            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_CREATE, articleId);
+            if (articleContentRB.isSendInfinity()) {
+                InfinityMessage infinityMessage = InfinityMessage.builder()
+                        .infinityType(InfinityType.Article)
+                        .refId(articleId)
+                        .build();
+                rabbitTemplate.convertAndSend(InfinityMQConstants.QUEUE_DDL_INFINITY_SEND, infinityMessage);
+            }
         }
-        return save.getId();
+        return articleId;
     }
 
 
@@ -217,11 +227,11 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 
         ArticleField save = articleFieldRepository.save(field);
         if (articleContentRB.getArticleState() == ArticleState.published) {
-            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                    ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE,articleContentRB.getArticleId());
+            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
+                    ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE,articleContentRB.getArticleId());
         } else {
-            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                    ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleContentRB.getArticleId());
+            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
+                    ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleContentRB.getArticleId());
         }
 
         return save.getId();
@@ -236,8 +246,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, userId)) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
-        rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleId);
+        rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
+                ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleId);
         articleFieldRepository.logicallyDeleted(articleId);
         articleContentRepository.logicallyDeleted(articleId);
     }
@@ -253,8 +263,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         for (Long aid : aids) {
             articleFieldRepository.logicallyRecovery(aid);
             articleContentRepository.logicallyRecovery(aid);
-            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                    ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_CREATE, aid);
+            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
+                    ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_CREATE, aid);
         }
 
     }
@@ -264,7 +274,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisArticleRecordKey, id.toString());
         if (num != null && (Integer.parseInt(num)) % 10 == 0) {
             log.info("RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE:{}", id);
-            rabbitTemplate.convertAndSend(ArticleSearchConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE, id);
+            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE, id);
         }
         articleFieldRepository.viewNumIncrement(id, 1);
     }

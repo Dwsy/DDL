@@ -1,7 +1,7 @@
 package link.dwsy.ddl.service.impl;
 
 import link.dwsy.ddl.XO.VO.VersionData;
-import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
+import link.dwsy.ddl.constants.mq.QuestionSearchMQConstants;
 import link.dwsy.ddl.constants.question.QuestionRedisKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -95,7 +95,7 @@ public class QuestionContentServiceImpl implements QuestionContentService {
         }
         qaQuestionFieldRepository.updateDeleted(id, true);
         qaContentRepository.updateDeleted(id, true);
-        rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_DELETE,id);
+        rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_DELETE,id);
         return true;
     }
     public boolean logicallyRecoveryQuestionById(long id) {
@@ -106,7 +106,7 @@ public class QuestionContentServiceImpl implements QuestionContentService {
         }
         qaQuestionFieldRepository.updateDeleted(id, false);
         qaContentRepository.updateDeleted(id, false);
-        rabbitTemplate.convertAndSend(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_CREATE,id);
+        rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_CREATE,id);
         return true;
     }
 }

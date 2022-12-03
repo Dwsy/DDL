@@ -28,10 +28,12 @@ public interface InfinityRepository extends JpaRepository<Infinity, Long> {
 
 
     Page<Infinity> findByDeletedFalseAndInfinityClub_IdAndType(long id, InfinityType type, Pageable pageable);
+    Page<Infinity> findByDeletedFalseAndInfinityClub_IdAndTypeIn(long id, Collection<InfinityType> types, Pageable pageable);
 
     Page<Infinity> findByDeletedFalseAndUser_Id(long id, InfinityType type, Pageable pageable);
 
     Page<Infinity> findByDeletedFalseAndType(InfinityType type, Pageable pageable);
+    Page<Infinity> findByDeletedFalseAndTypeIn(Collection<InfinityType> type, Pageable pageable);
 
 
     @Modifying

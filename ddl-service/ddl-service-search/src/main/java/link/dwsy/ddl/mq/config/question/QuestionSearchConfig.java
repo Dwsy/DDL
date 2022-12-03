@@ -1,6 +1,6 @@
 package link.dwsy.ddl.mq.config.question;
 
-import link.dwsy.ddl.constants.mq.QuestionSearchConstants;
+import link.dwsy.ddl.constants.mq.QuestionSearchMQConstants;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -19,48 +19,48 @@ public class QuestionSearchConfig {
     @Bean
     public TopicExchange questionSearchTopicExchange() {
 
-        return new TopicExchange(QuestionSearchConstants.EXCHANGE_DDL_QUESTION_SEARCH, true, false);
+        return new TopicExchange(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, true, false);
     }
 
     @Bean
     public Queue questionCreateQueue() {
-        return new Queue(QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_CREATE, true);
+        return new Queue(QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_CREATE, true);
     }
 
     @Bean
     public Queue questionUpdateQueue() {
-        return new Queue(QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE, true);
+        return new Queue(QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE, true);
     }
 
     @Bean
     public Queue questionUpdateScoreQueue() {
-        return new Queue(QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE_SCORE, true);
+        return new Queue(QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE_SCORE, true);
     }
 
     @Bean
     public Queue questionDeleteQueue() {
-        return new Queue(QuestionSearchConstants.QUEUE_DDL_QUESTION_SEARCH_DELETE, true);
+        return new Queue(QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_DELETE, true);
     }
 
 
     @Bean
     public Binding questionCreateQueueBinding() {
-        return BindingBuilder.bind(questionCreateQueue()).to(questionSearchTopicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_CREATE);
+        return BindingBuilder.bind(questionCreateQueue()).to(questionSearchTopicExchange()).with(QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_CREATE);
     }
 
     @Bean
     public Binding questionDeleteQueueBinding() {
-        return BindingBuilder.bind(questionDeleteQueue()).to(questionSearchTopicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_DELETE);
+        return BindingBuilder.bind(questionDeleteQueue()).to(questionSearchTopicExchange()).with(QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_DELETE);
     }
 
     @Bean
     public Binding questionUpdateQueueBinding() {
-        return BindingBuilder.bind(questionCreateQueue()).to(questionSearchTopicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE);
+        return BindingBuilder.bind(questionCreateQueue()).to(questionSearchTopicExchange()).with(QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_UPDATE);
     }
 
     @Bean
     public Binding questionUpdateScoreBinding() {
-        return BindingBuilder.bind(questionUpdateScoreQueue()).to(questionSearchTopicExchange()).with(QuestionSearchConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE);
+        return BindingBuilder.bind(questionUpdateScoreQueue()).to(questionSearchTopicExchange()).with(QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE);
     }
 
 }

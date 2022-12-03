@@ -12,7 +12,7 @@ import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.User.User;
-import link.dwsy.ddl.constants.mq.UserActiveConstants;
+import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
@@ -505,7 +505,7 @@ public class ArticleCommentServiceImpl {
                 .replayCommentId(replayCommentId)
 
                 .build();
-        rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
+        rabbitTemplate.convertAndSend(UserActiveMQConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
     }
 
     private void sendActionMqMessage(long userId, long articleFieldId, long parentCommentId, CommentType commentType) {
@@ -523,7 +523,7 @@ public class ArticleCommentServiceImpl {
                 .cancel(commentType == CommentType.cancel)
 
                 .build();
-        rabbitTemplate.convertAndSend(UserActiveConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
+        rabbitTemplate.convertAndSend(UserActiveMQConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);
     }
 
 
