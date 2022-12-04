@@ -4,6 +4,7 @@ package link.dwsy.ddl.filter;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import link.dwsy.ddl.config.TreadPoolConfig;
 import link.dwsy.ddl.constant.GatewayConstant;
 import link.dwsy.ddl.core.constant.Constants;
 import link.dwsy.ddl.core.constant.TokenConstants;
@@ -35,8 +36,6 @@ import reactor.core.publisher.Mono;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -56,11 +55,14 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
 
     private final RedisTemplate<String, String> redisTemplate;
 
+    private TreadPoolConfig treadPool;
+
     public GlobalAuthorityFilter(LoadBalancerClient loadBalancerClient,
-                                 RestTemplate restTemplate, RedisTemplate<String, String> redisTemplate) {
+                                 RestTemplate restTemplate, RedisTemplate<String, String> redisTemplate, TreadPoolConfig treadPoolConfig) {
         this.loadBalancerClient = loadBalancerClient;
         this.restTemplate = restTemplate;
         this.redisTemplate = redisTemplate;
+        this.treadPool = treadPoolConfig;
     }
 
     /**
@@ -86,7 +88,7 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
                 );
                 // header 中不能设置 null
                 response.getHeaders().add(
-                        Constants.JWT_USER_INFO_KEY,
+                        HttpHeaders.AUTHORIZATION,
                         null == token ? "null" : token
                 );
                 response.setStatusCode(HttpStatus.OK);
@@ -101,7 +103,7 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
                         GatewayConstant.AUTHORITY_CENTER_REGISTER_URL_FORMAT
                 );
                 response.getHeaders().add(
-                        Constants.JWT_USER_INFO_KEY,
+                        HttpHeaders.AUTHORIZATION,
                         null == token ? "null" : token
                 );
                 response.setStatusCode(HttpStatus.OK);
@@ -135,7 +137,7 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
                 );
                 // header 中不能设置 null
                 response.getHeaders().add(
-                        Constants.JWT_USER_INFO_KEY,
+                        HttpHeaders.AUTHORIZATION,
                         null == token ? "null" : token
                 );
                 response.setStatusCode(HttpStatus.OK);
@@ -163,7 +165,13 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
             } catch (Exception ex) {
                 log.error("parse user info from token error: [{}]", ex.getMessage(), ex);
             }
+        } else if (headers.getFirst(Constants.JWT_USER_INFO_KEY) != null) {
+            Consumer<HttpHeaders> httpHeaders = httpHeader -> httpHeader.set(Constants.JWT_USER_INFO_KEY, "null");
+            ServerHttpRequest serverHttpRequest = exchange.getRequest().mutate().headers(httpHeaders).build();
+            ServerWebExchange serverWebExchange = exchange.mutate().request(serverHttpRequest).build();
+            return chain.filter(serverWebExchange);
         }
+
         return chain.filter(exchange);
     }
 
@@ -181,9 +189,9 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
 //        ServiceInstance serviceInstance = loadBalancerClient.choose(
 //                Constants.AUTHORITY_CENTER_SERVICE_ID
 //        );
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
+//        ExecutorService executorService = Executors.newSingleThreadExecutor();
         // 升级springboot2.7后使用WebFlux异步调用，同步会报错
-        Future<ServiceInstance> future = executorService.submit(() -> loadBalancerClient.choose(Constants.AUTHORITY_CENTER_SERVICE_ID));
+        Future<ServiceInstance> future = treadPool.buildHttpApiThreadPool().submit(() -> loadBalancerClient.choose(Constants.AUTHORITY_CENTER_SERVICE_ID));
         ServiceInstance serviceInstance = null;
         try {
             serviceInstance = future.get();
@@ -195,7 +203,7 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
             return null;
 //            todo 优化
         }
-        executorService.shutdown();
+//        executorService.shutdown();
 
 
         log.info("Nacos Client Info: [{}], [{}], [{}]",

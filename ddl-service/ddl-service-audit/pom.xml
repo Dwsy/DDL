@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ddl-service-content_checking</artifactId>
+    <artifactId>ddl-service-audit</artifactId>
 
     <dependencies>
         <dependency>

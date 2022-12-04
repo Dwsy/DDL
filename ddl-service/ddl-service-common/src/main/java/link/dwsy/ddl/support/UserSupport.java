@@ -33,7 +33,7 @@ public class UserSupport {
         HttpServletRequest request = requestAttributes.getRequest();
         if (isCloud) {
             String loginUserInfoString = request.getHeader(Constants.JWT_USER_INFO_KEY);
-            log.info("loginUserInfoString{}",loginUserInfoString);
+//            log.info("loginUserInfoString{}",loginUserInfoString);
             if (StrUtil.isBlank(loginUserInfoString)) {
 //                throw new CodeException(CustomerErrorCode.UserNotLogin);
                 return null;
@@ -45,8 +45,8 @@ public class UserSupport {
 //                throw new CodeException(CustomerErrorCode.UserNotLogin);
                 return null;
             }
-            String[] t = token.split(" ");
-            return TokenUtil.parseUserInfoFromToken(t[1]);
+//            String[] t = token.split(" ");
+            return TokenUtil.parseUserInfoFromToken(token);
         }
 //        Long userId = TokenUtil.parseUserInfoFromToken(token).getId();
 //        if(userId < 0) {

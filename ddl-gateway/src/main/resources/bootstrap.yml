@@ -24,6 +24,7 @@ spring:
             '[/**]':
                 allowedOrigins: '*'
                 allowedHeaders: '*'
+
                 allowedMethods:
                   - GET
                   - POST
@@ -38,8 +39,8 @@ spring:
             - Path=/api/article/**
           filters:
             - StripPrefix=2
-        - id: ddl-service-content_checking
-          uri: lb://ddl-service-content_checking
+        - id: ddl-service-audit
+          uri: lb://ddl-service-audit
           predicates:
             - Path=/api/audit/**
           filters:

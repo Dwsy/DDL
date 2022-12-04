@@ -9,7 +9,7 @@ server:
     context-path: /
 spring:
   application:
-    name: ddl-service-content_checking
+    name: ddl-service-audit
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -50,7 +50,8 @@ spring:
         namespace: ec208297-8a8a-4c6a-8771-b02b016c15f4
         metadata:
           management:
-            context-path: ${server.servlet.context-path}/actuator
+            context-path: /actuator
+#            context-path: ${server.servlet.context-path}/actuator
 
 #  kafka:
 #    bootstrap-servers: 127.0.0.1:9092
