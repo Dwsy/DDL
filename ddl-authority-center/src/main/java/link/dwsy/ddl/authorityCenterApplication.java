@@ -3,6 +3,7 @@ package link.dwsy.ddl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @SpringBootApplication(scanBasePackages = {"link.dwsy.ddl"})
 @ConfigurationPropertiesScan
-//@EnableDiscoveryClient
+@EnableDiscoveryClient
 //@EnableDiscoveryClient(autoRegister = false)
 @EnableJpaAuditing
 @RestController

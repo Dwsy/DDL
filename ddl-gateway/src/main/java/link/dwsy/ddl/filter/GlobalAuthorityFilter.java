@@ -39,6 +39,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * <h1>全局鉴权过滤器</h1>
@@ -117,11 +118,26 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
                     throw new RuntimeException(e);
                 }
                 String blackToken = redisTemplate.opsForValue().get(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY);
-                if (!StrUtil.isBlank(blackToken)){
+                if (!StrUtil.isBlank(blackToken)) {
                     response.setStatusCode(HttpStatus.UNAUTHORIZED);
                     return response.setComplete();
                 }
 
+                response.setStatusCode(HttpStatus.OK);
+                return response.setComplete();
+            }
+
+            // 3. 如果是Github OAuth
+            if (request.getURI().getPath().contains(GatewayConstant.GITHUB_OAUTH)) {
+                // 去授权中心拿 token
+                String token = getTokenFromAuthorityCenter(
+                        request, GatewayConstant.AUTHORITY_GITHUB_OAUTH_URL_FORMAT
+                );
+                // header 中不能设置 null
+                response.getHeaders().add(
+                        Constants.JWT_USER_INFO_KEY,
+                        null == token ? "null" : token
+                );
                 response.setStatusCode(HttpStatus.OK);
                 return response.setComplete();
             }
@@ -130,17 +146,20 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
         // 3. 访问其他的服务, 则鉴权, 校验是否能够从 Token 中解析出用户信息后 存入header中
 
         String token = headers.getFirst(TokenConstants.AUTHENTICATION);
-        String back = redisTemplate.opsForValue().get(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY);
-        if (back!=null){
+        String back = redisTemplate.opsForValue().get(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY + token);
+        if (!StrUtil.isBlank(back)) {
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return response.setComplete();
         }
-        LoginUserInfo loginUserInfo = null;
+        LoginUserInfo loginUserInfo;
         if (token != null) {
             try {
                 loginUserInfo = TokenParseUtil.parseUserInfoFromToken(token);
                 String loginUserInfoJSON = new ObjectMapper().writeValueAsString(loginUserInfo);
-                headers.add("loginUserInfo", loginUserInfoJSON);
+                Consumer<HttpHeaders> httpHeaders = httpHeader -> httpHeader.set(Constants.JWT_USER_INFO_KEY, loginUserInfoJSON);
+                ServerHttpRequest serverHttpRequest = exchange.getRequest().mutate().headers(httpHeaders).build();
+                ServerWebExchange serverWebExchange = exchange.mutate().request(serverHttpRequest).build();
+                return chain.filter(serverWebExchange);
             } catch (Exception ex) {
                 log.error("parse user info from token error: [{}]", ex.getMessage(), ex);
             }

@@ -10,23 +10,94 @@ spring:
       discovery:
         enabled: true # 如果不想使用 Nacos 进行服务注册和发现, 设置为 false 即可
         server-addr: localhost:8848
-        namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
+        namespace: ec208297-8a8a-4c6a-8771-b02b016c15f4
         metadata:
           management:
 #            context-path: ${server.servlet.context-path}/actuator
             context-path: /actuator
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      globalcors:
+        cors-configurations:
+            '[/**]':
+                allowedOrigins: '*'
+                allowedHeaders: '*'
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                maxAge: 18000
+      routes:
+        - id: ddl-service-article
+          uri: lb://ddl-service-article
+          predicates:
+            - Path=/api/article/**
+          filters:
+            - StripPrefix=2
+        - id: ddl-service-content_checking
+          uri: lb://ddl-service-content_checking
+          predicates:
+            - Path=/api/audit/**
+          filters:
+            - StripPrefix=2
+        - id: ddl-service-data
+          uri: lb://ddl-service-data
+          predicates:
+            - Path=/api/data/**
+          filters:
+            - StripPrefix=2
+        - id: ddl-service-file
+          uri: lb://ddl-service-file
+          predicates:
+            - Path=/api/file/**
+          filters:
+            - StripPrefix=2
+        - id: ddl-service-infinity
+          uri: lb://ddl-service-infinity
+          predicates:
+            - Path=/api/infinity/**
+          filters:
+            - StripPrefix=2
+        - id: ddl-service-message
+          uri: lb://ddl-service-message
+          predicates:
+            - Path=/api/message/**
+          filters:
+            - StripPrefix=2
+        - id: ddl-service-question
+          uri: lb://ddl-service-question
+          predicates:
+            - Path=/api/question/**
+          filters:
+            - StripPrefix=2
+        - id: ddl-service-search
+          uri: lb://ddl-service-search
+          predicates:
+            - Path=/api/search/**
+          filters:
+            - StripPrefix=2
+        - id: ddl-service-user
+          uri: lb://ddl-service-user
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=2
   zipkin:
     sender:
       type: web # 默认是 web
     base-url: http://localhost:9411/
   main:
     allow-bean-definition-overriding: true  # 因为将来会引入很多依赖, 难免有重名的 bean
-  kafka:
-    bootstrap-servers: 192.168.123.150:9092
-    producer:
-      retries: 3
-    consumer:
-      auto-offset-reset: latest
+#  kafka:
+#    bootstrap-servers: 192.168.123.150:9092
+#    producer:
+#      retries: 3
+#    consumer:
+#      auto-offset-reset: latest
   redis:
     host: localhost
     port: 6379
@@ -43,7 +114,6 @@ nacos:
       config:
         data-id: ddl-gateway-router
         group: ddl
-
 #            metadata:
 #              management:
 #                context-path: ${server.servlet.context-path}/actuator
@@ -82,13 +152,6 @@ nacos:
 #            data-type: json
 #            rule-type: gw-api-group
 
-    # 静态路由
-  #    gateway:
-  #      routes:
-  #        - id: path_route # 路由的ID
-  #          uri: 127.0.0.1:8080/user/{id} # 匹配后路由地址
-  #          predicates: # 断言, 路径相匹配的进行路由
-  #            - Path=/user/{id}
 
 
 

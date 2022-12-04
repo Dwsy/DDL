@@ -42,10 +42,6 @@ public class AuthorityController {
 
 
 
-    @GetMapping("/test")
-    public String test() {
-        return githubOauthService.test();
-    }
 
     @GetMapping("/github")
     @IgnoreResponseAdvice

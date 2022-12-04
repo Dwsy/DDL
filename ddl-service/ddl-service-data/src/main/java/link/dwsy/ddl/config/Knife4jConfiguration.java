@@ -1,8 +1,18 @@
 package link.dwsy.ddl.config;
 
 
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
+import org.springframework.boot.actuate.autoconfigure.web.server.ManagementPortType;
+import org.springframework.boot.actuate.endpoint.ExposableEndpoint;
+import org.springframework.boot.actuate.endpoint.web.*;
+import org.springframework.boot.actuate.endpoint.web.annotation.ControllerEndpointsSupplier;
+import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpointsSupplier;
+import org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -10,7 +20,10 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
-//import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -40,71 +53,31 @@ public class Knife4jConfiguration {
                 .paths(PathSelectors.any())
                 .build();
     }
-//    @Bean
-//    public Docket createRestApi() {
-//        return new Docket(DocumentationType.OAS_30)
-//                .useDefaultResponseMessages(false)
-//                .apiInfo(apiInfo())
-//                .select()
-//                .apis(RequestHandlerSelectors.basePackage("link.dwsy.ddl"))
-//                .paths(PathSelectors.any())
-//                .build();
-//    }
-//
-//    private ApiInfo apiInfo() {
-//        return new ApiInfoBuilder()
-//                .description("knife4j")
-//                .contact(new Contact("Dwsy", "url", "email"))
-//                .version("0.1")
-//                .title("knife4j在线API接口文档")
-//                .build();
-//    }
-//
-//    @Bean
-//    public GroupedOpenApi publicApi() {
-//        return GroupedOpenApi.builder()
-//                .group("title")
-//                .pathsToMatch("/**")
-//                .build();
-//    }
-//    @Bean
-//    public BeanPostProcessor springfoxHandlerProviderBeanPostProcessor() {
-//        return new BeanPostProcessor() {
-//            @Override
-//            @SuppressWarnings({"NullableProblems", "unchecked"})
-//            public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-//                if (bean instanceof WebMvcRequestHandlerProvider || bean instanceof WebFluxRequestHandlerProvider) {
-//                    try {
-//                        Field field = ReflectionUtils.findField(bean.getClass(), "handlerMappings");
-//                        if (null != field) {
-//                            field.setAccessible(true);
-//                            List<RequestMappingInfoHandlerMapping> mappings = (List<RequestMappingInfoHandlerMapping>) field.get(bean);
-//                            mappings.removeIf(e -> null != e.getPatternParser());
-//                        }
-//                    } catch (IllegalArgumentException | IllegalAccessException e) {
-//                        throw new IllegalStateException(e);
-//                    }
-//                }
-//                return bean;
-//            }
-//        };
-//    }
-//    /**
-//     * 增加如下配置可解决Spring Boot 6.x 与Swagger 3.0.0 不兼容问题
-//     **/
-//    @Bean
-//    public WebMvcEndpointHandlerMapping webEndpointServletHandlerMapping(WebEndpointsSupplier webEndpointsSupplier, ServletEndpointsSupplier servletEndpointsSupplier, ControllerEndpointsSupplier controllerEndpointsSupplier, EndpointMediaTypes endpointMediaTypes, CorsEndpointProperties corsProperties, WebEndpointProperties webEndpointProperties, Environment environment) {
-//        List<ExposableEndpoint<?>> allEndpoints = new ArrayList();
-//        Collection<ExposableWebEndpoint> webEndpoints = webEndpointsSupplier.getEndpoints();
-//        allEndpoints.addAll(webEndpoints);
-//        allEndpoints.addAll(servletEndpointsSupplier.getEndpoints());
-//        allEndpoints.addAll(controllerEndpointsSupplier.getEndpoints());
-//        String basePath = webEndpointProperties.getBasePath();
-//        EndpointMapping endpointMapping = new EndpointMapping(basePath);
-//        boolean shouldRegisterLinksMapping = this.shouldRegisterLinksMapping(webEndpointProperties, environment, basePath);
-//        return new WebMvcEndpointHandlerMapping(endpointMapping, webEndpoints, endpointMediaTypes, corsProperties.toCorsConfiguration(), new EndpointLinksResolver(allEndpoints, basePath), shouldRegisterLinksMapping, null);
-//    }
-//    private boolean shouldRegisterLinksMapping(WebEndpointProperties webEndpointProperties, Environment environment, String basePath) {
-//        return webEndpointProperties.getDiscovery().isEnabled() && (StringUtils.hasText(basePath) || ManagementPortType.get(environment).equals(ManagementPortType.DIFFERENT));
-//    }
+    @Bean
+    public WebMvcEndpointHandlerMapping webMvcEndpointHandlerMapping(WebEndpointsSupplier wes
+            , ServletEndpointsSupplier ses, ControllerEndpointsSupplier ces, EndpointMediaTypes emt
+            , CorsEndpointProperties cep, WebEndpointProperties wep, Environment env) {
+        List<ExposableEndpoint<?>> allEndpoints = new ArrayList<>();
+        Collection<ExposableWebEndpoint> webEndpoints = wes.getEndpoints();
+        allEndpoints.addAll(webEndpoints);
+        allEndpoints.addAll(ses.getEndpoints());
+        allEndpoints.addAll(ces.getEndpoints());
+        String basePath = wep.getBasePath();
+        EndpointMapping endpointMapping = new EndpointMapping(basePath);
+        boolean shouldRegisterLinksMapping = shouldRegisterLinksMapping(wep, env, basePath);
+        return new WebMvcEndpointHandlerMapping(endpointMapping, webEndpoints, emt
+                , cep.toCorsConfiguration(), new EndpointLinksResolver(
+                allEndpoints, basePath), shouldRegisterLinksMapping, null);
+    }
+    /**
+     * shouldRegisterLinksMapping
+     *
+     * @param wep
+     * @param env
+     * @param basePath
+     * @return
+     */
+    private boolean shouldRegisterLinksMapping(WebEndpointProperties wep, Environment env, String basePath) {
+        return wep.getDiscovery().isEnabled() && (StringUtils.hasText(basePath) || ManagementPortType.get(env).equals(ManagementPortType.DIFFERENT));
+    }
 }

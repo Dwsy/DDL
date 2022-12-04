@@ -8,15 +8,17 @@ public class GatewayConstant {
     /**
      * 登录 uri
      */
-    public static final String LOGIN_URI = "/ddl/login";
+    public static final String LOGIN_URI = "/auth/login";
     /**
      * 注册 uri
      */
-    public static final String REGISTER_URI = "/ddl/register";
+    public static final String REGISTER_URI = "/auth/register";
 
-    public static final String LOGOUT_URI = "/ddl/logout";
+    public static final String LOGOUT_URI = "/auth/logout";
 
-    public static final String REFRESH_URI = "/ddl/refresh";
+    public static final String REFRESH_URI = "/auth/refresh";
+
+    public static final String GITHUB_OAUTH = "/auth/github";
 
     /**
      * 去授权中心拿到登录 token 的 uri 格式化接口
@@ -35,4 +37,7 @@ public class GatewayConstant {
 
     public static final String AUTHORITY_REFRESH_URL_FORMAT =
             "http://%s:%s/ddl-authority-center/authority/refresh";
+
+    public static final String AUTHORITY_GITHUB_OAUTH_URL_FORMAT =
+            "http://%s:%s/ddl-authority-center/authority/github";
 }

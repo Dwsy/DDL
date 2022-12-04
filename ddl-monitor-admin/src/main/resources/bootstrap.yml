@@ -15,7 +15,7 @@ spring:
         enabled: true
         # 服务注册地址
         server-addr: localhost:8848
-        namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
+        namespace: ec208297-8a8a-4c6a-8771-b02b016c15f4
         metadata:
           management:
             context-path: actuator

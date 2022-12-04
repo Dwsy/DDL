@@ -1,107 +1,92 @@
-package link.dwsy.ddl.config;
-
-
-import org.springframework.context.annotation.Bean;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.Contact;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-
-/**
- * @Author Dwsy
- * @Date 2022/8/24
- */
-
-//@Configuration
-//@EnableSwagger2WebMvc
-public class Knife4jConfigurationBack {
-    @Bean(value = "dockerBean")
-    public Docket dockerBean() {
-        //指定使用Swagger2规范
-        Docket docket=new Docket(DocumentationType.SWAGGER_2)
-                .apiInfo(new ApiInfoBuilder()
-                        //描述字段支持Markdown语法
-                        .description("# Knife4j RESTful APIs")
-                        .termsOfServiceUrl("https://doc.xiaominfo.com/")
-                        .contact(new Contact("name","url","email"))
-                        .version("1.0")
-                        .build())
-                //分组名称
-                .groupName("用户服务")
-                .select()
-                //这里指定Controller扫描包路径
-                .apis(RequestHandlerSelectors.basePackage("link.dwsy.ddl"))
-                .paths(PathSelectors.any())
-                .build();
-        return docket;
-    }
-//    @Bean
-//    public Docket createRestApi() {
-//        return new Docket(DocumentationType.OAS_30)
-//                .useDefaultResponseMessages(false)
-//                .apiInfo(apiInfo())
+//package link.dwsy.ddl.config;
+//
+//
+//import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
+//import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
+//import org.springframework.boot.actuate.autoconfigure.web.server.ManagementPortType;
+//import org.springframework.boot.actuate.endpoint.ExposableEndpoint;
+//import org.springframework.boot.actuate.endpoint.web.*;
+//import org.springframework.boot.actuate.endpoint.web.annotation.ControllerEndpointsSupplier;
+//import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpointsSupplier;
+//import org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping;
+//import org.springframework.context.annotation.Bean;
+//import org.springframework.core.env.Environment;
+//import org.springframework.util.StringUtils;
+//import springfox.documentation.builders.ApiInfoBuilder;
+//import springfox.documentation.builders.PathSelectors;
+//import springfox.documentation.builders.RequestHandlerSelectors;
+//import springfox.documentation.service.Contact;
+//import springfox.documentation.spi.DocumentationType;
+//import springfox.documentation.spring.web.plugins.Docket;
+//
+//import java.util.ArrayList;
+//import java.util.Collection;
+//import java.util.List;
+//
+///**
+// * @Author Dwsy
+// * @Date 2022/8/24
+// */
+//
+////@Configuration
+////@EnableSwagger2WebMvc
+//public class Knife4jConfigurationBack {
+//    @Bean(value = "dockerBean")
+//    public Docket dockerBean() {
+//        //指定使用Swagger2规范
+//        return new Docket(DocumentationType.SWAGGER_2)
+//                .apiInfo(new ApiInfoBuilder()
+//                        //描述字段支持Markdown语法
+//                        .description("# Knife4j RESTful APIs")
+//                        .termsOfServiceUrl("https://doc.xiaominfo.com/")
+//                        .contact(new Contact("name","url","email"))
+//                        .version("1.0")
+//                        .build())
+//                //分组名称
+//                .groupName("用户服务")
 //                .select()
+//                //这里指定Controller扫描包路径
 //                .apis(RequestHandlerSelectors.basePackage("link.dwsy.ddl"))
 //                .paths(PathSelectors.any())
 //                .build();
 //    }
-//
-//    private ApiInfo apiInfo() {
-//        return new ApiInfoBuilder()
-//                .description("knife4j")
-//                .contact(new Contact("Dwsy", "url", "email"))
-//                .version("0.1")
-//                .title("knife4j在线API接口文档")
-//                .build();
-//    }
-//
+//    /**
+//     * 解决springboot升到2.6.x之后，knife4j报错
+//     * 原文链接：https://gitee.com/xiaoym/knife4j/issues/I4JT89
+//     * @param wes        the web endpoints supplier
+//     * @param ses    the servlet endpoints supplier
+//     * @param ces the controller endpoints supplier
+//     * @param emt          the endpoint media types
+//     * @param cep      the cors properties
+//     * @param wep       the web endpoints properties
+//     * @param env                 the environment
+//     * @return the web mvc endpoint handler mapping
+//     */
 //    @Bean
-//    public GroupedOpenApi publicApi() {
-//        return GroupedOpenApi.builder()
-//                .group("title")
-//                .pathsToMatch("/**")
-//                .build();
-//    }
-//    @Bean
-//    public BeanPostProcessor springfoxHandlerProviderBeanPostProcessor() {
-//        return new BeanPostProcessor() {
-//            @Override
-//            @SuppressWarnings({"NullableProblems", "unchecked"})
-//            public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-//                if (bean instanceof WebMvcRequestHandlerProvider || bean instanceof WebFluxRequestHandlerProvider) {
-//                    try {
-//                        Field field = ReflectionUtils.findField(bean.getClass(), "handlerMappings");
-//                        if (null != field) {
-//                            field.setAccessible(true);
-//                            List<RequestMappingInfoHandlerMapping> mappings = (List<RequestMappingInfoHandlerMapping>) field.get(bean);
-//                            mappings.removeIf(e -> null != e.getPatternParser());
-//                        }
-//                    } catch (IllegalArgumentException | IllegalAccessException e) {
-//                        throw new IllegalStateException(e);
-//                    }
-//                }
-//                return bean;
-//            }
-//        };
+//    public WebMvcEndpointHandlerMapping webMvcEndpointHandlerMapping(WebEndpointsSupplier wes
+//            , ServletEndpointsSupplier ses, ControllerEndpointsSupplier ces, EndpointMediaTypes emt
+//            , CorsEndpointProperties cep, WebEndpointProperties wep, Environment env) {
+//        List<ExposableEndpoint<?>> allEndpoints = new ArrayList<>();
+//        Collection<ExposableWebEndpoint> webEndpoints = wes.getEndpoints();
+//        allEndpoints.addAll(webEndpoints);
+//        allEndpoints.addAll(ses.getEndpoints());
+//        allEndpoints.addAll(ces.getEndpoints());
+//        String basePath = wep.getBasePath();
+//        EndpointMapping endpointMapping = new EndpointMapping(basePath);
+//        boolean shouldRegisterLinksMapping = shouldRegisterLinksMapping(wep, env, basePath);
+//        return new WebMvcEndpointHandlerMapping(endpointMapping, webEndpoints, emt
+//                , cep.toCorsConfiguration(), new EndpointLinksResolver(
+//                allEndpoints, basePath), shouldRegisterLinksMapping, null);
 //    }
 //    /**
-//     * 增加如下配置可解决Spring Boot 6.x 与Swagger 3.0.0 不兼容问题
-//     **/
-//    @Bean
-//    public WebMvcEndpointHandlerMapping webEndpointServletHandlerMapping(WebEndpointsSupplier webEndpointsSupplier, ServletEndpointsSupplier servletEndpointsSupplier, ControllerEndpointsSupplier controllerEndpointsSupplier, EndpointMediaTypes endpointMediaTypes, CorsEndpointProperties corsProperties, WebEndpointProperties webEndpointProperties, Environment environment) {
-//        List<ExposableEndpoint<?>> allEndpoints = new ArrayList();
-//        Collection<ExposableWebEndpoint> webEndpoints = webEndpointsSupplier.getEndpoints();
-//        allEndpoints.addAll(webEndpoints);
-//        allEndpoints.addAll(servletEndpointsSupplier.getEndpoints());
-//        allEndpoints.addAll(controllerEndpointsSupplier.getEndpoints());
-//        String basePath = webEndpointProperties.getBasePath();
-//        EndpointMapping endpointMapping = new EndpointMapping(basePath);
-//        boolean shouldRegisterLinksMapping = this.shouldRegisterLinksMapping(webEndpointProperties, environment, basePath);
-//        return new WebMvcEndpointHandlerMapping(endpointMapping, webEndpoints, endpointMediaTypes, corsProperties.toCorsConfiguration(), new EndpointLinksResolver(allEndpoints, basePath), shouldRegisterLinksMapping, null);
+//     * shouldRegisterLinksMapping
+//     *
+//     * @param wep
+//     * @param env
+//     * @param basePath
+//     * @return
+//     */
+//    private boolean shouldRegisterLinksMapping(WebEndpointProperties wep, Environment env, String basePath) {
+//        return wep.getDiscovery().isEnabled() && (StringUtils.hasText(basePath) || ManagementPortType.get(env).equals(ManagementPortType.DIFFERENT));
 //    }
-//    private boolean shouldRegisterLinksMapping(WebEndpointProperties webEndpointProperties, Environment environment, String basePath) {
-//        return webEndpointProperties.getDiscovery().isEnabled() && (StringUtils.hasText(basePath) || ManagementPortType.get(environment).equals(ManagementPortType.DIFFERENT));
-//    }
-}
+//}

@@ -22,9 +22,9 @@ public class RouteLocatorConfig {
                 .route(
                         "ddl-authority-center",
                         r -> r.path(
-                                "/api/ddl/login",
-                                "/api/ddl/register",
-                                "/api/ddl/logout"
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/logout"
                                 ).uri("http://localhost:9001/")
                 ).build();
     }

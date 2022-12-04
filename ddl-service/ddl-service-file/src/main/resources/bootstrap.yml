@@ -5,8 +5,8 @@ server:
 #      charset: utf-8
 #      force-response: true
 #      force: true
-#  servlet:
-#    context-path: /ddl-authority-center
+  servlet:
+    context-path: /
 spring:
   application:
     name: ddl-service-file
@@ -52,13 +52,16 @@ spring:
     nacos:
       discovery:
 #        enabled: false # 如果不想使用 Nacos 进行服务注册和发现, 设置为 false 即可
-        enabled: false
+        enabled: true
         server-addr: localhost:8848 # Nacos 服务器地址
         # server-addr: 127.0.0.1:8848,127.0.0.1:8849,127.0.0.1:8850 # Nacos 服务器地址
-        namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
+        namespace: ec208297-8a8a-4c6a-8771-b02b016c15f4
         metadata:
           management:
-            context-path: ${server.servlet.context-path}/actuator
+#            context-path: ${server.servlet.context-path}/actuator
+#            context-path: /actuator
+
+
 
 
 #  kafka:
@@ -73,14 +76,14 @@ spring:
 #    base-url: http://127.0.0.1:9411/
 
 # 暴露端点
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'  # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 *, 可以开放所有端点
-  endpoint:
-    health:
-      show-details: always
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: '*'  # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 *, 可以开放所有端点
+#  endpoint:
+#    health:
+#      show-details: always
 knife4j:
   enable: true
 

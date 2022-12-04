@@ -44,7 +44,7 @@ spring:
       discovery:
         server-addr: 127.0.0.1:8848
         # server-addr: 127.0.0.1:8848,127.0.0.1:8849,127.0.0.1:8850 # Nacos 服务器地址
-        namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
+        namespace: ec208297-8a8a-4c6a-8771-b02b016c15f4
         metadata:
           management:
             context-path: ${server.servlet.context-path}/actuator
@@ -55,7 +55,7 @@ spring:
         file-extension: yaml  # 配置内容的数据格式, 默认为 properties
         enabled: true     # 如果不想使用 Nacos 进行配置管理, 设置为 false 即可
 #        group: DDL  # 组, 默认为 DEFAULT_GROUP
-        namespace: a4c36c7c-880e-4401-af15-c5e8c89a0d46
+        namespace: ec208297-8a8a-4c6a-8771-b02b016c15f4
         server-addr: 127.0.0.1:8848
   zipkin:
     sender:
