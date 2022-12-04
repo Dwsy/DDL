@@ -14,8 +14,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableAspectJAutoProxy
 @EnableJpaAuditing
 @EnableDiscoveryClient
-public class contentCheckingApplication {
+public class auditApplication {
     public static void main(String[] args) {
-        SpringApplication.run(contentCheckingApplication.class, args);
+        SpringApplication.run(auditApplication.class, args);
     }
 }

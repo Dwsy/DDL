@@ -150,4 +150,11 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     @Query(nativeQuery = true, value = "select count(*) from users where deleted is true and " +
             "id=(select user_id from qa_question_field  where deleted is false and id=?1) and  deleted = true")
     int userIsCancellation(long id);
+
+    @Query(nativeQuery = true,value = "select question_field_id from qa_answer where id=?1;")
+    long getIdByAnswerId(long answerId);
+
+    @Query(nativeQuery = true,value = "select title from qa_question_field where id=" +
+            "(select question_field_id from qa_answer where id=?1);")
+    String getTitleByAnswerId(long answerId);
 }

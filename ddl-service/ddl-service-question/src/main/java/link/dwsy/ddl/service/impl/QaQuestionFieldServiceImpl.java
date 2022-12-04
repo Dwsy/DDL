@@ -124,6 +124,8 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     }
 
     public long createQuestion(CreateQuestionRB createQuestionRB) {
+        String title = createQuestionRB.getTitle();
+        title = title.trim().replaceAll("\n", "");
         QuestionState questionState = createQuestionRB.getQuestionState();
         Set<QuestionState> allowState = Set.of(QuestionState.ASK, QuestionState.HIDE, QuestionState.DRAFT);
         if (!allowState.contains(questionState)) {
@@ -173,10 +175,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
             rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_CREATE, saveId);
 
             if (createQuestionRB.isSendInfinity()) {
-                InfinityMessage infinityMessage = InfinityMessage.builder()
-                        .infinityType(InfinityType.Question)
-                        .refId(saveId)
-                        .build();
+                InfinityMessage infinityMessage = InfinityMessage.builder().infinityType(InfinityType.Question).refId(saveId).build();
                 rabbitTemplate.convertAndSend(InfinityMQConstants.QUEUE_DDL_INFINITY_SEND, infinityMessage);
             }
         } else {
@@ -187,6 +186,8 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     }
 
     public long updateQuestion(CreateQuestionRB createQuestionRB) {
+        String title = createQuestionRB.getTitle();
+        title = title.trim().replaceAll("\n", "");
         QuestionState questionState = createQuestionRB.getQuestionState();
         //此次ask为还原状态
         Set<QuestionState> allowState = Set.of(QuestionState.ASK, QuestionState.HIDE, QuestionState.DRAFT);
@@ -200,13 +201,10 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
 
-        ArrayList<QaTag> qaTags = new ArrayList<>(qaQuestionTagRepository.findAllById(
-                createQuestionRB.getQuestionTagIds().stream().distinct().collect(Collectors.toList())
-        ));
+        ArrayList<QaTag> qaTags = new ArrayList<>(qaQuestionTagRepository.findAllById(createQuestionRB.getQuestionTagIds().stream().distinct().collect(Collectors.toList())));
 
 
-        QaGroup qaGroup = qaGroupRepository.findById(createQuestionRB.getQuestionGroupId())
-                .orElseThrow(() -> new CodeException(CustomerErrorCode.GroupNotFound));
+        QaGroup qaGroup = qaGroupRepository.findById(createQuestionRB.getQuestionGroupId()).orElseThrow(() -> new CodeException(CustomerErrorCode.GroupNotFound));
 
         String html = HtmlHelper.toHTML(createQuestionRB.getContent());
         String pure = HtmlHelper.toPure(html);
@@ -219,7 +217,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         //历史版本保存
         int version = field.getVersion() + 1;
         if (questionState == QuestionState.ASK || questionState == QuestionState.DRAFT) {
-            redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionTitleKey + field.getId(), field.getTitle());
+            redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionTitleKey + field.getId(), title);
             redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionFieldKey + field.getId(), JSON.toJSONString(field));
             redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionContentKey + field.getId(), questionContent.getTextMd());
             redisTemplate.opsForList().rightPush(QuestionRedisKey.QuestionHistoryVersionCreateDateKey + field.getId(), String.valueOf(System.currentTimeMillis()));
@@ -228,7 +226,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         questionContent.setTextHtml(html);
         questionContent.setTextPure(pure);
         field.setVersion(version);
-        field.setTitle(createQuestionRB.getTitle());
+        field.setTitle(title);
 
 //        field.setAllowAnswer(createQuestionRB.getllowAnswer());
         field.setSummary(createQuestionRB.getSummary());

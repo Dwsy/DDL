@@ -75,8 +75,10 @@ public class InfinityMessageProcess {
 
     private void sendAnswerInfinity(long refId) {
         qaAnswerRepository.findByDeletedFalseAndId(refId).ifPresent(qaAnswer -> {
+            long answerId = qaAnswer.getId();
+            String questionTitle = qaQuestionFieldRepository.getTitleByAnswerId(answerId);
             Infinity buildInfinity = Infinity.builder()
-                    .content(HtmlHelper.toPure(qaAnswer.getTextHtml()))
+                    .content(HtmlHelper.toPure(questionTitle + "\n" + qaAnswer.getTextHtml()))
                     .refId(refId)
                     .type(InfinityType.Answer)
                     .user(qaAnswer.getUser())
@@ -90,11 +92,13 @@ public class InfinityMessageProcess {
         ArticleField articleField = articleFieldRepository.findByDeletedFalseAndId(refId);
         Infinity buildInfinity = Infinity.builder()
                 .content(articleField.getTitle() + "\n" + articleField.getSummary())
-                .imgUrl1(articleField.getBanner())
                 .refId(refId)
                 .type(InfinityType.Article)
                 .user(articleField.getUser())
                 .build();
+        if (articleField.getBanner() != null) {
+            buildInfinity.setImgUrl1(articleField.getBanner());
+        }
         infinityRepository.save(buildInfinity);
     }
 }

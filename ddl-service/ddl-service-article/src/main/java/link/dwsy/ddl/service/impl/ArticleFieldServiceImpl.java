@@ -88,6 +88,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 
     public long createArticle(ArticleContentRB articleContentRB) {
         ArticleState articleState = articleContentRB.getArticleState();
+        String title = articleContentRB.getTitle();
+        title = title.trim().replaceAll("\n", "");
         Set<ArticleState> allowState = Set.of(ArticleState.draft, ArticleState.published, ArticleState.hide);
         if (!allowState.contains(articleState)) {
             throw new CodeException(CustomerErrorCode.ArticleStateError);
@@ -119,7 +121,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 
         ArticleField field = ArticleField.builder()
                 .user(userRepository.findUserByIdAndDeletedIsFalse(currentUser.getId()))
-                .title(articleContentRB.getTitle())
+                .title(title)
                 .summary(articleContentRB.getSummary())
                 .banner(articleContentRB.getBanner())
                 .articleState(articleState)
@@ -148,6 +150,8 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 
 
     public long updateArticle(ArticleContentRB articleContentRB) {
+        String title = articleContentRB.getTitle();
+        title = title.trim().replaceAll("\n", "");
         ArticleState articleState = articleContentRB.getArticleState();
         Set<ArticleState> allowState = Set.of(ArticleState.draft, ArticleState.published, ArticleState.hide);
         if (!allowState.contains(articleState)) {
@@ -190,7 +194,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         int version = field.getVersion() + 1;
         if (articleState == ArticleState.published || articleState == ArticleState.draft) {
             redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionFieldKey + field.getId(), JSON.toJSONString(field));
-            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionTitleKey + field.getId(), field.getTitle());
+            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionTitleKey + field.getId(), title);
             redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionContentKey + field.getId(), articleContent.getTextMd());
             redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionCreateDateKey + field.getId(), String.valueOf(System.currentTimeMillis()));
         }
@@ -200,7 +204,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         articleContent.setTextPure(pure);
         field.setVersion(version);
         field.setArticleContent(articleContent);
-        field.setTitle(articleContentRB.getTitle());
+        field.setTitle(title);
         field.setSummary(articleContentRB.getSummary());
         field.setBanner(articleContentRB.getBanner());
         field.setArticleState(articleState);
@@ -228,7 +232,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         ArticleField save = articleFieldRepository.save(field);
         if (articleContentRB.getArticleState() == ArticleState.published) {
             rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                    ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE,articleContentRB.getArticleId());
+                    ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE, articleContentRB.getArticleId());
         } else {
             rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
                     ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleContentRB.getArticleId());

@@ -15,7 +15,6 @@ public class ReplyInfinityRB {
     @Min(value = 1, message = "回复的id不合法")
     private Long replyId;
 
-    @Size(min = 1, max = 2000, message = "回复内容长度不合法")
     private String content;
 
     @Min(value = 1, message = "回复类型不合法")

@@ -1,15 +1,13 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.User.PointsType;
+import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.annotation.Points;
 import link.dwsy.ddl.annotation.UserActiveLog;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.service.RPC.AuditService;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -20,10 +18,19 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/test")
-public class LevelTestController {
+public class TestController {
 
     @Resource
-    ArticleCommentRepository articleCommentRepository;
+    private ArticleCommentRepository articleCommentRepository;
+
+
+    @Resource
+    private AuditService auditService;
+
+    @PostMapping("audit")
+    public String test(@RequestParam(name = "text") String text) {
+        return auditService.contains(text) ? "包含敏感词" : "不包含敏感词";
+    }
 
     @GetMapping("l1")
     @AuthAnnotation

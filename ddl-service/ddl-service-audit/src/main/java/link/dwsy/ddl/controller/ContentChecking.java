@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
+import link.dwsy.ddl.annotation.IgnoreResponseAdvice;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +31,7 @@ public class ContentChecking {
      * @return 结果
      */
     @PostMapping("/contains")
+    @IgnoreResponseAdvice
     public boolean contains(@RequestParam("text")  String text) {
 
         return sensitiveWordBs.contains(text);

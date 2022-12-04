@@ -16,6 +16,12 @@
             <groupId>link.dwsy.DDL</groupId>
             <artifactId>ddl-service-common</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-zipkin</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!--jpa-->
         <dependency>

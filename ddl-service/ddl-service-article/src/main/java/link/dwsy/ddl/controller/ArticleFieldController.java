@@ -135,7 +135,6 @@ public class ArticleFieldController {
 
     @PostMapping
     @AuthAnnotation
-//    todo 历史版本
     public String createArticle(@RequestBody @Validated ArticleContentRB articleContentRB) {
         return String.valueOf(articleFieldService.createArticle(articleContentRB));
     }

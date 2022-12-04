@@ -1,5 +1,6 @@
 package link.dwsy.ddl.controller;
 
+import cn.hutool.core.util.StrUtil;
 import link.dwsy.ddl.XO.Enum.InfinityType;
 import link.dwsy.ddl.XO.RB.ReplyInfinityRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
@@ -137,12 +138,14 @@ public class InfinityCommentController {
     @PostMapping()
     @AuthAnnotation
     public Infinity replyInfinity(@Validated @RequestBody ReplyInfinityRB infinityRB) {
+        if (StrUtil.isBlank(infinityRB.getContent()) && infinityRB.getImgUrlList().size() == 0)
+            throw new CodeException(CustomerErrorCode.ParamError);
         Long userId = userSupport.getCurrentUser().getId();
         long replyId = infinityRB.getReplyId();
         String content = infinityRB.getContent();
         Long replyUserTweetId = infinityRB.getReplyUserTweetId();
         if (replyUserTweetId == null) {
-            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyId, InfinityType.Tweet);
+            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndTypeIn(replyId, List.of(InfinityType.Tweet, InfinityType.Answer, InfinityType.Question, InfinityType.Article));
             if (!exists) {
                 throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
             }
@@ -152,7 +155,7 @@ public class InfinityCommentController {
                     .ua(userSupport.getUserAgent())
                     .user((User) new User().setId(userId))
                     .parentTweetId(replyId).build();
-
+            infinity.setImgUrlByList(infinityRB.getImgUrlList());
             return infinityRepository.save(infinity);
         } else {
             boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyUserTweetId, InfinityType.TweetCommentOrReply);
