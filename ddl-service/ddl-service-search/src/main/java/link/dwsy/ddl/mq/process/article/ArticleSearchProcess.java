@@ -81,7 +81,9 @@ public class ArticleSearchProcess {
                 .upNum(af.getUpNum())
                 .viewNum(af.getViewNum())
                 .downNum(af.getDownNum())
+                .commentNum(af.getCommentNum())
                 .collectNum(af.getCollectNum())
+                .createTime(af.getCreateTime())
                 .build();
 //        ArticleEsDoc.builder().title("updateTest").build();
         try {

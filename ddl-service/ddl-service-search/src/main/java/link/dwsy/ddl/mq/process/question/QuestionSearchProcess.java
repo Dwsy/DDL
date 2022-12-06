@@ -94,6 +94,7 @@ public class QuestionSearchProcess {
                 .upNum(qf.getUpNum())
                 .downNum(qf.getDownNum())
                 .collectNum(qf.getCollectNum())
+                .questionState(qf.getQuestionState())
                 .build();
         try {
             client.update(req -> req

@@ -92,6 +92,9 @@
       "createTime": {
         "type": "date",
         "format": "yyyy-MM-dd HH:mm:ss"
+      },
+      "questionState": {
+        "type": "integer"
       }
     }
   }

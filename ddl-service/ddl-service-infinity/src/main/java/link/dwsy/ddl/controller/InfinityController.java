@@ -100,6 +100,9 @@ public class InfinityController {
         Page<Infinity> childComments = infinityRepository
                 .findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
                         (id, InfinityType.TweetCommentOrReply, null, pageRequest);
+        if (childComments == null) {
+            return null;
+        }
         List<Infinity> childCommentsContent = childComments.getContent();
         childCommentsContent.forEach(childComment -> {
                 userStateService.cancellationUserHandel(childComment.getUser());

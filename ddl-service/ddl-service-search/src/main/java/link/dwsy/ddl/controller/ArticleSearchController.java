@@ -45,7 +45,6 @@ public class ArticleSearchController {
                                          @RequestParam(defaultValue = "1") int page,
                                          @RequestParam(defaultValue = "10") int size
     ) throws IOException {
-        // todo 根据点赞 收藏 浏览量 算分排序
         return articleSearchService.getSearchPageData(page, size, query);
 
     }
@@ -58,6 +57,7 @@ public class ArticleSearchController {
                     req.index(ArticleSearchConstant.ArticleEsIndex)
                             .suggest(s ->
                                     s.suggesters("suggestion", sug ->
+
                                             sug.text(query)
                                                     .completion(com ->
                                                             com.field("suggestion")

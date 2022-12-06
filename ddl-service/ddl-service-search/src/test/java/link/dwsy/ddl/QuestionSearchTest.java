@@ -1,9 +1,9 @@
 package link.dwsy.ddl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.Result;
 import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
@@ -86,13 +86,13 @@ public class QuestionSearchTest {
     @Test
     public void indices() throws IOException {
         ElasticsearchIndicesClient indices = client.indices();
-        BooleanResponse exists = indices.exists(e -> e.index("test"));
+        BooleanResponse exists = indices.exists(e -> e.index("INDEX"));
         if (!exists.value()) {
-            indices.create(e -> e.index("test"));
+            indices.create(e -> e.index("INDEX"));
             System.out.println("创建索引");
         } else {
             System.out.println("索引已存在");
-            indices.delete(d -> d.index("test"));
+            indices.delete(d -> d.index("INDEX"));
             System.out.println("删除索引");
         }
     }
@@ -138,7 +138,9 @@ public class QuestionSearchTest {
         List<QuestionState> questionStates = Arrays.asList(QuestionState.ASK, QuestionState.HAVE_ANSWER, QuestionState.RESOLVED, QuestionState.UNRESOLVED);
 
         QaQuestionField qf = qaQuestionFieldRepository.findByDeletedFalseAndIdAndQuestionStateIn(qid, questionStates);
-
+        if (qf == null) {
+            return;
+        }
         String pureTextById = qaContentRepository.getPureTextById(qid);
         System.out.println("插入：" + qf.getTitle());
         QuestionEsDoc questionEsDoc = QuestionEsDoc.builder()
@@ -161,16 +163,21 @@ public class QuestionSearchTest {
                 .upNum(qf.getUpNum())
                 .downNum(qf.getDownNum())
                 .collectNum(qf.getCollectNum())
+                .questionState(qf.getQuestionState())
                 .build();
 
+        UpdateResponse<QuestionEsDoc> update = client.update(req -> req
+                        .index(INDEX).id(String.valueOf(qid))
+                        .doc(questionEsDoc)
+                        .docAsUpsert(true)
+                , QuestionEsDoc.class);
+//        Result result = client.create(req ->
+//                req.index(INDEX)
+//                        .id(String.valueOf(qf.getId()))
+//                        .document(questionEsDoc)
+//        ).result();
 
-        Result result = client.create(req ->
-                req.index(INDEX)
-                        .id(String.valueOf(qf.getId()))
-                        .document(questionEsDoc)
-        ).result();
-
-        System.out.println(result);
+//        System.out.println(result);
     }
 
 

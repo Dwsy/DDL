@@ -1,6 +1,7 @@
 package link.dwsy.ddl.service.Impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreMode;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
@@ -39,9 +40,24 @@ public class QuestionSearchServiceImpl {
                                     .filter(f -> f
                                             .excludes("content", "suggestion")))
                             .query(q -> q
-                                    .multiMatch(mm -> mm
-                                            .query(query)
-                                            .fields("title", "content", "userNickName.name", "group", "tagList.name"))
+                                    .functionScore(fs -> fs
+                                            .query(fq -> fq
+                                                    .multiMatch(mm -> mm
+                                                            .query(query)
+                                                            .fields("title^200", "content^100", "userNickName.name^100", "group", "tagList.name")))
+                                            .scoreMode(FunctionScoreMode.Sum)
+                                            .functions(f -> f
+                                                    .scriptScore
+                                                    (s -> s.script
+                                                                    (script -> script
+                                                                            .inline(inline -> inline.source("doc['viewNum'].value*0.04")))
+                                                            .script(script -> script
+                                                                    .inline(inline -> inline.source("doc['upNum'].value*0.2")))
+                                                            .script(script -> script
+                                                                    .inline(inline -> inline.source("doc['answerNum'].value*0.1")))
+                                                    )
+                                            )
+                                    )
                             )
                             .from((page - 1) * size)
                             .size(size)

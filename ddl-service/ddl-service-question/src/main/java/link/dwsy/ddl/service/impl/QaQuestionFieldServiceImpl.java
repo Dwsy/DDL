@@ -101,6 +101,9 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     @Override
     public QaQuestionField getQuestionById(long qid, boolean getQuestionComment) {
         QaQuestionField questionField = qaQuestionFieldRepository.findByDeletedFalseAndIdAndQuestionStateNot(qid, QuestionState.HIDE);
+        if (questionField == null) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
         if (getQuestionComment) {
             PageRequest pageRequest = PRHelper.order(Sort.Direction.ASC, "createTime", 1, 8);
             Page<QaAnswer> questionComment = qaAnswerRepository

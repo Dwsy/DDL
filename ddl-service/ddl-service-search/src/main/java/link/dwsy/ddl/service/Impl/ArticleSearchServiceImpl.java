@@ -1,6 +1,7 @@
 package link.dwsy.ddl.service.Impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreMode;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
@@ -39,13 +40,26 @@ public class ArticleSearchServiceImpl {
                                     .filter(f -> f
                                             .excludes("content", "suggestion")))
                             .query(q -> q
-                                    .multiMatch(mm -> mm
-                                            .query(query)
-                                            .fields("title", "content", "userNickName.name", "group", "tagList.name"))
+                                    .functionScore(fs -> fs
+                                            .query(fq -> fq
+                                                    .multiMatch(mm -> mm
+                                                            .query(query)
+                                                            .fields("title^100", "content^150", "userNickName.name", "group", "tagList.name")))
+                                            .scoreMode(FunctionScoreMode.Sum)
+                                            .functions(f -> f.scriptScore
+                                                    (s -> s.script
+                                                                    (script -> script
+                                                                            .inline(inline -> inline.source("doc['viewNum'].value*0.04")))
+                                                            .script(script -> script
+                                                                    .inline(inline -> inline.source("doc['upNum'].value*0.2")))
+                                                            .script(script -> script
+                                                                    .inline(inline -> inline.source("doc['commentNum'].value*0.1")))
+                                                    )
+                                            )
+                                    )
                             )
                             .from((page - 1) * size)
                             .size(size)
-                            .sort(so -> so.field(f -> f.field("viveNum").field("upNum")))
                             .highlight(h -> h
                                     .fields("title",
                                             h1 -> h1.preTags("<em class=\"highlight\">")
@@ -93,5 +107,6 @@ public class ArticleSearchServiceImpl {
         }
         return docPageData;
     }
+
 
 }

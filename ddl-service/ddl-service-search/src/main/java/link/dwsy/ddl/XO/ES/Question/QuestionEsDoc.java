@@ -1,6 +1,7 @@
 package link.dwsy.ddl.XO.ES.Question;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -50,5 +51,8 @@ public class QuestionEsDoc {
     private int downNum;
 
     private List<String> suggestion;
+
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
+    private QuestionState questionState;
 }
 
