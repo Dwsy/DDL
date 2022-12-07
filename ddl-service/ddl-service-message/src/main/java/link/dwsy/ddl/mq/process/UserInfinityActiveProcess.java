@@ -53,16 +53,17 @@ public class UserInfinityActiveProcess {
         switch (userActiveType) {
             case Thumb_Tweet:
                 if (userNotifyRepository.existsByDeletedFalseAndFromUserIdAndToUserIdAndInfinityIdAndNotifyType(
-                        formUserId, toUserId, infinityId, NotifyType.thumbTweet)) {
+                        formUserId, toUserId, message.getParentTweetId(), NotifyType.thumbTweet)) {
                     log.info("用户{}已经通知过用户{}了", formUserId, toUserId);
                     return;
                 }
                 userNotify = UserNotify.builder()
                         .fromUserId(formUserId)
                         .toUserId(toUserId)
-                        .infinityId(infinityId)
+                        .infinityId(message.getParentTweetId())
                         .notifyType(NotifyType.thumbTweet)
                         .build();
+                commonProcess.ActiveLog(userActiveType, message.getParentTweetId(), formUserId, ua);
                 break;
             case Comment_Tweet:
                 userNotify = UserNotify.builder()
@@ -103,7 +104,6 @@ public class UserInfinityActiveProcess {
                 break;
         }
         if (userNotify != null) {
-            commonProcess.ActiveLog(userActiveType, infinityId, formUserId, ua);
             userNotifyRepository.save(userNotify);
         }
     }

@@ -19,11 +19,14 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     Page<QaQuestionField> findByDeletedFalseAndQuestionStateNot(QuestionState questionState, Pageable pageable);
 
     Page<QaQuestionField> findByDeletedFalseAndUserIdAndQuestionState(long user_id, QuestionState questionState, Pageable pageable);
+    Page<QaQuestionField> findByDeletedFalseAndUserIdAndQuestionStateIn(long user_id, Collection<QuestionState> questionStates, Pageable pageable);
 
     Page<QaQuestionField> findByDeletedFalseAndUserIdAndQuestionStateNot(long user_id, QuestionState questionState, Pageable pageable);
 
     Page<QaQuestionField> findByDeletedFalseAndQuestionStateIn
             (Collection<QuestionState> questionStates, Pageable pageable);
+
+    Page<QaQuestionField> findByDeletedFalseAndQuestionStateInAndUser_DeletedFalse(Collection<QuestionState> questionStates, Pageable pageable);
 
     QaQuestionField findByDeletedFalseAndId(long id);
 
@@ -33,6 +36,8 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     Optional<QaQuestionField> findByIdAndDeletedFalse(long id);
 
     Page<QaQuestionField> findByDeletedFalseAndIdIn(Collection<Long> id, Pageable pageable);
+
+    List<QaQuestionField> findAllByDeletedFalseAndIdIn(Collection<Long> id);
 
     Page<QaQuestionField> findByDeletedFalseAndIdInAndQuestionStateIn(Collection<Long> ids, Collection<QuestionState> questionStates, Pageable pageable);
 
@@ -151,10 +156,13 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
             "id=(select user_id from qa_question_field  where deleted is false and id=?1) and  deleted = true")
     int userIsCancellation(long id);
 
-    @Query(nativeQuery = true,value = "select question_field_id from qa_answer where id=?1;")
+    @Query(nativeQuery = true,value = "select question_field_id from qa_answer where id=?1")
     long getIdByAnswerId(long answerId);
 
     @Query(nativeQuery = true,value = "select title from qa_question_field where id=" +
-            "(select question_field_id from qa_answer where id=?1);")
+            "(select question_field_id from qa_answer where id=?1)")
     String getTitleByAnswerId(long answerId);
+
+    @Query(nativeQuery = true,value = "select count(*) from users where id=(select user_id  from qa_question_field where id=?1) and deleted is true")
+    int userIsCancelled(long answerId);
 }

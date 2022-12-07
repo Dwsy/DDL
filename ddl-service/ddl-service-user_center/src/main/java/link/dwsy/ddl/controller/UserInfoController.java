@@ -16,6 +16,7 @@ import link.dwsy.ddl.support.UserSupport;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,8 +32,7 @@ public class UserInfoController {
     @Resource
     private UserFollowingRepository userFollowingRepository;
 
-    @Resource
-    private UserTagRepository tagRepository;
+
 
     @GetMapping
     @AuthAnnotation()
@@ -82,16 +82,24 @@ public class UserInfoController {
         Set<Long> tagIds = tagIdsRB.getTagIds();
         Long userId = userSupport.getCurrentUser().getId();
         User user = userRepository.findUserByIdAndDeletedIsFalse(userId);
-        List<UserTag> tagList = tagRepository.findByDeletedFalseAndIdIn(tagIds);
+        List<UserTag> tagList = userTagRepository.findByDeletedFalseAndIdIn(tagIds);
         user.setUserTags(tagList);
         userRepository.save(user);
     }
 
     @GetMapping("tag/{id}")
     public List<UserTag> getUserTag(@PathVariable long id) {
-        User user = userRepository.findUserByIdAndDeletedIsFalse(id);
-        return user.getUserTags();
+        ArrayList<Long> userTagIds = userTagRepository.getUserTagIdsById(id);
+        return userTagRepository.findAllById(userTagIds);
     }
+
+    @Resource
+    private UserTagRepository userTagRepository;
+
+//    @GetMapping
+//    public String test() {
+//        return userRepository.find(3L).getNickname();
+//    }
 
     @GetMapping("exp")
     public int getUserExp() {

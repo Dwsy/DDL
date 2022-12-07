@@ -63,7 +63,7 @@ public class UserQuestionAnswerActiveProcess {
         boolean sendNotify;
         log.info(userActiveType.toString());
         switch (userActiveType) {
-            case Question_Answer:
+            case Answer_Question:
                 toUserId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
                 if (toUserId != null) {
                     String formPure = HtmlHelper.toPure(formContent);

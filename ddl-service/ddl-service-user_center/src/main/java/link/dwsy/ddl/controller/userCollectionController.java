@@ -239,7 +239,7 @@ public class userCollectionController {
             @RequestParam(name = "size", defaultValue = "10") int size,
             @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
-            @RequestParam(required = false, defaultValue = "", name = "CollectionType") CollectionType collectionType,
+            @RequestParam(required = false, defaultValue = "", name = "collectionType") CollectionType collectionType,
             @PathVariable long groupId) {
 //        Long uid = userSupport.getCurrentUser().getId();
         //todo 权限设置

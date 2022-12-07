@@ -15,6 +15,7 @@ import java.util.Date;
  */
 
 public interface UserActiveRepository extends JpaRepository<UserActive, Long> {
+    Page<UserActive> findByDeletedFalseAndUserIdAndUserActiveType(Long userId, UserActiveType userActiveType, Pageable pageable);
 
 
 

@@ -44,6 +44,9 @@ public class QuestionContentServiceImpl implements QuestionContentService {
 
 
     public String getContent(long id, int type) {
+        if (qaQuestionFieldRepository.userIsCancelled(id) != 0) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
         if (type == 0) {
             return qaContentRepository.getHtmlTextById(id);
         }
@@ -95,9 +98,10 @@ public class QuestionContentServiceImpl implements QuestionContentService {
         }
         qaQuestionFieldRepository.updateDeleted(id, true);
         qaContentRepository.updateDeleted(id, true);
-        rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_DELETE,id);
+        rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_DELETE, id);
         return true;
     }
+
     public boolean logicallyRecoveryQuestionById(long id) {
         Long userId = userSupport.getCurrentUser().getId();
         Long questionOwnerUserId = qaQuestionFieldRepository.getUserIdByQuestionFieldId(id);
@@ -106,7 +110,7 @@ public class QuestionContentServiceImpl implements QuestionContentService {
         }
         qaQuestionFieldRepository.updateDeleted(id, false);
         qaContentRepository.updateDeleted(id, false);
-        rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_CREATE,id);
+        rabbitTemplate.convertAndSend(QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH, QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_CREATE, id);
         return true;
     }
 }

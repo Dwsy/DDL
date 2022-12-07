@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface QaAnswerRepository extends JpaRepository<QaAnswer, Long> {
+    Page<QaAnswer> findByDeletedFalseAndUser_IdAndAnswerType(long id, AnswerType answerType, Pageable pageable);
+
+    List<QaAnswer> findByDeletedFalseAndIdIn(Collection<Long> ids);
 
     Optional<QaAnswer> findByDeletedFalseAndId(long id);
 

@@ -54,11 +54,12 @@ public class User extends BaseEntity {
     private int experience;
 
 
-    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(name = "user_tag_ref",
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_tag_id")})
     @Fetch(FetchMode.SUBSELECT)
+    @JsonIgnore
     private List<UserTag> userTags;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)

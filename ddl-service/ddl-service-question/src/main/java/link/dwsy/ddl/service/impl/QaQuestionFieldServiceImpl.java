@@ -85,9 +85,9 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     public PageData<QaQuestionField> getPageList(Collection<QuestionState> questionStateCollection, PageRequest pageRequest) {
         questionStateCollection.removeAll(Set.of(QuestionState.HIDE, QuestionState.UNRESOLVED, QuestionState.AUDITING));
         Page<QaQuestionField> questionFields = qaQuestionFieldRepository
-                .findByDeletedFalseAndQuestionStateIn(questionStateCollection, pageRequest);
-        PageData<QaQuestionField> fieldPageData = new PageData<>(questionFields);
-        return fieldPageData;
+                .findByDeletedFalseAndQuestionStateInAndUser_DeletedFalse(questionStateCollection, pageRequest);
+
+        return new PageData<>(questionFields);
     }
 
     public PageData<QaQuestionField> getPageListManage(long userId, QuestionState questionState, PageRequest pageRequest) {
@@ -100,6 +100,9 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
     @Override
     public QaQuestionField getQuestionById(long qid, boolean getQuestionComment) {
+        if (qaQuestionFieldRepository.userIsCancelled(qid)!=0) {
+            throw new CodeException(CustomerErrorCode.QuestionNotFound);
+        }
         QaQuestionField questionField = qaQuestionFieldRepository.findByDeletedFalseAndIdAndQuestionStateNot(qid, QuestionState.HIDE);
         if (questionField == null) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
@@ -329,4 +332,9 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     }
 
 
+    public PageData<QaQuestionField> getPageListByUserId(Long userId, QuestionState state, PageRequest pageRequest) {
+        Page<QaQuestionField> questionFields = qaQuestionFieldRepository
+                .findByDeletedFalseAndUserIdAndQuestionState(userId, state, pageRequest);
+        return new PageData<>(questionFields);
+    }
 }

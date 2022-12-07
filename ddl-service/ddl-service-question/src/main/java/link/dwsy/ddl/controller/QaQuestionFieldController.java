@@ -9,7 +9,9 @@ import link.dwsy.ddl.annotation.UserActiveLog;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
-import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
+import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
+import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.UserActiveCommonServiceImpl;
 import link.dwsy.ddl.service.impl.QaQuestionFieldServiceImpl;
 import link.dwsy.ddl.service.impl.QuestionContentServiceImpl;
 import link.dwsy.ddl.support.UserSupport;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,17 +38,17 @@ public class QaQuestionFieldController {
 
 
     @Resource
+    private UserRepository userRepository;
+    @Resource
     private QaQuestionFieldServiceImpl qaQuestionFieldService;
-
     @Resource
     private QuestionContentServiceImpl questionContentService;
-
     @Resource
-    private UserActiveServiceImpl userActiveService;
-
+    private UserActiveCommonServiceImpl userActiveCommonService;
     @Resource
     private UserSupport userSupport;
-
+    @Resource
+    private QaQuestionFieldRepository qaQuestionFieldRepository;
 
     @GetMapping("field/list")
     public PageData<QaQuestionField> QuestionList(
@@ -81,15 +84,43 @@ public class QaQuestionFieldController {
     ) {
         if (id < 1L)
             throw new CodeException(CustomerErrorCode.ParamError);
-//        userActiveService.ActiveLog(UserActiveType.Browse_QA, id);
         QaQuestionField question = qaQuestionFieldService.getQuestionById(id, getQuestionComment);
         if (question == null) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
 
         qaQuestionFieldService.view(id);
-        userActiveService.ActiveLogUseMQ(UserActiveType.Browse_QA, id);
+        userActiveCommonService.ActiveLogUseMQ(UserActiveType.Browse_QA, id);
         return question;
+    }
+
+    @GetMapping("field/list/{userId}")
+    public PageData<QaQuestionField> GetUserQuestionPageByUserId(
+            @PathVariable("userId") Long userId,
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "8", name = "size") int size,
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "ask", name = "state") String state
+    ) {
+        if (userId < 1)
+            throw new CodeException(CustomerErrorCode.ParamError);
+        if (!userRepository.existsByDeletedFalseAndId(userId)) {
+            throw new CodeException(CustomerErrorCode.UserCancellation);
+        }
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        List<QuestionState> allowState = List.of(QuestionState.ASK, QuestionState.HAVE_ANSWER, QuestionState.RESOLVED, QuestionState.UNRESOLVED);
+        if (state.equals("all")) {
+            return new PageData<>(qaQuestionFieldRepository
+                    .findByDeletedFalseAndUserIdAndQuestionStateIn(userId, allowState, pageRequest));
+        }
+        QuestionState questionState = QuestionState.valueOf(state.toUpperCase());
+        if (allowState.contains(questionState)) {
+            return qaQuestionFieldService.getPageListByUserId(userId, questionState, pageRequest);
+        } else {
+            throw new CodeException(CustomerErrorCode.ParamError);
+        }
+
     }
 
 //    getUserAction
@@ -117,6 +148,7 @@ public class QaQuestionFieldController {
         }
 
     }
+
 
     @PostMapping
     @AuthAnnotation

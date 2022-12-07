@@ -3,10 +3,13 @@ package link.dwsy.ddl.controller;
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import link.dwsy.ddl.XO.RB.InvitationUserRB;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
+import link.dwsy.ddl.XO.VO.UserAnswerVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.QA.QaAnswer;
+import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.service.impl.QaAnswerServiceServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
@@ -26,6 +29,10 @@ import javax.annotation.Resource;
 public class QaAnswerController {
     @Resource
     private QaAnswerServiceServiceImpl qaAnswerServiceService;
+    @Resource
+    private UserStateService userStateService;
+    @Resource
+    private UserRepository userRepository;
 
     @GetMapping("/{id}")
     public PageData<QaAnswer> getAnswerPageById(
@@ -76,12 +83,11 @@ public class QaAnswerController {
         return action.ordinal();
     }
 
-
     @GetMapping("/accept")
     @AuthAnnotation
     public boolean acceptedAnswer(@RequestParam long answerId,
                                   @RequestParam boolean accepted) {
-        return qaAnswerServiceService.acceptedAnswer(answerId,accepted);
+        return qaAnswerServiceService.acceptedAnswer(answerId, accepted);
     }
 
     @PostMapping("invitation")
@@ -89,4 +95,24 @@ public class QaAnswerController {
     public void invitationUserAnswerQuestion(@Validated @RequestBody InvitationUserRB invitationUserRB) {
         qaAnswerServiceService.invitationUserAnswerQuestion(invitationUserRB);
     }
+
+
+    @GetMapping("/user/list/{userId}")
+    public PageData<UserAnswerVO> getUserAnswerPageById(
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "8", name = "size") int size,
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @PathVariable("userId") Long userId) {
+        if (userId < 1 || size < 1)
+            throw new CodeException(CustomerErrorCode.ParamError);
+        if (!userRepository.existsByDeletedFalseAndId(userId)) {
+            throw new CodeException(CustomerErrorCode.UserCancellation);
+        }
+//        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        return qaAnswerServiceService.getUserAnswerPageById(userId, pageRequest);
+    }
+
+
 }

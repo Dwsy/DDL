@@ -1,5 +1,6 @@
 package link.dwsy.ddl.repository.User;
 
+import link.dwsy.ddl.XO.Projection.UserTagProjection;
 import link.dwsy.ddl.XO.VO.LevelAndExperienceVO;
 import link.dwsy.ddl.entity.User.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -50,4 +51,12 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Modifying
     @Transactional
     void updateUserLevel(Long id, int level);
+
+    @Query("select u from User u where u.deleted = false and u.id = ?1")
+    UserTagProjection findByDeletedFalseAndId(long id);
+
+
+
+
+
 }

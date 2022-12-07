@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long> {
+    List<ArticleField> findByDeletedFalseAndIdIn(Collection<Long> ids);
     Page<fieldVO> findAllByDeletedIsFalseAndArticleState(ArticleState articleState, Pageable pageable);
 
 

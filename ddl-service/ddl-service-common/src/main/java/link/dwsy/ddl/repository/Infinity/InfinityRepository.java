@@ -9,7 +9,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @Author Dwsy
@@ -17,7 +19,9 @@ import java.util.Collection;
  */
 
 public interface InfinityRepository extends JpaRepository<Infinity, Long> {
+    List<Infinity> findByDeletedFalseAndIdIn(Collection<Long> ids);
     Infinity findByDeletedFalseAndId(long id);
+
 
     Infinity findByDeletedFalseAndUser_IdAndIdAndType(long user_id, long id, InfinityType type);
 

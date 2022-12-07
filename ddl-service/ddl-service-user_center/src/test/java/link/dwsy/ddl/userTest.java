@@ -4,7 +4,7 @@ import cn.hutool.core.util.RandomUtil;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.entity.User.UserActive;
 import link.dwsy.ddl.repository.User.UserActiveRepository;
-import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
+import link.dwsy.ddl.service.Impl.UserActiveCommonServiceImpl;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.DateUtil;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class userTest {
     UserSupport userSupport;
 
     @Resource
-    UserActiveServiceImpl userActiveService;
+    UserActiveCommonServiceImpl userActiveService;
 
     @Resource
     RedisTemplate<String,String> redisTemplate;

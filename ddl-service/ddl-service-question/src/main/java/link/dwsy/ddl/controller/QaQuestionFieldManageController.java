@@ -8,7 +8,7 @@ import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
-import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
+import link.dwsy.ddl.service.Impl.UserActiveCommonServiceImpl;
 import link.dwsy.ddl.service.impl.QaQuestionFieldServiceImpl;
 import link.dwsy.ddl.service.impl.QuestionContentServiceImpl;
 import link.dwsy.ddl.support.UserSupport;
@@ -39,7 +39,7 @@ public class QaQuestionFieldManageController {
     private QuestionContentServiceImpl questionContentService;
 
     @Resource
-    private UserActiveServiceImpl userActiveService;
+    private UserActiveCommonServiceImpl userActiveCommonService;
 
     @Resource
     private QaQuestionFieldRepository qaQuestionFieldRepository;

@@ -47,8 +47,8 @@ public class QaAnswer extends BaseEntity {
     @Type(type = "org.hibernate.type.TextType")
 //  回答可能需要贴代码高亮显示用md2html保存
     private String textMd;
-    @Transient
-    private String textPure;
+//    @Transient
+//    private String textPure;
 
     private Boolean accepted;
 

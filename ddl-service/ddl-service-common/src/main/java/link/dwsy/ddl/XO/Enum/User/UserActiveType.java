@@ -27,7 +27,7 @@ public enum UserActiveType {
     UP_Article_Comment,//点赞文章评论
 
 
-    Question_Answer,//
+    Answer_Question,//
 
     Question_Or_Answer_Comment,//回复问题或回答
 
@@ -71,7 +71,7 @@ public enum UserActiveType {
 
         switch (answerType) {
             case answer:
-                return Question_Answer;
+                return Answer_Question;
             case up:
                 if (parentAnswerId == -1) {
                     return UP_Question;

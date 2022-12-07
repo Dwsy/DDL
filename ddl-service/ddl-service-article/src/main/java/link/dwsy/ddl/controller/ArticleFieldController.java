@@ -13,7 +13,7 @@ import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
-import link.dwsy.ddl.service.Impl.UserActiveServiceImpl;
+import link.dwsy.ddl.service.Impl.UserActiveCommonServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleContentServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
@@ -46,7 +46,7 @@ public class ArticleFieldController {
     private ArticleFieldRepository articleFieldRepository;
 
     @Resource
-    private UserActiveServiceImpl userActiveService;
+    private UserActiveCommonServiceImpl userActiveCommonService;
 
     @Resource
     private UserRepository userRepository;

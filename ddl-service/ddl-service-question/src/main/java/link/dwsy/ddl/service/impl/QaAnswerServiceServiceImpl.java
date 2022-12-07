@@ -9,6 +9,7 @@ import link.dwsy.ddl.XO.Message.Question.InvitationUserAnswerQuestionMsg;
 import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
 import link.dwsy.ddl.XO.RB.InvitationUserRB;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
+import link.dwsy.ddl.XO.VO.UserAnswerVO;
 import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
 import link.dwsy.ddl.controller.QuestionAnswerOrCommentActionRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
@@ -34,10 +35,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author Dwsy
@@ -117,7 +115,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
         //todo answer
         long questionFieldId = qaAnswerRB.getQuestionId();
-        if (qaQuestionFieldRepository.userIsCancellation(questionFieldId)>0) {
+        if (qaQuestionFieldRepository.userIsCancellation(questionFieldId) > 0) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
         if (!qaQuestionFieldRepository.existsByDeletedFalseAndAllowAnswerTrueAndId(questionFieldId)) {
@@ -178,7 +176,6 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 .questionField(qaQuestionField)
                 .textHtml(replyText)
                 .textMd(null)
-                .textPure(null)
                 .parentAnswerId(qaAnswerRB.getParentAnswerId())
                 .parentUserId(replyUserId)
                 .answerType(answerType)
@@ -213,7 +210,6 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 .questionField(qaQuestionField)
                 .textHtml(mdText)
                 .textMd(null)
-                .textPure(null)
                 .parentAnswerId(qaAnswerRB.getParentAnswerId())
                 .parentUserId(replyUserId)
                 .answerType(answerType)
@@ -283,7 +279,6 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                     .textHtml(qaAnswerRB.getMdText())//回复为纯文本
                     .textMd(null)
                     .answerType(answerType)
-                    .textPure(null)
                     .user(user)
                     .questionField(qaQuestionField)
                     .ua(userSupport.getUserAgent())
@@ -327,7 +322,6 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 .textHtml(replyText)//回复为纯文本
                 .textMd(null)
                 .answerType(answerType)
-                .textPure(null)
                 .user(user)
                 .questionField(qaQuestionField)
                 .ua(userSupport.getUserAgent())
@@ -407,7 +401,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
     public AnswerType action(QuestionAnswerOrCommentActionRB actionRB) {
         long questionFieldId = actionRB.getQuestionFieldId();
-        if (qaQuestionFieldRepository.userIsCancellation(questionFieldId)>0) {
+        if (qaQuestionFieldRepository.userIsCancellation(questionFieldId) > 0) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
         Long uid = userSupport.getCurrentUser().getId();
@@ -561,7 +555,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
     public void invitationUserAnswerQuestion(InvitationUserRB invitationUserRB) {
         long questionId = invitationUserRB.getQuestionId();
-        if (qaQuestionFieldRepository.userIsCancellation(questionId)>0) {
+        if (qaQuestionFieldRepository.userIsCancellation(questionId) > 0) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
@@ -635,6 +629,31 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             }
         }
         return false;
+    }
+
+    public PageData<UserAnswerVO> getUserAnswerPageById(Long userId, PageRequest pageRequest) {
+        Page<QaAnswer> answers = qaAnswerRepository.findByDeletedFalseAndUser_IdAndAnswerType(userId, AnswerType.answer,pageRequest);
+        ArrayList<UserAnswerVO> userAnswerVOS = new ArrayList<>();
+        for (QaAnswer answer : answers) {
+            long answerId = answer.getId();
+            long questionFieldId = qaQuestionFieldRepository.getIdByAnswerId(answerId);
+            String questionTitle = qaQuestionFieldRepository.getTitleByAnswerId(answerId);
+            UserAnswerVO build = UserAnswerVO.builder()
+                    .id(String.valueOf(answerId))
+                    .user(answer.getUser())
+                    .upNum(answer.getUpNum())
+                    .downNum(answer.getDownNum())
+                    .questionTitle(questionTitle)
+                    .textPrue(HtmlHelper.toPure(answer.getTextMd()))
+                    .accepted(answer.getAccepted())
+                    .acceptedTime(answer.getAcceptedTime())
+                    .questionFieldId(String.valueOf(questionFieldId))
+                    .createTime(answer.getCreateTime()).build();
+            userAnswerVOS.add(build);
+        }
+
+        return new PageData<>(answers, userAnswerVOS);
+
     }
 }
 
