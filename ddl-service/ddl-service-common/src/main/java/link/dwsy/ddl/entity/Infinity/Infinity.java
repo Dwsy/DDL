@@ -44,8 +44,9 @@ public class Infinity extends BaseEntity {
 
     private long collectNum;
 
+    @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private long refId;
+    private Long refId = null;
 
     private String ua;
 
@@ -61,6 +62,7 @@ public class Infinity extends BaseEntity {
 
     @Builder.Default //null 为动态 -1为action
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long parentTweetId = null;
 
     @Builder.Default

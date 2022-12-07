@@ -66,9 +66,10 @@ public class UserNotifyController {
     ) {
         Long userId = userSupport.getCurrentUser().getId();
         PageRequest pageRequest = PRHelper.order(Sort.Direction.DESC, "createTime", page, size);
+        List<NotifyType> typeList = List.of(NotifyType.up_article, NotifyType.up_article_comment, NotifyType.up_question, NotifyType.answer, NotifyType.thumbTweet);
         Page<UserNotify> ThumbUpMeNotify = userNotifyRepository
                 .findByDeletedFalseAndToUserIdAndNotifyTypeIn
-                        (userId, Set.of(NotifyType.up_article, NotifyType.up_article_comment), pageRequest);
+                        (userId, typeList, pageRequest);
         readAndSetUserInfo(ThumbUpMeNotify);
         return new PageData<>(ThumbUpMeNotify);
     }

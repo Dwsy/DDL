@@ -21,6 +21,9 @@ public interface UserNotifyRepository extends JpaRepository<UserNotify, Long> {
     boolean existsByDeletedFalseAndFromUserIdAndToUserIdAndCommentIdAndNotifyType
             (long fromUserId, long toUserId, long commentId, NotifyType notifyType);
 
+    boolean existsByDeletedFalseAndFromUserIdAndToUserIdAndInfinityIdAndNotifyType
+            (long fromUserId, long toUserId, long infinityId, NotifyType notifyType);
+
     boolean existsByDeletedFalseAndFromUserIdAndToUserIdAndCommentIdAndNotifyTypeAndArticleId
             (long fromUserId, long toUserId, long commentId, NotifyType notifyType, long articleId);
 

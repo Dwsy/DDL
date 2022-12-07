@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 @ServerEndpoint("/private/message/{conversationId}")
 @Slf4j
 @SuppressWarnings("all")
-//todo ws 负载均衡 hash 路由
 public class UserPrivateMessageWS {
     private static UserSupport userSupport;
 

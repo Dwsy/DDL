@@ -88,6 +88,10 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
                 );
                 // header 中不能设置 null
                 response.getHeaders().add(
+                        HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
+                        HttpHeaders.AUTHORIZATION
+                );
+                response.getHeaders().add(
                         HttpHeaders.AUTHORIZATION,
                         null == token ? "null" : token
                 );

@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.InfinityType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.InfinityRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.constants.OtherConstants;
@@ -16,6 +17,7 @@ import link.dwsy.ddl.repository.Infinity.InfinityRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.Impl.UserStateService;
+import link.dwsy.ddl.service.InfinityCommentService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
@@ -77,7 +79,7 @@ public class InfinityController {
 //        }
         List<Infinity> content = infinityPage.getContent();
         List<Infinity> infinities = content.stream().filter(infinity -> !infinity.getUser().getDeleted()).collect(Collectors.toList());
-        return new PageData<>(infinityPage,infinities);
+        return new PageData<>(infinityPage, infinities);
     }
 
     //todo
@@ -105,7 +107,7 @@ public class InfinityController {
         }
         List<Infinity> childCommentsContent = childComments.getContent();
         childCommentsContent.forEach(childComment -> {
-                userStateService.cancellationUserHandel(childComment.getUser());
+            userStateService.cancellationUserHandel(childComment.getUser());
 
             childComment.noRetCreateUser();
             childComment.setImgUrlList();
@@ -128,7 +130,7 @@ public class InfinityController {
             infinityPage = infinityRepository.findByDeletedFalseAndInfinityTopics_IdInAndType(Set.of(topicId), InfinityType.Tweet, pageRequest);
 
         } else {
-            infinityPage = infinityRepository.findByDeletedFalseAndTypeIn(List.of(InfinityType.Tweet,InfinityType.Article,InfinityType.Tweet,InfinityType.Question), pageRequest);
+            infinityPage = infinityRepository.findByDeletedFalseAndTypeIn(List.of(InfinityType.Tweet, InfinityType.Article, InfinityType.Tweet, InfinityType.Question), pageRequest);
         }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest replyPageRequest = PRHelper.order("DESC", new String[]{"createTime"}, 1, 8);
@@ -262,7 +264,7 @@ public class InfinityController {
         }
         HashMap<Long, List<Infinity>> commentReplyMap = new HashMap<>();
         childCommentsContent.forEach(childComment -> {
-                            userStateService.cancellationUserHandel(childComment.getUser());
+            userStateService.cancellationUserHandel(childComment.getUser());
             childComment.noRetCreateUser();
             childComment.setImgUrlList();
             if (currentUser != null) {
@@ -273,10 +275,10 @@ public class InfinityController {
             }
 //            replyPageRequest.withSort(Sort.by(Sort.Direction.ASC, "createTime"));
             Page<Infinity> childCommentPage = infinityRepository.findByDeletedFalseAndParentTweetIdAndTypeAndReplyUserTweetId
-                    (id, InfinityType.TweetCommentOrReply, childComment.getId(),  PRHelper.order("ASC", new String[]{"createTime"}, 1, 8));
+                    (id, InfinityType.TweetCommentOrReply, childComment.getId(), PRHelper.order("ASC", new String[]{"createTime"}, 1, 8));
             List<Infinity> commentReplyList = childCommentPage.getContent();
             childComment.setChildCommentNum(childCommentPage.getTotalElements());
-            if (commentReplyList.size()!=0) {
+            if (commentReplyList.size() != 0) {
                 commentReplyList.forEach(commentReply -> {
                     userStateService.cancellationUserHandel(commentReply.getUser());
                     commentReply.noRetCreateUser();
@@ -287,7 +289,7 @@ public class InfinityController {
                             commentReply.setUp(true);
                         }
                     }
-                    String replyUserNickname = userRepository.findUserNicknameById(commentReply.getParentUserId());
+                    String replyUserNickname = userRepository.getUserNicknameById(commentReply.getParentUserId());
                     if (replyUserNickname != null) {
                         commentReply.setReplyUserName(replyUserNickname);
                     } else {
@@ -307,44 +309,37 @@ public class InfinityController {
         return infinity;
     }
 
-//    @PostMapping("reply")
-//    @AuthAnnotation
-//    public Infinity replyInfinity(@Validated @RequestBody ReplyInfinityRB infinityRB) {
-//        Long userId = userSupport.getCurrentUser().getId();
-//        long replyId = infinityRB.getReplyId();
-//        String content = infinityRB.getContent();
-//        Long replyUserTweetId = infinityRB.getReplyUserTweetId();
-//        if (replyUserTweetId == null) {
-//            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyId, InfinityType.Tweet);
-//            if (!exists) {
-//                throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
-//            }
-//            Infinity infinity = Infinity.builder()
-//                    .type(InfinityType.TweetReply)
-//                    .content(content)
-//                    .ua(userSupport.getUserAgent())
-//                    .user((User) new User().setId(userId))
-//                    .parentTweetId(replyId).build();
-//
-//            return infinityRepository.save(infinity);
-//        } else {
-//            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyUserTweetId, InfinityType.TweetReply);
-//            if (!exists) {
-//                throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
-//            }
-//            Infinity infinity = Infinity.builder()
-//                    .type(InfinityType.TweetReply)
-//                    .content(content)
-//                    .user((User) new User().setId(userId))
-//                    .parentTweetId(replyId)
-//                    .parentUserId(infinityRB.getReplyUserId())
-//                    .replyUserTweetId(replyUserTweetId)
-//                    .build();
-//            return infinityRepository.save(infinity);
-//            //todo reply@name:
-//        }
-//    }
 
+    @GetMapping("user/{id}")
+    public PageData<Infinity> getInfinityPageDataByUserId(
+            @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "10", name = "size") int size,
+            @PathVariable long id) {
+        User user = userRepository.findUserByIdAndDeletedIsFalse(id);
+        if (user == null) {
+            throw new CodeException(CustomerErrorCode.UserNotExist);
+        }
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+
+        Page<Infinity> infinityPage = infinityRepository.findByDeletedFalseAndUser_IdAndTypeNot(id, InfinityType.upTweet, pageRequest);
+        infinityPage.getContent().forEach(infinity -> {
+            infinity.setImgUrlList();
+            infinity.noRetCreateUser();
+            if (infinity.getType()==InfinityType.TweetCommentOrReply){
+                Long replyUserId = infinity.getParentUserId();
+                if (replyUserId != null) {
+                    infinity.setReplyUserName(userRepository.getUserNicknameById(replyUserId));
+                }
+            }
+        });
+        return new PageData<>(infinityPage);
+
+    }
+
+    @Resource
+    private InfinityCommentService infinityCommentService;
     @PostMapping("action/up/{id}")
     @AuthAnnotation
     public String upTweet(@PathVariable long id,
@@ -363,8 +358,9 @@ public class InfinityController {
                         .user((User) new User().setId(userId))
                         .ua(userSupport.getUserAgent())
                         .parentTweetId(id).build();
-                infinityRepository.save(upInfinity);
+                Infinity save = infinityRepository.save(upInfinity);
                 infinityRepository.upNumIncrement(id, 1);
+                infinityCommentService.sendActionMqMessage(userId,save, UserActiveType.Thumb_Tweet,id,false);
                 return "点赞成功";
             }
             return "已点赞";
@@ -372,6 +368,7 @@ public class InfinityController {
             if (userAction != null) {
                 infinityRepository.delete(userAction);
                 infinityRepository.upNumIncrement(id, -1);
+                infinityCommentService.sendActionMqMessage(userId,userAction,UserActiveType.Thumb_Tweet,id,true);
                 return "取消点赞成功";
             }
             return "未点赞";

@@ -2,6 +2,7 @@ package link.dwsy.ddl.controller;
 
 import cn.hutool.core.util.StrUtil;
 import link.dwsy.ddl.XO.Enum.InfinityType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.ReplyInfinityRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.constants.OtherConstants;
@@ -10,10 +11,10 @@ import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.Infinity.Infinity;
 import link.dwsy.ddl.entity.User.User;
-import link.dwsy.ddl.repository.Infinity.InfinityClubRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.InfinityCommentService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
@@ -47,7 +48,7 @@ public class InfinityCommentController {
     private InfinityTopicRepository infinityTopicRepository;
 
     @Resource
-    private InfinityClubRepository infinityClubRepository;
+    private InfinityCommentService infinityCommentService;
 
     @Resource
     private UserRepository userRepository;
@@ -91,7 +92,7 @@ public class InfinityCommentController {
                             commentReply.setUp(true);
                         }
                     }
-                    String replyUserNickname = userRepository.findUserNicknameById(commentReply.getParentUserId());
+                    String replyUserNickname = userRepository.getUserNicknameById(commentReply.getParentUserId());
                     if (replyUserNickname != null) {
                         commentReply.setReplyUserName(replyUserNickname);
                     } else {
@@ -156,7 +157,9 @@ public class InfinityCommentController {
                     .user((User) new User().setId(userId))
                     .parentTweetId(replyId).build();
             infinity.setImgUrlByList(infinityRB.getImgUrlList());
-            return infinityRepository.save(infinity);
+            Infinity save = infinityRepository.save(infinity);
+            infinityCommentService.sendActionMqMessage(userId,save, UserActiveType.Comment_Tweet,replyId,false);
+            return save;
         } else {
             boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyUserTweetId, InfinityType.TweetCommentOrReply);
             if (!exists) {
@@ -172,12 +175,16 @@ public class InfinityCommentController {
                     .ua(userSupport.getUserAgent())
                     .build();
             Long refId = infinityRB.getRefId();
+            UserActiveType userActiveType=UserActiveType.Reply_Comment_Tweet;
             if (refId != null) {
                 infinity.setRefId(refId);
+                userActiveType = UserActiveType.Reply_Reply_Comment_Tweet;
             }
             //回复时间线二级评论关联上一级评论id
             infinity.setImgUrlByList(infinityRB.getImgUrlList());
-            return infinityRepository.save(infinity);
+            Infinity save = infinityRepository.save(infinity);
+            infinityCommentService.sendActionMqMessage(userId,save,userActiveType,replyId,false);
+            return save;
             //todo reply@name:
         }
     }
@@ -200,8 +207,9 @@ public class InfinityCommentController {
                         .user((User) new User().setId(userId))
                         .ua(userSupport.getUserAgent())
                         .parentTweetId(id).build();
-                infinityRepository.save(upInfinity);
+                Infinity save = infinityRepository.save(upInfinity);
                 infinityRepository.upNumIncrement(id, 1);
+                infinityCommentService.sendActionMqMessage(userId,save,UserActiveType.Thumb_Tweet,id,false);
                 return "点赞成功";
             }
             return "已点赞";
@@ -209,6 +217,7 @@ public class InfinityCommentController {
             if (userAction != null) {
                 infinityRepository.delete(userAction);
                 infinityRepository.upNumIncrement(id, -1);
+                infinityCommentService.sendActionMqMessage(userId,userAction,UserActiveType.Thumb_Tweet,id,true);
                 return "取消点赞成功";
             }
             return "未点赞";

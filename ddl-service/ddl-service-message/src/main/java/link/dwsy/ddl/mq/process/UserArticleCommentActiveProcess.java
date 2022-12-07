@@ -35,8 +35,8 @@ public class UserArticleCommentActiveProcess {
     @Resource
     private UserNotifyRepository userNotifyRepository;
 
-
-
+    @Resource
+    private CommonProcess commonProcess;
 
     public void sendNotify(UserCommentNotifyMessage message) throws JsonProcessingException {
         if (message.isCancel()) {
@@ -52,6 +52,7 @@ public class UserArticleCommentActiveProcess {
         String toContent = message.getToContent();
         String formContent = message.getFormContent();
         UserActiveType userActiveType = message.getUserActiveType();
+        String ua = message.getUa();
         CommentNotifyVO notify = null;
         UserNotify userNotify;
         Long toUserId;
@@ -64,14 +65,17 @@ public class UserArticleCommentActiveProcess {
                             .fromUserId(formUserId)
                             .toUserId(toUserId)
                             .articleId(articleId)
+                            .replayCommentId(message.getReplayCommentId())
                             .commentId(commentId)
                             .notifyType(NotifyType.comment_article)
                             .formContent(formContent)
                             .toContent(toContent)
-                            .replayCommentId(message.getReplayCommentId())
                             .build();
 //                    notify = new CommentNotifyVO(userNotify);
                     sendNotify = !toUserId.equals(formUserId);
+                    if (sendNotify) {
+                        commonProcess.ActiveLog(userActiveType, articleId, formUserId, ua);
+                    }
                 } else {
                     log.error("用户{}评论文章{}失败", formUserId, articleId);
                     return;
@@ -92,6 +96,9 @@ public class UserArticleCommentActiveProcess {
                             .build();
 //                    notify = new CommentNotifyVO(userNotify);
                     sendNotify = !toUserId.equals(formUserId);
+                    if (sendNotify) {
+                        commonProcess.ActiveLog(userActiveType, commentId, formUserId, ua);
+                    }
                 } else {
                     log.error("用户{}评论文章评论{}失败", formUserId, commentId);
                     return;
@@ -118,6 +125,9 @@ public class UserArticleCommentActiveProcess {
                             .notifyType(NotifyType.up_article)
                             .toContent(toContent)
                             .build();
+
+                    commonProcess.ActiveLog(userActiveType, articleId, formUserId, ua);
+
 //                    notify = new CommentNotifyVO(userNotify);
                 } else {
                     return;
@@ -143,6 +153,8 @@ public class UserArticleCommentActiveProcess {
                             .formContent(formContent)
                             .toContent(toContent)
                             .build();
+                    commonProcess.ActiveLog(userActiveType, commentId, formUserId, ua);
+
 //                    notify = new CommentNotifyVO(userNotify);
                 } else {
                     return;

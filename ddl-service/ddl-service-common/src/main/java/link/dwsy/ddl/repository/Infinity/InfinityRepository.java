@@ -30,7 +30,11 @@ public interface InfinityRepository extends JpaRepository<Infinity, Long> {
     Page<Infinity> findByDeletedFalseAndInfinityClub_IdAndType(long id, InfinityType type, Pageable pageable);
     Page<Infinity> findByDeletedFalseAndInfinityClub_IdAndTypeIn(long id, Collection<InfinityType> types, Pageable pageable);
 
-    Page<Infinity> findByDeletedFalseAndUser_Id(long id, InfinityType type, Pageable pageable);
+    Page<Infinity> findByDeletedFalseAndUser_IdAndTypeIn(long id, Collection<InfinityType> types, Pageable pageable);
+    Page<Infinity> findByDeletedFalseAndUser_IdAndTypeNot(long id, InfinityType type, Pageable pageable);
+
+
+
 
     Page<Infinity> findByDeletedFalseAndType(InfinityType type, Pageable pageable);
     Page<Infinity> findByDeletedFalseAndTypeIn(Collection<InfinityType> type, Pageable pageable);
@@ -66,6 +70,13 @@ public interface InfinityRepository extends JpaRepository<Infinity, Long> {
 
 
     Infinity findByDeletedFalseAndUser_IdAndParentTweetIdAndType(long userId, Long parentTweetId, InfinityType type);
+
+    @Query("select i.user.id from Infinity i where i.id = ?1")
+    Long getUserIdById(long id);
+
+    @Query("select i.content from Infinity i where i.id = ?1")
+    String getContentById(long id);
+
 
 
 }

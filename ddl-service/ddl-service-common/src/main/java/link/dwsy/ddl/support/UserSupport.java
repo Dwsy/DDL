@@ -35,26 +35,17 @@ public class UserSupport {
             String loginUserInfoString = request.getHeader(Constants.JWT_USER_INFO_KEY);
 //            log.info("loginUserInfoString{}",loginUserInfoString);
             if (StrUtil.isBlank(loginUserInfoString)) {
-//                throw new CodeException(CustomerErrorCode.UserNotLogin);
                 return null;
             }
             return JSON.parseObject(loginUserInfoString, LoginUserInfo.class);
         } else {
             String token = request.getHeader(TokenConstants.AUTHENTICATION);
             if (StrUtil.isBlank(token)) {
-//                throw new CodeException(CustomerErrorCode.UserNotLogin);
                 return null;
             }
 //            String[] t = token.split(" ");
             return TokenUtil.parseUserInfoFromToken(token);
         }
-//        Long userId = TokenUtil.parseUserInfoFromToken(token).getId();
-//        if(userId < 0) {
-//            throw new Exception("非法用户");
-//        }
-//        this.verifyRefreshToken(userId);
-
-
     }
 
     public String getUserAgent() {

@@ -40,6 +40,9 @@ public class UserQuestionAnswerActiveProcess {
     @Resource
     private UserNotifyRepository userNotifyRepository;
 
+    @Resource
+    private CommonProcess commonProcess;
+
 
     public void sendNotify(UserQuestionAnswerNotifyMessage message) throws JsonProcessingException {
         if (message.isCancel()) {
@@ -52,6 +55,7 @@ public class UserQuestionAnswerActiveProcess {
         Long answerId = message.getAnswerId();
         String toContent = message.getToContent();
         String formContent = message.getFormContent();
+        String ua = message.getUa();
         UserActiveType userActiveType = message.getUserActiveType();
         CommentNotifyVO notify = null;
         UserNotify userNotify = null;
@@ -59,7 +63,7 @@ public class UserQuestionAnswerActiveProcess {
         boolean sendNotify;
         log.info(userActiveType.toString());
         switch (userActiveType) {
-            case Answer_Question:
+            case Question_Answer:
                 toUserId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
                 if (toUserId != null) {
                     String formPure = HtmlHelper.toPure(formContent);
@@ -75,6 +79,9 @@ public class UserQuestionAnswerActiveProcess {
                             .replayAnswerId(message.getReplayAnswerId())
                             .build();
                     sendNotify = !toUserId.equals(formUserId);
+                    if (sendNotify) {
+                        commonProcess.ActiveLog(userActiveType, questionId, formUserId, ua);
+                    }
                     //todo batch
                     long[] watchUsers = qaQuestionFieldRepository.getWatchUser(questionId);
                     UserNotify watchMsg = UserNotify.builder()
@@ -110,12 +117,15 @@ public class UserQuestionAnswerActiveProcess {
                             .replayAnswerId(message.getReplayAnswerId())
                             .build();
                     sendNotify = !toUserId.equals(formUserId);
+                    if (sendNotify) {
+                        commonProcess.ActiveLog(userActiveType, questionId, formUserId, ua);
+                    }
                 } else {
                     log.error("用户{}回复问题{}失败", formUserId, questionId);
                     return;
                 }
                 break;
-            case Answer_Comment:
+            case Comment_Answer:
                 toUserId = qaQuestionFieldRepository.getUserIdByQuestionId(questionId);
                 if (toUserId != null) {
                     userNotify = UserNotify.builder()
@@ -131,6 +141,9 @@ public class UserQuestionAnswerActiveProcess {
                             .build();
 //                    notify = new CommentNotifyVO(userNotify);
                     sendNotify = !toUserId.equals(formUserId);
+                    if (sendNotify) {
+                        commonProcess.ActiveLog(userActiveType, answerId, formUserId, ua);
+                    }
                 } else {
                     log.error("用户{}回复回答{}失败", formUserId, questionId);
                     return;
@@ -154,7 +167,8 @@ public class UserQuestionAnswerActiveProcess {
                             .notifyType(NotifyType.up_question)
                             .toContent(toContent)
                             .build();
-//                    notify = new CommentNotifyVO(userNotify);
+                    commonProcess.ActiveLog(userActiveType, questionId, formUserId, ua);
+                    //                    notify = new CommentNotifyVO(userNotify);
                 } else {
                     return;
                 }
@@ -178,6 +192,7 @@ public class UserQuestionAnswerActiveProcess {
                             .formContent(formContent)
                             .toContent(toContent_pureText)
                             .build();
+                    commonProcess.ActiveLog(userActiveType, answerId, formUserId, ua);
 //                    notify = new CommentNotifyVO(userNotify);
                 } else {
                     return;

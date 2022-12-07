@@ -18,7 +18,7 @@ import javax.annotation.Resource;
 @Slf4j
 public class UserArticleCommentActive {
     @Resource
-    UserArticleCommentActiveProcess userCommentActiveProcess;
+   private UserArticleCommentActiveProcess userCommentActiveProcess;
 
     @RabbitListener(queues = UserActiveMQConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE)
     public void sendQaNotify(UserCommentNotifyMessage message) throws JsonProcessingException {

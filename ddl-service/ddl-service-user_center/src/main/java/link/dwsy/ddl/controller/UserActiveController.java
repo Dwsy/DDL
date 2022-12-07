@@ -71,7 +71,7 @@ public class UserActiveController {
                 (id, UserActiveType.Check_In, zero, tomorrowZero)) {
             throw new CodeException("今日已签到");
         }
-        userActiveService.ActiveLog(UserActiveType.Check_In, null);
+        userActiveService.ActiveLogUseMQ(UserActiveType.Check_In, null);
         redisTemplate.opsForValue().set("checkIn:" + id, "true", DateUtil.getRemainSecondsOneDay(), TimeUnit.SECONDS);
         return "签到成功";
     }

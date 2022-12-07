@@ -35,16 +35,19 @@ public class UserNotify extends BaseEntity {
     private long toUserId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private long articleId;
+    private Long articleId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private long commentId;
+    private Long commentId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private long questionId;
+    private Long questionId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private long answerId;
+    private Long answerId;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long infinityId;
 
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private NotifyType notifyType;
@@ -61,7 +64,10 @@ public class UserNotify extends BaseEntity {
     private Long replayCommentId;//回复后返回的评论id
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Long replayAnswerId;//回答后返回的答案id
+    private Long replayAnswerId;//回答后返回的答案id\
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long replayInfinityId;//回答后返回的infinityId
 
     @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.NUMBER) //返回值

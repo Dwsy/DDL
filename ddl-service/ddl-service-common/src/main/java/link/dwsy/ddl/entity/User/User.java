@@ -51,6 +51,8 @@ public class User extends BaseEntity {
     @JsonIgnore
     private String area;
 
+    private int experience;
+
 
     @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "user_tag_ref",

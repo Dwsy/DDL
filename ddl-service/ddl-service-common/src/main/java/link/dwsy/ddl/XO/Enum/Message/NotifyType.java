@@ -27,5 +27,12 @@ public enum NotifyType {
     watch_answer,
 
     watch_accepted_question_answer,
+    thumbTweet,
+
+    comment_tweet,
+
+    reply_comment_tweet,
+
+    reply_reply_comment_tweet
 
 }

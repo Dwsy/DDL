@@ -92,4 +92,10 @@ public class UserInfoController {
         User user = userRepository.findUserByIdAndDeletedIsFalse(id);
         return user.getUserTags();
     }
+
+    @GetMapping("exp")
+    public int getUserExp() {
+        Long id = userSupport.getCurrentUser().getId();
+        return userRepository.getUserExpById(id);
+    }
 }

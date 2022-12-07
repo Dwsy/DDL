@@ -19,6 +19,7 @@ spring:
       discovery:
         locator:
           enabled: true
+          websocket: my-websocket-load-balancer-class
       globalcors:
         cors-configurations:
             '[/**]':

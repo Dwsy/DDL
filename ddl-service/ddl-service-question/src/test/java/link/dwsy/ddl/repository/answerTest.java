@@ -81,7 +81,7 @@ public class answerTest {
                     if (pid == 0) {
                         pid = qaAnswerRepository.getUserIdByAnswerId(aid);
                     }
-                    String userNickname = userRepository.findUserNicknameById(pid);
+                    String userNickname = userRepository.getUserNicknameById(pid);
                     QaAnswer qaAnswer = QaAnswer.builder().user(user).questionField(qaQuestionField)
                             .answerType(AnswerType.answer).parentUserId(pid)
                             .parentAnswerId(aid)

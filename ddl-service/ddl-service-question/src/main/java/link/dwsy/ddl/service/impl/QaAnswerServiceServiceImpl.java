@@ -171,7 +171,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     private QaAnswer replySecondComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber, long replyUserId) {
         String replyText;
 
-        replyText = "回复@" + userRepository.findUserNicknameById
+        replyText = "回复@" + userRepository.getUserNicknameById
                 (qaAnswerRB.getReplyUserId()) + "：" + qaAnswerRB.getMdText();
         QaAnswer qaAnswer = QaAnswer.builder()
                 .user(user)
@@ -312,7 +312,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     private QaAnswer replyQuestionSecondComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
         String replyText;
 
-        replyText = "回复@" + userRepository.findUserNicknameById
+        replyText = "回复@" + userRepository.getUserNicknameById
                 (qaAnswerRB.getReplyUserId()) + "：" + qaAnswerRB.getMdText();
         QaAnswer lastAnswer = qaAnswerRepository
                 .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc

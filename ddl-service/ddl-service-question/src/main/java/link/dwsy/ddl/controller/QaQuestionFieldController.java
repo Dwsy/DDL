@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.CreateQuestionRB;
 import link.dwsy.ddl.XO.VO.UserActionVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
@@ -45,6 +46,7 @@ public class QaQuestionFieldController {
     @Resource
     private UserSupport userSupport;
 
+
     @GetMapping("field/list")
     public PageData<QaQuestionField> QuestionList(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
@@ -84,7 +86,9 @@ public class QaQuestionFieldController {
         if (question == null) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
+
         qaQuestionFieldService.view(id);
+        userActiveService.ActiveLogUseMQ(UserActiveType.Browse_QA, id);
         return question;
     }
 

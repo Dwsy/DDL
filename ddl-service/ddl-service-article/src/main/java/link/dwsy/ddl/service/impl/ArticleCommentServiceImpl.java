@@ -150,7 +150,7 @@ public class ArticleCommentServiceImpl {
     private long replyArticleSecondComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
         String replyText;
 //                if(articleCommentRepository.notIsSecondaryComment(articleCommentRB.getReplyUserCommentId())){
-        replyText = "回复@" + userRepository.findUserNicknameById
+        replyText = "回复@" + userRepository.getUserNicknameById
                 (articleCommentRB.getReplyUserId()) + "：" + articleCommentRB.getText();
 //                }else {
 //                    String str = articleCommentRB.getText().split("：")[1];
