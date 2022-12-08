@@ -24,7 +24,7 @@ public class UserTagController {
     private UserSupport userSupport;
 
     @Resource
-    private UserTagRepository tagRepository;
+    private UserTagRepository userTagRepository;
 
 
     @PostMapping()
@@ -33,21 +33,27 @@ public class UserTagController {
         Set<Long> tagIds = tagIdsRB.getTagIds();
         Long userId = userSupport.getCurrentUser().getId();
         User user = userRepository.findUserByIdAndDeletedIsFalse(userId);
-        List<UserTag> tagList = tagRepository.findByDeletedFalseAndIdIn(tagIds);
+        List<UserTag> tagList = userTagRepository.findByDeletedFalseAndIdIn(tagIds);
         user.setUserTags(tagList);
         userRepository.save(user);
     }
 
     @PostMapping("user")
-    public List<User> getUserByTagId(
+    public List<User> getUserByTagIds(
             @RequestBody TagIdsRB tagIdsRB
     ) {
         Set<Long> tagIds = tagIdsRB.getTagIds();
-        ArrayList<Long> userId = tagRepository.findUserByTagIdIn(tagIds);
+        ArrayList<Long> userId = userTagRepository.findUserByTagIdIn(tagIds);
         return userRepository.findAllById(userId);
     }
 
-    @GetMapping("user/{id}")
+    @GetMapping("list/{id}")
+    public List<UserTag> getUserByTagId(@PathVariable long id) {
+        ArrayList<Long> userTagIds = userTagRepository.getUserTagIdsById(id);
+        return userTagRepository.findAllById(userTagIds);
+    }
+
+    @GetMapping("user/list/{id}")
     public List<UserTag> getUserTagByUserId(@PathVariable long id) {
         User user = userRepository.findUserByIdAndDeletedIsFalse(id);
         return user.getUserTags();

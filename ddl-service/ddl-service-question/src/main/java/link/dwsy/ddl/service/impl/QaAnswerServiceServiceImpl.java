@@ -9,12 +9,15 @@ import link.dwsy.ddl.XO.Message.Question.InvitationUserAnswerQuestionMsg;
 import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
 import link.dwsy.ddl.XO.RB.InvitationUserRB;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
+import link.dwsy.ddl.XO.RB.TagIdsRB;
+import link.dwsy.ddl.XO.VO.InvitationUserVO;
 import link.dwsy.ddl.XO.VO.UserAnswerVO;
 import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
 import link.dwsy.ddl.controller.QuestionAnswerOrCommentActionRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
+import link.dwsy.ddl.core.domain.R;
 import link.dwsy.ddl.entity.QA.QaAnswer;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import link.dwsy.ddl.entity.User.User;
@@ -25,9 +28,12 @@ import link.dwsy.ddl.repository.User.UserNotifyRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.service.QaAnswerService;
+import link.dwsy.ddl.service.RPC.UserService;
+import link.dwsy.ddl.service.RPC.UserTagService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
 import link.dwsy.ddl.util.PageData;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -65,6 +71,10 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
     @Resource
     private UserStateService userStateService;
+    @Resource
+    private UserTagService userTagService;
+    @Resource
+    private UserService userService;
 
     public PageData<QaAnswer> getByQuestionId(long qid, PageRequest pageRequest) {
         Page<QaAnswer> QaAnswerData = qaAnswerRepository
@@ -164,7 +174,6 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         }
         throw new CodeException(CustomerErrorCode.BodyError);
     }
-
 
     private QaAnswer replySecondComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber, long replyUserId) {
         String replyText;
@@ -345,7 +354,6 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return save;
     }
 
-
     public boolean logicallyDelete(long questionId, long answerId) {
         return true;
     }
@@ -376,7 +384,6 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         rabbitTemplate.convertAndSend
                 (UserActiveMQConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, activeMessage);
     }
-
 
     private void sendThumbUpActionMqMessage(long userId, long questionFieldId, long parentAnswerId, AnswerType answerType) {
         UserQuestionAnswerNotifyMessage activeMessage = UserQuestionAnswerNotifyMessage.builder()
@@ -632,7 +639,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     }
 
     public PageData<UserAnswerVO> getUserAnswerPageById(Long userId, PageRequest pageRequest) {
-        Page<QaAnswer> answers = qaAnswerRepository.findByDeletedFalseAndUser_IdAndAnswerType(userId, AnswerType.answer,pageRequest);
+        Page<QaAnswer> answers = qaAnswerRepository.findByDeletedFalseAndUser_IdAndAnswerType(userId, AnswerType.answer, pageRequest);
         ArrayList<UserAnswerVO> userAnswerVOS = new ArrayList<>();
         for (QaAnswer answer : answers) {
             long answerId = answer.getId();
@@ -655,5 +662,75 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return new PageData<>(answers, userAnswerVOS);
 
     }
+
+    public ArrayList<InvitationUserVO> getRecommendedUserByTagIds(TagIdsRB tagIdsRB, long questionId) {
+        R<List<User>> userListR = userTagService.getUserByTagIds(tagIdsRB);
+        if (userListR.getCode() != 0) {
+            throw new CodeException(CustomerErrorCode.ParamError);
+        }
+        Long userId = userSupport.getCurrentUser().getId();
+        List<User> userList = userListR.getData();
+        ArrayList<InvitationUserVO> invitationUserList = new ArrayList<>();
+        userList.forEach(user -> {
+            boolean Invited = userNotifyRepository
+                    .existsByDeletedFalseAndQuestionIdAndCancelFalseAndFromUserIdAndToUserIdAndNotifyType
+                            (questionId, userId, user.getId(), NotifyType.invitation_user_answer_question);
+            InvitationUserVO invitationUserSearchVO = InvitationUserVO.builder()
+                    .userNickName(user.getNickname())
+                    .userId(user.getId())
+                    .avatar(user.getUserInfo().getAvatar())
+                    .Invited(Invited).build();
+            invitationUserList.add(invitationUserSearchVO);
+        });
+        return invitationUserList;
+    }
+
+    @NotNull
+    public PageData<InvitationUserVO> getInvitationFollowerList(String order, String[] properties, int page, int size, int inviteUid, long questionId) {
+        Long userId = userSupport.getCurrentUser().getId();
+        R<PageData<User>> userFollowingR = userService.getUserFollower(order, properties, page, size);
+        if (userFollowingR.getCode() == 0) {
+            throw new CodeException(CustomerErrorCode.ParamError);
+        }
+        PageData<User> userFollowerPage = userFollowingR.getData();
+        List<InvitationUserVO> invitationUserList = new ArrayList<>();
+        userFollowerPage.getContent().forEach(user -> {
+            boolean Invited = userNotifyRepository
+                    .existsByDeletedFalseAndQuestionIdAndCancelFalseAndFromUserIdAndToUserIdAndNotifyType
+                            (questionId, userId, inviteUid, NotifyType.invitation_user_answer_question);
+            InvitationUserVO invitationUserSearchVO = InvitationUserVO.builder()
+                    .userNickName(user.getNickname())
+                    .userId(user.getId())
+                    .avatar(user.getUserInfo().getAvatar())
+                    .Invited(Invited).build();
+            invitationUserList.add(invitationUserSearchVO);
+        });
+        return new PageData<>(userFollowerPage, invitationUserList);
+    }
+
+    @NotNull
+    public PageData<InvitationUserVO> getInvitationFollowingList(String order, String[] properties, int page, int size, long questionId) {
+        Long userId = userSupport.getCurrentUser().getId();
+        R<PageData<User>> userFollowingR = userService.getUserFollowing(order, properties, page, size);
+        if (userFollowingR.getCode() != 0) {
+            throw new CodeException(CustomerErrorCode.ParamError);
+        }
+        PageData<User> userFollowerPage = userFollowingR.getData();
+        List<InvitationUserVO> invitationUserList = new ArrayList<>();
+        userFollowerPage.getContent().forEach(user -> {
+            boolean Invited = userNotifyRepository
+                    .existsByDeletedFalseAndQuestionIdAndCancelFalseAndFromUserIdAndToUserIdAndNotifyType
+                            (questionId, userId, user.getId(), NotifyType.invitation_user_answer_question);
+            InvitationUserVO invitationUserSearchVO = InvitationUserVO.builder()
+                    .userNickName(user.getNickname())
+                    .userId(user.getId())
+                    .avatar(user.getUserInfo().getAvatar())
+                    .Invited(Invited).build();
+            invitationUserList.add(invitationUserSearchVO);
+        });
+        return new PageData<>(userFollowerPage, invitationUserList);
+    }
+
+
 }
 

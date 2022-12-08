@@ -80,6 +80,12 @@ public class User extends BaseEntity {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Boolean following;
 
+
+
+    @Transient
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Boolean Mutually;
+
     @Override
     public String toString() {
         return "User{" +

@@ -52,5 +52,13 @@ public class PageData<P> {
 //        this.content = new ArrayList<>();
         this.content=content;
     }
-
+    @SuppressWarnings("all")
+    public PageData(PageData page, List<P> content) {
+        this.pageNumber = page.getPageNumber()+1;
+        this.totalPages = page.getTotalPages();
+        this.totalElements = page.getTotalElements();
+        this.pageSize = page.getPageSize();
+//        this.content = new ArrayList<>();
+        this.content=content;
+    }
 }

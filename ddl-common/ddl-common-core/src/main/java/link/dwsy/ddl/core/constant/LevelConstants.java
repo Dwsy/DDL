@@ -6,7 +6,7 @@ package link.dwsy.ddl.core.constant;
  */
 
 public class LevelConstants {
-    public static int getUserLevelByexperience(int exp) {
+    public static int getUserLevelByExperience(int exp) {
         if (exp >= 28800) {
             return 6;
         }

@@ -12,6 +12,7 @@
           <option value="}" />
           <option value="  &quot;password&quot;" />
           <option value="loginUserInfo" />
+          <option value="ddl-user" />
         </set>
       </option>
     </inspection_tool>

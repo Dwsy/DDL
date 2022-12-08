@@ -1,11 +1,12 @@
 package link.dwsy.ddl.controller;
 
 
-import link.dwsy.ddl.XO.VO.FollowUserVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.annotation.RequestSingleParam;
+import link.dwsy.ddl.constants.OtherConstants;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
+import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.entity.User.UserFollowing;
 import link.dwsy.ddl.repository.User.UserFollowingRepository;
@@ -28,13 +29,14 @@ import java.util.stream.Collectors;
 public class UserFollowingController {
 
     @Resource
-    private   UserFollowingRepository userFollowingRepository;
+    private UserFollowingRepository userFollowingRepository;
 
     @Resource
-    private   UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Resource
-    private   UserSupport userSupport;
+    private UserSupport userSupport;
+
 
     @GetMapping("follower/list")
     @AuthAnnotation
@@ -49,12 +51,43 @@ public class UserFollowingController {
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         Page<BigInteger> followerUserIdList = userFollowingRepository.findFollowerUserIdList(id, pageRequest);
         List<Long> longList = followerUserIdList.getContent().stream().map(BigInteger::longValue).collect(Collectors.toList());
-        List<User> userList = userRepository.findAllById(longList);
+        List<User> userList = userRepository.findByDeletedFalseAndIdIn(longList);
         for (User user : userList) {
-            FollowUserVO followUserVO = new FollowUserVO(user);
-
             boolean b = userFollowingRepository.existsByUserIdAndFollowingUserIdAndDeletedIsFalse(id, user.getId());
-            followUserVO.setMutual(b);
+            user.setMutually(b);
+        }
+        Page<User> users = new PageImpl<>(userList, pageRequest, followerUserIdList.getTotalElements());
+
+        return new PageData<>(users);
+    }
+
+    @GetMapping("follower/list/{id}")
+    public PageData<User> getUserFollowerByUserId(
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "create_time", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "10", name = "size") int size,
+            @PathVariable long id) {
+        if (id < 1) {
+            return null;
+        }
+        if (userRepository.existsByDeletedTrueAndId(id)) {
+            return null;
+        }
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        Page<BigInteger> followerUserIdList = userFollowingRepository.findFollowerUserIdList(id, pageRequest);
+        List<Long> longList = followerUserIdList.getContent().stream().map(BigInteger::longValue).collect(Collectors.toList());
+        List<User> userList = userRepository.findByDeletedFalseAndIdIn(longList);
+        for (User user : userList) {
+            if (user.getDeleted()) {
+                user.setNickname(OtherConstants.Cancellation_User_Name);
+                user.getUserInfo().setAvatar(OtherConstants.Cancellation_User_Avatar_Url);
+            }
+            LoginUserInfo currentUser = userSupport.getCurrentUser();
+            if (currentUser != null) {
+                boolean b = userFollowingRepository.existsByUserIdAndFollowingUserIdAndDeletedIsFalse(currentUser.getId(), user.getId());
+                user.setFollowing(b);
+            }
         }
         Page<User> users = new PageImpl<>(userList, pageRequest, followerUserIdList.getTotalElements());
 
@@ -73,12 +106,13 @@ public class UserFollowingController {
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         Page<BigInteger> followerUserIdList = userFollowingRepository.findFollowingUserIdList(id, pageRequest);
         List<Long> longList = followerUserIdList.getContent().stream().map(BigInteger::longValue).collect(Collectors.toList());
-        List<User> userList = userRepository.findAllById(longList);
+        List<User> userList = userRepository.findByDeletedFalseAndIdIn(longList);
         for (User user : userList) {
-            FollowUserVO followUserVO = new FollowUserVO(user);
+
             // 互关
-            boolean b = userFollowingRepository.existsByUserIdAndFollowingUserIdAndDeletedIsFalse(user.getId(), id);
-            followUserVO.setMutual(b);
+            boolean b = userFollowingRepository.existsByUserIdAndFollowingUserIdAndDeletedIsFalse(id, user.getId());
+            user.setFollowing(b);
+            System.out.println(user.getNickname());
         }
         Page<User> users = new PageImpl<>(userList, pageRequest, followerUserIdList.getTotalElements());
 
@@ -86,6 +120,37 @@ public class UserFollowingController {
         return new PageData<>(users);
     }
 
+
+    @GetMapping("following/list/{id}")
+    public PageData<User> getUserFollowingByUserId(
+            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "create_time", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "10", name = "size") int size,
+            @PathVariable long id) {
+        if (id < 1) {
+            return null;
+        }
+        if (userRepository.existsByDeletedTrueAndId(id)) {
+            return null;
+        }
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        Page<BigInteger> followerUserIdList = userFollowingRepository.findFollowingUserIdList(id, pageRequest);
+        List<Long> longList = followerUserIdList.getContent().stream().map(BigInteger::longValue).collect(Collectors.toList());
+        List<User> userList = userRepository.findByDeletedFalseAndIdIn(longList);
+        for (User user : userList) {
+
+            LoginUserInfo currentUser = userSupport.getCurrentUser();
+            if (currentUser != null) {
+                boolean b = userFollowingRepository.existsByUserIdAndFollowingUserIdAndDeletedIsFalse(currentUser.getId(), user.getId());
+                user.setFollowing(b);
+            }
+        }
+        Page<User> users = new PageImpl<>(userList, pageRequest, followerUserIdList.getTotalElements());
+
+
+        return new PageData<>(users);
+    }
 
     @PostMapping("following")
     @AuthAnnotation
@@ -130,7 +195,7 @@ public class UserFollowingController {
                 exist.setDeleted(true);
                 userFollowingRepository.save(exist);
                 return "取消关注成功";
-            }else {
+            } else {
                 throw new CodeException(CustomerErrorCode.UserNotFollowed);
             }
         } else {

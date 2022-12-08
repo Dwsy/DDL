@@ -31,6 +31,7 @@ public class UserSupport {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         assert requestAttributes != null;
         HttpServletRequest request = requestAttributes.getRequest();
+        request.getHeader(Constants.JWT_USER_INFO_KEY);
         if (isCloud) {
             String loginUserInfoString = request.getHeader(Constants.JWT_USER_INFO_KEY);
 //            log.info("loginUserInfoString{}",loginUserInfoString);

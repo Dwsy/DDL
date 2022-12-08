@@ -6,7 +6,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import link.dwsy.ddl.XO.ES.User.UserEsDoc;
 import link.dwsy.ddl.XO.Enum.Message.NotifyType;
-import link.dwsy.ddl.XO.VO.InvitationUserSearchVO;
+import link.dwsy.ddl.XO.VO.InvitationUserVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.annotation.UserActiveLog;
 import link.dwsy.ddl.repository.User.UserNotifyRepository;
@@ -48,7 +48,7 @@ public class UserSearchController {
     @GetMapping("invitation-user/{query}")
     @UserActiveLog
     @AuthAnnotation
-    public PageData<InvitationUserSearchVO> searchInvitationUser(
+    public PageData<InvitationUserVO> searchInvitationUser(
             @PathVariable String query,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam long questionId
@@ -57,24 +57,24 @@ public class UserSearchController {
     }
 
 
-    private PageData<InvitationUserSearchVO> getInvitationUserEsDocPageData(String query, int page, long questionId) throws IOException {
+    private PageData<InvitationUserVO> getInvitationUserEsDocPageData(String query, int page, long questionId) throws IOException {
         Long formUserId = userSupport.getCurrentUser().getId();
 
         HitsMetadata<UserEsDoc> hits = getSearchUserHits(query);
         List<Hit<UserEsDoc>> hitList = hits.hits();
         List<UserEsDoc> retSearch = hitList.stream().map(Hit::source).collect(Collectors.toList());
-        PageData<InvitationUserSearchVO> docPageData = new PageData<>();
+        PageData<InvitationUserVO> docPageData = new PageData<>();
 
-        ArrayList<InvitationUserSearchVO> invitationUserList = new ArrayList<>();
+        ArrayList<InvitationUserVO> invitationUserList = new ArrayList<>();
         for (UserEsDoc userEsDoc : retSearch) {
             boolean Invited = userNotifyRepository
                     .existsByDeletedFalseAndQuestionIdAndCancelFalseAndFromUserIdAndToUserIdAndNotifyType
                             (questionId, formUserId, userEsDoc.getUserId(), NotifyType.invitation_user_answer_question);
-            InvitationUserSearchVO invitationUserSearchVO = new InvitationUserSearchVO
-                    (userEsDoc.getUserId(), userEsDoc.getUserNickName(), userEsDoc.getAvatar(), false);
-            if (Invited) {
-                invitationUserSearchVO.setInvited(true);
-            }
+            InvitationUserVO invitationUserSearchVO = InvitationUserVO.builder()
+                    .userNickName(userEsDoc.getUserNickName())
+                    .userId(userEsDoc.getUserId())
+                    .avatar(userEsDoc.getAvatar())
+                    .Invited(Invited).build();
             invitationUserList.add(invitationUserSearchVO);
         }
         docPageData.setContent(invitationUserList);

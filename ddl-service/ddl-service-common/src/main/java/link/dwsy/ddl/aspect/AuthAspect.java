@@ -43,7 +43,7 @@ public class AuthAspect {
         }
 //        int level = loginUserInfo.getLevel();
         LevelAndExperienceVO levelAndExperienceVO = userRepository.getUserLevelAndExperience(loginUserInfo.getId());
-        int level = LevelConstants.getUserLevelByexperience(levelAndExperienceVO.getExperience());
+        int level = LevelConstants.getUserLevelByExperience(levelAndExperienceVO.getExperience());
         if (level < authAnnotation.Level()) {
             throw new CodeException(CustomerErrorCode.UserLevelLow);
         } else {
