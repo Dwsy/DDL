@@ -15,7 +15,7 @@ public class UserPointsConfig {
 
     @Bean(UserPointsMQConstants.QUEUE_DDL_USER_POINTS)
     public Queue pointsQueue() {
-        return new Queue(UserPointsMQConstants.QUEUE_DDL_USER_POINTS);
+        return new Queue(UserPointsMQConstants.QUEUE_DDL_USER_POINTS,true);
     }
 
 }

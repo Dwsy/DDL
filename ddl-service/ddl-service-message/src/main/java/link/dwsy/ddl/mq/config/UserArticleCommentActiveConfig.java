@@ -15,7 +15,7 @@ public class UserArticleCommentActiveConfig {
 
     @Bean(UserActiveMQConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE)
     public Queue commentActiveQueue() {
-        return new Queue(UserActiveMQConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE);
+        return new Queue(UserActiveMQConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, true);
     }
 
 }

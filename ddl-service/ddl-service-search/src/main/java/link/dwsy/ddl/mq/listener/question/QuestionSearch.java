@@ -9,7 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author Dwsy
@@ -55,11 +54,10 @@ public class QuestionSearch {
 
     @RabbitListener(queues = QuestionSearchMQConstants.QUEUE_DDL_QUESTION_SEARCH_UPDATE_SCORE)
     public void updateScore(Long questionId) {
-        Boolean lock = redisTemplate.opsForValue().setIfAbsent(scoreKey + "lock", String.valueOf(questionId), 600, TimeUnit.SECONDS);
-        if (Boolean.TRUE.equals(lock)) {
-            questionSearchProcess.updateScoreDataById(questionId);
-            log.info("question doc:{} score字段更新成功", questionId);
-        }
+
+        questionSearchProcess.updateScoreDataById(questionId);
+        log.info("question doc:{} score字段更新成功", questionId);
+
 //        if (questionId != null) {
 //
 //            Long size = redisTemplate.opsForValue().increment(scoreKey + "num");

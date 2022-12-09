@@ -17,7 +17,7 @@ public class UserInfinityActiveConfig {
 
     @Bean(UserActiveMQConstants.QUEUE_DDL_USER_INFINITY_ACTIVE)
     public Queue UserInfinityActiveQuestion() {
-        return new Queue(UserActiveMQConstants.QUEUE_DDL_USER_INFINITY_ACTIVE);
+        return new Queue(UserActiveMQConstants.QUEUE_DDL_USER_INFINITY_ACTIVE, true);
     }
 
 }

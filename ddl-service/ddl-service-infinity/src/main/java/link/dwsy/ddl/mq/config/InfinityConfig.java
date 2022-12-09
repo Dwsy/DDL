@@ -15,7 +15,7 @@ public class InfinityConfig {
 
     @Bean(InfinityMQConstants.QUEUE_DDL_INFINITY_SEND)
     public Queue infinitySendQueue() {
-        return new Queue(InfinityMQConstants.QUEUE_DDL_INFINITY_SEND);
+        return new Queue(InfinityMQConstants.QUEUE_DDL_INFINITY_SEND,true);
     }
 
 }

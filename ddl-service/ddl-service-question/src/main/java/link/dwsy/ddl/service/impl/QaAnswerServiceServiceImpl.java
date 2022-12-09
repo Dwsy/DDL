@@ -13,6 +13,7 @@ import link.dwsy.ddl.XO.RB.TagIdsRB;
 import link.dwsy.ddl.XO.VO.InvitationUserVO;
 import link.dwsy.ddl.XO.VO.UserAnswerVO;
 import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
+import link.dwsy.ddl.constants.task.RedisRecordHashKey;
 import link.dwsy.ddl.controller.QuestionAnswerOrCommentActionRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -26,6 +27,7 @@ import link.dwsy.ddl.repository.QA.QaAnswerRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserNotifyRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.QuestionRedisRecordService;
 import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.service.QaAnswerService;
 import link.dwsy.ddl.service.RPC.UserService;
@@ -76,6 +78,9 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     @Resource
     private UserService userService;
 
+    @Resource
+    private QuestionRedisRecordService questionRedisRecordService;
+
     public PageData<QaAnswer> getByQuestionId(long qid, PageRequest pageRequest) {
         Page<QaAnswer> QaAnswerData = qaAnswerRepository
                 .findByDeletedFalseAndQuestionField_IdAndAnswerTypeAndParentAnswerId(qid, AnswerType.answer, 0L, pageRequest);
@@ -122,8 +127,6 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     }
 
     public QaAnswer answer(QaAnswerRB qaAnswerRB, AnswerType answerType) {
-
-        //todo answer
         long questionFieldId = qaAnswerRB.getQuestionId();
         if (qaQuestionFieldRepository.userIsCancellation(questionFieldId) > 0) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
@@ -259,7 +262,6 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         String substring = SecureUtil.md5(String.valueOf(answerId)).substring(10, 14);
         HtmlHelper.LinkRefAttributeProvider.answerId.set(substring);
 //        qaAnswerRepository.seAnswerHtml(answerId, toHTML);
-        //todo mq notice
         String toPure = HtmlHelper.toPure(toHTML);
         String content = toPure.substring(0, Math.min(200, toPure.length()));
 
@@ -269,6 +271,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 answerType, false, content, title, answerId);
 //            }
         qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
+        questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.answer, 1);
         qaQuestionFieldRepository.setQuestionStateIfNowStateIs(questionFieldId, QuestionState.HAVE_ANSWER.ordinal(), QuestionState.ASK.ordinal());
         return save;
     }
@@ -301,11 +304,8 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             String textHtml = qaAnswer.getTextHtml();
             String content = textHtml.substring(0, Math.min(200, textHtml.length()));
             String title = qaQuestionFieldRepository.getTitle(questionFieldId);
-//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
             sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
                     answerType, false, content, title, save.getId());
-//            }
-//                qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
             return save;
         } else {
             return replyQuestionSecondComment(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber);
@@ -346,11 +346,10 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         String textHtml = qaAnswer.getTextHtml();
         String content = textHtml.substring(0, Math.min(200, textHtml.length()));
         String title = qaQuestionFieldRepository.getTitle(questionFieldId);
-//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
+
         sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
                 answerType, false, content, title, save.getId());
-//            }
-//                qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
+
         return save;
     }
 
@@ -414,7 +413,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         Long uid = userSupport.getCurrentUser().getId();
         long actionAnswerOrCommentId = actionRB.getActionAnswerOrCommentId();
         if (actionAnswerOrCommentId < -1 || actionAnswerOrCommentId == 0) {
-//            等于 -1  点赞 文章
+//            等于 -1  点赞 question
             throw new CodeException(CustomerErrorCode.BodyError);
         }
         boolean actionQuestion = actionAnswerOrCommentId == -1;
@@ -442,7 +441,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                         (uid, questionFieldId, actionAnswerOrCommentId,
                                 Arrays.asList(AnswerType.up, AnswerType.down, AnswerType.cancel))) {
 //            exists cancel
-//            up -> cancel ->up state transfer base database ont is user action
+//            up -> cancel ->up state transfer base database not is user action
 //            one row is one action
 
             return existsAction(uid, questionFieldId, actionAnswerOrCommentId, actionQuestion, answerType);
@@ -453,7 +452,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         qf.setId(questionFieldId);
 
         long ActionUserId;
-        if (!actionQuestion) {// -1是点赞or点踩文章 0为评论文章
+        if (!actionQuestion) {//
             QaAnswer actionAnswer = qaAnswerRepository.findByDeletedFalseAndIdAndAnswerType
                     (actionAnswerOrCommentId, AnswerType.answer);
 
@@ -461,12 +460,14 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
             sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
         } else {
-            ActionUserId = 0;//文章 避免前端参数错误 后端直接不管了 要用到时候从文章id查询用户id
+            ActionUserId = 0;//
             if (answerType == AnswerType.up) {
                 qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
+                questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.up, 1);
                 sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
             } else {
                 qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
+                questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.down, 1);
             }
         }
 
@@ -492,6 +493,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             if (answerType == AnswerType.up) {
                 if (actionQuestion) {
                     qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
+                    questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.up, 1);
                 } else {
                     qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
                     qaAnswerRepository.updateCommentTypeByIdAndDeletedFalse(answerType, action.getId());
@@ -502,6 +504,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             } else if (answerType == AnswerType.down) {
                 if (actionQuestion) {
                     qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
+                    questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.down, 1);
                 } else {
                     qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, 1);
                     qaAnswerRepository.updateCommentTypeByIdAndDeletedFalse(answerType, action.getId());
@@ -516,6 +519,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             if (answerType == AnswerType.up) {//相同2次操作取消
                 if (actionQuestion) {
                     qaQuestionFieldRepository.upNumIncrement(questionFieldId, -1);
+                    questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.up, -1);
                 } else {
                     qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, -1);
                 }
@@ -523,6 +527,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             } else {
                 if (actionQuestion) {
                     qaQuestionFieldRepository.downNumIncrement(questionFieldId, -1);
+                    questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.down, -1);
                 } else {
                     qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, -1); //取消踩  +1
                 }
@@ -534,6 +539,8 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 if (actionQuestion) {
                     qaQuestionFieldRepository.downNumIncrement(questionFieldId, -1);
                     qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
+                    questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.down, -1);
+                    questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.up, 1);
                 } else {
                     qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, -1);
                     qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
@@ -547,6 +554,8 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 if (actionQuestion) {
                     qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
                     qaQuestionFieldRepository.upNumIncrement(questionFieldId, -1);
+                    questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.down, 1);
+                    questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.up, -1);
                 } else {
                     qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, 1);
                     qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, -1);

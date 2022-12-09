@@ -12,7 +12,7 @@ import link.dwsy.ddl.XO.VO.UserActionVO;
 import link.dwsy.ddl.constants.mq.InfinityMQConstants;
 import link.dwsy.ddl.constants.mq.QuestionSearchMQConstants;
 import link.dwsy.ddl.constants.question.QuestionRedisKey;
-import link.dwsy.ddl.constants.task.RedisRecordKey;
+import link.dwsy.ddl.constants.task.RedisRecordHashKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
@@ -21,6 +21,7 @@ import link.dwsy.ddl.repository.QA.*;
 import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserFollowingRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.QuestionRedisRecordService;
 import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
@@ -100,7 +101,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
 
     @Override
     public QaQuestionField getQuestionById(long qid, boolean getQuestionComment) {
-        if (qaQuestionFieldRepository.userIsCancelled(qid)!=0) {
+        if (qaQuestionFieldRepository.userIsCancelled(qid) != 0) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
         QaQuestionField questionField = qaQuestionFieldRepository.findByDeletedFalseAndIdAndQuestionStateNot(qid, QuestionState.HIDE);
@@ -274,14 +275,12 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return save.getId();
     }
 
+    @Resource
+    private QuestionRedisRecordService questionRedisRecordService;
+
     public void view(Long id) {
-        redisTemplate.opsForHash().increment(RedisRecordKey.RedisQuestionRecordKey, id.toString(), 1);
-        String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisQuestionRecordKey, id.toString());
-        if (num != null && (Integer.parseInt(num)) % 10 == 0) {
-            rabbitTemplate.convertAndSend
-                    (QuestionSearchMQConstants.EXCHANGE_DDL_QUESTION_SEARCH,
-                            QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE, id);
-        }
+
+        questionRedisRecordService.record(id, RedisRecordHashKey.view, 1);
         qaQuestionFieldRepository.viewNumIncrement(id, 1);
     }
 

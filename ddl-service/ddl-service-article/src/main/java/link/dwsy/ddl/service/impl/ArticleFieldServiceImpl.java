@@ -16,7 +16,7 @@ import link.dwsy.ddl.constants.article.ArticleRedisKey;
 import link.dwsy.ddl.constants.mq.ArticleSearchMQConstants;
 import link.dwsy.ddl.constants.mq.InfinityMQConstants;
 import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
-import link.dwsy.ddl.constants.task.RedisRecordKey;
+import link.dwsy.ddl.constants.task.RedisRecordHashKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
@@ -30,6 +30,7 @@ import link.dwsy.ddl.repository.Article.ArticleGroupRepository;
 import link.dwsy.ddl.repository.Article.ArticleTagRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.ArticleFieldService;
+import link.dwsy.ddl.service.Impl.ArticleRedisRecordService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -77,9 +78,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         if (currentUser != null) {
-            UserActiveMessage userActiveMessage = UserActiveMessage.builder()
-                    .userActiveType(userActiveType).userId(userSupport.getCurrentUser().getId())
-                    .sourceId(sourceId).ua(userSupport.getUserAgent()).build();
+            UserActiveMessage userActiveMessage = UserActiveMessage.builder().userActiveType(userActiveType).userId(userSupport.getCurrentUser().getId()).sourceId(sourceId).ua(userSupport.getUserAgent()).build();
             log.info(userActiveMessage.toString());
             rabbitTemplate.convertAndSend(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE, userActiveMessage);
 
@@ -100,36 +99,18 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         if (articleContentRB.getArticleTagIds().isEmpty()) {
             articleTags = new ArrayList<>();
         } else {
-            articleTags = new ArrayList<>(articleTagRepository.findAllById(
-                    articleContentRB.getArticleTagIds().stream().distinct().collect(Collectors.toList())
-            ));
+            articleTags = new ArrayList<>(articleTagRepository.findAllById(articleContentRB.getArticleTagIds().stream().distinct().collect(Collectors.toList())));
         }
-        ArticleGroup articleGroup = articleGroupRepository
-                .findById(articleContentRB.getArticleGroupId())
-                .orElseThrow(() -> new CodeException(CustomerErrorCode.GroupNotFound));
+        ArticleGroup articleGroup = articleGroupRepository.findById(articleContentRB.getArticleGroupId()).orElseThrow(() -> new CodeException(CustomerErrorCode.GroupNotFound));
         String html = HtmlHelper.toHTML(articleContentRB.getContent());
         String pure = HtmlHelper.toPure(html);
         if (StrUtil.isBlank(articleContentRB.getSummary())) {
             articleContentRB.setSummary(pure.substring(0, Math.min(pure.length(), 200)));
         }
 
-        ArticleContent content = ArticleContent.builder()
-                .textPure(pure)
-                .textMd(articleContentRB.getContent())
-                .textHtml(html)
-                .build();
+        ArticleContent content = ArticleContent.builder().textPure(pure).textMd(articleContentRB.getContent()).textHtml(html).build();
 
-        ArticleField field = ArticleField.builder()
-                .user(userRepository.findUserByIdAndDeletedIsFalse(currentUser.getId()))
-                .title(title)
-                .summary(articleContentRB.getSummary())
-                .banner(articleContentRB.getBanner())
-                .articleState(articleState)
-                .articleTags(articleTags)
-                .articleGroup(articleGroup)
-                .articleSource(articleContentRB.getArticleSource())
-                .articleSourceUrl(articleContentRB.getArticleSourceUrl())
-                .articleContent(content).build();
+        ArticleField field = ArticleField.builder().user(userRepository.findUserByIdAndDeletedIsFalse(currentUser.getId())).title(title).summary(articleContentRB.getSummary()).banner(articleContentRB.getBanner()).articleState(articleState).articleTags(articleTags).articleGroup(articleGroup).articleSource(articleContentRB.getArticleSource()).articleSourceUrl(articleContentRB.getArticleSourceUrl()).articleContent(content).build();
 
 
         ArticleField save = articleFieldRepository.save(field);
@@ -138,10 +119,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         if (articleState == ArticleState.published) {
             rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_CREATE, articleId);
             if (articleContentRB.isSendInfinity()) {
-                InfinityMessage infinityMessage = InfinityMessage.builder()
-                        .infinityType(InfinityType.Article)
-                        .refId(articleId)
-                        .build();
+                InfinityMessage infinityMessage = InfinityMessage.builder().infinityType(InfinityType.Article).refId(articleId).build();
                 rabbitTemplate.convertAndSend(InfinityMQConstants.QUEUE_DDL_INFINITY_SEND, infinityMessage);
             }
         }
@@ -166,13 +144,9 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         if (articleContentRB.getArticleTagIds().isEmpty()) {
             articleTags = new ArrayList<>();
         } else {
-            articleTags = new ArrayList<>(articleTagRepository.findAllById(
-                    articleContentRB.getArticleTagIds().stream().distinct().collect(Collectors.toList())
-            ));
+            articleTags = new ArrayList<>(articleTagRepository.findAllById(articleContentRB.getArticleTagIds().stream().distinct().collect(Collectors.toList())));
         }
-        ArticleGroup articleGroup = articleGroupRepository
-                .findById(articleContentRB.getArticleGroupId())
-                .orElseThrow(() -> new CodeException(CustomerErrorCode.GroupNotFound));
+        ArticleGroup articleGroup = articleGroupRepository.findById(articleContentRB.getArticleGroupId()).orElseThrow(() -> new CodeException(CustomerErrorCode.GroupNotFound));
 
 
         String MdText = articleContentRB.getContent();
@@ -184,8 +158,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 
 
         ArticleField field = articleFieldRepository.findByDeletedFalseAndId(articleContentRB.getArticleId());
-        Optional<ArticleContent> articleContentOptional = articleContentRepository.findById
-                (articleFieldRepository.getContentIdById(articleContentRB.getArticleId()).longValue());
+        Optional<ArticleContent> articleContentOptional = articleContentRepository.findById(articleFieldRepository.getContentIdById(articleContentRB.getArticleId()).longValue());
         if (articleContentOptional.isEmpty()) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
@@ -231,11 +204,9 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 
         ArticleField save = articleFieldRepository.save(field);
         if (articleContentRB.getArticleState() == ArticleState.published) {
-            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                    ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE, articleContentRB.getArticleId());
+            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE, articleContentRB.getArticleId());
         } else {
-            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                    ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleContentRB.getArticleId());
+            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleContentRB.getArticleId());
         }
 
         return save.getId();
@@ -250,8 +221,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, userId)) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
-        rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleId);
+        rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleId);
         articleFieldRepository.logicallyDeleted(articleId);
         articleContentRepository.logicallyDeleted(articleId);
     }
@@ -267,19 +237,16 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         for (Long aid : aids) {
             articleFieldRepository.logicallyRecovery(aid);
             articleContentRepository.logicallyRecovery(aid);
-            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH,
-                    ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_CREATE, aid);
+            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_CREATE, aid);
         }
 
     }
 
+    @Resource
+    private ArticleRedisRecordService articleRedisRecordService;
+
     public void view(Long id) {
-        redisTemplate.opsForHash().increment(RedisRecordKey.RedisArticleRecordKey, id.toString(), 1);
-        String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisArticleRecordKey, id.toString());
-        if (num != null && (Integer.parseInt(num)) % 10 == 0) {
-            log.info("RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE:{}", id);
-            rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE, id);
-        }
+        articleRedisRecordService.record(id, RedisRecordHashKey.view, 1);
         articleFieldRepository.viewNumIncrement(id, 1);
     }
 

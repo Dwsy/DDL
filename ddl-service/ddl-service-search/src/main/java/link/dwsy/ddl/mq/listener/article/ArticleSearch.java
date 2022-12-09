@@ -8,7 +8,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author Dwsy
@@ -48,11 +47,9 @@ public class ArticleSearch {
     //todo
     @RabbitListener(queues = ArticleSearchMQConstants.QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE)
     public void updateScore(Long articleId) {
-        Boolean lock = redisTemplate.opsForValue().setIfAbsent(scoreKey + "lock", String.valueOf(articleId), 600, TimeUnit.SECONDS);
-        if (Boolean.TRUE.equals(lock)) {
-            articleSearchProcess.updateScoreDataById(articleId);
-            log.info("article doc:{} score字段更新成功", articleId);
-        }
+
+        articleSearchProcess.updateScoreDataById(articleId);
+
     }
 //        if (articleId != null) {
 //

@@ -6,16 +6,19 @@ import link.dwsy.ddl.XO.Message.UserCommentNotifyMessage;
 import link.dwsy.ddl.XO.Projection.ArticleFieldInfo;
 import link.dwsy.ddl.XO.RB.ArticleCommentActionRB;
 import link.dwsy.ddl.XO.RB.ArticleCommentRB;
+import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
+import link.dwsy.ddl.constants.task.RedisRecordHashKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.Article.ArticleComment;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.User.User;
-import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.ArticleCommentService;
+import link.dwsy.ddl.service.Impl.ArticleRedisRecordService;
 import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
@@ -39,7 +42,7 @@ import java.util.Set;
 
 @Service
 @Slf4j
-public class ArticleCommentServiceImpl {
+public class ArticleCommentServiceImpl implements ArticleCommentService {
     @Resource
     private ArticleCommentRepository articleCommentRepository;
     @Resource
@@ -55,6 +58,9 @@ public class ArticleCommentServiceImpl {
 
     @Resource
     private UserStateService userStateService;
+
+    @Resource
+    private ArticleRedisRecordService articleRedisRecordService;
 
     public PageData<ArticleComment> getByArticleId(long aid, PageRequest pageRequest) {
         Page<ArticleComment> parentComment = articleCommentRepository.
@@ -105,7 +111,7 @@ public class ArticleCommentServiceImpl {
     public long reply(ArticleCommentRB articleCommentRB, CommentType commentType) {
 
         long articleFieldId = articleCommentRB.getArticleFieldId();
-        if (articleFieldRepository.userIsCancellation(articleFieldId)>0) {
+        if (articleFieldRepository.userIsCancellation(articleFieldId) > 0) {
             throw new CodeException(CustomerErrorCode.ArticleCommentIsClose);
         }
         if (!articleFieldRepository.existsByDeletedFalseAndAllowCommentTrueAndId(articleFieldId)) {
@@ -138,6 +144,7 @@ public class ArticleCommentServiceImpl {
             }
             //回复评论
             articleFieldRepository.commentNumIncrement(articleFieldId, 1);
+            articleRedisRecordService.record(articleFieldId, RedisRecordHashKey.comment, 1);
             if (articleCommentRB.getReplyUserCommentId() == 0) {
                 return replyArticleComment(articleCommentRB, commentType, articleFieldId, user, af, commentSerialNumber, parentCommentId);
             } else {
@@ -146,6 +153,8 @@ public class ArticleCommentServiceImpl {
             }
         }
     }
+
+
 
     private long replyArticleSecondComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
         String replyText;
@@ -233,6 +242,7 @@ public class ArticleCommentServiceImpl {
                 commentType, false, content, title, save.getId());
 //            }
         articleFieldRepository.commentNumIncrement(articleFieldId, 1);
+        articleRedisRecordService.record(articleFieldId, RedisRecordHashKey.comment, 1);
         return save.getId();
     }
 
@@ -321,7 +331,7 @@ public class ArticleCommentServiceImpl {
 
     public CommentType action(ArticleCommentActionRB commentActionRB) {
         long fid = commentActionRB.getArticleFieldId();
-        if (articleFieldRepository.userIsCancellation(fid)>0) {
+        if (articleFieldRepository.userIsCancellation(fid) > 0) {
             throw new CodeException(CustomerErrorCode.ArticleCommentIsClose);
         }
         Long uid = userSupport.getCurrentUser().getId();
@@ -355,88 +365,7 @@ public class ArticleCommentServiceImpl {
 //            up -> cancel ->up state transfer base database ont is user action
 //            one row is one action
 
-            ArticleComment comment = articleCommentRepository
-                    .findByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot
-                            (uid, fid, pid, CommentType.comment);
-            if (comment.getCommentType() == CommentType.cancel) {
-                if (commentType == CommentType.up) {
-                    if (actionArticle) {
-                        articleFieldRepository.upNumIncrement(fid, 1);
-                    } else {
-                        articleCommentRepository.upNumIncrement(pid, 1);
-                        articleCommentRepository.
-                                updateCommentTypeByIdAndDeletedFalse(commentType, comment.getId());
-                    }
-                    comment.setCommentType(commentType);
-                    articleCommentRepository.save(comment);
-                    sendActionMqMessage(uid, fid, pid, commentType);
-                } else if (commentType == CommentType.down) {
-                    if (actionArticle) {
-                        articleFieldRepository.downNumIncrement(fid, 1);
-                    } else {
-                        articleCommentRepository.downNumIncrement(pid, 1);
-                        articleCommentRepository.
-                                updateCommentTypeByIdAndDeletedFalse(commentType, comment.getId());
-                    }
-                    comment.setCommentType(commentType);
-                    articleCommentRepository.save(comment);
-                }
-                return comment.getCommentType();
-            }
-
-            if (comment.getCommentType() == commentType) {
-                if (commentType == CommentType.up) {//相同2次操作取消
-                    if (actionArticle) {
-                        articleFieldRepository.upNumIncrement(fid, -1);
-                    } else {
-                        articleCommentRepository.upNumIncrement(pid, -1);//取消点赞-1
-                    }
-                    sendActionMqMessage(uid, fid, pid, CommentType.cancel);
-//                    articleCommentRepository.updateCommentTypeByIdAndDeletedFalse(CommentType.cancel, comment.getId());
-                } else {
-                    if (actionArticle) {
-                        articleFieldRepository.downNumIncrement(fid, -1);
-                    } else {
-                        articleCommentRepository.downNumIncrement(pid, -1); //取消踩  +1
-                    }
-
-//                    articleCommentRepository.updateCommentTypeByIdAndDeletedFalse(CommentType.cancel, comment.getId());
-                }
-
-                comment.setCommentType(CommentType.cancel);
-
-
-            } else {//点踩->点赞 / 点赞->点踩  先取消点赞 再点踩 返回叠加状态 to
-                if (commentType == CommentType.up) {
-                    if (actionArticle) {
-                        articleFieldRepository.downNumIncrement(fid, -1);
-                        articleFieldRepository.upNumIncrement(fid, 1);
-                    } else {
-                        articleCommentRepository.downNumIncrement(pid, -1);
-                        articleCommentRepository.upNumIncrement(pid, 1);
-                    }
-                    sendActionMqMessage(uid, fid, pid, commentType);
-                    comment.setCommentType(CommentType.up);
-                    articleCommentRepository.save(comment);
-                    return CommentType.downToUp;
-                } else {
-                    if (actionArticle) {
-                        articleFieldRepository.upNumIncrement(fid, -1);
-                        articleFieldRepository.downNumIncrement(fid, 1);
-                    } else {
-                        articleCommentRepository.upNumIncrement(pid, -1);
-                        articleCommentRepository.downNumIncrement(pid, 1);
-                    }
-                    sendActionMqMessage(uid, fid, pid, commentType);
-                    comment.setCommentType(CommentType.down);
-                    articleCommentRepository.save(comment);
-                    return CommentType.upToDown;
-                }
-
-
-            }
-            articleCommentRepository.save(comment);
-            return comment.getCommentType();
+            return ifExistAction(fid, uid, pid, actionArticle, commentType);
         }
 
         User user = new User();
@@ -458,10 +387,12 @@ public class ArticleCommentServiceImpl {
             ActionUserId = 0;//文章 避免前端参数错误 后端直接不管了 要用到时候从文章id查询用户id
             if (commentType == CommentType.up) {
                 articleFieldRepository.upNumIncrement(fid, 1);
+                articleRedisRecordService.record(fid, RedisRecordHashKey.up, 1);
                 sendActionMqMessage(uid, fid, pid, commentType);
 
             } else {
                 articleFieldRepository.downNumIncrement(fid, 1);
+                articleRedisRecordService.record(fid, RedisRecordHashKey.down, 1);
             }
         }
 
@@ -479,6 +410,100 @@ public class ArticleCommentServiceImpl {
         return commentType;
 
 
+    }
+
+    private CommentType ifExistAction(long fid, Long uid, long pid, boolean actionArticle, CommentType commentType) {
+        ArticleComment comment = articleCommentRepository
+                .findByDeletedFalseAndUser_IdAndArticleField_IdAndParentCommentIdAndCommentTypeNot
+                        (uid, fid, pid, CommentType.comment);
+        if (comment.getCommentType() == CommentType.cancel) {
+            if (commentType == CommentType.up) {
+                if (actionArticle) {
+                    articleFieldRepository.upNumIncrement(fid, 1);
+                    articleRedisRecordService.record(fid, RedisRecordHashKey.up, 1);
+                } else {
+                    articleCommentRepository.upNumIncrement(pid, 1);
+                    articleCommentRepository.
+                            updateCommentTypeByIdAndDeletedFalse(commentType, comment.getId());
+                }
+                comment.setCommentType(commentType);
+                articleCommentRepository.save(comment);
+                sendActionMqMessage(uid, fid, pid, commentType);
+            } else if (commentType == CommentType.down) {
+                if (actionArticle) {
+                    articleFieldRepository.downNumIncrement(fid, 1);
+                    articleRedisRecordService.record(fid, RedisRecordHashKey.down, 1);
+                } else {
+                    articleCommentRepository.downNumIncrement(pid, 1);
+                    articleCommentRepository.
+                            updateCommentTypeByIdAndDeletedFalse(commentType, comment.getId());
+                }
+                articleRedisRecordService.record(fid, RedisRecordHashKey.up, -1);
+                comment.setCommentType(commentType);
+                articleCommentRepository.save(comment);
+            }
+            return comment.getCommentType();
+        }
+
+        if (comment.getCommentType() == commentType) {
+            if (commentType == CommentType.up) {//相同2次操作取消
+                if (actionArticle) {
+                    articleFieldRepository.upNumIncrement(fid, -1);
+                    articleRedisRecordService.record(fid, RedisRecordHashKey.up, -1);
+                } else {
+                    articleCommentRepository.upNumIncrement(pid, -1);//取消点赞-1
+                }
+                sendActionMqMessage(uid, fid, pid, CommentType.cancel);
+//                    articleCommentRepository.updateCommentTypeByIdAndDeletedFalse(CommentType.cancel, comment.getId());
+            } else {
+                if (actionArticle) {
+                    articleFieldRepository.downNumIncrement(fid, -1);
+                    articleRedisRecordService.record(fid, RedisRecordHashKey.down, 1);
+                } else {
+                    articleCommentRepository.downNumIncrement(pid, -1); //取消踩  +1
+                }
+
+//                    articleCommentRepository.updateCommentTypeByIdAndDeletedFalse(CommentType.cancel, comment.getId());
+            }
+
+            comment.setCommentType(CommentType.cancel);
+
+
+        } else {//点踩->点赞 / 点赞->点踩  先取消点赞 再点踩 返回叠加状态 to
+            if (commentType == CommentType.up) {
+                if (actionArticle) {
+                    articleFieldRepository.downNumIncrement(fid, -1);
+                    articleFieldRepository.upNumIncrement(fid, 1);
+                    articleRedisRecordService.record(fid, RedisRecordHashKey.up, 1);
+                    articleRedisRecordService.record(fid, RedisRecordHashKey.down, -1);
+                } else {
+                    articleCommentRepository.downNumIncrement(pid, -1);
+                    articleCommentRepository.upNumIncrement(pid, 1);
+                }
+                sendActionMqMessage(uid, fid, pid, commentType);
+                comment.setCommentType(CommentType.up);
+                articleCommentRepository.save(comment);
+                return CommentType.downToUp;
+            } else {
+                if (actionArticle) {
+                    articleFieldRepository.upNumIncrement(fid, -1);
+                    articleFieldRepository.downNumIncrement(fid, 1);
+                    articleRedisRecordService.record(fid, RedisRecordHashKey.up, -1);
+                    articleRedisRecordService.record(fid, RedisRecordHashKey.down, 1);
+                } else {
+                    articleCommentRepository.upNumIncrement(pid, -1);
+                    articleCommentRepository.downNumIncrement(pid, 1);
+                }
+                sendActionMqMessage(uid, fid, pid, commentType);
+                comment.setCommentType(CommentType.down);
+                articleCommentRepository.save(comment);
+                return CommentType.upToDown;
+            }
+
+
+        }
+        articleCommentRepository.save(comment);
+        return comment.getCommentType();
     }
 
     private void sendActionMqMessage(long userId, long articleFieldId, long parentCommentId,

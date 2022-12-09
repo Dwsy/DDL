@@ -39,18 +39,11 @@ import java.util.*;
 @Service
 @Slf4j
 public class ArticleContentServiceImpl implements ArticleContentService {
-    //    @Resource
-//    private ArticleTagRepository articleTagRepository;
     @Resource
     private ArticleFieldRepository articleFieldRepository;
-
-    //    @Resource
-//    private ArticleGroupRepository articleGroupRepository;
+    ;
     @Resource
     private ArticleContentRepository articleContentRepository;
-
-//    @Resource
-//    private RabbitTemplate rabbitTemplate;
 
     @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
@@ -74,11 +67,6 @@ public class ArticleContentServiceImpl implements ArticleContentService {
     private UserStateService userStateService;
 
 
-//    public PageData<ArticleContent, ArticleContentDTO> getPageList(int page, int size) {
-//        PageRequest pageRequest = PageRequest.of(page-1, size);
-//        Page<ArticleContent> articleContentPage = articleContentRepository.findAllByDeletedIsFalseOrDeletedIsNull(pageRequest);
-//        return new PageData<>(articleContentPage, ArticleContentDTO::convert);
-//    }
 
     public PageData<fieldVO> getPageList(PageRequest pageRequest, ArticleState articleState) {
         //todo数据填充

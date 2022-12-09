@@ -15,7 +15,7 @@ public class UserActiveConfig {
 
     @Bean(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE)
     public Queue activeQueue() {
-        return new Queue(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE);
+        return new Queue(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE,true);
     }
 
 }

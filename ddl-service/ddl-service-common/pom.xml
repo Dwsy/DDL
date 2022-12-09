@@ -128,6 +128,10 @@
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
 
         <!--markdown to html end-->
 

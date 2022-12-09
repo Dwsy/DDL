@@ -1,14 +1,14 @@
 package link.dwsy.ddl.entity.Data.Question;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import link.dwsy.ddl.entity.BaseEntity;
-import link.dwsy.ddl.entity.User.User;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
 
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "question_daily_data")
@@ -18,17 +18,18 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(value = {"deleted", "handler", "hibernateLazyInitializer"})
-public class QuestionDailyData extends BaseEntity {
+public class QuestionDailyData {
+
+    @Id
+    @CreatedBy
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private long id;
     private long questionFieldId;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    User user;
-
-    String title;
 
     @Builder.Default
     int answerNum = 0;
+    @Builder.Default
+    int commentNum = 0;
 
     @Builder.Default
     int viewNum = 0;
@@ -41,5 +42,7 @@ public class QuestionDailyData extends BaseEntity {
 
     @Builder.Default
     int downNum = 0;
+
+    private LocalDate date;
 
 }
