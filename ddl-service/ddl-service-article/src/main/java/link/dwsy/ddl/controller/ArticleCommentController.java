@@ -27,7 +27,7 @@ import javax.annotation.Resource;
 @RequestMapping("comment")
 public class ArticleCommentController {
     @Resource
-    ArticleFieldServiceImpl articleFieldService;
+    private  ArticleFieldServiceImpl articleFieldService;
     @Resource
     private ArticleCommentServiceImpl articleCommentService;
 

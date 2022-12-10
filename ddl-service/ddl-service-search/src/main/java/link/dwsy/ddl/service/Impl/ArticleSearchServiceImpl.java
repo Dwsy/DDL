@@ -7,6 +7,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import link.dwsy.ddl.XO.ES.Constants.ArticleSearchConstant;
 import link.dwsy.ddl.XO.ES.article.ArticleEsDoc;
+import link.dwsy.ddl.service.ArticleSearchService;
 import link.dwsy.ddl.util.PageData;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class ArticleSearchServiceImpl {
+public class ArticleSearchServiceImpl implements ArticleSearchService {
 
     @Resource
     private ElasticsearchClient client;

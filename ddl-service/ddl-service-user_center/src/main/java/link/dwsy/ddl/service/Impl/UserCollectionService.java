@@ -42,7 +42,7 @@ import java.util.Set;
 
 @Service
 @Slf4j
-public class UserCollectionService {
+public class UserCollectionService implements link.dwsy.ddl.service.UserCollectionService {
     @Resource
     private UserCollectionGroupRepository userCollectionGroupRepository;
 
@@ -71,6 +71,7 @@ public class UserCollectionService {
     private UserSupport userSupport;
 
 
+    @Override
     public String getCollectionToLink(@PathVariable long id) {
         Optional<UserCollection> collection = userCollectionRepository.findById(id);
         if (collection.isPresent()) {
@@ -88,6 +89,7 @@ public class UserCollectionService {
     }
 
 
+    @Override
     @NotNull
     public String addCollectionToGroup(UserCollectionRB userCollectionRB, CollectionType collectionType, Long gid, Long sid, Long uid) {
         UserCollectionGroup userCollectionGroup = userCollectionGroupRepository.findByIdAndUserIdAndDeletedIsFalse(gid, uid);
@@ -188,6 +190,7 @@ public class UserCollectionService {
     }
 
 
+    @Override
     public String cancelCollection(UserCollectionRB userCollectionRB) {
         Long uid = userSupport.getCurrentUser().getId();
         Long sourceId = userCollectionRB.getSourceId();
@@ -223,6 +226,7 @@ public class UserCollectionService {
     }
 
 
+    @Override
     public PageData<UserCollection> getCollectionListByGroupId(
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,

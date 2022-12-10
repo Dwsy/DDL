@@ -17,6 +17,7 @@ import link.dwsy.ddl.repository.QA.QaAnswerRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserActiveRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.UserActiveService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.DateUtil;
 import link.dwsy.ddl.util.HtmlHelper;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
  */
 
 @Service
-public class UserActiveServiceImpl {
+public class UserActiveServiceImpl implements UserActiveService {
     @Resource
     private UserActiveRepository userActiveRepository;
     @Resource
@@ -71,6 +72,7 @@ public class UserActiveServiceImpl {
     @Resource
     private RedisTemplate<String, String> redisTemplate;
 
+    @Override
     public String checkIn() {
         Date tomorrowZero = DateUtil.getTomorrowZero();
         Date zero = DateUtil.getZero();
@@ -88,6 +90,7 @@ public class UserActiveServiceImpl {
         return "签到成功";
     }
 
+    @Override
     @Nullable
     public PageData<UserThumbActiveVO> getUserThumbActive(long uid, UserActiveType type, PageRequest pageRequest) {
         switch (type) {

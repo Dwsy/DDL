@@ -68,6 +68,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
 
 
+    @Override
     public PageData<fieldVO> getPageList(PageRequest pageRequest, ArticleState articleState) {
         //todo数据填充
         Page<fieldVO> fieldVOList = articleFieldRepository.findAllByDeletedIsFalseAndArticleState(articleState, pageRequest);
@@ -78,6 +79,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
     }
 
 
+    @Override
     public PageData<fieldVO> getPageList(PageRequest pageRequest, ArticleState articleState, long articleTagId) {
 
         Page<fieldVO> fieldVOList = articleFieldRepository.findByDeletedFalseAndArticleStateAndArticleTags_Id
@@ -88,6 +90,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return new PageData<>(fieldVOList);
     }
 
+    @Override
     public PageData<fieldVO> getArticleListByUserId(PageRequest pageRequest, ArticleState articleState, long userId) {
         if (userStateService.isCancellationUserHandel(userId)) {
             throw new CodeException(CustomerErrorCode.UserNotExist);
@@ -97,6 +100,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return new PageData<>(fieldVOList);
     }
 
+    @Override
     public ArticleField getArticleById(long id, ArticleState articleState) {
 //        LoginUserInfo currentUser = userSupport.getCurrentUser();
         if (articleFieldRepository.userIsCancellation(id)>0) {
@@ -109,6 +113,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(id, articleState);
     }
 
+    @Override
     public ArticleField getArticleById(long id, Collection<ArticleState> articleStates) {
         if (articleFieldRepository.userIsCancellation(id)>0) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
@@ -117,6 +122,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return articleFieldRepository.findByIdAndDeletedIsFalseAndArticleStateIn(id, articleStates);
     }
 
+    @Override
     public ArticleField getArticleFieldByIdAndVersion(Long id, Integer version) {
         String fieldJsonStr = redisTemplate.opsForList().index(ArticleRedisKey.ArticleHistoryVersionFieldKey + id, version);
         if (fieldJsonStr == null) {
@@ -125,6 +131,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return JSON.parseObject(fieldJsonStr, ArticleField.class);
     }
 
+    @Override
     public String getArticleContentByIdAndVersion(Long id, Integer version) {
         String contentStr = redisTemplate.opsForList().index(ArticleRedisKey.ArticleHistoryVersionContentKey + id, version);
         if (contentStr == null) {
@@ -133,6 +140,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return contentStr;
     }
 
+    @Override
     public UserActionVO getUserAction(long id) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         UserActionVO userActionVO = new UserActionVO();
@@ -162,6 +170,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
     }
 
 
+    @Override
     public String getContent(long id, int type) {
         if (articleFieldRepository.userIsCancellation(id)>0) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
@@ -179,6 +188,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
         return null;
     }
 
+    @Override
     public Map<String, VersionData> getHistoryVersionTitle(long articleId) {
         Long userId = userSupport.getCurrentUser().getId();
         Long articleOwnerUserId = articleFieldRepository.findUserIdById(articleId);

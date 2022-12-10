@@ -26,11 +26,12 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class QuestionSearchServiceImpl {
+public class QuestionSearchServiceImpl implements link.dwsy.ddl.service.QuestionSearchService {
 
     @Resource
     private ElasticsearchClient client;
 
+    @Override
     @NotNull
     public PageData<QuestionEsDoc> getSearchPageData(int page, int size, String query) throws IOException {
         SearchResponse<QuestionEsDoc> search = client.search(

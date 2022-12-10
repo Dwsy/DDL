@@ -91,6 +91,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return new PageData<>(questionFields);
     }
 
+    @Override
     public PageData<QaQuestionField> getPageListManage(long userId, QuestionState questionState, PageRequest pageRequest) {
 //        questionStateCollection.removeAll(Set.of(QuestionState.HIDE,QuestionState.UNRESOLVED,QuestionState.AUDITING));
         Page<QaQuestionField> questionFields = qaQuestionFieldRepository
@@ -122,6 +123,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return questionField;
     }
 
+    @Override
     public QaQuestionField getQuestionByIdAndVersion(Long id, int version) {
         String fieldJsonStr = redisTemplate.opsForList().index(QuestionRedisKey.QuestionHistoryVersionFieldKey + id, version);
         if (fieldJsonStr == null) {
@@ -130,6 +132,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return JSON.parseObject(fieldJsonStr, QaQuestionField.class);
     }
 
+    @Override
     public long createQuestion(CreateQuestionRB createQuestionRB) {
         String title = createQuestionRB.getTitle();
         title = title.trim().replaceAll("\n", "");
@@ -192,6 +195,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return saveId;
     }
 
+    @Override
     public long updateQuestion(CreateQuestionRB createQuestionRB) {
         String title = createQuestionRB.getTitle();
         title = title.trim().replaceAll("\n", "");
@@ -278,12 +282,14 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     @Resource
     private QuestionRedisRecordService questionRedisRecordService;
 
+    @Override
     public void view(Long id) {
 
         questionRedisRecordService.record(id, RedisRecordHashKey.view, 1);
         qaQuestionFieldRepository.viewNumIncrement(id, 1);
     }
 
+    @Override
     public UserActionVO getUserToQuestionAction(long questionId) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         Long userId = currentUser.getId();
@@ -310,6 +316,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return userActionVO;
     }
 
+    @Override
     public boolean watchQuestion(long questionId) {
         Long userId = userSupport.getCurrentUser().getId();
         QaQuestionField questionField = qaQuestionFieldRepository.findByDeletedFalseAndId(questionId);
@@ -322,6 +329,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
         return qaQuestionFieldRepository.watchQuestion(userId, questionId) > 0;
     }
 
+    @Override
     public boolean unWatchQuestion(long questionId) {
         Long userId = userSupport.getCurrentUser().getId();
         if (qaQuestionFieldRepository.isWatch(userId, questionId) == 0) {
@@ -331,6 +339,7 @@ public class QaQuestionFieldServiceImpl implements link.dwsy.ddl.service.QaQuest
     }
 
 
+    @Override
     public PageData<QaQuestionField> getPageListByUserId(Long userId, QuestionState state, PageRequest pageRequest) {
         Page<QaQuestionField> questionFields = qaQuestionFieldRepository
                 .findByDeletedFalseAndUserIdAndQuestionState(userId, state, pageRequest);

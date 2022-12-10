@@ -9,7 +9,7 @@ import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Meaasge.UserMessageRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.Impl.UserStateService;
-import link.dwsy.ddl.service.impl.UserPrivateMessageServiceImpl;
+import link.dwsy.ddl.service.UserPrivateMessageService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
@@ -30,7 +30,7 @@ public class UserPrivateMessageController {
 
 
     @Resource
-    private UserPrivateMessageServiceImpl userPrivateMessageService;
+    private UserPrivateMessageService userPrivateMessageService;
 
     @Resource
     private UserMessageRepository userMessageRepository;

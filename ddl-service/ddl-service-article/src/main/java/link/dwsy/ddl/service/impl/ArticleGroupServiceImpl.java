@@ -34,7 +34,8 @@ public class ArticleGroupServiceImpl implements ArticleGroupService {
     @Resource
     UserStateService userStateService;
 
-    public PageData<fieldVO> getFieldListByGroupId(Long gid,PageRequest pageRequest) {
+    @Override
+    public PageData<fieldVO> getFieldListByGroupId(Long gid, PageRequest pageRequest) {
         Page<fieldVO> fieldVO = articleFieldRepository
                 .findAllByDeletedIsFalseAndArticleGroupIdAndArticleState
                         (gid, ArticleState.published, pageRequest);
@@ -44,10 +45,12 @@ userStateService.cancellationUserHandel(f.getUser());
         return new PageData<>(fieldVO);
     }
 
+    @Override
     public List<ArticleGroup> getGroupList(Sort sort) {
         return articleGroupRepository.findAllByDeletedIsFalse(sort);
     }
 
+    @Override
     public boolean addGroup(ArticleGroupRB articleGroupRB) {
         if (articleGroupRepository.existsByName(articleGroupRB.getName())) {
             throw new CodeException(CustomerErrorCode.ArticleGroupAlreadyExists);
@@ -58,6 +61,7 @@ userStateService.cancellationUserHandel(f.getUser());
         return true;
     }
 
+    @Override
     public boolean deleteGroup(Long id) {
         int i = articleGroupRepository.logicallyDeleteById(id);
         return i > 0;
@@ -65,6 +69,7 @@ userStateService.cancellationUserHandel(f.getUser());
 
     }
 
+    @Override
     public void updateGroup(Long id, ArticleGroupRB articleGroupRB) {
         ArticleGroup articleGroup = articleGroupRepository.findById(id).orElseThrow(() -> new CodeException(CustomerErrorCode.ArticleGroupNotFound));
 

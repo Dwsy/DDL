@@ -116,6 +116,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return new PageData<>(QaAnswerData);
     }
 
+    @Override
     public PageData<QaAnswer> getChildAnswerPageByParentId(Long qid, Long pid, PageRequest pageRequest) {
         Page<QaAnswer> childQaAnswersPage = qaAnswerRepository
                 .findAllByDeletedIsFalseAndQuestionFieldIdAndParentAnswerId(qid, pid, pageRequest);
@@ -126,6 +127,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return new PageData<>(childQaAnswersPage);
     }
 
+    @Override
     public QaAnswer answer(QaAnswerRB qaAnswerRB, AnswerType answerType) {
         long questionFieldId = qaAnswerRB.getQuestionId();
         if (qaQuestionFieldRepository.userIsCancellation(questionFieldId) > 0) {
@@ -358,6 +360,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return save;
     }
 
+    @Override
     public boolean logicallyDelete(long questionId, long answerId) {
         return true;
     }
@@ -410,6 +413,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
                 (UserActiveMQConstants.QUEUE_DDL_USER_QUESTION_ANSWER_OR_COMMENT_ACTIVE, activeMessage);
     }
 
+    @Override
     public AnswerType action(QuestionAnswerOrCommentActionRB actionRB) {
         long questionFieldId = actionRB.getQuestionFieldId();
         if (qaQuestionFieldRepository.userIsCancellation(questionFieldId) > 0) {
@@ -574,6 +578,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return action.getAnswerType();
     }
 
+    @Override
     public void invitationUserAnswerQuestion(InvitationUserRB invitationUserRB) {
         long questionId = invitationUserRB.getQuestionId();
         if (qaQuestionFieldRepository.userIsCancellation(questionId) > 0) {
@@ -620,6 +625,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
     }
 
+    @Override
     public boolean acceptedAnswer(long answerId, boolean accepted) {
         Long userId = userSupport.getCurrentUser().getId();
         Long questionId = qaAnswerRepository.getQuestionIdByAnswerId(answerId);
@@ -652,6 +658,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return false;
     }
 
+    @Override
     public PageData<UserAnswerVO> getUserAnswerPageById(Long userId, PageRequest pageRequest) {
         Page<QaAnswer> answers = qaAnswerRepository.findByDeletedFalseAndUser_IdAndAnswerType(userId, AnswerType.answer, pageRequest);
         ArrayList<UserAnswerVO> userAnswerVOS = new ArrayList<>();
@@ -677,6 +684,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
     }
 
+    @Override
     public ArrayList<InvitationUserVO> getRecommendedUserByTagIds(TagIdsRB tagIdsRB, long questionId) {
         R<List<User>> userListR = userTagService.getUserByTagIds(tagIdsRB);
         if (userListR.getCode() != 0) {
@@ -699,6 +707,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return invitationUserList;
     }
 
+    @Override
     @NotNull
     public PageData<InvitationUserVO> getInvitationFollowerList(String order, String[] properties, int page, int size, int inviteUid, long questionId) {
         Long userId = userSupport.getCurrentUser().getId();
@@ -722,6 +731,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         return new PageData<>(userFollowerPage, invitationUserList);
     }
 
+    @Override
     @NotNull
     public PageData<InvitationUserVO> getInvitationFollowingList(String order, String[] properties, int page, int size, long questionId) {
         Long userId = userSupport.getCurrentUser().getId();

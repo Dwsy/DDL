@@ -62,6 +62,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     @Resource
     private ArticleRedisRecordService articleRedisRecordService;
 
+    @Override
     public PageData<ArticleComment> getByArticleId(long aid, PageRequest pageRequest) {
         Page<ArticleComment> parentComment = articleCommentRepository.
                 findAllByDeletedIsFalseAndArticleFieldIdAndParentCommentId(aid, 0L, pageRequest);
@@ -98,6 +99,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         return new PageData<>(parentComment);
     }
 
+    @Override
     public PageData<ArticleComment> getChildCommentsByParentId(Long aid, Long pid, PageRequest pageRequest) {
         Page<ArticleComment> childComments = articleCommentRepository.
                 findByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalse
@@ -108,6 +110,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         return new PageData<>(childComments);
     }
 
+    @Override
     public long reply(ArticleCommentRB articleCommentRB, CommentType commentType) {
 
         long articleFieldId = articleCommentRB.getArticleFieldId();
@@ -246,6 +249,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         return save.getId();
     }
 
+    @Override
     public boolean logicallyDelete(long articleId, long commentId) {
         Long uid = userSupport.getCurrentUser().getId();
 
@@ -317,6 +321,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         return false;
     }
 
+    @Override
     public boolean logicallyRecovery(Long id) {
         Long uid = userSupport.getCurrentUser().getId();
         int i = articleCommentRepository.logicallyRecovery(uid, id);
@@ -329,6 +334,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     }
 
 
+    @Override
     public CommentType action(ArticleCommentActionRB commentActionRB) {
         long fid = commentActionRB.getArticleFieldId();
         if (articleFieldRepository.userIsCancellation(fid) > 0) {
