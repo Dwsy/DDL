@@ -36,11 +36,13 @@ public class ArticleTagServiceImpl implements ArticleTagService {
 
     @Resource
     private UserStateService userStateService;
+    @Override
     public List<ArticleTag> getTagList(Sort sort) {
 
         return articleTagRepository.findByDeletedFalseAndArticleGroup_IdNotNullAndIndexPageDisplayIsTrue(sort);
     }
 
+    @Override
     public PageData<fieldVO> getArticleListById(Long id, PageRequest pageRequest) {
         Collection<Long> ids = articleTagRepository.findArticleContentIdListById(id);
 
@@ -55,12 +57,14 @@ public class ArticleTagServiceImpl implements ArticleTagService {
 
     }
 
+    @Override
     public List<ArticleTag> getTagListByGroupId(Long id, Sort sort) {
         return articleTagRepository.findByDeletedFalseAndArticleGroupId(id, sort);
     }
 
 
 
+    @Override
     public boolean addTag(ArticleTagRB articleTagRB) {
 
         if (articleTagRepository.existsByName(articleTagRB.getName())) {
@@ -73,13 +77,15 @@ public class ArticleTagServiceImpl implements ArticleTagService {
     }
 
 
-    public void updateTag(Long id,ArticleTagRB articleTagRB) {
+    @Override
+    public void updateTag(Long id, ArticleTagRB articleTagRB) {
         articleTagRepository.findById(id).orElseThrow(() -> new CodeException(CustomerErrorCode.ArticleTagNotFound));
         ArticleTag.ArticleTagBuilder articleTagBuilder = ArticleTag.builder().name(articleTagRB.getName()).tagInfo(articleTagRB.getTagInfo());
         articleTagRepository.save(articleTagBuilder.build());
     }
 
 
+    @Override
     public boolean deleteTag(Long id) {
         int i = articleTagRepository.logicallyDeleteById(id);
         return i > 0;

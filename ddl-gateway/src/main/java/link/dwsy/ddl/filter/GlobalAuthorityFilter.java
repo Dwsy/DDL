@@ -55,7 +55,7 @@ public class GlobalAuthorityFilter implements GlobalFilter, Ordered {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    private TreadPoolConfig treadPool;
+    private final TreadPoolConfig treadPool;
 
     public GlobalAuthorityFilter(LoadBalancerClient loadBalancerClient,
                                  RestTemplate restTemplate, RedisTemplate<String, String> redisTemplate, TreadPoolConfig treadPoolConfig) {

@@ -75,6 +75,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
 //    @Resource
 //    private Gson
 
+    @Override
     public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         if (currentUser != null) {
@@ -85,6 +86,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         }
     }
 
+    @Override
     public long createArticle(ArticleContentRB articleContentRB) {
         ArticleState articleState = articleContentRB.getArticleState();
         String title = articleContentRB.getTitle();
@@ -127,6 +129,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     }
 
 
+    @Override
     public long updateArticle(ArticleContentRB articleContentRB) {
         String title = articleContentRB.getTitle();
         title = title.trim().replaceAll("\n", "");
@@ -212,6 +215,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         return save.getId();
     }
 
+    @Override
     public void logicallyDeleted(Long articleId) {
 //        Long uid = userSupport.getCurrentUser().getId();
 //        if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, uid)) {
@@ -226,6 +230,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         articleContentRepository.logicallyDeleted(articleId);
     }
 
+    @Override
     public void logicallyRecovery(ArticleRecoveryRB articleRecoveryRB) {
         Long uid = userSupport.getCurrentUser().getId();
         List<Long> aids = articleRecoveryRB.getAids();
@@ -245,6 +250,7 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     @Resource
     private ArticleRedisRecordService articleRedisRecordService;
 
+    @Override
     public void view(Long id) {
         articleRedisRecordService.record(id, RedisRecordHashKey.view, 1);
         articleFieldRepository.viewNumIncrement(id, 1);

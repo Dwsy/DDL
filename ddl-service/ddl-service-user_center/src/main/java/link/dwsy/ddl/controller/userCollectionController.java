@@ -13,7 +13,7 @@ import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserCollectionGroupRepository;
 import link.dwsy.ddl.repository.User.UserCollectionRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
-import link.dwsy.ddl.service.Impl.UserCollectionService;
+import link.dwsy.ddl.service.Impl.UserCollectionServiceImpl;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
@@ -57,7 +57,7 @@ public class userCollectionController {
     private UserRepository userRepository;
 
     @Resource
-    private UserCollectionService userCollectionService;
+    private UserCollectionServiceImpl userCollectionService;
 
     @Resource
     private UserSupport userSupport;

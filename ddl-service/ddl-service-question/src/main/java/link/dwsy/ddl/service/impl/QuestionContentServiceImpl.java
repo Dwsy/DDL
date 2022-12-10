@@ -59,6 +59,7 @@ public class QuestionContentServiceImpl implements QuestionContentService {
         return null;
     }
 
+    @Override
     public String getContentByVersion(Long id, int version) {
         String contentStr = redisTemplate.opsForList().index(QuestionRedisKey.QuestionHistoryVersionContentKey + id, version);
         if (contentStr == null) {
@@ -67,6 +68,7 @@ public class QuestionContentServiceImpl implements QuestionContentService {
         return contentStr;
     }
 
+    @Override
     public Map<String, VersionData> getHistoryVersionTitle(long questionId) {
         Long userId = userSupport.getCurrentUser().getId();
         Long questionOwnerUserId = qaQuestionFieldRepository.getUserIdByQuestionFieldId(questionId);
@@ -90,6 +92,7 @@ public class QuestionContentServiceImpl implements QuestionContentService {
         return versionMap;
     }
 
+    @Override
     public boolean logicallyDeleteQuestionById(long id) {
         Long userId = userSupport.getCurrentUser().getId();
         Long questionOwnerUserId = qaQuestionFieldRepository.getUserIdByQuestionFieldId(id);
@@ -102,6 +105,7 @@ public class QuestionContentServiceImpl implements QuestionContentService {
         return true;
     }
 
+    @Override
     public boolean logicallyRecoveryQuestionById(long id) {
         Long userId = userSupport.getCurrentUser().getId();
         Long questionOwnerUserId = qaQuestionFieldRepository.getUserIdByQuestionFieldId(id);

@@ -14,7 +14,7 @@ public enum RedisRecordHashKey {
     collect("collect"),
     share("share"),
     ;
-    private String key;
+    private final String key;
 
     RedisRecordHashKey(String key) {
         this.key = key;

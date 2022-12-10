@@ -7,6 +7,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import link.dwsy.ddl.XO.ES.Question.QuestionEsDoc;
 import link.dwsy.ddl.constants.mq.QuestionSearchMQConstants;
+import link.dwsy.ddl.service.QuestionSearchService;
 import link.dwsy.ddl.util.PageData;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -26,11 +27,12 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class QuestionSearchServiceImpl {
+public class QuestionSearchServiceImpl implements QuestionSearchService {
 
     @Resource
     private ElasticsearchClient client;
 
+    @Override
     @NotNull
     public PageData<QuestionEsDoc> getSearchPageData(int page, int size, String query) throws IOException {
         SearchResponse<QuestionEsDoc> search = client.search(

@@ -144,8 +144,6 @@ public class QaAnswerController {
     }
 
 
-    ;
-
     @GetMapping("/user/list/{userId}")
     public PageData<UserAnswerVO> getUserAnswerPageById(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
