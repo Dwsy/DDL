@@ -34,7 +34,7 @@ public class QuestionDailyDataTask {
 //    @Scheduled(cron = "0 * * * * ? ")
     public void record() {
         log.info("定时任务执行{}", Thread.currentThread().getName());
-        Set<String> idSet = redisTemplate.opsForSet().members(RedisRecordKey.RedisArticleRecordKey);
+        Set<String> idSet = redisTemplate.opsForSet().members(RedisRecordKey.RedisQuestionRecordKey);
         if (idSet != null) {
             if (idSet.size() == 0) {
                 log.info("今日无访问");
@@ -42,49 +42,54 @@ public class QuestionDailyDataTask {
             }
             ArrayList<QuestionDailyData> dailyDataArrayList = new ArrayList<>(idSet.size());
             for (String id : idSet) {
-                Map<Object, Object> dataMap = redisTemplate.opsForHash().entries(RedisRecordKey.RedisArticleRecordKey + id);
-                Integer view = (Integer) dataMap.get(RedisRecordHashKey.view);
-                Integer up = (Integer) dataMap.get(RedisRecordHashKey.up);
-                Integer down = (Integer) dataMap.get(RedisRecordHashKey.down);
-                Integer collect = (Integer) dataMap.get(RedisRecordHashKey.collect);
-                Integer answer = (Integer) dataMap.get(RedisRecordHashKey.answer);
-                Integer comment = (Integer) dataMap.get(RedisRecordHashKey.comment);
+                Map<Object, Object> dataMap = redisTemplate.opsForHash().entries(RedisRecordKey.RedisQuestionRecordKey + id);
+                if (dataMap.isEmpty()) {
+                    return;
+                }
+                int view = getMapValue(dataMap, RedisRecordHashKey.view);
+                int up = getMapValue(dataMap, RedisRecordHashKey.up);
+                int down = getMapValue(dataMap, RedisRecordHashKey.down);
+                int collect = getMapValue(dataMap, RedisRecordHashKey.collect);
+                int comment = getMapValue(dataMap, RedisRecordHashKey.comment);
+                int answer = getMapValue(dataMap, RedisRecordHashKey.answer);
                 int score = 0;
-                if (view != null) {
-                    score += view;
-                }
-                if (up != null) {
-                    score += up*5;
-                }
-                if (down != null) {
-                    score -= down*10;
-                }
-                if (collect != null) {
-                    score += collect*30;
-                }
-                if (comment != null) {
-                    score += comment*10;
-                }
-                if (answer != null) {
-                    score += answer*50;
-                }
+                score += view;
+                score += up * 5;
+                score -= down * 10;
+                score += collect * 30;
+                score += comment * 10;
+                score += answer * 50;
+
+                long questionId = Long.parseLong(id);
                 QuestionDailyData dailyData = QuestionDailyData.builder()
-                        .questionFieldId(Long.parseLong(id))
-                        .viewNum(view == null ? 0 : view)
-                        .upNum(up == null ? 0 : up)
-                        .downNum(down == null ? 0 : down)
-                        .collectNum(collect == null ? 0 : collect)
-                        .answerNum(answer == null ? 0 : answer)
-                        .commentNum(comment == null ? 0 : comment)
+                        .userId(qaQuestionFieldRepository.getUserIdByQuestionId(questionId))
+                        .questionFieldId(questionId)
+                        .upNum(up)
+                        .downNum(down)
+                        .commentNum(comment)
+                        .viewNum(view)
+                        .collectNum(collect)
+                        .answerNum(answer)
                         .score(score)
-                        .date(LocalDate.now())
+                        .dataDate(LocalDate.now())
+                        .groupId(qaQuestionFieldRepository.getGroupIdByQuestionId(questionId))
+                        .tagIds(qaQuestionFieldRepository.getTagIdListByQuestionId(questionId))
                         .build();
                 dailyDataArrayList.add(dailyData);
+            }
+            for (String id : idSet) {
                 redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey + id);
             }
             questionDailyDataRepository.saveAll(dailyDataArrayList);
             redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey);
         }
 
+    }
+
+    private int getMapValue(Map<Object, Object> map, RedisRecordHashKey key) {
+        if (map.get(key.toString()) == null) {
+            return 0;
+        }
+        return Integer.parseInt((String) map.get(key.toString()));
     }
 }

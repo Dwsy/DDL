@@ -6,12 +6,17 @@ package link.dwsy.ddl.constants.task;
  */
 
 public enum RedisRecordHashKey {
-    view,
-    up,
-    down,
-    comment,
-    answer,
-    collect,
-    share,
+    view("view"),
+    up("up"),
+    down("down"),
+    comment("comment"),
+    answer("answer"),
+    collect("collect"),
+    share("share"),
     ;
+    private String key;
+
+    RedisRecordHashKey(String key) {
+        this.key = key;
+    }
 }

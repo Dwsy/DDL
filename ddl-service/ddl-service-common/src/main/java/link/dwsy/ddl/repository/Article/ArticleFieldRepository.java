@@ -6,6 +6,7 @@ import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +18,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long> {
-    List<ArticleField> findByDeletedFalseAndIdIn(Collection<Long> ids);
+//    @Query(value = "select a from article_field as a where a.deleted = false and a.id in ?1 order by id,(?2) asc ",nativeQuery = true)
+//    List<ArticleField> getByDeletedFalseAndIdIn(List<Long> ids, String order);
+
+    List<ArticleField> findByDeletedFalseAndIdIn(List<Long> ids);
+
+//    List<ArticleField> findByDeletedFalseAndIdIn(List<Long> ids, Sort.Order sort);
     Page<fieldVO> findAllByDeletedIsFalseAndArticleState(ArticleState articleState, Pageable pageable);
 
 
@@ -151,5 +157,12 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
 
     @Query(nativeQuery = true, value = "select count(*) from users where deleted is true and id=(select user_id from article_field  where deleted is false and id=?1) and  deleted = true")
     int userIsCancellation(long userId);
+
+    @Query(nativeQuery = true,value = "select article_tag_id from article_tag_ref where article_field_id=?1")
+    List<Long> getTagIdsById(long parseLong);
+
+    @Query(nativeQuery = true, value = "select article_group_id from article_field where id=?1")
+    long getGroupIdById(long parseLong);
+
 
 }

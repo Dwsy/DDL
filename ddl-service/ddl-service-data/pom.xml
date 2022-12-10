@@ -21,6 +21,10 @@
                     <groupId>org.springframework.cloud</groupId>
                     <artifactId>spring-cloud-starter-zipkin</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.github.ulisesbocchio</groupId>
+                    <artifactId>jasypt-spring-boot-starter</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!--         spring cloud alibaba nacos discovery 依赖-->

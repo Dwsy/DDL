@@ -30,11 +30,11 @@ public class QuestionRedisRecordService {
         if (recordHashKey == RedisRecordHashKey.view) {
             redisTemplate.opsForSet().add(RedisRecordKey.RedisQuestionRecordKey, String.valueOf(id));
         }
-        redisTemplate.opsForHash().increment(RedisRecordKey.RedisQuestionRecordKey + id, recordHashKey, increment);
+        redisTemplate.opsForHash().increment(RedisRecordKey.RedisQuestionRecordKey + id, recordHashKey.toString(), increment);
         if (increment <= 0) {
             return;
         }
-        String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisQuestionRecordKey + id, recordHashKey);
+        String num = (String) redisTemplate.opsForHash().get(RedisRecordKey.RedisQuestionRecordKey + id, recordHashKey.toString());
         if (num != null && (Integer.parseInt(num)) % 10 == 0) {
 
             Boolean lock = redisTemplate.opsForValue().setIfAbsent

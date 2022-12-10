@@ -42,44 +42,50 @@ public class ArticleDailyDataTask {
             ArrayList<ArticleDailyData> dailyDataArrayList = new ArrayList<>(idSet.size());
             for (String id : idSet) {
                 Map<Object, Object> dataMap = redisTemplate.opsForHash().entries(RedisRecordKey.RedisArticleRecordKey + id);
-                Integer view = (Integer) dataMap.get(RedisRecordHashKey.view);
-                Integer up = (Integer) dataMap.get(RedisRecordHashKey.up);
-                Integer down = (Integer) dataMap.get(RedisRecordHashKey.down);
-                Integer collect = (Integer) dataMap.get(RedisRecordHashKey.collect);
-                Integer comment = (Integer) dataMap.get(RedisRecordHashKey.comment);
+                if (dataMap.isEmpty()) {
+                    return;
+                }
+                int view = getMapValue(dataMap, RedisRecordHashKey.view);
+                int up = getMapValue(dataMap, RedisRecordHashKey.up);
+                int down = getMapValue(dataMap, RedisRecordHashKey.down);
+                int collect = getMapValue(dataMap, RedisRecordHashKey.collect);
+                int comment = getMapValue(dataMap, RedisRecordHashKey.comment);
                 int score = 0;
-                if (view != null) {
-                    score += view;
-                }
-                if (up != null) {
-                    score += up*2;
-                }
-                if (down != null) {
-                    score -= down*2;
-                }
-                if (collect != null) {
-                    score += collect*10;
-                }
-                if (comment != null) {
-                    score += comment*5;
-                }
+                score += view;
+                score += up * 2;
+                score -= down * 2;
+                score += collect * 10;
+                score += comment * 5;
+
+                long articleId = Long.parseLong(id);
                 ArticleDailyData articleDailyData = ArticleDailyData.builder()
-                        .id(Long.parseLong(id))
-                        .articleFieldId(articleFieldRepository.findById(Long.parseLong(id)).get().getId())
-                        .upNum(up == null ? 0 : up)
-                        .downNum(down == null ? 0 : down)
-                        .commentNum(comment == null ? 0 : comment)
-                        .viewNum(view == null ? 0 : view)
-                        .collectNum(collect == null ? 0 : collect)
+                        .userId(articleFieldRepository.findUserIdById(articleId))
+                        .articleFieldId(articleId)
+                        .upNum(up)
+                        .downNum(down)
+                        .commentNum(comment)
+                        .viewNum(view)
+                        .collectNum(collect)
                         .score(score)
-                        .date(LocalDate.now())
+                        .dataDate(LocalDate.now())
+                        .tagIds(articleFieldRepository.getTagIdsById(articleId))
+                        .groupId(articleFieldRepository.getGroupIdById(articleId))
                         .build();
                 dailyDataArrayList.add(articleDailyData);
-                redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey + id);
             }
             articleDailyDataRepository.saveAll(dailyDataArrayList);
+            for (String id : idSet) {
+                redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey + id);
+            }
             redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey);
         }
 
+    }
+
+    private int getMapValue(Map<Object, Object> map, RedisRecordHashKey key) {
+        if (map.get(key.toString()) == null) {
+            return 0;
+        }
+        return Integer.parseInt((String) map.get(key.toString()));
     }
 }

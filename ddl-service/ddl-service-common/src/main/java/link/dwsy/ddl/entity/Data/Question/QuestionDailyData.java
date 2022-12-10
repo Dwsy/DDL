@@ -2,14 +2,17 @@ package link.dwsy.ddl.entity.Data.Question;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.*;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "question_daily_data")
@@ -18,6 +21,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @JsonIgnoreProperties(value = {"deleted", "handler", "hibernateLazyInitializer"})
 public class QuestionDailyData {
 
@@ -26,6 +31,8 @@ public class QuestionDailyData {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long id;
     private long questionFieldId;
+
+    private long userId;
 
     int answerNum = 0;
 
@@ -44,7 +51,12 @@ public class QuestionDailyData {
 
     private int score = 0;
 
-    private LocalDate date;
+    private LocalDate dataDate;
+
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb")
+    private List<Long> tagIds = new ArrayList<>();
+    private long groupId;
 
     @Transient
     private int countScore;

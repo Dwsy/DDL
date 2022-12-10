@@ -7,11 +7,9 @@ import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @JsonIgnoreProperties(value = {"deleted", "handler", "hibernateLazyInitializer"})
 public class ArticleDailyData {
@@ -33,6 +32,7 @@ public class ArticleDailyData {
     private long id;
 
     private long articleFieldId;
+    private long userId;
 
 
     private int upNum = 0;
@@ -52,9 +52,12 @@ public class ArticleDailyData {
     private int score = 0;
 
 
-    private LocalDate date;
+    private LocalDate dataDate;
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
     private List<Long> tagIds = new ArrayList<>();
+    private long groupId;
 
+    @Transient
+    private int scoreCount;
 }

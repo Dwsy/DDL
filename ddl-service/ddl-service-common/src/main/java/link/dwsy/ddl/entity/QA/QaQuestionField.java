@@ -33,39 +33,29 @@ import java.util.List;
 @JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted"})
 public class QaQuestionField extends BaseEntity {
 
+    @Builder.Default
+    boolean allowAnswer = true;
+    @Builder.Default
+    int answerNum = 0;
+    @Builder.Default
+    int viewNum = 0;
+    @Builder.Default
+    int collectNum = 0;
+    @Builder.Default
+    int upNum = 0;
+    @Builder.Default
+    int downNum = 0;
     @ManyToOne
     @JoinColumn(name = "user_id")
-    User user;
-
-    String title;
-
+    private User user;
+    private String title;
     @Builder.Default
     @Enumerated(EnumType.ORDINAL)
-    QuestionState questionState = QuestionState.ASK;
-
+    private QuestionState questionState = QuestionState.ASK;
     @Builder.Default
     @Enumerated(EnumType.ORDINAL)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    QuestionState beforeQuestionState = null;
-
-    @Builder.Default
-    boolean allowAnswer = true;
-
-    @Builder.Default
-    int answerNum = 0;
-
-    @Builder.Default
-    int viewNum = 0;
-
-    @Builder.Default
-    int collectNum = 0;
-
-    @Builder.Default
-    int upNum = 0;
-
-    @Builder.Default
-    int downNum = 0;
-
+    private QuestionState beforeQuestionState = null;
     private String summary;
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             orphanRemoval = true, fetch = FetchType.LAZY, optional = true)

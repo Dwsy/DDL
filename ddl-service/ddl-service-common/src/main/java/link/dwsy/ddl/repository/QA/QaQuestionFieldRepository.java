@@ -4,6 +4,7 @@ import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -38,6 +39,8 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     Page<QaQuestionField> findByDeletedFalseAndIdIn(Collection<Long> id, Pageable pageable);
 
     List<QaQuestionField> findAllByDeletedFalseAndIdIn(Collection<Long> id);
+
+    List<QaQuestionField> findAllByDeletedFalseAndIdIn(Collection<Long> id, Sort sort);
 
     Page<QaQuestionField> findByDeletedFalseAndIdInAndQuestionStateIn(Collection<Long> ids, Collection<QuestionState> questionStates, Pageable pageable);
 
@@ -165,4 +168,10 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
 
     @Query(nativeQuery = true,value = "select count(*) from users where id=(select user_id  from qa_question_field where id=?1) and deleted is true")
     int userIsCancelled(long answerId);
+
+    @Query(nativeQuery = true, value = "select qa_group_id from qa_question_field where id=?1")
+    long getGroupIdByQuestionId(long id);
+
+    @Query(nativeQuery = true, value = "select qa_field_id from qa_tag_ref where qa_field_id=?1")
+    List<Long> getTagIdListByQuestionId(long id);
 }

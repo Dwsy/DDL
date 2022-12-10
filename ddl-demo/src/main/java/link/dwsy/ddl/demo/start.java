@@ -3,8 +3,6 @@ package link.dwsy.ddl.demo;
 import link.dwsy.ddl.annotation.IgnoreResponseAdvice;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -17,10 +15,10 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 // 需要指定扫描包，全局响应才能生效 （高版本spring boot2）
 @SpringBootApplication(scanBasePackages = {"link.dwsy.ddl"})
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 @RestController
 //@MapperScan("link.dwsy.ddl.demo.mapper")
-@EnableJpaAuditing
+//@EnableJpaAuditing
 @EnableWebMvc
 public class start {
 //    public start(DiscoveryClient discoveryClient) {

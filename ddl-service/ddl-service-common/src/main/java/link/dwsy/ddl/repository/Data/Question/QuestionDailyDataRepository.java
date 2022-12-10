@@ -1,5 +1,6 @@
 package link.dwsy.ddl.repository.Data.Question;
 
+import link.dwsy.ddl.XO.Projection.DailyData_Id_And_ScoreCount;
 import link.dwsy.ddl.entity.Data.Question.QuestionDailyData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +11,10 @@ import java.util.List;
 
 public interface QuestionDailyDataRepository extends JpaRepository<QuestionDailyData, Long> {
 
-    @Query(value = "select q from QuestionDailyData as q where q.date<= ?1 group by q.questionFieldId order by sum(q.score) desc")
-    List<QuestionDailyData> getNDaysRank(LocalDate startDate );
+    @Query(nativeQuery = true, value = "select question_field_id as id, sum(score) as scoreCount \n" +
+            "from question_daily_data\n" +
+            "where date_trunc('day', (data_date)) > date_trunc('day', date(?1))\n" +
+            "group by question_field_id\n" +
+            "order by sum(score) desc limit ?2")
+    List<DailyData_Id_And_ScoreCount> getNDaysRank(LocalDate startDate, int limit);
 }
