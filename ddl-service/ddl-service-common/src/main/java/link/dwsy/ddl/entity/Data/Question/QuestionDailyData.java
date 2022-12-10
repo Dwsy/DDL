@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedBy;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.time.LocalDate;
 
 @Entity
@@ -26,23 +27,26 @@ public class QuestionDailyData {
     private long id;
     private long questionFieldId;
 
-    @Builder.Default
     int answerNum = 0;
-    @Builder.Default
+
     int commentNum = 0;
 
-    @Builder.Default
     int viewNum = 0;
 
-    @Builder.Default
+
     int collectNum = 0;
 
-    @Builder.Default
+
     int upNum = 0;
 
-    @Builder.Default
+
     int downNum = 0;
 
+    private int score = 0;
+
     private LocalDate date;
+
+    @Transient
+    private int countScore;
 
 }

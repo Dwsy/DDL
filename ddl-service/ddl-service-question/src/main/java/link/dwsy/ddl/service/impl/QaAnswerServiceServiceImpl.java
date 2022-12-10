@@ -203,6 +203,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
         sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getReplyUserAnswerId(),
                 answerType, false, content, parentText, save.getId());
+        questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.comment, 1);
         return save;
     }
 
@@ -234,6 +235,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         String parentText = HtmlHelper.toPure(qaAnswerRepository.getHtmlText(qaAnswerRB.getParentAnswerId()));
         sendActionMqMessage(user.getId(), questionFieldId, parentAnswerId,
                 answerType, false, content, parentText, save.getId());
+        questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.comment, 1);
         return save;
     }
 
@@ -273,11 +275,12 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
         questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.answer, 1);
         qaQuestionFieldRepository.setQuestionStateIfNowStateIs(questionFieldId, QuestionState.HAVE_ANSWER.ordinal(), QuestionState.ASK.ordinal());
+
         return save;
     }
 
     private QaAnswer addComment(QaAnswerRB qaAnswerRB, AnswerType answerType, long questionFieldId, User user, QaQuestionField qaQuestionField, int answerSerialNumber) {
-        if (qaAnswerRB.getReplyUserAnswerId() == 0) {
+        if (qaAnswerRB.getReplyUserAnswerId() == 0) {//回复问题
             QaAnswer lastAnswer = qaAnswerRepository
                     .findFirstByDeletedFalseAndQuestionField_IdAndParentAnswerIdAndAnswerTypeOrderByAnswerSerialNumberDesc
                             (questionFieldId, 0L, AnswerType.comment);
@@ -306,8 +309,10 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
             String title = qaQuestionFieldRepository.getTitle(questionFieldId);
             sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
                     answerType, false, content, title, save.getId());
+            questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.comment, 1);
             return save;
-        } else {
+        } else {//回复评论
+
             return replyQuestionSecondComment(qaAnswerRB, answerType, questionFieldId, user, qaQuestionField, answerSerialNumber);
         }
 
@@ -349,7 +354,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
         sendActionMqMessage(user.getId(), questionFieldId, qaAnswerRB.getParentAnswerId(),
                 answerType, false, content, title, save.getId());
-
+        questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.comment, 1);
         return save;
     }
 

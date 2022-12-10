@@ -26,5 +26,10 @@
         </list>
       </option>
     </inspection_tool>
+    <inspection_tool class="com.haulmont.jpb.CompositeIdClassSerializable" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="K">
+        <Project />
+      </option>
+    </inspection_tool>
   </profile>
 </component>

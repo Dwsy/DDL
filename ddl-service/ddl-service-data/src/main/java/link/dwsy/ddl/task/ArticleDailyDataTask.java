@@ -47,16 +47,34 @@ public class ArticleDailyDataTask {
                 Integer down = (Integer) dataMap.get(RedisRecordHashKey.down);
                 Integer collect = (Integer) dataMap.get(RedisRecordHashKey.collect);
                 Integer comment = (Integer) dataMap.get(RedisRecordHashKey.comment);
-                ArticleDailyData data = ArticleDailyData.builder()
-                        .articleFieldId(Long.parseLong(id))
-                        .upNum(up)
-                        .downNum(down)
-                        .commentNum(comment)
-                        .viewNum(view)
-                        .collectNum(collect)
+                int score = 0;
+                if (view != null) {
+                    score += view;
+                }
+                if (up != null) {
+                    score += up*2;
+                }
+                if (down != null) {
+                    score -= down*2;
+                }
+                if (collect != null) {
+                    score += collect*10;
+                }
+                if (comment != null) {
+                    score += comment*5;
+                }
+                ArticleDailyData articleDailyData = ArticleDailyData.builder()
+                        .id(Long.parseLong(id))
+                        .articleFieldId(articleFieldRepository.findById(Long.parseLong(id)).get().getId())
+                        .upNum(up == null ? 0 : up)
+                        .downNum(down == null ? 0 : down)
+                        .commentNum(comment == null ? 0 : comment)
+                        .viewNum(view == null ? 0 : view)
+                        .collectNum(collect == null ? 0 : collect)
+                        .score(score)
                         .date(LocalDate.now())
                         .build();
-                dailyDataArrayList.add(data);
+                dailyDataArrayList.add(articleDailyData);
                 redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey + id);
             }
             articleDailyDataRepository.saveAll(dailyDataArrayList);
