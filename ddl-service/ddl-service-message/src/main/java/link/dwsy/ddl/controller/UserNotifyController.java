@@ -34,7 +34,7 @@ import java.util.Set;
 public class UserNotifyController {
 
     @Resource
-    UserMessageRepository userMessageRepository;
+    private UserMessageRepository userMessageRepository;
     @Resource
     private UserNotifyRepository userNotifyRepository;
     @Resource

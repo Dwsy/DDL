@@ -9,12 +9,11 @@ import link.dwsy.ddl.XO.Enum.QA.QuestionState;
 import link.dwsy.ddl.constants.mq.QuestionSearchMQConstants;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.QA.QaQuestionField;
-import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.QA.QaContentRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -26,21 +25,19 @@ import java.util.stream.Collectors;
  * @Author Dwsy
  * @Date 2022/9/11
  */
-@Component
+@Service
 @Slf4j
 public class QuestionSearchProcess {
 
     private final String INDEX = QuestionSearchMQConstants.INDEX;
     @Resource
-    ArticleFieldRepository articleFieldRepository;
+    private ArticleFieldRepository articleFieldRepository;
     @Resource
     private QaQuestionFieldRepository qaQuestionFieldRepository;
     @Resource
-    ArticleContentRepository articleContentRepository;
+    private QaContentRepository qaContentRepository;
     @Resource
-    QaContentRepository qaContentRepository;
-    @Resource
-    ElasticsearchClient client;
+    private ElasticsearchClient client;
 
     public void updateScoreDataById(long questionId) {
         ArticleField af = articleFieldRepository.findByIdAndDeletedIsFalseAndArticleState(questionId, ArticleState.published);

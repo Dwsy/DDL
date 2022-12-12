@@ -19,7 +19,6 @@ public class ArticleSearchMQConstants {
 
     public static final String QUEUE_DDL_ARTICLE_SEARCH_UPDATE_SCORE = "ddl.article.search.update.score.queue";
 
-
     public static final String RK_DDL_ARTICLE_SEARCH_CREATE = "ddl.article.search.create";
 
     public static final String RK_DDL_ARTICLE_SEARCH_UPDATE = "ddl.article.search.update";

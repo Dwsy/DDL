@@ -2,6 +2,7 @@ package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.RB.InfinityTopicRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.constants.mq.InfinityTopicMQConstants;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Infinity.InfinityTopic;
@@ -13,6 +14,7 @@ import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +42,9 @@ public class InfinityTopicController {
     @Resource
     private InfinityClubRepository infinityClubRepository;
 
+    @Resource
+    private RabbitTemplate rabbitTemplate;
+
     @PostMapping
     @AuthAnnotation
     public InfinityTopic createInfinityTopic(@Validated @RequestBody InfinityTopicRB infinityTopicRB) {
@@ -53,7 +58,10 @@ public class InfinityTopicController {
         infinityTopic.setCover(infinityTopicRB.getCover());
         infinityTopic.setDescription(infinityTopicRB.getDescription());
         infinityTopic.setNotice(infinityTopicRB.getNotice());
-        return infinityTopicRepository.save(infinityTopic);
+        InfinityTopic save = infinityTopicRepository.save(infinityTopic);
+        rabbitTemplate.convertAndSend(InfinityTopicMQConstants.EXCHANGE_DDL_INFINITY_TOPIC,
+                InfinityTopicMQConstants.RK_DDL_INFINITY_TOPIC_SEARCH_CREATE, save.getId());
+        return save;
     }
 
     @PutMapping
@@ -73,11 +81,14 @@ public class InfinityTopicController {
         infinityTopic.setCover(infinityTopicRB.getCover());
         infinityTopic.setDescription(infinityTopicRB.getDescription());
         infinityTopic.setNotice(infinityTopicRB.getNotice());
-        return infinityTopicRepository.save(infinityTopic);
+        InfinityTopic save = infinityTopicRepository.save(infinityTopic);
+        rabbitTemplate.convertAndSend(InfinityTopicMQConstants.EXCHANGE_DDL_INFINITY_TOPIC,
+                InfinityTopicMQConstants.RK_DDL_INFINITY_TOPIC_SEARCH_UPDATE, save.getId());
+        return save;
     }
 
     @DeleteMapping("{topicId}")
-    @AuthAnnotation
+    @AuthAnnotation(Level = 999)
     public void deleteInfinityTopic(@PathVariable Long topicId) {
         Long userId = userSupport.getCurrentUser().getId();
         InfinityTopic infinityTopic = infinityTopicRepository.findById(topicId)
