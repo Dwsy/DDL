@@ -15,12 +15,10 @@ public class InfinityTopicRB {
     @Size(min = 1, max = 100, message = "话题名称长度不合法")
     private String name;
 
-    @Size(max = 255, message = "话题描述长度不合法")
+
     private String description;
 
-    @Size(max = 255, message = "话题封面长度不合法")
     private String cover;
 
-    @Size(max = 255, message = "话题公告长度不合法")
     private String notice;
 }

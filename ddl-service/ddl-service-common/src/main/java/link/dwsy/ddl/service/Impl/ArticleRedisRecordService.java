@@ -31,6 +31,8 @@ public class ArticleRedisRecordService {
             redisTemplate.opsForSet().add(RedisRecordKey.RedisArticleRecordKey, String.valueOf(id));
         }
         redisTemplate.opsForHash().increment(RedisRecordKey.RedisArticleRecordKey + id, recordHashKey.toString(), increment);
+        redisTemplate.opsForZSet().incrementScore(RedisRecordKey.RedisArticleRecordToDayKey, String.valueOf(id), getScore(recordHashKey,increment));
+
         if (increment <= 0) {
             return;
         }
@@ -47,5 +49,26 @@ public class ArticleRedisRecordService {
                         (ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_UPDATE_SCORE, id);
             }
         }
+    }
+    public int getScore(RedisRecordHashKey recordHashKey, int increment) {
+        int score = 0;
+        switch (recordHashKey) {
+            case view:
+                score = 1;
+                break;
+            case up:
+                score = 2;
+                break;
+            case down:
+                score = -2;
+                break;
+            case collect:
+                score = 10;
+                break;
+            case comment:
+                score = 5;
+                break;
+        }
+        return score*increment;
     }
 }

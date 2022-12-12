@@ -31,6 +31,7 @@ public class QuestionRedisRecordService {
             redisTemplate.opsForSet().add(RedisRecordKey.RedisQuestionRecordKey, String.valueOf(id));
         }
         redisTemplate.opsForHash().increment(RedisRecordKey.RedisQuestionRecordKey + id, recordHashKey.toString(), increment);
+        redisTemplate.opsForZSet().incrementScore(RedisRecordKey.RedisQuestionRecordToDayKey, String.valueOf(id), getScore(recordHashKey,increment));
         if (increment <= 0) {
             return;
         }
@@ -48,5 +49,28 @@ public class QuestionRedisRecordService {
                                 QuestionSearchMQConstants.RK_DDL_QUESTION_SEARCH_UPDATE_SCORE, id);
             }
         }
+    }
+    public int getScore(RedisRecordHashKey recordHashKey, int increment) {
+        int score=0;
+        switch (recordHashKey) {
+            case view:
+                score = 1;
+                break;
+            case up:
+                score = 2;
+                break;
+            case down:
+                score = -2;
+                break;
+            case collect:
+                score = 10;
+                break;
+            case comment:
+                score = 5;
+            case answer:
+                score = 20;
+                break;
+        }
+        return score*increment;
     }
 }

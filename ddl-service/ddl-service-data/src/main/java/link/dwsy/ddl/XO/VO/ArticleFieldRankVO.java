@@ -1,5 +1,6 @@
 package link.dwsy.ddl.XO.VO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import link.dwsy.ddl.XO.Enum.ArticleSource;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import link.dwsy.ddl.entity.Article.ArticleGroup;
@@ -16,6 +17,8 @@ import java.util.List;
  */
 @Data
 public class ArticleFieldRankVO {
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long id;
     private Date createTime;
     int upNum ;

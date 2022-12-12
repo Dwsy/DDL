@@ -16,7 +16,7 @@ import java.util.List;
  * @Date 2022/12/10
  */
 @Data
-public class QuestionFieldRankVO {
+public class InfinityRankVO {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long id;
     private Date createTime;
@@ -46,7 +46,7 @@ public class QuestionFieldRankVO {
 
 
 
-    public QuestionFieldRankVO(QaQuestionField questionField, int scoreCount) {
+    public InfinityRankVO(QaQuestionField questionField, int scoreCount) {
         this.id = questionField.getId();
         this.createTime = questionField.getCreateTime();
         this.upNum = questionField.getUpNum();

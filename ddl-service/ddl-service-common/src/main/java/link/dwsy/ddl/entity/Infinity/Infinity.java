@@ -79,7 +79,7 @@ public class Infinity extends BaseEntity {
     @Transient
     private String replyUserName;
 
-    private Long viewNum = 0L;
+    private long viewNum;
 
     private int replySerialNumber;
 

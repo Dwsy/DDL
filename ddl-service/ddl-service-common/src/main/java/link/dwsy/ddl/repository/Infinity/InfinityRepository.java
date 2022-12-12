@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -49,6 +48,13 @@ public interface InfinityRepository extends JpaRepository<Infinity, Long> {
     @Query(nativeQuery = true,
             value = "update infinity set up_num=up_num+?2 where id=?1")
     void upNumIncrement(long id, int num);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true,
+            value = "update infinity set view_num=view_num+?2 where id=?1")
+    void viewNumIncrement(long id, int num);
+
 
     @Modifying
     @Transactional

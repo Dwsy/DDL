@@ -33,18 +33,18 @@ public class UserPrivateMessageServiceImpl implements UserPrivateMessageService 
     @Resource
     private UserMessageRepository userMessageRepository;
     @Resource
-    private   UserSupport userSupport;
+    private UserSupport userSupport;
     @Resource
-    private  UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Resource
-    private  StringRedisTemplate stringRedisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     @Resource
-    private  ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @Resource
-   private UserStateService userStateService;
+    private UserStateService userStateService;
 
     @Override
     public boolean sendPrivateMessage(SendPrivateMessageRB sendPrivateMessageRB) {

@@ -16,14 +16,25 @@ public interface ArticleDailyDataRepository extends JpaRepository<ArticleDailyDa
             "group by article_field_id\n" +
             "order by sum(score) desc limit ?2")
     List<DailyData_Id_And_ScoreCount> getNDaysRank(LocalDate startDate, int limit);
-//    select *
-//    from article_daily_data
-//    where id in (select article_field_id
-//             from article_daily_data
-//                     where date_trunc('day', date(data_date)) > date_trunc('day', date('2022-12-3'))
-//    group by article_field_id
-//    order by sum(score) desc)
-//    and jsonb_contains(tag_ids, '[4]')
-//    limit 30;
 
+    @Query(nativeQuery = true, value = "select article_field_id as id, sum(score) as scoreCount \n" +
+            "from article_daily_data\n" +
+            "where date_trunc('day', (data_date)) > date_trunc('day', date(?1)) and group_id=?2\n" +
+            "group by article_field_id\n" +
+            "order by sum(score) desc limit ?3")
+    List<DailyData_Id_And_ScoreCount> getNDaysRankByGroup(LocalDate startDate, long groupId, int limit);
+
+    @Query(nativeQuery = true, value = "select article_field_id as id, sum(score) as scoreCount \n" +
+            "from article_daily_data\n" +
+            "where date_trunc('day', (data_date)) > date_trunc('day', date(?1)) and jsonb_contains(tag_ids, ?2)\n" +
+            "group by article_field_id\n" +
+            "order by sum(score) desc limit ?3")
+    List<DailyData_Id_And_ScoreCount> getNDaysRankByTag(LocalDate startDate, String tagId, int limit);
+
+    @Query(nativeQuery = true, value = "select article_field_id as id, sum(score) as scoreCount \n" +
+            "from article_daily_data\n" +
+            "where  date_trunc('day', date(?2)) >= date_trunc('day', (data_date)) >= date_trunc('day', date(?1)) "+
+            "group by article_field_id\n" +
+            "order by sum(score) desc limit ?3")
+    List<DailyData_Id_And_ScoreCount> getBetweenDateRank(LocalDate startDate,LocalDate endDate, int limit);
 }

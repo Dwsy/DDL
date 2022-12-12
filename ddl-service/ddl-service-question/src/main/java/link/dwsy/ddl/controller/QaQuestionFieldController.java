@@ -54,9 +54,9 @@ public class QaQuestionFieldController {
     public PageData<QaQuestionField> QuestionList(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
-            @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
-            @RequestParam(required = false, defaultValue = "ask", name = "status") Set<String> statusStr
+            @RequestParam(required = false, defaultValue = "ask", name = "status") String[] statusStr
     ) {
         if (size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
@@ -76,6 +76,34 @@ public class QaQuestionFieldController {
 
         return qaQuestionFieldService.getPageList(questionStates, pageRequest);
     }
+
+    @GetMapping("field/recommend/list")
+    public PageData<QaQuestionField> recommendQuestionList(
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "8", name = "size") int size,
+            @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "ask", name = "status") String[] statusStr
+    ) {
+        if (size < 1)
+            throw new CodeException(CustomerErrorCode.ParamError);
+
+        Set<QuestionState> questionStates = new HashSet<>();
+
+
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+
+        for (String status : statusStr) {
+            try {
+                questionStates.add(QuestionState.valueOf(status.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new CodeException(CustomerErrorCode.ParamError);
+            }
+        }
+
+        return qaQuestionFieldService.getPageList(questionStates, pageRequest);
+    }
+
 
     @GetMapping("field/{id}")
     public QaQuestionField GetQuestionById(

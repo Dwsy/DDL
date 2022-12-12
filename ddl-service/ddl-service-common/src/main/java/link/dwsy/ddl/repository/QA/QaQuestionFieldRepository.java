@@ -112,7 +112,8 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     @Transactional
     @Modifying
     @Query(nativeQuery = true,
-            value = "insert into qa_user_watch_ref (user_id, question_id,delete,create_time) values (?1, ?2,false,now())")
+            value = "insert into qa_user_watch_ref (user_id, question_id,delete,create_time) values (?1, ?2,false,now());"+
+                    "update qa_question_field set watch_num = watch_num+1 where id = ?2")
     int watchQuestion(Long userId, long questionId);
 
 
@@ -123,7 +124,8 @@ public interface QaQuestionFieldRepository extends JpaRepository<QaQuestionField
     @Transactional
     @Modifying
     @Query(nativeQuery = true,
-            value = "delete from qa_user_watch_ref where user_id = ?1 and question_id = ?2")
+            value = "delete from qa_user_watch_ref where user_id = ?1 and question_id = ?2;"+
+                    "update qa_question_field set watch_num = watch_num-1 where id = ?2")
     int cancelWatchQuestion(Long userId, long questionId);
 
     @Query(nativeQuery = true,

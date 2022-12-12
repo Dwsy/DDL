@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EasyCodeTableSetting">
+    <option name="tableInfoMap">
+      <map>
+        <entry key="link.dwsy.ddl.service.impl.QaAnswerServiceServiceImpl">
+          <value>
+            <TableInfoDTO>
+              <option name="comment" value="" />
+              <option name="fullColumn">
+                <list>
+                  <ColumnInfoDTO>
+                    <option name="custom" value="false" />
+                    <option name="ext" value="{}" />
+                    <option name="name" value="qaQuestionFieldRepository" />
+                    <option name="type" value="link.dwsy.ddl.repository.QA.QaQuestionFieldRepository" />
+                  </ColumnInfoDTO>
+                  <ColumnInfoDTO>
+                    <option name="custom" value="false" />
+                    <option name="ext" value="{}" />
+                    <option name="name" value="qaAnswerRepository" />
+                    <option name="type" value="link.dwsy.ddl.repository.QA.QaAnswerRepository" />
+                  </ColumnInfoDTO>
+                  <ColumnInfoDTO>
+                    <option name="custom" value="false" />
+                    <option name="ext" value="{}" />
+                    <option name="name" value="userSupport" />
+                    <option name="type" value="link.dwsy.ddl.support.UserSupport" />
+                  </ColumnInfoDTO>
+                  <ColumnInfoDTO>
+                    <option name="custom" value="false" />
+                    <option name="ext" value="{}" />
+                    <option name="name" value="userRepository" />
+                    <option name="type" value="link.dwsy.ddl.repository.User.UserRepository" />
+                  </ColumnInfoDTO>
+                  <ColumnInfoDTO>
+                    <option name="custom" value="false" />
+                    <option name="ext" value="{}" />
+                    <option name="name" value="userNotifyRepository" />
+                    <option name="type" value="link.dwsy.ddl.repository.User.UserNotifyRepository" />
+                  </ColumnInfoDTO>
+                  <ColumnInfoDTO>
+                    <option name="custom" value="false" />
+                    <option name="ext" value="{}" />
+                    <option name="name" value="rabbitTemplate" />
+                    <option name="type" value="org.springframework.amqp.rabbit.core.RabbitTemplate" />
+                  </ColumnInfoDTO>
+                  <ColumnInfoDTO>
+                    <option name="custom" value="false" />
+                    <option name="ext" value="{}" />
+                    <option name="name" value="userStateService" />
+                    <option name="type" value="link.dwsy.ddl.service.Impl.UserStateService" />
+                  </ColumnInfoDTO>
+                </list>
+              </option>
+              <option name="name" value="QaAnswerServiceServiceImpl" />
+              <option name="preName" value="" />
+              <option name="saveModelName" value="" />
+              <option name="savePackageName" value="" />
+              <option name="savePath" value="" />
+              <option name="templateGroupName" value="" />
+            </TableInfoDTO>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

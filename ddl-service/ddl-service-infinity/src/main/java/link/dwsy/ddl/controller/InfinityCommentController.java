@@ -6,6 +6,7 @@ import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.ReplyInfinityRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.constants.OtherConstants;
+import link.dwsy.ddl.constants.task.RedisInfinityRecordHashKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
@@ -14,6 +15,7 @@ import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Infinity.InfinityRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.Infinity.InfinityRedisRecordService;
 import link.dwsy.ddl.service.InfinityCommentService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
@@ -52,6 +54,9 @@ public class InfinityCommentController {
 
     @Resource
     private UserRepository userRepository;
+
+    @Resource
+    private InfinityRedisRecordService infinityRedisRecordService;
 
 
     @GetMapping("{id}")
@@ -150,6 +155,7 @@ public class InfinityCommentController {
             if (!exists) {
                 throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
             }
+            infinityRedisRecordService.record(replyId, RedisInfinityRecordHashKey.comment,1,null);
             Infinity infinity = Infinity.builder()
                     .type(InfinityType.TweetCommentOrReply)
                     .content(content)
@@ -189,38 +195,38 @@ public class InfinityCommentController {
         }
     }
 
-    @PostMapping("action/up/{id}")
-    @AuthAnnotation
-    public String upTweet(@PathVariable long id,
-                          @RequestParam(value = "up", required = false, defaultValue = "true") boolean up) {
-
-        Long userId = userSupport.getCurrentUser().getId();
-        if (!infinityRepository.existsByDeletedFalseAndIdAndTypeNot(id, InfinityType.upTweet)) {
-            throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
-        }
-        Infinity userAction = infinityRepository.findByDeletedFalseAndUser_IdAndParentTweetIdAndType(userId, id, InfinityType.upTweet);
-
-        if (up) {
-            if (userAction == null) {
-                Infinity upInfinity = Infinity.builder()
-                        .type(InfinityType.upTweet)
-                        .user((User) new User().setId(userId))
-                        .ua(userSupport.getUserAgent())
-                        .parentTweetId(id).build();
-                Infinity save = infinityRepository.save(upInfinity);
-                infinityRepository.upNumIncrement(id, 1);
-                infinityCommentService.sendActionMqMessage(userId,save,UserActiveType.Thumb_Tweet,id,false);
-                return "点赞成功";
-            }
-            return "已点赞";
-        } else {
-            if (userAction != null) {
-                infinityRepository.delete(userAction);
-                infinityRepository.upNumIncrement(id, -1);
-                infinityCommentService.sendActionMqMessage(userId,userAction,UserActiveType.Thumb_Tweet,id,true);
-                return "取消点赞成功";
-            }
-            return "未点赞";
-        }
-    }
+//    @PostMapping("action/up/{id}")
+//    @AuthAnnotation
+//    public String upTweet(@PathVariable long id,
+//                          @RequestParam(value = "up", required = false, defaultValue = "true") boolean up) {
+//
+//        Long userId = userSupport.getCurrentUser().getId();
+//        if (!infinityRepository.existsByDeletedFalseAndIdAndTypeNot(id, InfinityType.upTweet)) {
+//            throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
+//        }
+//        Infinity userAction = infinityRepository.findByDeletedFalseAndUser_IdAndParentTweetIdAndType(userId, id, InfinityType.upTweet);
+//
+//        if (up) {
+//            if (userAction == null) {
+//                Infinity upInfinity = Infinity.builder()
+//                        .type(InfinityType.upTweet)
+//                        .user((User) new User().setId(userId))
+//                        .ua(userSupport.getUserAgent())
+//                        .parentTweetId(id).build();
+//                Infinity save = infinityRepository.save(upInfinity);
+//                infinityRepository.upNumIncrement(id, 1);
+//                infinityCommentService.sendActionMqMessage(userId,save,UserActiveType.Thumb_Tweet,id,false);
+//                return "点赞成功";
+//            }
+//            return "已点赞";
+//        } else {
+//            if (userAction != null) {
+//                infinityRepository.delete(userAction);
+//                infinityRepository.upNumIncrement(id, -1);
+//                infinityCommentService.sendActionMqMessage(userId,userAction,UserActiveType.Thumb_Tweet,id,true);
+//                return "取消点赞成功";
+//            }
+//            return "未点赞";
+//        }
+//    }
 }

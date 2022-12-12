@@ -85,7 +85,12 @@ public class InfinityTopicController {
         if (infinityTopic.getCreateUser().getId() != userId) {
             throw new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST);
         }
-        infinityTopicRepository.delete(infinityTopic);
+        if (infinityTopic.getFollowerNum() > 0) {
+            throw new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST);
+        } else {
+            infinityTopic.setDeleted(true);
+            infinityTopicRepository.save(infinityTopic);
+        }
     }
 
     @PostMapping("follow/{topicId}")

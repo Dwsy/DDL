@@ -74,6 +74,8 @@ public class QaQuestionField extends BaseEntity {
     @JsonProperty(value = "group")
     private QaGroup qaGroup;
 
+    private Integer watchNum;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "questionField")
     @JsonIgnore
 //    @Fetch(FetchMode.SUBSELECT)

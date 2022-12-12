@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * @Author Dwsy
  * @Date 2022/11/23
@@ -43,4 +45,7 @@ public interface InfinityClubRepository extends JpaRepository<InfinityClub, Long
     boolean existsByDeletedFalseAndName(String name);
 
     boolean existsByDeletedAndId(boolean deleted, long topicId);
+
+    List<InfinityClub> findByDeletedFalseAndIdIn(List<Long> infinityTopicIds);
+
 }

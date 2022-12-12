@@ -5,6 +5,7 @@ import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.InfinityRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.constants.OtherConstants;
+import link.dwsy.ddl.constants.task.RedisInfinityRecordHashKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
@@ -16,6 +17,9 @@ import link.dwsy.ddl.repository.Infinity.InfinityClubRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.Infinity.InfinityClubRedisRecordService;
+import link.dwsy.ddl.service.Impl.Infinity.InfinityRedisRecordService;
+import link.dwsy.ddl.service.Impl.Infinity.InfinityTopicRedisRecordService;
 import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.service.InfinityCommentService;
 import link.dwsy.ddl.support.UserSupport;
@@ -42,7 +46,6 @@ import java.util.stream.Collectors;
 @RequestMapping("infinity")
 @Slf4j
 public class InfinityController {
-
     @Resource
     private UserSupport userSupport;
 
@@ -60,7 +63,15 @@ public class InfinityController {
 
     @Resource
     private UserStateService userStateService;
+    @Resource
+    private InfinityRedisRecordService infinityRedisRecordService;
 
+    @Resource
+    private InfinityCommentService infinityCommentService;
+    @Resource
+    private InfinityClubRedisRecordService infinityClubRedisRecordService;
+    @Resource
+    private InfinityTopicRedisRecordService infinityTopicRedisRecordService;
 
     @GetMapping("list")
     public PageData<Infinity> getInfinityPageList(
@@ -167,7 +178,6 @@ public class InfinityController {
         return infinityPage;
     }
 
-
     @PostMapping
     @AuthAnnotation
     public Infinity sendInfinity(@Validated @RequestBody InfinityRB infinityRB) {
@@ -181,12 +191,17 @@ public class InfinityController {
             infinityClub = infinityClubRepository.findById(infinityClubId)
                     .orElseThrow(() -> new CodeException(CustomerErrorCode.INFINITY_CLUB_NOT_EXIST));
             infinity.setInfinityClub(infinityClub);
+            infinityClubRedisRecordService.record(infinityClubId, RedisInfinityRecordHashKey.quote,1);
         }
         if (infinityTopicIds != null) {
 //            infinityTopic = infinityTopicRepository.findById(infinityTopicId)
 //                    .orElseThrow(() -> new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST));
 //            infinity.setInfinityTopic(infinityTopic);
             List<InfinityTopic> infinityTopics = infinityTopicRepository.findByDeletedFalseAndIdIn(infinityTopicIds);
+            infinityTopics.forEach(infinityTopic -> {
+                infinityTopicRedisRecordService.record(infinityTopic.getId(), RedisInfinityRecordHashKey.quote,1);
+            });
+            infinityClubRedisRecordService.record(infinityClubId, RedisInfinityRecordHashKey.quote,1);
             if (infinityTopics.size() != infinityTopicIds.size()) {
                 throw new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST);
             }
@@ -236,13 +251,14 @@ public class InfinityController {
         infinityRepository.save(infinity);
     }
 
-
     @GetMapping("{id}")
     public Infinity getInfinity(@PathVariable long id) {
         Infinity infinity = infinityRepository.findByDeletedFalseAndId(id);
         if (infinity == null) {
             throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
         }
+        infinityRepository.viewNumIncrement(id,1);
+        infinityRedisRecordService.record(id, RedisInfinityRecordHashKey.view, 1, infinity);
         userStateService.cancellationUserHandel(infinity.getUser());
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest replyPageRequest = PRHelper.order("DESC", new String[]{"createTime"}, 1, 8);
@@ -309,7 +325,6 @@ public class InfinityController {
         return infinity;
     }
 
-
     @GetMapping("user/{id}")
     public PageData<Infinity> getInfinityPageDataByUserId(
             @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
@@ -327,7 +342,7 @@ public class InfinityController {
         infinityPage.getContent().forEach(infinity -> {
             infinity.setImgUrlList();
             infinity.noRetCreateUser();
-            if (infinity.getType()==InfinityType.TweetCommentOrReply){
+            if (infinity.getType() == InfinityType.TweetCommentOrReply) {
                 Long replyUserId = infinity.getParentUserId();
                 if (replyUserId != null) {
                     infinity.setReplyUserName(userRepository.getUserNicknameById(replyUserId));
@@ -338,8 +353,6 @@ public class InfinityController {
 
     }
 
-    @Resource
-    private InfinityCommentService infinityCommentService;
     @PostMapping("action/up/{id}")
     @AuthAnnotation
     public String upTweet(@PathVariable long id,
@@ -358,9 +371,10 @@ public class InfinityController {
                         .user((User) new User().setId(userId))
                         .ua(userSupport.getUserAgent())
                         .parentTweetId(id).build();
+                infinityRedisRecordService.record(id, RedisInfinityRecordHashKey.up, 1, null);
                 Infinity save = infinityRepository.save(upInfinity);
                 infinityRepository.upNumIncrement(id, 1);
-                infinityCommentService.sendActionMqMessage(userId,save, UserActiveType.Thumb_Tweet,id,false);
+                infinityCommentService.sendActionMqMessage(userId, save, UserActiveType.Thumb_Tweet, id, false);
                 return "点赞成功";
             }
             return "已点赞";
@@ -368,7 +382,8 @@ public class InfinityController {
             if (userAction != null) {
                 infinityRepository.delete(userAction);
                 infinityRepository.upNumIncrement(id, -1);
-                infinityCommentService.sendActionMqMessage(userId,userAction,UserActiveType.Thumb_Tweet,id,true);
+                infinityRedisRecordService.record(id, RedisInfinityRecordHashKey.up, -1, null);
+                infinityCommentService.sendActionMqMessage(userId, userAction, UserActiveType.Thumb_Tweet, id, true);
                 return "取消点赞成功";
             }
             return "未点赞";

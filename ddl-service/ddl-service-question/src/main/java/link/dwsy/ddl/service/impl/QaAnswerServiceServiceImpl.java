@@ -277,7 +277,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         qaQuestionFieldRepository.answerNumIncrement(questionFieldId, 1);
         questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.answer, 1);
         qaQuestionFieldRepository.setQuestionStateIfNowStateIs(questionFieldId, QuestionState.HAVE_ANSWER.ordinal(), QuestionState.ASK.ordinal());
-
+        HtmlHelper.LinkRefAttributeProvider.answerId.remove();
         return save;
     }
 

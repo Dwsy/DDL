@@ -33,8 +33,14 @@ public class TTTEEESSTTTTest {
 
     @Test
     public void test1() {
-        List<DailyData_Id_And_ScoreCount> daysRank = articleDailyDataRepository.getNDaysRank(LocalDate.now().minusDays(3), 10);
-        for (DailyData_Id_And_ScoreCount articleDailyData : daysRank) {
+//        List<DailyData_Id_And_ScoreCount> daysRank = articleDailyDataRepository.getNDaysRankByTag(LocalDate.now().minusDays(7),"[4]", 10);
+//        for (DailyData_Id_And_ScoreCount articleDailyData : daysRank) {
+//            System.out.println("id" + articleDailyData.getId());
+//            System.out.println("score" + articleDailyData.getScoreCount());
+//        }
+
+        List<DailyData_Id_And_ScoreCount> daysRank1 = articleDailyDataRepository.getNDaysRankByGroup(LocalDate.now().minusDays(7),2, 10);
+        for (DailyData_Id_And_ScoreCount articleDailyData : daysRank1) {
             System.out.println("id" + articleDailyData.getId());
             System.out.println("score" + articleDailyData.getScoreCount());
         }
