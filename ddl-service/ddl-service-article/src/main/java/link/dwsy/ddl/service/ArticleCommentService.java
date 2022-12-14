@@ -12,7 +12,7 @@ public interface ArticleCommentService {
 
     PageData<ArticleComment> getChildCommentsByParentId(Long aid, Long pid, PageRequest pageRequest);
 
-    long reply(ArticleCommentRB articleCommentRB, CommentType commentType);
+    ArticleComment reply(ArticleCommentRB articleCommentRB, CommentType commentType);
 
     boolean logicallyDelete(long articleId, long commentId);
 

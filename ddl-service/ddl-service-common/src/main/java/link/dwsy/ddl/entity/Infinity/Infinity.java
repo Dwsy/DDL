@@ -60,7 +60,7 @@ public class Infinity extends BaseEntity {
     @OneToOne
     private InfinityClub infinityClub;
 
-    @Builder.Default //null 为动态 -1为action
+    @Builder.Default //null 为动态
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long parentTweetId = null;

@@ -76,7 +76,7 @@ public class UserQuestionAnswerActiveProcess {
                             .notifyType(NotifyType.answer)
                             .formContent(formPure)
                             .toContent(toContent)
-                            .replayAnswerId(message.getReplayAnswerId())
+                            .replyAnswerId(message.getReplyAnswerId())
                             .build();
                     sendNotify = !toUserId.equals(formUserId);
                     if (sendNotify) {
@@ -114,7 +114,7 @@ public class UserQuestionAnswerActiveProcess {
                             .notifyType(NotifyType.question_comment)
                             .formContent(formContent)
                             .toContent(toContent)
-                            .replayAnswerId(message.getReplayAnswerId())
+                            .replyAnswerId(message.getReplyAnswerId())
                             .build();
                     sendNotify = !toUserId.equals(formUserId);
                     if (sendNotify) {
@@ -137,7 +137,7 @@ public class UserQuestionAnswerActiveProcess {
                             .notifyType(NotifyType.answer_comment)
                             .formContent(formContent)
                             .toContent(HtmlHelper.toPure(toContent))
-                            .replayAnswerId(message.getReplayAnswerId())
+                            .replyAnswerId(message.getReplyAnswerId())
                             .build();
 //                    notify = new CommentNotifyVO(userNotify);
                     sendNotify = !toUserId.equals(formUserId);

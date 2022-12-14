@@ -43,7 +43,7 @@ public enum UserActiveType {
     Comment_Tweet,//回复推文
     Reply_Comment_Tweet,//回复推文回复
     Reply_Reply_Comment_Tweet,//回复推文二级回复
-    Thumb_Tweet//点赞tweet
+    Thumb_Tweet,//点赞tweet
     ;
 
     public static UserActiveType Converter(CommentType commentType, long parentCommentId) {

@@ -366,7 +366,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
     }
 
     private void sendActionMqMessage(long userId, long questionFieldId, long parentAnswerId,
-                                     AnswerType answerType, boolean cancel, String formContent, String toContent, long replayAnswerId) {
+                                     AnswerType answerType, boolean cancel, String formContent, String toContent, long replyAnswerId) {
 //        评论
         UserQuestionAnswerNotifyMessage activeMessage = UserQuestionAnswerNotifyMessage.builder()
                 .userActiveType(UserActiveType.Converter(answerType, parentAnswerId))
@@ -385,7 +385,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
                 .toContent(toContent)
 
-                .replayAnswerId(replayAnswerId)
+                .replyAnswerId(replyAnswerId)
 
                 .build();
         rabbitTemplate.convertAndSend

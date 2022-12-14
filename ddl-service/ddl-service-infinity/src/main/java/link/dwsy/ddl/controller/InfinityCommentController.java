@@ -151,7 +151,8 @@ public class InfinityCommentController {
         String content = infinityRB.getContent();
         Long replyUserTweetId = infinityRB.getReplyUserTweetId();
         if (replyUserTweetId == null) {
-            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndTypeIn(replyId, List.of(InfinityType.Tweet, InfinityType.Answer, InfinityType.Question, InfinityType.Article));
+            boolean exists = infinityRepository.existsByDeletedFalseAndIdAndTypeIn
+                    (replyId, List.of(InfinityType.Tweet, InfinityType.Answer, InfinityType.Question, InfinityType.Article));
             if (!exists) {
                 throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
             }

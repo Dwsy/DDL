@@ -24,22 +24,23 @@ public interface UserMessageRepository extends JpaRepository<UserMessage, Long> 
     Page<UserMessage> findByConversationIdAndIdLessThanAndDeletedFalseAndStatusIn
             (String conversationId, long id, Collection<MessageState> statuses, Pageable pageable);
 
-//    select *
+    //    select *
 //    from user_message
 //    where id in (select max(id) as id
 //    from user_message
 //    where to_user_id = 3
 //    or form_user_id = 3
 //    group by conversation_id)
-    @Query(nativeQuery = true,value = "select * from user_message where status in (0,1) and id in " +
+    @Query(nativeQuery = true, value = "select * from user_message where status in (0,1) and id in " +
             "(select max(id) as id from user_message where to_user_id = ?1 or form_user_id = ?1 group by conversation_id) order by create_time desc ")
     List<UserMessage> getPrivateMessageList(long uid);
 
 
     @Query(nativeQuery = true,
             value = "select * from user_message where status in (0,1) and id in " +
-            "(select max(id) as id from user_message where to_user_id = ?1 or form_user_id = ?1 group by conversation_id)" +
-                    " order by create_time desc ",countQuery = "select count(*) from user_message where status in (0,1) and id in (select max(id) as id from user_message where to_user_id = ?1 or form_user_id = ?1 group by conversation_id)")
+                    "(select max(id) as id from user_message where to_user_id = ?1 or form_user_id = ?1 group by conversation_id)\n" +
+                    " order by create_time desc ", countQuery = "select count(*) from user_message where status in (0,1) and id in " +
+            "(select max(id) as id from user_message where to_user_id = ?1 or form_user_id = ?1 group by conversation_id)")
     Page<UserMessage> getPrivateMessageListPage(long uid, Pageable pageable);
 
     boolean existsByDeletedFalseAndConversationId(String conversationId);

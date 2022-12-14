@@ -34,6 +34,7 @@ import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Author Dwsy
@@ -111,7 +112,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     }
 
     @Override
-    public long reply(ArticleCommentRB articleCommentRB, CommentType commentType) {
+    public ArticleComment reply(ArticleCommentRB articleCommentRB, CommentType commentType) {
 
         long articleFieldId = articleCommentRB.getArticleFieldId();
         if (articleFieldRepository.userIsCancellation(articleFieldId) > 0) {
@@ -146,8 +147,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
                 commentSerialNumber = lastComment.getCommentSerialNumber() + 1;
             }
             //回复评论
-            articleFieldRepository.commentNumIncrement(articleFieldId, 1);
-            articleRedisRecordService.record(articleFieldId, RedisRecordHashKey.comment, 1);
+
             if (articleCommentRB.getReplyUserCommentId() == 0) {
                 return replyArticleComment(articleCommentRB, commentType, articleFieldId, user, af, commentSerialNumber, parentCommentId);
             } else {
@@ -158,8 +158,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     }
 
 
-
-    private long replyArticleSecondComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
+    private ArticleComment replyArticleSecondComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
         String replyText;
 //                if(articleCommentRepository.notIsSecondaryComment(articleCommentRB.getReplyUserCommentId())){
         replyText = "回复@" + userRepository.getUserNicknameById
@@ -185,14 +184,17 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         ArticleComment save = articleCommentRepository.save(articleComment);
         sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getReplyUserCommentId(),
                 commentType, false, content, parentText, save.getId());
-        return save.getId();
+        articleFieldRepository.commentNumIncrement(articleFieldId, 1);
+        articleRedisRecordService.record(articleFieldId, RedisRecordHashKey.comment, 1);
+        return save;
     }
 
-    private long replyArticleComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
+    private ArticleComment replyArticleComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
         long replyUserId = articleCommentRB.getReplyUserId();
         if (userRepository.findById(replyUserId).isEmpty()) {
             throw new CodeException(CustomerErrorCode.UserNotExist);
         }
+
         ArticleComment articleComment = ArticleComment.builder()
                 .user(user)
                 .articleField(af)
@@ -208,19 +210,18 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         String parentText = articleCommentRepository.getText(parentCommentId);
         sendActionMqMessage(user.getId(), articleFieldId, parentCommentId,
                 commentType, false, content, parentText, save.getId());
-        return save.getId();
+        articleFieldRepository.commentNumIncrement(articleFieldId, 1);
+        articleRedisRecordService.record(articleFieldId, RedisRecordHashKey.comment, 1);
+        return save;
     }
 
-    private long replyArticle(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber) {
+    private ArticleComment replyArticle(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber) {
         ArticleComment lastComment = articleCommentRepository
                 .findFirstByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentTypeOrderByCommentSerialNumberDesc
                         (articleFieldId, 0L, CommentType.comment);
         if (lastComment != null) {
             commentSerialNumber = lastComment.getCommentSerialNumber() + 1;
         }
-//            Optional<ArticleComment> lastComment = articleCommentRepository.
-//                    findFirstByArticleField_IdAndParentCommentIdAndCommentTypeAndDeletedFalseOrderByCommentSerialNumberDesc
-//                            (articleFieldId, 0L, CommentType.comment, PageRequest.of(0, 1));
         ArticleComment articleComment = ArticleComment.builder()
                 .parentCommentId(0)
                 .parentUserId(0)
@@ -240,13 +241,11 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
             title = t.get().getTitle();
         }
 
-//            if (articleFieldRepository.findUserIdById(articleFieldId)!=user.getId()){
         sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getParentCommentId(),
                 commentType, false, content, title, save.getId());
-//            }
         articleFieldRepository.commentNumIncrement(articleFieldId, 1);
         articleRedisRecordService.record(articleFieldId, RedisRecordHashKey.comment, 1);
-        return save.getId();
+        return save;
     }
 
     @Override
@@ -257,12 +256,13 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
 
         Long commentUserId = articleCommentRepository.getUserIdByCommentId(commentId);
 
+        AtomicInteger delCommentNum = new AtomicInteger();
         if (uid.equals(articleUserId) || uid.equals(commentUserId)) {
             Optional<ArticleComment> commentOptional = articleCommentRepository.findByDeletedFalseAndId(commentId);
             if (commentOptional.isPresent()) {
                 ArticleComment comment = commentOptional.get();
                 if (comment.getParentCommentId() == 0) {//一级评论
-                    log.info("delete comment");
+                    log.info("delete comment:{}", commentId);
                     articleCommentRepository
                             .findByParentCommentIdAndDeletedFalseAndCommentTypeIn
                                     (commentId, Arrays.asList
@@ -279,9 +279,12 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
                                             });
                                 }
                                 c.setDeleted(true);
+                                delCommentNum.getAndIncrement();
                                 articleCommentRepository.save(c);
                             });
                     comment.setDeleted(true);
+                    delCommentNum.getAndIncrement();
+                    articleFieldRepository.commentNumIncrement(articleId, -delCommentNum.get());
                     articleCommentRepository.save(comment);
                     return true;
                 }
@@ -294,27 +297,11 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
                                 c.setDeleted(true);
                                 articleCommentRepository.save(c);
                             });
-                    comment.setDeleted(true);
+                    articleFieldRepository.commentNumIncrement(articleId, -1);
                     articleCommentRepository.save(comment);
                     return true;
                 }
             }
-            //todo 级联删除
-//            if (articleCommentRepository
-//                    .existsByDeletedFalseAndArticleField_IdAndIdAndCommentType(articleId, commentId, CommentType.comment)) {
-//                log.info("delete comment");
-////                if (articleCommentRepository.logicallyDelete(commentId) > 0) {
-////                    articleFieldRepository.commentNumIncrement(articleId, -1);
-//                return true;
-////                }
-//            }
-//            if (articleCommentRepository
-//                    .existsByDeletedFalseAndArticleField_IdAndIdAndCommentType(articleId, commentId, CommentType.comment_comment)) {
-//                if (articleCommentRepository.logicallyDelete(commentId) > 0) {
-//                    articleFieldRepository.commentNumIncrement(articleId, -1);
-//                    return true;
-//                }
-//            }
         } else {
             throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
         }
@@ -513,7 +500,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     }
 
     private void sendActionMqMessage(long userId, long articleFieldId, long parentCommentId,
-                                     CommentType commentType, boolean cancel, String formContent, String toContent, long replayCommentId) {
+                                     CommentType commentType, boolean cancel, String formContent, String toContent, long replyCommentId) {
 //        评论
         UserCommentNotifyMessage activeMessage = UserCommentNotifyMessage.builder()
                 .userActiveType(UserActiveType.Converter(commentType, parentCommentId))
@@ -533,7 +520,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
 
                 .toContent(toContent)
 
-                .replayCommentId(replayCommentId)
+                .replyCommentId(replyCommentId)
 
                 .build();
         rabbitTemplate.convertAndSend(UserActiveMQConstants.QUEUE_DDL_USER_ARTICLE_COMMENT_ACTIVE, activeMessage);

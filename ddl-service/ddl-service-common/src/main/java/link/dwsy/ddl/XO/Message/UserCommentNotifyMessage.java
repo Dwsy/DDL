@@ -36,9 +36,9 @@ public class UserCommentNotifyMessage {
 
     private String toContent;//他方
 
-    private Long replayCommentId;//回复后返回的评论id
+    private Long replyCommentId;//回复后返回的评论id
 
-    private Long replayAnswerId;
+    private Long replyAnswerId;
 
     private boolean cancel;
 }

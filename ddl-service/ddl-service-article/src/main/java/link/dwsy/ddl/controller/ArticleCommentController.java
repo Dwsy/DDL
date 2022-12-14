@@ -62,8 +62,8 @@ public class ArticleCommentController {
     }
 
     @PostMapping()
-    public String reply(@RequestBody ArticleCommentRB articleCommentRB) {
-        return String.valueOf(articleCommentService.reply(articleCommentRB, CommentType.comment));
+    public ArticleComment reply(@RequestBody ArticleCommentRB articleCommentRB) {
+        return articleCommentService.reply(articleCommentRB, CommentType.comment);
     }
 
     @AuthAnnotation(Level = 0)

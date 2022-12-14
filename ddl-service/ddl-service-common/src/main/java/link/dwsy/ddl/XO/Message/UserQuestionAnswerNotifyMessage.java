@@ -38,7 +38,7 @@ public class UserQuestionAnswerNotifyMessage {
 
 //    private Long replayCommentId;//回复后返回的评论id
 
-    private Long replayAnswerId;
+    private Long replyAnswerId;
 
     private boolean cancel;
 }

@@ -39,4 +39,6 @@ public class UnreadNotifyVo {
     private int unreadWatchAnswer;
 
     private int unreadWatchAcceptedQuestionAnswer;
+    private int unreadTweetThumb;
+    private int unreadTweetComment;
 }

@@ -5,7 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import link.dwsy.ddl.XO.Enum.Message.NotifyType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserInfinityNotifyMessage;
+import link.dwsy.ddl.entity.Infinity.Infinity;
 import link.dwsy.ddl.entity.User.UserNotify;
+import link.dwsy.ddl.repository.Infinity.InfinityRepository;
 import link.dwsy.ddl.repository.User.UserNotifyRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,6 +28,8 @@ public class UserInfinityActiveProcess {
     @Resource
     private UserNotifyRepository userNotifyRepository;
 
+    @Resource
+    private InfinityRepository infinityRepository;
 
     @Resource
     private CommonProcess commonProcess;
@@ -52,17 +56,25 @@ public class UserInfinityActiveProcess {
         boolean sendNotify;
         switch (userActiveType) {
             case Thumb_Tweet:
-                if (userNotifyRepository.existsByDeletedFalseAndFromUserIdAndToUserIdAndInfinityIdAndNotifyType(
+                if (userNotifyRepository.existsByFromUserIdAndToUserIdAndInfinityIdAndNotifyType(
                         formUserId, toUserId, message.getParentTweetId(), NotifyType.thumbTweet)) {
                     log.info("用户{}已经通知过用户{}了", formUserId, toUserId);
                     return;
                 }
+                Infinity infinity = infinityRepository.findByDeletedFalseAndId((message.getParentTweetId()));
                 userNotify = UserNotify.builder()
                         .fromUserId(formUserId)
                         .toUserId(toUserId)
-                        .infinityId(message.getParentTweetId())
+                        .toContent(infinity.getContent())
                         .notifyType(NotifyType.thumbTweet)
                         .build();
+                if (infinity.getParentTweetId() == null) {
+                    userNotify.setInfinityId(message.getParentTweetId());
+                } else {
+                    userNotify.setInfinityId(infinity.getParentTweetId());
+                    userNotify.setReplyInfinityId(message.getParentTweetId());
+                }
+
                 commonProcess.ActiveLog(userActiveType, message.getParentTweetId(), formUserId, ua);
                 break;
             case Comment_Tweet:
@@ -70,7 +82,7 @@ public class UserInfinityActiveProcess {
                         .fromUserId(formUserId)
                         .toUserId(toUserId)
                         .infinityId(message.getParentTweetId())
-                        .replayInfinityId(infinityId)
+                        .replyInfinityId(infinityId)
                         .formContent(formContent)
                         .toContent(toContent)
                         .notifyType(NotifyType.comment_tweet)
@@ -85,7 +97,7 @@ public class UserInfinityActiveProcess {
                         .fromUserId(formUserId)
                         .toUserId(toUserId)
                         .infinityId(message.getReplyUserTweetId())
-                        .replayInfinityId(infinityId)
+                        .replyInfinityId(infinityId)
                         .formContent(formContent)
                         .toContent(toContent)
                         .notifyType(NotifyType.reply_comment_tweet)
@@ -96,7 +108,7 @@ public class UserInfinityActiveProcess {
                         .fromUserId(formUserId)
                         .toUserId(toUserId)
                         .infinityId(message.getRefId())
-                        .replayInfinityId(infinityId)
+                        .replyInfinityId(infinityId)
                         .formContent(formContent)
                         .toContent(toContent)
                         .notifyType(NotifyType.reply_reply_comment_tweet)

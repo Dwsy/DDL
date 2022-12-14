@@ -42,7 +42,7 @@ public class UserNotifyController {
     @Resource
     private UserRepository userRepository;
 
-    @GetMapping("reply")
+    @GetMapping("article/reply")
     @AuthAnnotation
     public PageData<UserNotify> getReplyMe(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
@@ -58,7 +58,7 @@ public class UserNotifyController {
         return new PageData<>(replyMeNotify);
     }
 
-    @GetMapping("thumb")
+    @GetMapping("article/thumb")
     @AuthAnnotation
     public PageData<UserNotify> getThumbUpMe(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
@@ -66,13 +66,14 @@ public class UserNotifyController {
     ) {
         Long userId = userSupport.getCurrentUser().getId();
         PageRequest pageRequest = PRHelper.order(Sort.Direction.DESC, "createTime", page, size);
-        List<NotifyType> typeList = List.of(NotifyType.up_article, NotifyType.up_article_comment, NotifyType.up_question, NotifyType.answer, NotifyType.thumbTweet);
+        List<NotifyType> typeList = List.of(NotifyType.up_article, NotifyType.up_article_comment);
         Page<UserNotify> ThumbUpMeNotify = userNotifyRepository
                 .findByDeletedFalseAndToUserIdAndNotifyTypeIn
                         (userId, typeList, pageRequest);
         readAndSetUserInfo(ThumbUpMeNotify);
         return new PageData<>(ThumbUpMeNotify);
     }
+
 
     @GetMapping("qa/comment")
     @AuthAnnotation
@@ -108,7 +109,7 @@ public class UserNotifyController {
         Long userId = userSupport.getCurrentUser().getId();
         PageRequest pageRequest = PRHelper.order(Sort.Direction.DESC, "createTime", page, size);
         ArrayList<NotifyType> notifyTypes = new ArrayList<>();
-        if (type == 0) {
+        if (type == 0) {//all
             notifyTypes.add(NotifyType.up_question_answer);
             notifyTypes.add(NotifyType.up_question);
         } else if (type == 1) {
@@ -215,10 +216,44 @@ public class UserNotifyController {
         }
     }
 
-    //    export enum CountType {
-//        all,//只显示总数
-//        detail//明细
-//    }
+
+    @GetMapping("infinity/thumb")
+    @AuthAnnotation
+    public PageData<UserNotify> getInfinityThumb(
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "15", name = "size") int size
+    ) {
+        Long userId = userSupport.getCurrentUser().getId();
+        PageRequest pageRequest = PRHelper.order(Sort.Direction.DESC, "createTime", page, size);
+        Page<UserNotify> ThumbUpMeNotify = userNotifyRepository
+                .findByDeletedFalseAndToUserIdAndNotifyType
+                        (userId, NotifyType.thumbTweet, pageRequest);
+        readAndSetUserInfo(ThumbUpMeNotify);
+        return new PageData<>(ThumbUpMeNotify);
+    }
+
+
+    @GetMapping("infinity/reply")
+    @AuthAnnotation
+    public PageData<UserNotify> getCommentInfinityTweet(
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "15", name = "size") int size
+    ) {
+        Long userId = userSupport.getCurrentUser().getId();
+        PageRequest pageRequest = PRHelper.order(Sort.Direction.DESC, "createTime", page, 15);
+        Page<UserNotify> replyMeNotify = userNotifyRepository
+                .findByDeletedFalseAndToUserIdAndNotifyTypeIn
+                        (userId, Set.of(NotifyType.comment_tweet, NotifyType.reply_comment_tweet,NotifyType.reply_reply_comment_tweet), pageRequest);
+
+        readAndSetUserInfo(replyMeNotify);
+        return new PageData<>(replyMeNotify);
+    }
+    /**
+     *
+     * @param type String
+     * all只显示总数
+     * detail明细
+     */
     @GetMapping("unread")
     @AuthAnnotation
     public UnreadNotifyVo getUserUnreadNotifyNum(
@@ -291,6 +326,13 @@ public class UserNotifyController {
                     .countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyType
                             (userId, NotifyState.UNREAD, NotifyType.watch_accepted_question_answer);
 
+            int unreadTweetThumb = userNotifyRepository
+                    .countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyType
+                            (userId, NotifyState.UNREAD, NotifyType.thumbTweet);
+            int unreadTweetComment=userNotifyRepository
+                    .countByDeletedFalseAndToUserIdAndNotifyStateAndNotifyTypeIn
+                            (userId, NotifyState.UNREAD,
+                                    List.of(NotifyType.comment_tweet, NotifyType.reply_comment_tweet,NotifyType.reply_reply_comment_tweet));
             unreadNotifyVo.setUnreadNotifyArticleOrCommentThumbCount(ArticleOrCommentThumbCount);
             unreadNotifyVo.setUnreadNotifyQuestionOrAnswerThumbCount(QuestionOrAnswerThumbCount);
             unreadNotifyVo.setUnreadNotifyReplyCommentCount(ReplyCommentCount);
@@ -302,6 +344,8 @@ public class UserNotifyController {
             unreadNotifyVo.setUnreadAcceptedAnswerCount(unreadAdoptAnswerCount);
             unreadNotifyVo.setUnreadWatchAnswer(unreadWatchAnswer);
             unreadNotifyVo.setUnreadWatchAcceptedQuestionAnswer(unreadWatchAcceptedQuestionAnswer);
+            unreadNotifyVo.setUnreadTweetThumb(unreadTweetThumb);
+            unreadNotifyVo.setUnreadTweetComment(unreadTweetComment);
             return unreadNotifyVo;
         }
         return null;

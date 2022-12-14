@@ -31,6 +31,9 @@ public class InfinityCommentService {
     InfinityRepository infinityRepository;
 
     public void sendActionMqMessage(long userId, Infinity infinity, UserActiveType userActiveType, long toId, boolean cancel) {
+        if (userId == toId) {
+            return;
+        }
         Long toUserId = infinityRepository.getUserIdById(toId);
         String toContent = infinityRepository.getContentById(toId);
         UserInfinityNotifyMessage activeMessage = UserInfinityNotifyMessage.builder()

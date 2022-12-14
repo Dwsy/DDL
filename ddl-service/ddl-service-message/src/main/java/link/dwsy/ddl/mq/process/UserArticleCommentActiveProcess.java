@@ -65,7 +65,7 @@ public class UserArticleCommentActiveProcess {
                             .fromUserId(formUserId)
                             .toUserId(toUserId)
                             .articleId(articleId)
-                            .replayCommentId(message.getReplayCommentId())
+                            .replyCommentId(message.getReplyCommentId())
                             .commentId(commentId)
                             .notifyType(NotifyType.comment_article)
                             .formContent(formContent)
@@ -92,7 +92,7 @@ public class UserArticleCommentActiveProcess {
                             .notifyType(NotifyType.comment_article_comment)
                             .formContent(formContent)
                             .toContent(toContent)
-                            .replayCommentId(message.getReplayCommentId())
+                            .replyCommentId(message.getReplyCommentId())
                             .build();
 //                    notify = new CommentNotifyVO(userNotify);
                     sendNotify = !toUserId.equals(formUserId);
