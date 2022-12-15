@@ -229,6 +229,8 @@ public class UserActiveServiceImpl implements UserActiveService {
             Map<UserActiveType, List<Long>> userHistoryByActiveTypeGroupListMap =
                     historyPage.getContent().stream().collect
                             (Collectors.groupingBy(UserActive::getUserActiveType, Collectors.mapping(UserActive::getSourceId, Collectors.toList())));
+            Map<Long, Date> userHistoryCreateTimeMap =
+                    historyPage.getContent().stream().collect(Collectors.toMap(UserActive::getSourceId, UserActive::getCreateTime));
             List<Long> browseArticleIds = userHistoryByActiveTypeGroupListMap.get(UserActiveType.Browse_Article);
             List<Long> browseQAIds = userHistoryByActiveTypeGroupListMap.get(UserActiveType.Browse_QA);
             List<Long> browseInfinityIds = userHistoryByActiveTypeGroupListMap.get(UserActiveType.Browse_Infinity);
@@ -243,7 +245,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                                 .title("内容已失效或被删除")
                                 .banner(null)
                                 .summary("内容已失效或被删除")
-                                .createTime(articleField.getCreateTime())
+                                .createTime(userHistoryCreateTimeMap.get(articleField.getId()))
                                 .userActiveType(UserActiveType.Browse_Article)
                                 .build();
                     } else {
@@ -253,7 +255,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                                 .title(articleField.getTitle())
                                 .banner(articleField.getBanner())
                                 .summary(articleField.getSummary())
-                                .createTime(articleField.getCreateTime())
+                                .createTime(userHistoryCreateTimeMap.get(articleField.getId()))
                                 .userActiveType(UserActiveType.Browse_Article)
                                 .build();
                     }
@@ -270,7 +272,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                                 .user(questionField.getUser())
                                 .title("内容已失效或被删除")
                                 .summary("内容已失效或被删除")
-                                .createTime(questionField.getCreateTime())
+                                .createTime(userHistoryCreateTimeMap.get(questionField.getId()))
                                 .userActiveType(UserActiveType.Browse_QA)
                                 .build();
                     } else {
@@ -279,7 +281,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                                 .user(questionField.getUser())
                                 .title(questionField.getTitle())
                                 .summary(questionField.getSummary())
-                                .createTime(questionField.getCreateTime())
+                                .createTime(userHistoryCreateTimeMap.get(questionField.getId()))
                                 .userActiveType(UserActiveType.Browse_QA)
                                 .build();
                     }
@@ -296,7 +298,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                                 .user(infinity.getUser())
                                 .title("内容已失效或被删除")
                                 .summary("内容已失效或被删除")
-                                .createTime(infinity.getCreateTime())
+                                .createTime(userHistoryCreateTimeMap.get(infinity.getId()))
                                 .userActiveType(UserActiveType.Browse_Infinity)
                                 .build();
                     } else {
@@ -304,7 +306,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                                 .id(infinity.getId())
                                 .user(infinity.getUser())
                                 .summary(infinity.getContent())
-                                .createTime(infinity.getCreateTime())
+                                .createTime(userHistoryCreateTimeMap.get(infinity.getId()))
                                 .userActiveType(UserActiveType.Browse_Infinity)
                                 .build();
                         Optional.ofNullable(infinity.getImgUrl1()).ifPresent(build::setBanner);
@@ -313,7 +315,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                 });
             }
             List<UserHistoryActiveVO> sortUserHistoryActiveVOS = historyActiveVOS.stream()
-                    .sorted(Comparator.comparing(UserHistoryActiveVO::getCreateTime)).collect(Collectors.toList());
+                    .sorted(Comparator.comparing(UserHistoryActiveVO::getCreateTime).reversed()).collect(Collectors.toList());
             return new PageData<>(historyPage, sortUserHistoryActiveVOS);
         }
         if (StrUtil.equals(type, "article")) {
@@ -323,6 +325,8 @@ public class UserActiveServiceImpl implements UserActiveService {
             }
             List<Long> browseArticleIds = historyPage.stream().map(UserActive::getSourceId).collect(Collectors.toList());
             List<ArticleField> articleFields = articleFieldRepository.findAllById(browseArticleIds);
+            Map<Long, Date> userHistoryCreateTimeMap =
+                    historyPage.getContent().stream().collect(Collectors.toMap(UserActive::getSourceId, UserActive::getCreateTime));
             articleFields.forEach(articleField -> {
                 UserHistoryActiveVO build;
                 if (articleField.getDeleted()) {
@@ -332,7 +336,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                             .title("内容已失效或被删除")
                             .banner(null)
                             .summary("内容已失效或被删除")
-                            .createTime(articleField.getCreateTime())
+                            .createTime(userHistoryCreateTimeMap.get(articleField.getId()))
                             .userActiveType(UserActiveType.Browse_Article)
                             .build();
                 } else {
@@ -342,7 +346,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                             .title(articleField.getTitle())
                             .banner(articleField.getBanner())
                             .summary(articleField.getSummary())
-                            .createTime(articleField.getCreateTime())
+                            .createTime(userHistoryCreateTimeMap.get(articleField.getId()))
                             .userActiveType(UserActiveType.Browse_Article)
                             .build();
                 }
@@ -356,6 +360,8 @@ public class UserActiveServiceImpl implements UserActiveService {
             }
             List<Long> browseQAIds = historyPage.stream().map(UserActive::getSourceId).collect(Collectors.toList());
             List<QaQuestionField> questionFields = qaQuestionFieldRepository.findAllById(browseQAIds);
+            Map<Long, Date> userHistoryCreateTimeMap =
+                    historyPage.getContent().stream().collect(Collectors.toMap(UserActive::getSourceId, UserActive::getCreateTime));
             questionFields.forEach(questionField -> {
                 UserHistoryActiveVO build;
                 if (questionField.getDeleted()) {
@@ -364,7 +370,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                             .user(questionField.getUser())
                             .title("内容已失效或被删除")
                             .summary("内容已失效或被删除")
-                            .createTime(questionField.getCreateTime())
+                            .createTime(userHistoryCreateTimeMap.get(questionField.getId()))
                             .userActiveType(UserActiveType.Browse_QA)
                             .build();
                 } else {
@@ -373,7 +379,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                             .user(questionField.getUser())
                             .title(questionField.getTitle())
                             .summary(questionField.getSummary())
-                            .createTime(questionField.getCreateTime())
+                            .createTime(userHistoryCreateTimeMap.get(questionField.getId()))
                             .userActiveType(UserActiveType.Browse_QA)
                             .build();
                 }
@@ -387,6 +393,8 @@ public class UserActiveServiceImpl implements UserActiveService {
             }
             List<Long> browseInfinityIds = historyPage.stream().map(UserActive::getSourceId).collect(Collectors.toList());
             List<Infinity> infinities = infinityRepository.findAllById(browseInfinityIds);
+            Map<Long, Date> userHistoryCreateTimeMap =
+                    historyPage.getContent().stream().collect(Collectors.toMap(UserActive::getSourceId, UserActive::getCreateTime));
             infinities.forEach(infinity -> {
                 UserHistoryActiveVO build;
                 if (infinity.getDeleted()) {
@@ -395,7 +403,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                             .user(infinity.getUser())
                             .title("内容已失效或被删除")
                             .summary("内容已失效或被删除")
-                            .createTime(infinity.getCreateTime())
+                            .createTime(userHistoryCreateTimeMap.get(infinity.getId()))
                             .userActiveType(UserActiveType.Browse_Infinity)
                             .build();
                 } else {
@@ -403,7 +411,7 @@ public class UserActiveServiceImpl implements UserActiveService {
                             .id(infinity.getId())
                             .user(infinity.getUser())
                             .summary(infinity.getContent())
-                            .createTime(infinity.getCreateTime())
+                            .createTime(userHistoryCreateTimeMap.get(infinity.getId()))
                             .userActiveType(UserActiveType.Browse_Infinity)
                             .build();
                     Optional.ofNullable(infinity.getImgUrl1()).ifPresent(build::setBanner);
@@ -414,7 +422,8 @@ public class UserActiveServiceImpl implements UserActiveService {
         if (historyPage == null) {
             return null;
         } else {
-            return new PageData<>(historyPage, historyActiveVOS.stream().sorted(Comparator.comparing(UserHistoryActiveVO::getCreateTime)).collect(Collectors.toList()));
+            return new PageData<>(historyPage, historyActiveVOS.stream()
+                    .sorted(Comparator.comparing(UserHistoryActiveVO::getCreateTime).reversed()).collect(Collectors.toList()));
         }
 
 
