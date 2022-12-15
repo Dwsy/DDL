@@ -55,7 +55,7 @@ public class InfinityRedisRecordService {
             case view:
                 score = 1;
                 break;
-            case comment:
+            case reply:
                 score = 8;
         }
         return score * increment;

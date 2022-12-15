@@ -191,7 +191,7 @@ public class InfinityController {
             infinityClub = infinityClubRepository.findById(infinityClubId)
                     .orElseThrow(() -> new CodeException(CustomerErrorCode.INFINITY_CLUB_NOT_EXIST));
             infinity.setInfinityClub(infinityClub);
-            infinityClubRedisRecordService.record(infinityClubId, RedisInfinityRecordHashKey.quote,1);
+            infinityClubRedisRecordService.record(infinityClubId, RedisInfinityRecordHashKey.quote, 1);
         }
         if (infinityTopicIds != null) {
 //            infinityTopic = infinityTopicRepository.findById(infinityTopicId)
@@ -199,9 +199,9 @@ public class InfinityController {
 //            infinity.setInfinityTopic(infinityTopic);
             List<InfinityTopic> infinityTopics = infinityTopicRepository.findByDeletedFalseAndIdIn(infinityTopicIds);
             infinityTopics.forEach(infinityTopic -> {
-                infinityTopicRedisRecordService.record(infinityTopic.getId(), RedisInfinityRecordHashKey.quote,1);
+                infinityTopicRedisRecordService.record(infinityTopic.getId(), RedisInfinityRecordHashKey.quote, 1);
             });
-            infinityClubRedisRecordService.record(infinityClubId, RedisInfinityRecordHashKey.quote,1);
+            infinityClubRedisRecordService.record(infinityClubId, RedisInfinityRecordHashKey.quote, 1);
             if (infinityTopics.size() != infinityTopicIds.size()) {
                 throw new CodeException(CustomerErrorCode.INFINITY_TOPIC_NOT_EXIST);
             }
@@ -257,8 +257,20 @@ public class InfinityController {
         if (infinity == null) {
             throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
         }
-        infinityRepository.viewNumIncrement(id,1);
+        infinityRepository.viewNumIncrement(id, 1);
         infinityRedisRecordService.record(id, RedisInfinityRecordHashKey.view, 1, infinity);
+//        infinityRedisRecordService.record(id, RedisInfinityRecordHashKey.reply, 1, null);
+
+//
+//        if (infinity.getInfinityClub()!=null) {
+//            infinityTopicRedisRecordService.record(infinity.getInfinityClub().getId(), RedisInfinityRecordHashKey.view, 1);
+//        }
+//        if (infinity.getInfinityTopics()!=null) {
+//            infinity.getInfinityTopics().forEach(infinityTopic -> {
+//                infinityTopicRedisRecordService.record(infinityTopic.getId(), RedisInfinityRecordHashKey.view, 1);
+//            });
+//        }
+
         userStateService.cancellationUserHandel(infinity.getUser());
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest replyPageRequest = PRHelper.order("DESC", new String[]{"createTime"}, 1, 8);

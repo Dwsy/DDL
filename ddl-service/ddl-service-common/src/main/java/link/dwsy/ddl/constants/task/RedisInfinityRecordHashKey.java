@@ -8,10 +8,11 @@ package link.dwsy.ddl.constants.task;
 public enum RedisInfinityRecordHashKey {
     view("view"),
     up("up"),
-    comment("comment"),
+    reply("reply"),
     collect("collect"),
     share("share"),
-    quote("quote")
+    quote("quote"),
+    follow("follow"),
     ;
     private final String key;
 

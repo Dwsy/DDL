@@ -6,9 +6,10 @@ import link.dwsy.ddl.entity.Data.Article.ArticleDailyData;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.Data.Article.ArticleDailyDataRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-@Configuration
+@Component
 @Slf4j
 public class ArticleDailyDataTask {
 
@@ -32,53 +33,72 @@ public class ArticleDailyDataTask {
     @Scheduled(cron = "0 5 0 * * ? ")
     public void record() {
         log.info("定时任务执行{}", Thread.currentThread().getName());
-        Set<String> idSet = redisTemplate.opsForSet().members(RedisRecordKey.RedisArticleRecordKey);
 
-        if (idSet != null) {
-            if (idSet.size() == 0) {
-                log.info("今日无访问");
+        Set<ZSetOperations.TypedTuple<String>> typedTuples =
+                redisTemplate.opsForZSet().reverseRangeWithScores(RedisRecordKey.RedisInfinityTopicRecordKey, 0, - 1);
+        if (typedTuples==null) {
+            log.info("今日无访问");
+            return;
+        }
+        ArrayList<ArticleDailyData> dailyDataArrayList = new ArrayList<>(typedTuples.size());
+        typedTuples.forEach(p -> {
+            String id = p.getValue();
+            if (id==null) {
                 return;
             }
-            ArrayList<ArticleDailyData> dailyDataArrayList = new ArrayList<>(idSet.size());
-            for (String id : idSet) {
-                Map<Object, Object> dataMap = redisTemplate.opsForHash().entries(RedisRecordKey.RedisArticleRecordKey + id);
-                if (dataMap.isEmpty()) {
-                    return;
-                }
-                int view = getMapValue(dataMap, RedisRecordHashKey.view);
-                int up = getMapValue(dataMap, RedisRecordHashKey.up);
-                int down = getMapValue(dataMap, RedisRecordHashKey.down);
-                int collect = getMapValue(dataMap, RedisRecordHashKey.collect);
-                int comment = getMapValue(dataMap, RedisRecordHashKey.comment);
-                int score = 0;
-                score += view;
-                score += up * 2;
-                score -= down * 2;
-                score += collect * 10;
-                score += comment * 5;
+            Map<Object, Object> dataMap = redisTemplate.opsForHash().entries(RedisRecordKey.RedisArticleRecordKey + id);
+            if (dataMap.isEmpty()) {
+                return;
+            }
+            int view = getMapValue(dataMap, RedisRecordHashKey.view);
+            int up = getMapValue(dataMap, RedisRecordHashKey.up);
+            int down = getMapValue(dataMap, RedisRecordHashKey.down);
+            int collect = getMapValue(dataMap, RedisRecordHashKey.collect);
+            int comment = getMapValue(dataMap, RedisRecordHashKey.comment);
+            int score = 0;
+            score += view;
+            score += up * 2;
+            score -= down * 2;
+            score += collect * 10;
+            score += comment * 5;
 
-                long articleId = Long.parseLong(id);
-                ArticleDailyData articleDailyData = ArticleDailyData.builder()
-                        .userId(articleFieldRepository.findUserIdById(articleId))
-                        .articleFieldId(articleId)
-                        .upNum(up)
-                        .downNum(down)
-                        .commentNum(comment)
-                        .viewNum(view)
-                        .collectNum(collect)
-                        .score(score)
-                        .dataDate(LocalDate.now())
-                        .tagIds(articleFieldRepository.getTagIdsById(articleId))
-                        .groupId(articleFieldRepository.getGroupIdById(articleId))
-                        .build();
-                dailyDataArrayList.add(articleDailyData);
-            }
-            articleDailyDataRepository.saveAll(dailyDataArrayList);
-            for (String id : idSet) {
-                redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey + id);
-            }
-            redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey);
-        }
+            long articleId = Long.parseLong(id);
+            ArticleDailyData articleDailyData = ArticleDailyData.builder()
+                    .userId(articleFieldRepository.findUserIdById(articleId))
+                    .articleFieldId(articleId)
+                    .upNum(up)
+                    .downNum(down)
+                    .commentNum(comment)
+                    .viewNum(view)
+                    .collectNum(collect)
+                    .score(score)
+                    .dataDate(LocalDate.now())
+                    .tagIds(articleFieldRepository.getTagIdsById(articleId))
+                    .groupId(articleFieldRepository.getGroupIdById(articleId))
+                    .build();
+            dailyDataArrayList.add(articleDailyData);
+            redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey + id);
+        });
+        redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey);
+
+        articleDailyDataRepository.saveAll(dailyDataArrayList);
+//        Set<String> idSet = redisTemplate.opsForSet().members(RedisRecordKey.RedisArticleRecordKey);
+//
+//        if (idSet != null) {
+//            if (idSet.size() == 0) {
+//                log.info("今日无访问");
+//                return;
+//            }
+//            ArrayList<ArticleDailyData> dailyDataArrayList = new ArrayList<>(idSet.size());
+//            for (String id : idSet) {
+//
+//            }
+//            articleDailyDataRepository.saveAll(dailyDataArrayList);
+//            for (String id : idSet) {
+//                redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey + id);
+//            }
+//            redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey);
+//        }
 
     }
 

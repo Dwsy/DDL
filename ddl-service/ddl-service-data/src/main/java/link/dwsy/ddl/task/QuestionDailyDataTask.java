@@ -6,9 +6,9 @@ import link.dwsy.ddl.entity.Data.Question.QuestionDailyData;
 import link.dwsy.ddl.repository.Data.Question.QuestionDailyDataRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-@Configuration
+@Component
 @Slf4j
 public class QuestionDailyDataTask {
 

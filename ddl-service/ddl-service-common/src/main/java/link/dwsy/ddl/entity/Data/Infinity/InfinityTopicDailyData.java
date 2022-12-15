@@ -1,21 +1,22 @@
-package link.dwsy.ddl.entity.Data.Article;
+package link.dwsy.ddl.entity.Data.Infinity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.*;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * @Author Dwsy
+ * @Date 2022/12/15
+ */
 @Entity
-@Table(name = "article_daily_data")
+@Table
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,40 +25,24 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @JsonIgnoreProperties(value = {"deleted", "handler", "hibernateLazyInitializer"})
-public class ArticleDailyData {
-
+public class InfinityTopicDailyData {
     @Id
     @CreatedBy
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long id;
 
-    private long articleFieldId;
-    private long userId;
+    private long InfinityTopicId;
 
+    private long viewNum;
 
-    private int upNum = 0;
+    private long infinityNum;
 
+    private long followerNum;
 
-    private int downNum = 0;
-
-
-    private int commentNum = 0;
-
-
-    private int viewNum = 0;
-
-
-    private int collectNum = 0;
+    private long replyNum;
 
     private int score = 0;
-
-    @JsonFormat(shape =JsonFormat.Shape.STRING,pattern ="yyyy-MM-dd HH:mm:ss",timezone ="GMT+8")
     private LocalDate dataDate;
-    @Type(type = "jsonb")
-    @Column(columnDefinition = "jsonb")
-    private List<Long> tagIds = new ArrayList<>();
-    private long groupId;
-
     @Transient
     private int scoreCount;
 }

@@ -39,7 +39,7 @@ public class InfinityClubRedisRecordService {
                 score = 1;
                 break;
             case quote:
-                score = 10;
+                score = 15;
         }
         return score * increment;
     }

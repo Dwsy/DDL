@@ -6,6 +6,7 @@ import link.dwsy.ddl.XO.VO.ArticleFieldRankVO;
 import link.dwsy.ddl.XO.VO.InfinityClubRankVO;
 import link.dwsy.ddl.XO.VO.InfinityTopicRankVO;
 import link.dwsy.ddl.XO.VO.QuestionFieldRankVO;
+import link.dwsy.ddl.constants.task.RedisInfinityRecordHashKey;
 import link.dwsy.ddl.constants.task.RedisRecordKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -42,12 +43,12 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rank")
-public class Rank {
+public class RankController {
 
     @Resource
-    ArticleFieldRepository articleFieldRepository;
+    private ArticleFieldRepository articleFieldRepository;
     @Resource
-    QaGroupRepository qaGroupRepository;
+    private QaGroupRepository qaGroupRepository;
     @Resource
     private ArticleDailyDataTask articleDailyDataTask;
     @Resource
@@ -169,11 +170,39 @@ public class Rank {
             int score2 = idScoreMap.get(o2.getId());
             return score2 - score1;
         }).collect(Collectors.toList());
-        return infinityTopics.stream().map(infinityTopic -> new InfinityTopicRankVO(infinityTopic, idScoreMap.get(infinityTopic.getId()))).collect(Collectors.toList());
+        List<InfinityTopicRankVO> topicRankVOS = infinityTopics.stream().map(infinityTopic -> new InfinityTopicRankVO(infinityTopic, idScoreMap.get(infinityTopic.getId())))
+                .collect(Collectors.toList());
+        topicRankVOS.forEach(i -> {//今日+以前
+            Map<Object, Object> dataMap = redisTemplate.opsForHash().entries(RedisRecordKey.RedisInfinityTopicRecordKey + i.getId());
+            if (!dataMap.isEmpty()) {
+                int view = getMapValue(dataMap, RedisInfinityRecordHashKey.view);
+                int quote = getMapValue(dataMap, RedisInfinityRecordHashKey.quote);
+                int share = getMapValue(dataMap, RedisInfinityRecordHashKey.share);
+                int reply = getMapValue(dataMap, RedisInfinityRecordHashKey.reply);
+                int follow = getMapValue(dataMap, RedisInfinityRecordHashKey.follow);
+                i.setViewNum(view + i.getViewNum());
+                i.setInfinityNum(quote + i.getInfinityNum());
+            }
+        });
+        return topicRankVOS;
+//        .map(i->{
+//            Map<Object, Object> dataMap = redisTemplate.opsForHash().entries(RedisRecordKey.RedisInfinityTopicRecordKey + i.getId());
+//            if (!dataMap.isEmpty()) {
+//                int view = getMapValue(dataMap, RedisInfinityRecordHashKey.view);
+//                int quote = getMapValue(dataMap, RedisInfinityRecordHashKey.quote);
+//                int share = getMapValue(dataMap, RedisInfinityRecordHashKey.share);
+//                int reply = getMapValue(dataMap, RedisInfinityRecordHashKey.reply);
+//                int follow = getMapValue(dataMap, RedisInfinityRecordHashKey.follow);
+//                i.setViewNum(view+i.getViewNum());
+//                i.s(view+i.getViewNum());
+//            }
+//            return i;
+//        })
+//        return infinityTopics.stream().map(infinityTopic -> new InfinityTopicRankVO(infinityTopic, idScoreMap.get(infinityTopic.getId()))).collect(Collectors.toList());
     }
 
     @GetMapping("infinity/Club")
-    public List<InfinityClubRankVO> infinityClubicRank(
+    public List<InfinityClubRankVO> infinityClubRank(
             @RequestParam(name = "daysAgo", required = false, defaultValue = "1") int daysAgo,
             @RequestParam(name = "size", required = false, defaultValue = "15") int size) {
         List<DailyData_Id_And_ScoreCount> daysRankList;
@@ -197,5 +226,12 @@ public class Rank {
     public String test1() {
         questionDailyDataTask.record();
         return "o~~0";
+    }
+
+    private int getMapValue(Map<Object, Object> map, RedisInfinityRecordHashKey key) {
+        if (map.get(key.toString()) == null) {
+            return 0;
+        }
+        return Integer.parseInt((String) map.get(key.toString()));
     }
 }

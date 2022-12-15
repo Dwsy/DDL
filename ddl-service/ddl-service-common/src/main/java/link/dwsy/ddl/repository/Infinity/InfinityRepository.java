@@ -1,6 +1,7 @@
 package link.dwsy.ddl.repository.Infinity;
 
 import link.dwsy.ddl.XO.Enum.InfinityType;
+import link.dwsy.ddl.XO.Projection.InfinityInfo;
 import link.dwsy.ddl.entity.Infinity.Infinity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -87,6 +88,9 @@ public interface InfinityRepository extends JpaRepository<Infinity, Long> {
     @Query("select i.content from Infinity i where i.id = ?1")
     String getContentById(long id);
 
+
+    @Query("select i.infinityClub,i.infinityTopics from Infinity i where i.id = ?1")
+    InfinityInfo TopicIdsAndClubId(long id);
 
 
 }

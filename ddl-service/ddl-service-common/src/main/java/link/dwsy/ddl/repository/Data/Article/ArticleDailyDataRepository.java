@@ -10,6 +10,7 @@ import java.util.List;
 
 
 public interface ArticleDailyDataRepository extends JpaRepository<ArticleDailyData, Long> {
+    List<ArticleDailyData> findByUserIdAndDataDateBetween(long userId, LocalDate dataDateStart, LocalDate dataDateEnd);
     @Query(nativeQuery = true, value = "select article_field_id as id, sum(score) as scoreCount \n" +
             "from article_daily_data\n" +
             "where date_trunc('day', (data_date)) > date_trunc('day', date(?1))\n" +

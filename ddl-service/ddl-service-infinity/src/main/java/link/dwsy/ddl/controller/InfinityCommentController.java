@@ -15,7 +15,9 @@ import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Infinity.InfinityRepository;
 import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.Infinity.InfinityClubRedisRecordService;
 import link.dwsy.ddl.service.Impl.Infinity.InfinityRedisRecordService;
+import link.dwsy.ddl.service.Impl.Infinity.InfinityTopicRedisRecordService;
 import link.dwsy.ddl.service.InfinityCommentService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
@@ -57,6 +59,10 @@ public class InfinityCommentController {
 
     @Resource
     private InfinityRedisRecordService infinityRedisRecordService;
+    @Resource
+    private InfinityTopicRedisRecordService infinityTopicRedisRecordService;
+    @Resource
+    private InfinityClubRedisRecordService infinityClubRedisRecordService;
 
 
     @GetMapping("{id}")
@@ -150,13 +156,13 @@ public class InfinityCommentController {
         long replyId = infinityRB.getReplyId();
         String content = infinityRB.getContent();
         Long replyUserTweetId = infinityRB.getReplyUserTweetId();
+        Infinity ret;
         if (replyUserTweetId == null) {
             boolean exists = infinityRepository.existsByDeletedFalseAndIdAndTypeIn
                     (replyId, List.of(InfinityType.Tweet, InfinityType.Answer, InfinityType.Question, InfinityType.Article));
             if (!exists) {
                 throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
             }
-            infinityRedisRecordService.record(replyId, RedisInfinityRecordHashKey.comment,1,null);
             Infinity infinity = Infinity.builder()
                     .type(InfinityType.TweetCommentOrReply)
                     .content(content)
@@ -164,9 +170,9 @@ public class InfinityCommentController {
                     .user((User) new User().setId(userId))
                     .parentTweetId(replyId).build();
             infinity.setImgUrlByList(infinityRB.getImgUrlList());
-            Infinity save = infinityRepository.save(infinity);
-            infinityCommentService.sendActionMqMessage(userId,save, UserActiveType.Comment_Tweet,replyId,false);
-            return save;
+            ret = infinityRepository.save(infinity);
+            infinityCommentService.sendActionMqMessage(userId, ret, UserActiveType.Comment_Tweet, replyId, false);
+
         } else {
             boolean exists = infinityRepository.existsByDeletedFalseAndIdAndType(replyUserTweetId, InfinityType.TweetCommentOrReply);
             if (!exists) {
@@ -182,18 +188,22 @@ public class InfinityCommentController {
                     .ua(userSupport.getUserAgent())
                     .build();
             Long refId = infinityRB.getRefId();
-            UserActiveType userActiveType=UserActiveType.Reply_Comment_Tweet;
+            UserActiveType userActiveType = UserActiveType.Reply_Comment_Tweet;
             if (refId != null) {
                 infinity.setRefId(refId);
                 userActiveType = UserActiveType.Reply_Reply_Comment_Tweet;
             }
             //回复时间线二级评论关联上一级评论id
             infinity.setImgUrlByList(infinityRB.getImgUrlList());
-            Infinity save = infinityRepository.save(infinity);
-            infinityCommentService.sendActionMqMessage(userId,save,userActiveType,replyId,false);
-            return save;
-            //todo reply@name:
+            ret = infinityRepository.save(infinity);
+            infinityCommentService.sendActionMqMessage(userId, ret, userActiveType, replyId, false);
         }
+        //optimization
+        infinityRepository.findById(replyId).ifPresent(infinity -> {
+            infinityRedisRecordService.record(replyId, RedisInfinityRecordHashKey.reply, 1, null);
+        });
+
+        return ret;
     }
 
 //    @PostMapping("action/up/{id}")
