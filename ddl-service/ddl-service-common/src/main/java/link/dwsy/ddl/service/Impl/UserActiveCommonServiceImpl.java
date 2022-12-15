@@ -8,6 +8,7 @@ import link.dwsy.ddl.entity.User.UserActive;
 import link.dwsy.ddl.repository.User.UserActiveRepository;
 import link.dwsy.ddl.service.UserActiveService;
 import link.dwsy.ddl.support.UserSupport;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import javax.annotation.Resource;
  */
 
 @Service
+@Slf4j
 public class UserActiveCommonServiceImpl implements UserActiveService {
 
     @Resource
@@ -41,12 +43,16 @@ public class UserActiveCommonServiceImpl implements UserActiveService {
 
     //            rabbitTemplate.convertAndSend(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE, userActiveMessage);
     public void ActiveLogUseMQ(UserActiveType userActiveType, Long sourceId) {
+        log.info("ActiveLogUseMQ:{}", userActiveType);
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         if (currentUser != null) {
-            UserActiveMessage userActive = UserActiveMessage.builder()
-                    .userActiveType(userActiveType).userId(userSupport.getCurrentUser().getId())
-                    .sourceId(sourceId).build();
-            rabbitTemplate.convertAndSend(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE, userActive);
+            UserActiveMessage userActiveMessage = UserActiveMessage.builder()
+                    .userActiveType(userActiveType)
+                    .userId(userSupport.getCurrentUser().getId())
+                    .sourceId(sourceId)
+                    .ua(userSupport.getUserAgent()).build();
+            rabbitTemplate.convertAndSend(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE, userActiveMessage);
+
         }
     }
 }

@@ -13,11 +13,8 @@ import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.Infinity.Infinity;
 import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Infinity.InfinityRepository;
-import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
-import link.dwsy.ddl.service.Impl.Infinity.InfinityClubRedisRecordService;
 import link.dwsy.ddl.service.Impl.Infinity.InfinityRedisRecordService;
-import link.dwsy.ddl.service.Impl.Infinity.InfinityTopicRedisRecordService;
 import link.dwsy.ddl.service.InfinityCommentService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
@@ -48,8 +45,6 @@ public class InfinityCommentController {
     @Resource
     private InfinityRepository infinityRepository;
 
-    @Resource
-    private InfinityTopicRepository infinityTopicRepository;
 
     @Resource
     private InfinityCommentService infinityCommentService;
@@ -59,11 +54,6 @@ public class InfinityCommentController {
 
     @Resource
     private InfinityRedisRecordService infinityRedisRecordService;
-    @Resource
-    private InfinityTopicRedisRecordService infinityTopicRedisRecordService;
-    @Resource
-    private InfinityClubRedisRecordService infinityClubRedisRecordService;
-
 
     @GetMapping("{id}")
     public Map<String, Object> getInfinityChildCommentPageList(
@@ -117,6 +107,7 @@ public class InfinityCommentController {
         map.put("childComments", new PageData<>(childComments));
         map.put("commentReplyMap", commentReplyMap);
         return map;
+
     }
 
     @GetMapping("reply/{id}")

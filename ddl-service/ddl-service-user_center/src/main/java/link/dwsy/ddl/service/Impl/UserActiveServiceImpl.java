@@ -1,7 +1,10 @@
 package link.dwsy.ddl.service.Impl;
 
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
+import link.dwsy.ddl.XO.VO.UserHistoryActiveVO;
 import link.dwsy.ddl.XO.VO.UserThumbActiveVO;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.entity.Article.ArticleComment;
@@ -29,10 +32,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -167,7 +167,7 @@ public class UserActiveServiceImpl implements UserActiveService {
         return new PageData<>(userActivePage, activeVOArrayList);
     }
 
-    private PageData<UserThumbActiveVO> getUserUPArticleById(long uid, PageRequest pageRequest){
+    private PageData<UserThumbActiveVO> getUserUPArticleById(long uid, PageRequest pageRequest) {
         Page<UserActive> userActivePage = userActiveRepository.findByDeletedFalseAndUserIdAndUserActiveType(uid, UserActiveType.UP_Article, pageRequest);
         List<Long> sourceIdList = userActivePage.getContent().stream().map(UserActive::getSourceId).collect(Collectors.toList());
         ArrayList<UserThumbActiveVO> activeVOArrayList = new ArrayList<>();
@@ -186,6 +186,7 @@ public class UserActiveServiceImpl implements UserActiveService {
         }
         return new PageData<>(userActivePage, activeVOArrayList);
     }
+
     private PageData<UserThumbActiveVO> getUserUPArticleByIdold(long uid, PageRequest pageRequest) {
         Page<ArticleComment> UP_ArticleActive = articleCommentRepository.
                 findByDeletedFalseAndUser_IdAndParentCommentIdAndCommentType(uid, -1, CommentType.up, pageRequest);
@@ -215,4 +216,207 @@ public class UserActiveServiceImpl implements UserActiveService {
         return pageData;
     }
 
+    public PageData<UserHistoryActiveVO> getUserHistoryRecords(String type, PageRequest pageRequest) {
+        Long userId = userSupport.getCurrentUser().getId();
+        Page<UserActive> historyPage = null;
+        ArrayList<UserHistoryActiveVO> historyActiveVOS = new ArrayList<>();
+        if (StrUtil.equals(type, "all")) {
+            List<UserActiveType> browseTypes = List.of(UserActiveType.Browse_Article, UserActiveType.Browse_QA, UserActiveType.Browse_Infinity);
+            historyPage = userActiveRepository.findByDeletedFalseAndUserIdAndUserActiveTypeIn(userId, browseTypes, pageRequest);
+            if (ArrayUtil.isEmpty(historyPage.getTotalElements())) {
+                return null;
+            }
+            Map<UserActiveType, List<Long>> userHistoryByActiveTypeGroupListMap =
+                    historyPage.getContent().stream().collect
+                            (Collectors.groupingBy(UserActive::getUserActiveType, Collectors.mapping(UserActive::getSourceId, Collectors.toList())));
+            List<Long> browseArticleIds = userHistoryByActiveTypeGroupListMap.get(UserActiveType.Browse_Article);
+            List<Long> browseQAIds = userHistoryByActiveTypeGroupListMap.get(UserActiveType.Browse_QA);
+            List<Long> browseInfinityIds = userHistoryByActiveTypeGroupListMap.get(UserActiveType.Browse_Infinity);
+            if (!ArrayUtil.isEmpty(browseArticleIds)) {
+                List<ArticleField> articleFields = articleFieldRepository.findAllById(browseArticleIds);
+                articleFields.forEach(articleField -> {
+                    UserHistoryActiveVO build;
+                    if (articleField.getDeleted()) {
+                        build = UserHistoryActiveVO.builder()
+                                .id(articleField.getId())
+                                .user(articleField.getUser())
+                                .title("内容已失效或被删除")
+                                .banner(null)
+                                .summary("内容已失效或被删除")
+                                .createTime(articleField.getCreateTime())
+                                .userActiveType(UserActiveType.Browse_Article)
+                                .build();
+                    } else {
+                        build = UserHistoryActiveVO.builder()
+                                .id(articleField.getId())
+                                .user(articleField.getUser())
+                                .title(articleField.getTitle())
+                                .banner(articleField.getBanner())
+                                .summary(articleField.getSummary())
+                                .createTime(articleField.getCreateTime())
+                                .userActiveType(UserActiveType.Browse_Article)
+                                .build();
+                    }
+                    historyActiveVOS.add(build);
+                });
+            }
+            if (!ArrayUtil.isEmpty(browseQAIds)) {
+                List<QaQuestionField> questionFields = qaQuestionFieldRepository.findAllById(browseQAIds);
+                questionFields.forEach(questionField -> {
+                    UserHistoryActiveVO build;
+                    if (questionField.getDeleted()) {
+                        build = UserHistoryActiveVO.builder()
+                                .id(questionField.getId())
+                                .user(questionField.getUser())
+                                .title("内容已失效或被删除")
+                                .summary("内容已失效或被删除")
+                                .createTime(questionField.getCreateTime())
+                                .userActiveType(UserActiveType.Browse_QA)
+                                .build();
+                    } else {
+                        build = UserHistoryActiveVO.builder()
+                                .id(questionField.getId())
+                                .user(questionField.getUser())
+                                .title(questionField.getTitle())
+                                .summary(questionField.getSummary())
+                                .createTime(questionField.getCreateTime())
+                                .userActiveType(UserActiveType.Browse_QA)
+                                .build();
+                    }
+                    historyActiveVOS.add(build);
+                });
+            }
+            if (!ArrayUtil.isEmpty(browseInfinityIds)) {
+                List<Infinity> infinities = infinityRepository.findAllById(browseInfinityIds);
+                infinities.forEach(infinity -> {
+                    UserHistoryActiveVO build;
+                    if (infinity.getDeleted()) {
+                        build = UserHistoryActiveVO.builder()
+                                .id(infinity.getId())
+                                .user(infinity.getUser())
+                                .title("内容已失效或被删除")
+                                .summary("内容已失效或被删除")
+                                .createTime(infinity.getCreateTime())
+                                .userActiveType(UserActiveType.Browse_Infinity)
+                                .build();
+                    } else {
+                        build = UserHistoryActiveVO.builder()
+                                .id(infinity.getId())
+                                .user(infinity.getUser())
+                                .summary(infinity.getContent())
+                                .createTime(infinity.getCreateTime())
+                                .userActiveType(UserActiveType.Browse_Infinity)
+                                .build();
+                        Optional.ofNullable(infinity.getImgUrl1()).ifPresent(build::setBanner);
+                    }
+                    historyActiveVOS.add(build);
+                });
+            }
+            List<UserHistoryActiveVO> sortUserHistoryActiveVOS = historyActiveVOS.stream()
+                    .sorted(Comparator.comparing(UserHistoryActiveVO::getCreateTime)).collect(Collectors.toList());
+            return new PageData<>(historyPage, sortUserHistoryActiveVOS);
+        }
+        if (StrUtil.equals(type, "article")) {
+            historyPage = userActiveRepository.findByDeletedFalseAndUserIdAndUserActiveType(userId, UserActiveType.Browse_Article, pageRequest);
+            if (historyPage.getTotalElements()==0) {
+                return null;
+            }
+            List<Long> browseArticleIds = historyPage.stream().map(UserActive::getSourceId).collect(Collectors.toList());
+            List<ArticleField> articleFields = articleFieldRepository.findAllById(browseArticleIds);
+            articleFields.forEach(articleField -> {
+                UserHistoryActiveVO build;
+                if (articleField.getDeleted()) {
+                    build = UserHistoryActiveVO.builder()
+                            .id(articleField.getId())
+                            .user(articleField.getUser())
+                            .title("内容已失效或被删除")
+                            .banner(null)
+                            .summary("内容已失效或被删除")
+                            .createTime(articleField.getCreateTime())
+                            .userActiveType(UserActiveType.Browse_Article)
+                            .build();
+                } else {
+                    build = UserHistoryActiveVO.builder()
+                            .id(articleField.getId())
+                            .user(articleField.getUser())
+                            .title(articleField.getTitle())
+                            .banner(articleField.getBanner())
+                            .summary(articleField.getSummary())
+                            .createTime(articleField.getCreateTime())
+                            .userActiveType(UserActiveType.Browse_Article)
+                            .build();
+                }
+                historyActiveVOS.add(build);
+            });
+        }
+        if (StrUtil.equals(type, "question")) {
+            historyPage = userActiveRepository.findByDeletedFalseAndUserIdAndUserActiveType(userId, UserActiveType.Browse_QA, pageRequest);
+            if (historyPage.getTotalElements()==0) {
+                return null;
+            }
+            List<Long> browseQAIds = historyPage.stream().map(UserActive::getSourceId).collect(Collectors.toList());
+            List<QaQuestionField> questionFields = qaQuestionFieldRepository.findAllById(browseQAIds);
+            questionFields.forEach(questionField -> {
+                UserHistoryActiveVO build;
+                if (questionField.getDeleted()) {
+                    build = UserHistoryActiveVO.builder()
+                            .id(questionField.getId())
+                            .user(questionField.getUser())
+                            .title("内容已失效或被删除")
+                            .summary("内容已失效或被删除")
+                            .createTime(questionField.getCreateTime())
+                            .userActiveType(UserActiveType.Browse_QA)
+                            .build();
+                } else {
+                    build = UserHistoryActiveVO.builder()
+                            .id(questionField.getId())
+                            .user(questionField.getUser())
+                            .title(questionField.getTitle())
+                            .summary(questionField.getSummary())
+                            .createTime(questionField.getCreateTime())
+                            .userActiveType(UserActiveType.Browse_QA)
+                            .build();
+                }
+                historyActiveVOS.add(build);
+            });
+        }
+        if (StrUtil.equals(type, "infinity")) {
+            historyPage = userActiveRepository.findByDeletedFalseAndUserIdAndUserActiveType(userId, UserActiveType.Browse_Infinity, pageRequest);
+            if (historyPage.getTotalElements()==0) {
+                return null;
+            }
+            List<Long> browseInfinityIds = historyPage.stream().map(UserActive::getSourceId).collect(Collectors.toList());
+            List<Infinity> infinities = infinityRepository.findAllById(browseInfinityIds);
+            infinities.forEach(infinity -> {
+                UserHistoryActiveVO build;
+                if (infinity.getDeleted()) {
+                    build = UserHistoryActiveVO.builder()
+                            .id(infinity.getId())
+                            .user(infinity.getUser())
+                            .title("内容已失效或被删除")
+                            .summary("内容已失效或被删除")
+                            .createTime(infinity.getCreateTime())
+                            .userActiveType(UserActiveType.Browse_Infinity)
+                            .build();
+                } else {
+                    build = UserHistoryActiveVO.builder()
+                            .id(infinity.getId())
+                            .user(infinity.getUser())
+                            .summary(infinity.getContent())
+                            .createTime(infinity.getCreateTime())
+                            .userActiveType(UserActiveType.Browse_Infinity)
+                            .build();
+                    Optional.ofNullable(infinity.getImgUrl1()).ifPresent(build::setBanner);
+                }
+                historyActiveVOS.add(build);
+            });
+        }
+        if (historyPage == null) {
+            return null;
+        } else {
+            return new PageData<>(historyPage, historyActiveVOS.stream().sorted(Comparator.comparing(UserHistoryActiveVO::getCreateTime)).collect(Collectors.toList()));
+        }
+
+
+    }
 }

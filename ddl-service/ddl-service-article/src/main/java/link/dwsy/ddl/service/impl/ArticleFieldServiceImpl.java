@@ -72,19 +72,25 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     @Resource
     private UserRepository userRepository;
 
-//    @Resource
+    //    @Resource
 //    private Gson
+    @Resource
+    private ArticleRedisRecordService articleRedisRecordService;
 
-    @Override
-    public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
-        LoginUserInfo currentUser = userSupport.getCurrentUser();
-        if (currentUser != null) {
-            UserActiveMessage userActiveMessage = UserActiveMessage.builder().userActiveType(userActiveType).userId(userSupport.getCurrentUser().getId()).sourceId(sourceId).ua(userSupport.getUserAgent()).build();
-            log.info(userActiveMessage.toString());
-            rabbitTemplate.convertAndSend(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE, userActiveMessage);
-
-        }
-    }
+//    @Override
+//    public void ActiveLog(UserActiveType userActiveType, Long sourceId) {
+//        LoginUserInfo currentUser = userSupport.getCurrentUser();
+//        if (currentUser != null) {
+//            UserActiveMessage userActiveMessage = UserActiveMessage
+//                    .builder()
+//                    .userActiveType(userActiveType)
+//                    .userId(userSupport.getCurrentUser().getId())
+//                    .sourceId(sourceId)
+//                    .ua(userSupport.getUserAgent()).build();
+//            rabbitTemplate.convertAndSend(UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE, userActiveMessage);
+//
+//        }
+//    }
 
     @Override
     public long createArticle(ArticleContentRB articleContentRB) {
@@ -127,7 +133,6 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         }
         return articleId;
     }
-
 
     @Override
     public long updateArticle(ArticleContentRB articleContentRB) {
@@ -246,9 +251,6 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         }
 
     }
-
-    @Resource
-    private ArticleRedisRecordService articleRedisRecordService;
 
     @Override
     public void view(Long id) {

@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
+import link.dwsy.ddl.XO.VO.UserHistoryActiveVO;
 import link.dwsy.ddl.XO.VO.UserThumbActiveVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
@@ -13,6 +14,7 @@ import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,6 +69,17 @@ public class UserActiveController {
 
             return userActiveService.getUserThumbActive(uid, type, pageRequest);
         }
+    }
+
+    @GetMapping("/history")
+    @AuthAnnotation
+    public PageData<UserHistoryActiveVO> getUserHistoryRecords(
+            @RequestParam(required = false, defaultValue = "all", name = "type") String type,
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "10", name = "size") int size
+    ) {
+        PageRequest pageRequest = PRHelper.order(Sort.Direction.DESC,"createTime", page, size);
+        return userActiveService.getUserHistoryRecords(type,pageRequest);
     }
 
 

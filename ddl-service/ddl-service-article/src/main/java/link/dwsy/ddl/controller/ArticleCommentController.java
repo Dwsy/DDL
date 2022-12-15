@@ -8,6 +8,7 @@ import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleComment;
+import link.dwsy.ddl.service.Impl.UserActiveCommonServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleCommentServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;
 import link.dwsy.ddl.util.PRHelper;
@@ -31,6 +32,9 @@ public class ArticleCommentController {
     @Resource
     private ArticleCommentServiceImpl articleCommentService;
 
+    @Resource
+    private UserActiveCommonServiceImpl userActiveCommonService;
+
     @GetMapping("/{id}")
     public PageData<ArticleComment> getUCommentListById(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
@@ -40,7 +44,10 @@ public class ArticleCommentController {
             @PathVariable("id") Long aid) {
         if (aid < 1 || size < 1)
             throw new CodeException(CustomerErrorCode.ParamError);
-        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
+//        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
+        if (page == 1) {
+            userActiveCommonService.ActiveLogUseMQ(UserActiveType.Browse_Article, aid);
+        }
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         return articleCommentService.getByArticleId(aid, pageRequest);
     }

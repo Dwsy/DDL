@@ -21,7 +21,7 @@ public class UserActiveListener {
 
     @RabbitListener(queues = UserActiveMQConstants.QUEUE_DDL_USER_ACTIVE)
     public void userActive(UserActiveMessage message) {
+        log.info("用户active消息:{}", message);
         userActiveProcess.ActiveLog(message.getUserActiveType(), message.getSourceId(), message.getUserId(),message.getUa());
-        log.info("用户{}活跃记录{}成功", message.getUserId(), message.getUserActiveType().toString());
     }
 }

@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
+import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.InvitationUserRB;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
 import link.dwsy.ddl.XO.RB.TagIdsRB;
@@ -10,8 +11,8 @@ import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.QA.QaAnswer;
-import link.dwsy.ddl.repository.User.UserNotifyRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.UserActiveCommonServiceImpl;
 import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.service.RPC.UserService;
 import link.dwsy.ddl.service.impl.QaAnswerServiceServiceImpl;
@@ -46,7 +47,7 @@ public class QaAnswerController {
     @Resource
     private UserSupport userSupport;
     @Resource
-    private UserNotifyRepository userNotifyRepository;
+    private UserActiveCommonServiceImpl userActiveCommonService;
 
     @GetMapping("/{id}")
     public PageData<QaAnswer> getAnswerPageById(
@@ -59,6 +60,9 @@ public class QaAnswerController {
             throw new CodeException(CustomerErrorCode.ParamError);
 //        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        if (page==1){
+            userActiveCommonService.ActiveLogUseMQ(UserActiveType.Browse_QA, qid);
+        }
         return qaAnswerServiceService.getByQuestionId(qid, pageRequest);
     }
 

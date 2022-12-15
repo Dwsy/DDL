@@ -20,6 +20,7 @@ import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.Impl.Infinity.InfinityClubRedisRecordService;
 import link.dwsy.ddl.service.Impl.Infinity.InfinityRedisRecordService;
 import link.dwsy.ddl.service.Impl.Infinity.InfinityTopicRedisRecordService;
+import link.dwsy.ddl.service.Impl.UserActiveCommonServiceImpl;
 import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.service.InfinityCommentService;
 import link.dwsy.ddl.support.UserSupport;
@@ -72,6 +73,8 @@ public class InfinityController {
     private InfinityClubRedisRecordService infinityClubRedisRecordService;
     @Resource
     private InfinityTopicRedisRecordService infinityTopicRedisRecordService;
+    @Resource
+    private UserActiveCommonServiceImpl userActiveCommonService;
 
     @GetMapping("list")
     public PageData<Infinity> getInfinityPageList(
@@ -257,6 +260,7 @@ public class InfinityController {
         if (infinity == null) {
             throw new CodeException(CustomerErrorCode.INFINITY_NOT_EXIST);
         }
+        userActiveCommonService.ActiveLogUseMQ(UserActiveType.Browse_Infinity, id);
         infinityRepository.viewNumIncrement(id, 1);
         infinityRedisRecordService.record(id, RedisInfinityRecordHashKey.view, 1, infinity);
 //        infinityRedisRecordService.record(id, RedisInfinityRecordHashKey.reply, 1, null);

@@ -1,7 +1,6 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
-import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.CreateQuestionRB;
 import link.dwsy.ddl.XO.VO.UserActionVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
@@ -118,7 +117,6 @@ public class QaQuestionFieldController {
         }
 
         qaQuestionFieldService.view(id);
-        userActiveCommonService.ActiveLogUseMQ(UserActiveType.Browse_QA, id);
         return question;
     }
 

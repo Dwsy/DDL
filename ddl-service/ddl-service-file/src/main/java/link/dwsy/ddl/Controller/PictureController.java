@@ -1,5 +1,6 @@
 package link.dwsy.ddl.Controller;
 
+import cn.hutool.core.util.StrUtil;
 import link.dwsy.ddl.Utils.QiniuUtils;
 import link.dwsy.ddl.core.domain.R;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,7 @@ public class PictureController {
     @PostMapping("/upload")
     public R<String> upload(@RequestParam("file") MultipartFile file){
         String imagePath = qiniuUtils.upload(file);
-        if (!imagePath.isEmpty()){
+        if (!StrUtil.isEmpty(imagePath)){
             return R.ok(imagePath);
         }
         return R.fail("图片上传失败！");
