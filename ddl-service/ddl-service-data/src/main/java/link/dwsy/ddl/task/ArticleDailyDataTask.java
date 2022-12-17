@@ -30,18 +30,24 @@ public class ArticleDailyDataTask {
     @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
 
-    @Scheduled(cron = "0 5 0 * * ? ")
+    @Scheduled(cron = "0 1 0 * * ? ")
     public void record() {
         log.info("定时任务执行{}", Thread.currentThread().getName());
 
-        Set<ZSetOperations.TypedTuple<String>> typedTuples =
-                redisTemplate.opsForZSet().reverseRangeWithScores(RedisRecordKey.RedisInfinityTopicRecordKey, 0, - 1);
-        if (typedTuples==null) {
+        Set<ZSetOperations.TypedTuple<String>> valueScoreSet = null;
+        try {
+            valueScoreSet =
+                    redisTemplate.opsForZSet().reverseRangeWithScores(RedisRecordKey.RedisArticleRecordToDayKey, 0, - 1);
+        }catch (Exception e){
+            log.error("定时任务执行异常或无访问数据", e);
+        }
+        if (valueScoreSet==null) {
             log.info("今日无访问");
             return;
         }
-        ArrayList<ArticleDailyData> dailyDataArrayList = new ArrayList<>(typedTuples.size());
-        typedTuples.forEach(p -> {
+        ArrayList<String> delKeyList = new ArrayList<>();
+        ArrayList<ArticleDailyData> dailyDataArrayList = new ArrayList<>(valueScoreSet.size());
+        valueScoreSet.forEach(p -> {
             String id = p.getValue();
             if (id==null) {
                 return;
@@ -77,29 +83,11 @@ public class ArticleDailyDataTask {
                     .groupId(articleFieldRepository.getGroupIdById(articleId))
                     .build();
             dailyDataArrayList.add(articleDailyData);
-            redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey + id);
+            delKeyList.add(RedisRecordKey.RedisArticleRecordKey + id);
         });
-        redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey);
-
         articleDailyDataRepository.saveAll(dailyDataArrayList);
-//        Set<String> idSet = redisTemplate.opsForSet().members(RedisRecordKey.RedisArticleRecordKey);
-//
-//        if (idSet != null) {
-//            if (idSet.size() == 0) {
-//                log.info("今日无访问");
-//                return;
-//            }
-//            ArrayList<ArticleDailyData> dailyDataArrayList = new ArrayList<>(idSet.size());
-//            for (String id : idSet) {
-//
-//            }
-//            articleDailyDataRepository.saveAll(dailyDataArrayList);
-//            for (String id : idSet) {
-//                redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey + id);
-//            }
-//            redisTemplate.delete(RedisRecordKey.RedisArticleRecordKey);
-//        }
-
+        redisTemplate.delete(RedisRecordKey.RedisArticleRecordToDayKey);
+        redisTemplate.delete(delKeyList);
     }
 
     private int getMapValue(Map<Object, Object> map, RedisRecordHashKey key) {

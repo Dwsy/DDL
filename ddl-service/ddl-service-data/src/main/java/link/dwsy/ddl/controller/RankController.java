@@ -24,6 +24,7 @@ import link.dwsy.ddl.repository.Infinity.InfinityTopicRepository;
 import link.dwsy.ddl.repository.QA.QaGroupRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.task.ArticleDailyDataTask;
+import link.dwsy.ddl.task.Infinity.InfinityTopicDailyDataTask;
 import link.dwsy.ddl.task.QuestionDailyDataTask;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -53,6 +54,8 @@ public class RankController {
     private ArticleDailyDataTask articleDailyDataTask;
     @Resource
     private QuestionDailyDataTask questionDailyDataTask;
+    @Resource
+    private InfinityTopicDailyDataTask infinityTopicDailyDataTask;
     @Resource
     private ArticleDailyDataRepository articleDailyDataRepository;
     @Resource
@@ -222,9 +225,20 @@ public class RankController {
         return infinityTopics.stream().map(infinityTopic -> new InfinityClubRankVO(infinityTopic, idScoreMap.get(infinityTopic.getId()))).collect(Collectors.toList());
     }
 
+    @GetMapping("a")
+    public String test() {
+        articleDailyDataTask.record();
+        return "o~~0";
+    }
+
     @GetMapping("q")
     public String test1() {
         questionDailyDataTask.record();
+        return "o~~0";
+    }
+    @GetMapping("it")
+    public String test2() {
+        infinityTopicDailyDataTask.record();
         return "o~~0";
     }
 

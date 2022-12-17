@@ -7,6 +7,7 @@ import link.dwsy.ddl.repository.Data.Infinity.InfinityTopicDailyRepository;
 import link.dwsy.ddl.service.Impl.Infinity.InfinityRedisRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,17 +31,26 @@ public class InfinityTopicDailyDataTask {
     @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
 
-    @Scheduled(cron = "0 5 0 * * ? ")
+    @Scheduled(cron = "0 3 0 * * ? ")
     public void record() {
         log.info("定时任务执行{}", Thread.currentThread().getName());
-        Set<ZSetOperations.TypedTuple<String>> typedTuples =
-                redisTemplate.opsForZSet().reverseRangeWithScores(RedisRecordKey.RedisInfinityTopicRecordKey, 0, - 1);
-        if (typedTuples==null) {
+        Set<ZSetOperations.TypedTuple<String>> valueScoreSet = null;
+        try {
+            valueScoreSet = redisTemplate.opsForZSet().reverseRangeWithScores(RedisRecordKey.RedisInfinityTopicRecordToDayKey, 0, -1);
+        } catch (RedisSystemException e) {
+            log.error("无访问数据", e);
+            return;
+        } catch (Exception e) {
+            log.error("InfinityTopicDailyDataTask 定时任务执行异常", e);
+            return;
+        }
+        if (valueScoreSet == null) {
             log.info("今日无访问");
             return;
         }
-        ArrayList<InfinityTopicDailyData> dailyDataArrayList = new ArrayList<>(typedTuples.size());
-        typedTuples.forEach(p -> {
+        ArrayList<String> delKeyList = new ArrayList<>();
+        ArrayList<InfinityTopicDailyData> dailyDataArrayList = new ArrayList<>(valueScoreSet.size());
+        valueScoreSet.forEach(p -> {
             String id = p.getValue();
             if (id == null) {
                 return;
@@ -70,11 +80,11 @@ public class InfinityTopicDailyDataTask {
                     .dataDate(LocalDate.now())
                     .build();
             dailyDataArrayList.add(infinityTopicDailyData);
-            redisTemplate.delete(RedisRecordKey.RedisInfinityTopicRecordKey + id);
+            delKeyList.add(RedisRecordKey.RedisInfinityTopicRecordKey + id);
         });
         infinityTopicDailyRepository.saveAll(dailyDataArrayList);
+        redisTemplate.delete(delKeyList);
         redisTemplate.delete(RedisRecordKey.RedisInfinityTopicRecordToDayKey);
-
     }
 
     private int getMapValue(Map<Object, Object> map, RedisInfinityRecordHashKey key) {

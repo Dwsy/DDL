@@ -22,9 +22,9 @@ public class InfinityTopicRedisRecordService {
 
 
     public void record(Long id, RedisInfinityRecordHashKey recordHashKey, int increment) {
-        if (recordHashKey == RedisInfinityRecordHashKey.view) {
-            redisTemplate.opsForSet().add(RedisRecordKey.RedisInfinityTopicRecordKey, String.valueOf(id));
-        }
+//        if (recordHashKey == RedisInfinityRecordHashKey.view) {
+//            redisTemplate.opsForSet().add(RedisRecordKey.RedisInfinityTopicRecordKey, String.valueOf(id));
+//        }
         redisTemplate.opsForHash().increment(RedisRecordKey.RedisInfinityTopicRecordKey + id, recordHashKey.toString(), increment);
         redisTemplate.opsForZSet().incrementScore(RedisRecordKey.RedisInfinityTopicRecordToDayKey, String.valueOf(id), getScore(recordHashKey, increment));
     }
