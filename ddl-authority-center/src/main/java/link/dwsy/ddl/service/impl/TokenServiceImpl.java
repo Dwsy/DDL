@@ -7,6 +7,7 @@ import link.dwsy.ddl.XO.RB.UserRB;
 import link.dwsy.ddl.XO.RB.UserRegisterRB;
 import link.dwsy.ddl.constant.AuthorityConstant;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
+import link.dwsy.ddl.core.constant.Constants;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.constant.TokenConstants;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
@@ -61,33 +62,33 @@ public class TokenServiceImpl implements TokenService {
             user = userRepository.findByDeletedFalseAndUsername(userRB.getUsername());
             if (user == null) {
                 log.error("can not find user: [{}],", userRB.getUsername());
-                return "username or password error";
-//            throw new Exception("登录失败");
+//                return "username or password error";
+            throw new CodeException("username or password error");
             }
             String md5Pwd = SecureUtil.md5(userRB.getPassword() + user.getSalt());
 
             if (!user.getPassword().equals(md5Pwd)) {
 //                log.error("can not find user: [{}],", userRB.getUsername());
-                return "username or password error";
+                throw new CodeException("username or password error");
             }
             user = userRepository.findUserByUsernameAndPasswordAndDeletedIsFalse(userRB.getUsername(), md5Pwd);
         } else {
             user = userRepository.findByDeletedFalseAndPhone(userRB.getPhone());
             if (user == null) {
                 log.error("can not find user: [{}],", userRB.getUsername());
-                return "username or password error";
+                throw new CodeException("username or password error");
             }
             String md5 = SecureUtil.md5(userRB.getPassword() + user.getSalt());
             if (!user.getPassword().equals(md5)) {
                 //todo 密码多次错误锁定ip
 //                log.error("can not find user: [{}],", userRB.getUsername());
-                return "username or password error.";
+                throw new CodeException("username or password error");
             }
         }
         // 首先需要验证用户是否能够通过授权校验, 即输入的用户名和密码能否匹配数据表记录
         if (user == null) {
             log.error("can not find user: [{}],", userRB.getUsername());
-            return "username or password error";
+            throw new CodeException("username or password error");
 //            throw new Exception("登录失败");
         }
         // Token 中塞入对象, 即 JWT 中存储的信息, 后端拿到这些信息就可以知道是哪个用户在操作
@@ -109,8 +110,12 @@ public class TokenServiceImpl implements TokenService {
         ZonedDateTime zdt = LocalDate.now().plus(expire, ChronoUnit.DAYS)
                 .atStartOfDay(ZoneId.systemDefault());
         Date expireDate = Date.from(zdt.toInstant());
-
-        return TokenUtil.generateToken(loginUserInfo, expireDate);
+        String token = TokenUtil.generateToken(loginUserInfo, expireDate);
+        redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_ACTIVE_TIME_KEY + TokenUtil.getTokenDigest(token), String.valueOf(new Date().getTime()),
+                AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
+        redisTemplate.opsForValue()
+                .set(Constants.RE_ACTIVE_TOKEN_KEY + TokenUtil.getTokenDigest(token), "1", 8, TimeUnit.HOURS);
+        return token;
     }
 
 
@@ -130,7 +135,8 @@ public class TokenServiceImpl implements TokenService {
         User u = userRepository.findUserByUsernameAndDeletedIsFalse(userRegisterRB.getUsername());
         if (u != null) {
             log.error("username is registered: [{}]", userRegisterRB.getUsername());
-            return "username is registered";
+//            return "username is registered";
+            throw new CodeException("用户名已存在");
         }
         String registerRBPassword = userRegisterRB.getPassword();
         String salt = RandomUtil.randomString(8);
@@ -162,12 +168,12 @@ public class TokenServiceImpl implements TokenService {
     }
 
     public void blackToken(String token) {
-        redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY + token, "1",
+        redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY + TokenUtil.getTokenDigest(token), "1",
                 AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
     }
 
     public Boolean isBlackToken(String token) {
-        return redisTemplate.hasKey(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY + token);
+        return redisTemplate.hasKey(TokenConstants.REDIS_TOKEN_BLACKLIST_KEY + TokenUtil.getTokenDigest(token));
     }
 
 
@@ -197,10 +203,11 @@ public class TokenServiceImpl implements TokenService {
     }
 
     public boolean active(String token) {
+        //延长token有效期
         if (isBlackToken(token)) {
             throw new CodeException(CustomerErrorCode.UserTokenExpired);
         }
-        String key = TokenConstants.REDIS_TOKEN_ACTIVE_TIME_KEY + token;
+        String key = TokenConstants.REDIS_TOKEN_ACTIVE_TIME_KEY + TokenUtil.getTokenDigest(token);
         long nowTime = new Date().getTime();
         String lastActiveTimeStr = redisTemplate.opsForValue().get(key);
         Long expire = redisTemplate.getExpire(key);

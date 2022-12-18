@@ -6,7 +6,6 @@ import link.dwsy.ddl.XO.DTO.GithubUserInfo;
 import link.dwsy.ddl.XO.RB.UserRB;
 import link.dwsy.ddl.XO.RB.UserRegisterRB;
 import link.dwsy.ddl.annotation.IgnoreResponseAdvice;
-import link.dwsy.ddl.constant.AuthorityConstant;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.constant.TokenConstants;
@@ -21,8 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <h1>对外暴露的授权服务接口</h1>
@@ -35,24 +32,25 @@ public class AuthorityController {
     @Resource
     private TokenServiceImpl tokenService;
     @Resource
-    private RedisTemplate<String,String> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
     @Resource
     private GithubOauthService githubOauthService;
 
 
-
-
-    @GetMapping("/github")
     @IgnoreResponseAdvice
-    public void github(@RequestParam("code") String code, HttpServletResponse response) throws Exception {
+    @GetMapping("/github")
+    public JwtToken github(@RequestParam("code") String code, HttpServletResponse response) throws Exception {
         GithubUserInfo userInfo = githubOauthService.getUserInfo(code);
-        if (userInfo==null){
+        if (userInfo == null) {
             throw new CodeException(CustomerErrorCode.GITHUB_OAUTH_ERROR);
         }
         String token = githubOauthService.generateToken(userInfo);
-        response.sendRedirect("http://localhost:3000/user/login"+"?token="+token);
+        log.info("token:{}", token);
+        //        response.sendRedirect("http://localhost:3000/user/login"+"?token="+token);
+        return new JwtToken(token);
     }
+
     @GetMapping("/rsa-pks")
     public String getRsaPublicKey() {
 
@@ -69,12 +67,11 @@ public class AuthorityController {
 
         log.info("request to get token with param: [{}]",
                 JSONUtil.toJsonStr(userRB));
-        JwtToken jwtToken = new JwtToken(tokenService.generateToken(userRB));
-        redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_ACTIVE_TIME_KEY + jwtToken.getToken(), String.valueOf(new Date().getTime()),
-                AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
-        return jwtToken;
+
+        return new JwtToken(tokenService.generateToken(userRB));
     }
 
+    @IgnoreResponseAdvice
     @PostMapping("active")
     public boolean active(HttpServletRequest request) {
         String tokenHead = request.getHeader(TokenConstants.AUTHENTICATION);
@@ -92,8 +89,8 @@ public class AuthorityController {
         return true;
     }
 
-    @PostMapping("refresh")
-    @IgnoreResponseAdvice
+    //    @PostMapping("refresh")
+//    @IgnoreResponseAdvice
     public String refresh(HttpServletRequest request) throws Exception {
         String token = request.getHeader(TokenConstants.AUTHENTICATION);
         if (StrUtil.isBlank(token)) {
@@ -114,8 +111,9 @@ public class AuthorityController {
         log.info("register user with param: [{}]", JSONUtil.toJsonStr(
                 userRegisterRB
         ));
-        return new JwtToken(tokenService.registerUserAndGenerateToken(
+        String token = tokenService.registerUserAndGenerateToken(
                 userRegisterRB
-        ));
+        );
+        return new JwtToken(token);
     }
 }

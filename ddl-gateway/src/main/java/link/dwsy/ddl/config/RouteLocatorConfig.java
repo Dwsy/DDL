@@ -24,7 +24,8 @@ public class RouteLocatorConfig {
                         r -> r.path(
                                 "/api/auth/login",
                                 "/api/auth/register",
-                                "/api/auth/logout"
+                                "/api/auth/logout",
+                                "/api/auth/github"
                                 ).uri("http://localhost:9001/")
                 ).build();
     }

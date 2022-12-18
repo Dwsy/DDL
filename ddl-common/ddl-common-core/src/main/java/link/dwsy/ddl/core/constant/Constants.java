@@ -35,6 +35,8 @@ public class Constants {
      * JWT 中存储用户信息的 key
      */
     public static final String JWT_USER_INFO_KEY = "ddl-user";
+
+    public static final String RE_ACTIVE_TOKEN_KEY = "Token:reactive:";
     /**
      * UTF-8 字符集
      */

@@ -9,11 +9,14 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class JwtToken {
 
     /**
      * JWT
      */
     private String token;
+
+    public JwtToken(String token) {
+        this.token = token;
+    }
 }

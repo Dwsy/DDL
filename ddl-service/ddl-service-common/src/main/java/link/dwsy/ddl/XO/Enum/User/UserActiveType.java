@@ -13,6 +13,8 @@ import link.dwsy.ddl.entity.Infinity.Infinity;
 public enum UserActiveType {
     Check_In,//签到
 
+    Visit_Site,//访问网站
+
     Browse_Article,//浏览文章
 
     Browse_QA,//浏览问题

@@ -6,6 +6,7 @@ package link.dwsy.ddl.core.domain;
  */
 
 import link.dwsy.ddl.core.constant.Constants;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
  *
  * @author ruoyi
  */
+@NoArgsConstructor
 public class R<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -34,8 +36,7 @@ public class R<T> implements Serializable {
 
     private T data;
 
-    public R() {
-    }
+
 
     public R(int code, String msg, T data) {
         this.code = code;
