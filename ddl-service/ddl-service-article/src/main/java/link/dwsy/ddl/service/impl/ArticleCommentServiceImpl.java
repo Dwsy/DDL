@@ -158,7 +158,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     }
 
 
-    private ArticleComment replyArticleSecondComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
+    public ArticleComment replyArticleSecondComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
         String replyText;
 //                if(articleCommentRepository.notIsSecondaryComment(articleCommentRB.getReplyUserCommentId())){
         replyText = "回复@" + userRepository.getUserNicknameById
@@ -189,7 +189,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         return save;
     }
 
-    private ArticleComment replyArticleComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
+    public ArticleComment replyArticleComment(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber, long parentCommentId) {
         long replyUserId = articleCommentRB.getReplyUserId();
         if (userRepository.findById(replyUserId).isEmpty()) {
             throw new CodeException(CustomerErrorCode.UserNotExist);
@@ -215,7 +215,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         return save;
     }
 
-    private ArticleComment replyArticle(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber) {
+    public ArticleComment replyArticle(ArticleCommentRB articleCommentRB, CommentType commentType, long articleFieldId, User user, ArticleField af, int commentSerialNumber) {
         ArticleComment lastComment = articleCommentRepository
                 .findFirstByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentTypeOrderByCommentSerialNumberDesc
                         (articleFieldId, 0L, CommentType.comment);

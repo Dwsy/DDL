@@ -8,9 +8,15 @@ import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleComment;
+import link.dwsy.ddl.entity.Article.ArticleField;
+import link.dwsy.ddl.entity.User.User;
+import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
+import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.service.Impl.UserActiveCommonServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleCommentServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;
+import link.dwsy.ddl.support.UserSupport;
+import link.dwsy.ddl.util.HtmlHelper;
 import link.dwsy.ddl.util.PRHelper;
 import link.dwsy.ddl.util.PageData;
 import org.springframework.data.domain.PageRequest;
@@ -68,9 +74,56 @@ public class ArticleCommentController {
         return articleCommentService.getChildCommentsByParentId(aid, pid, pageRequest);
     }
 
+    @Resource
+    private ArticleFieldRepository articleFieldRepository;
+    @Resource
+    private UserSupport userSupport;
+    @Resource
+    private ArticleCommentRepository articleCommentRepository;
     @PostMapping()
     public ArticleComment reply(@RequestBody ArticleCommentRB articleCommentRB) {
-        return articleCommentService.reply(articleCommentRB, CommentType.comment);
+        long articleFieldId = articleCommentRB.getArticleFieldId();
+        if (articleFieldRepository.userIsCancellation(articleFieldId) > 0) {
+            throw new CodeException(CustomerErrorCode.ArticleCommentIsClose);
+        }
+        if (!articleFieldRepository.existsByDeletedFalseAndAllowCommentTrueAndId(articleFieldId)) {
+            throw new CodeException(CustomerErrorCode.ArticleCommentIsClose);
+        }
+        User user = new User();
+        user.setId(userSupport.getCurrentUser().getId());
+        articleCommentRB.setText(HtmlHelper.filter(articleCommentRB.getText().trim()));
+        ArticleField af = new ArticleField();
+        af.setId(articleFieldId);
+        int commentSerialNumber = 1;
+        //评论文章
+        CommentType commentType = CommentType.comment;
+        if (articleCommentRB.getParentCommentId() == 0) {
+
+            return articleCommentService. replyArticle(articleCommentRB, commentType, articleFieldId, user, af, commentSerialNumber);
+        } else {
+            long parentCommentId = articleCommentRB.getParentCommentId();
+            if (!articleCommentRepository.isFirstComment(parentCommentId)) {
+                throw new CodeException(CustomerErrorCode.ArticleCommentNotIsFirst);
+            }
+            if (!articleCommentRepository.existsByDeletedFalseAndIdAndArticleFieldIdAndCommentType
+                    (parentCommentId, articleFieldId, CommentType.comment)) {
+                throw new CodeException(CustomerErrorCode.ArticleCommentNotFount);
+            }
+            ArticleComment lastComment = articleCommentRepository
+                    .findFirstByDeletedFalseAndArticleField_IdAndParentCommentIdAndCommentTypeOrderByCommentSerialNumberDesc
+                            (articleFieldId, parentCommentId, commentType);
+            if (lastComment != null) {
+                commentSerialNumber = lastComment.getCommentSerialNumber() + 1;
+            }
+            //回复评论
+
+            if (articleCommentRB.getReplyUserCommentId() == 0) {
+                return articleCommentService.replyArticleComment(articleCommentRB, commentType, articleFieldId, user, af, commentSerialNumber, parentCommentId);
+            } else {
+                //回复二级评论
+                return articleCommentService.replyArticleSecondComment(articleCommentRB, commentType, articleFieldId, user, af, commentSerialNumber, parentCommentId);
+            }
+        }
     }
 
     @AuthAnnotation(Level = 0)
