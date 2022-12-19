@@ -25,6 +25,7 @@ public class UserSupport {
     @Value("${spring.cloud.nacos.discovery.enabled}")
     private boolean isCloud;
 
+
     //    cloud模式优先从header中获取loginUserInfo boot模式获取token
 //    todo 缓存解析结果
     public LoginUserInfo getCurrentUser() {
@@ -38,6 +39,7 @@ public class UserSupport {
             if (StrUtil.isBlank(loginUserInfoString)) {
                 return null;
             }
+            //            this.loginUserInfoCache=loginUserInfo;
             return JSON.parseObject(loginUserInfoString, LoginUserInfo.class);
         } else {
             String token = request.getHeader(TokenConstants.AUTHENTICATION);

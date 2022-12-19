@@ -1,6 +1,7 @@
 package link.dwsy.ddl.service.impl;
 
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
+import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserCommentNotifyMessage;
 import link.dwsy.ddl.XO.Projection.ArticleFieldInfo;
@@ -19,6 +20,7 @@ import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.service.ArticleCommentService;
 import link.dwsy.ddl.service.Impl.ArticleRedisRecordService;
+import link.dwsy.ddl.service.Impl.PointsServiceImpl;
 import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.support.UserSupport;
 import link.dwsy.ddl.util.HtmlHelper;
@@ -62,6 +64,9 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
 
     @Resource
     private ArticleRedisRecordService articleRedisRecordService;
+
+    @Resource
+    private PointsServiceImpl pointsService;
 
     @Override
     public PageData<ArticleComment> getByArticleId(long aid, PageRequest pageRequest) {
@@ -111,7 +116,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         return new PageData<>(childComments);
     }
 
-    @Override
+    @Deprecated
     public ArticleComment reply(ArticleCommentRB articleCommentRB, CommentType commentType) {
 
         long articleFieldId = articleCommentRB.getArticleFieldId();
@@ -186,6 +191,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
                 commentType, false, content, parentText, save.getId());
         articleFieldRepository.commentNumIncrement(articleFieldId, 1);
         articleRedisRecordService.record(articleFieldId, RedisRecordHashKey.comment, 1);
+        pointsService.customerAward(user.getId(), PointsType.Comment_Article_Comment);
         return save;
     }
 
@@ -212,6 +218,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
                 commentType, false, content, parentText, save.getId());
         articleFieldRepository.commentNumIncrement(articleFieldId, 1);
         articleRedisRecordService.record(articleFieldId, RedisRecordHashKey.comment, 1);
+        pointsService.customerAward(user.getId(), PointsType.Comment_Article_Comment);
         return save;
     }
 
@@ -241,10 +248,12 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
             title = t.get().getTitle();
         }
 
-        sendActionMqMessage(user.getId(), articleFieldId, articleCommentRB.getParentCommentId(),
+        long userId = user.getId();
+        sendActionMqMessage(userId, articleFieldId, articleCommentRB.getParentCommentId(),
                 commentType, false, content, title, save.getId());
         articleFieldRepository.commentNumIncrement(articleFieldId, 1);
         articleRedisRecordService.record(articleFieldId, RedisRecordHashKey.comment, 1);
+        pointsService.customerAward(userId, PointsType.Comment_Article);
         return save;
     }
 
@@ -374,15 +383,23 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
             ArticleComment actionComment = articleCommentRepository.
                     findByDeletedFalseAndIdAndCommentType(actionCommentId, CommentType.comment);
             ActionUserId = actionComment.getUser().getId();
-            articleCommentRepository.upNumIncrement(actionCommentId, 1);
+            if (commentType == CommentType.up) {
+                articleCommentRepository.upNumIncrement(actionCommentId, 1);
+                pointsService.customerAward(uid, PointsType.UP_Article_Comment);
+            } else {
+                articleCommentRepository.downNumIncrement(actionCommentId, 1);
+            }
+
             sendActionMqMessage(uid, fid, pid, commentType);
+
         } else {
             ActionUserId = 0;//文章 避免前端参数错误 后端直接不管了 要用到时候从文章id查询用户id
             if (commentType == CommentType.up) {
                 articleFieldRepository.upNumIncrement(fid, 1);
                 articleRedisRecordService.record(fid, RedisRecordHashKey.up, 1);
+                pointsService.customerAward(uid, PointsType.UP_Article_Comment);
                 sendActionMqMessage(uid, fid, pid, commentType);
-
+                pointsService.customerAward(uid, PointsType.UP_Article);
             } else {
                 articleFieldRepository.downNumIncrement(fid, 1);
                 articleRedisRecordService.record(fid, RedisRecordHashKey.down, 1);
@@ -399,7 +416,6 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
                 .ua(userSupport.getUserAgent())
                 .build();
         articleCommentRepository.save(articleComment);
-
         return commentType;
 
 

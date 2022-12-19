@@ -19,4 +19,6 @@ public class UserPointsMessage {
     private Long userId;
 
     private PointsType pointsType;
+
+    private float point;
 }

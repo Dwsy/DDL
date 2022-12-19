@@ -25,6 +25,9 @@ public class DateUtil {
         return calendar.getTime();
     }
 
+    /**
+     * 获取当前到0点秒数
+     */
     public static Integer getRemainSecondsOneDay() {
         var currentDate = new Date();
         //使用plusDays加传入的时间加1天，将时分秒设置成0

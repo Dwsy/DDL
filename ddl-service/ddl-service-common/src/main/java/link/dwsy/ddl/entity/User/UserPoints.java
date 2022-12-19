@@ -24,7 +24,7 @@ import javax.persistence.Table;
 @JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "deleted", "createTime", "lastModifiedTime"})
 public class UserPoints extends BaseEntity {
 
-    int point;
+    float point;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long userId;

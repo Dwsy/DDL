@@ -1,6 +1,7 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
+import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.InvitationUserRB;
 import link.dwsy.ddl.XO.RB.QaAnswerRB;
@@ -8,6 +9,7 @@ import link.dwsy.ddl.XO.RB.TagIdsRB;
 import link.dwsy.ddl.XO.VO.InvitationUserVO;
 import link.dwsy.ddl.XO.VO.UserAnswerVO;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.annotation.Points;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.QA.QaAnswer;
@@ -50,6 +52,7 @@ public class QaAnswerController {
     private UserActiveCommonServiceImpl userActiveCommonService;
 
     @GetMapping("/{id}")
+    @Points(TYPE = PointsType.Browse_QA)
     public PageData<QaAnswer> getAnswerPageById(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,

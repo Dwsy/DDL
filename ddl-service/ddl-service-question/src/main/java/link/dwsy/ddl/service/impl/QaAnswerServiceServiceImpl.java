@@ -4,6 +4,7 @@ import cn.hutool.crypto.SecureUtil;
 import link.dwsy.ddl.XO.Enum.Message.NotifyType;
 import link.dwsy.ddl.XO.Enum.QA.AnswerType;
 import link.dwsy.ddl.XO.Enum.QA.QuestionState;
+import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.Question.InvitationUserAnswerQuestionMsg;
 import link.dwsy.ddl.XO.Message.UserQuestionAnswerNotifyMessage;
@@ -27,6 +28,7 @@ import link.dwsy.ddl.repository.QA.QaAnswerRepository;
 import link.dwsy.ddl.repository.QA.QaQuestionFieldRepository;
 import link.dwsy.ddl.repository.User.UserNotifyRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
+import link.dwsy.ddl.service.Impl.PointsServiceImpl;
 import link.dwsy.ddl.service.Impl.QuestionRedisRecordService;
 import link.dwsy.ddl.service.Impl.UserStateService;
 import link.dwsy.ddl.service.QaAnswerService;
@@ -80,6 +82,9 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
     @Resource
     private QuestionRedisRecordService questionRedisRecordService;
+
+    @Resource
+    private PointsServiceImpl pointsService;
 
     public PageData<QaAnswer> getByQuestionId(long qid, PageRequest pageRequest) {
         Page<QaAnswer> QaAnswerData = qaAnswerRepository
@@ -278,6 +283,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.answer, 1);
         qaQuestionFieldRepository.setQuestionStateIfNowStateIs(questionFieldId, QuestionState.HAVE_ANSWER.ordinal(), QuestionState.ASK.ordinal());
         HtmlHelper.LinkRefAttributeProvider.answerId.remove();
+        pointsService.customerAward(user.getId(), PointsType.Answer_Question);
         return save;
     }
 
@@ -419,7 +425,7 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         if (qaQuestionFieldRepository.userIsCancellation(questionFieldId) > 0) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
         }
-        Long uid = userSupport.getCurrentUser().getId();
+        Long userId = userSupport.getCurrentUser().getId();
         long actionAnswerOrCommentId = actionRB.getActionAnswerOrCommentId();
         if (actionAnswerOrCommentId < -1 || actionAnswerOrCommentId == 0) {
 //            等于 -1  点赞 question
@@ -447,16 +453,16 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
 
         if (qaAnswerRepository
                 .existsByDeletedFalseAndUser_IdAndQuestionField_IdAndParentAnswerIdAndAnswerTypeIn
-                        (uid, questionFieldId, actionAnswerOrCommentId,
+                        (userId, questionFieldId, actionAnswerOrCommentId,
                                 Arrays.asList(AnswerType.up, AnswerType.down, AnswerType.cancel))) {
 //            exists cancel
 //            up -> cancel ->up state transfer base database not is user action
 //            one row is one action
 
-            return existsAction(uid, questionFieldId, actionAnswerOrCommentId, actionQuestion, answerType);
+            return existsAction(userId, questionFieldId, actionAnswerOrCommentId, actionQuestion, answerType);
         }
         User user = new User();
-        user.setId(uid);
+        user.setId(userId);
         QaQuestionField qf = new QaQuestionField();
         qf.setId(questionFieldId);
 
@@ -464,16 +470,21 @@ public class QaAnswerServiceServiceImpl implements QaAnswerService {
         if (!actionQuestion) {//
             QaAnswer actionAnswer = qaAnswerRepository.findByDeletedFalseAndIdAndAnswerType
                     (actionAnswerOrCommentId, AnswerType.answer);
-
             ActionUserId = actionAnswer.getUser().getId();
-            qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
-            sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+            if (answerType == AnswerType.up) {
+                qaAnswerRepository.upNumIncrement(actionAnswerOrCommentId, 1);
+                sendThumbUpActionMqMessage(userId, questionFieldId, actionAnswerOrCommentId, answerType);
+                pointsService.customerAward(userId, PointsType.UP_Question_Answer);
+            } else {
+                qaAnswerRepository.downNumIncrement(actionAnswerOrCommentId, 1);
+            }
         } else {
             ActionUserId = 0;//
             if (answerType == AnswerType.up) {
                 qaQuestionFieldRepository.upNumIncrement(questionFieldId, 1);
                 questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.up, 1);
-                sendThumbUpActionMqMessage(uid, questionFieldId, actionAnswerOrCommentId, answerType);
+                sendThumbUpActionMqMessage(userId, questionFieldId, actionAnswerOrCommentId, answerType);
+                pointsService.customerAward(userId, PointsType.UP_Question);
             } else {
                 qaQuestionFieldRepository.downNumIncrement(questionFieldId, 1);
                 questionRedisRecordService.record(questionFieldId, RedisRecordHashKey.down, 1);

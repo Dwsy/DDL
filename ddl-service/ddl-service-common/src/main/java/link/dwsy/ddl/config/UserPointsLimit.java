@@ -5,15 +5,14 @@ import link.dwsy.ddl.XO.Enum.User.PointsType;
 public class UserPointsLimit {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
-        System.out.println(get(PointsType.Browse_QA));
+        System.out.println(PointsType.Browse_QA.ordinal());
     }
     public static int get(PointsType pointsType) {
         switch (pointsType) {//todo value file conf
             case Check_In:
                 return 2;
             case Publish_Article:
-                return 50;
+                return 30;
 
             case Browse_Article:
                 return 10;
@@ -34,7 +33,7 @@ public class UserPointsLimit {
                 return 5;
 
             case Publish_Question:
-                return 40;
+                return 30;
 
             case Answer_Question:
                 return 50;

@@ -3,9 +3,8 @@ package link.dwsy.ddl.mq.listener;
 
 import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.XO.Message.UserPointsMessage;
-import link.dwsy.ddl.entity.User.UserPoints;
 import link.dwsy.ddl.constants.mq.UserPointsMQConstants;
-import link.dwsy.ddl.mq.process.UserPointsProcess;
+import link.dwsy.ddl.entity.User.UserPoints;
 import link.dwsy.ddl.repository.User.UserPointsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,21 +21,20 @@ import javax.annotation.Resource;
 public class UserPointsListener {
     @Resource
     UserPointsRepository userPointsRepository;
-    @Resource
-    UserPointsProcess userPointsProcess;
+//    @Resource
+//    UserPointsProcess userPointsProcess;
 
     @RabbitListener(queues = UserPointsMQConstants.QUEUE_DDL_USER_POINTS)
     public void points(UserPointsMessage message) {
-        System.out.println(11);
-        if (!userPointsProcess.pointsLimit(message))
-            return;
+//        if (!userPointsProcess.pointsLimit(message))
+//            return;
 
         Long userId = message.getUserId();
         PointsType pointsType = message.getPointsType();
 
         userPointsRepository.save(UserPoints.builder()
                 .userId(userId)
-                .point(pointsType.getPoint())
+                .point(message.getPoint())
                 .pointsType(pointsType)
                 .build());
         log.info("用户{}积分记录{}成功", message.getUserId(), message.getPointsType().point);

@@ -1,10 +1,12 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.Article.CommentType;
+import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.RB.ArticleCommentActionRB;
 import link.dwsy.ddl.XO.RB.ArticleCommentRB;
 import link.dwsy.ddl.annotation.AuthAnnotation;
+import link.dwsy.ddl.annotation.Points;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.entity.Article.ArticleComment;
@@ -42,6 +44,7 @@ public class ArticleCommentController {
     private UserActiveCommonServiceImpl userActiveCommonService;
 
     @GetMapping("/{id}")
+    @Points(TYPE = PointsType.Browse_Article)
     public PageData<ArticleComment> getUCommentListById(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,

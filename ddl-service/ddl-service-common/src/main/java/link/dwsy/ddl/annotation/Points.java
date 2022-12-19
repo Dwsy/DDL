@@ -10,5 +10,5 @@ import java.lang.annotation.*;
 @Documented
 @Component
 public @interface Points {
-    PointsType TYPE();
+   PointsType TYPE();
 }

@@ -33,8 +33,6 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class GithubOauthService {
-    private final String accessTokenUrl = "https://github.com/login/oauth/access_token";
-    private final String userInfoUrl = "https://api.github.com/user";
     //    private final String accessTokenUrlJsp = "https://github.dwsy.link/login/oauth/access_token/";
 //    private final String userInfoUrlJsp = "https://ghapi.dwsy.link/user/";
     @Value("${github.oauth.id}")
@@ -69,6 +67,7 @@ public class GithubOauthService {
         // 构建请求响应实体对象
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
         // post请求方式
+        String accessTokenUrl = "https://github.com/login/oauth/access_token";
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(accessTokenUrl + "?client_id=" + clientId +
                 "&client_secret=" + secret +
                 "&code=" + code, httpEntity, String.class);
@@ -99,6 +98,7 @@ public class GithubOauthService {
         // 构建请求响应实体对象
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
         // get请求方式
+        String userInfoUrl = "https://api.github.com/user";
         ResponseEntity<String> responseEntity = restTemplate.exchange(userInfoUrl,
                 HttpMethod.GET,
                 httpEntity,

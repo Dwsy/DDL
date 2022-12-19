@@ -1,8 +1,11 @@
 package link.dwsy.ddl.repository;
 
+import link.dwsy.ddl.XO.Enum.User.PointsType;
 import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.UserActiveMessage;
+import link.dwsy.ddl.XO.Message.UserPointsMessage;
 import link.dwsy.ddl.constants.mq.ArticleSearchMQConstants;
+import link.dwsy.ddl.constants.mq.UserPointsMQConstants;
 import link.dwsy.ddl.repository.Article.ArticleContentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;
@@ -35,12 +38,13 @@ public class MqTest {
         articleFieldService.logicallyDeleted(9L);
         articleFieldService.logicallyDeleted(9L);
     }
+
     @Test
     public void TEST2() {
         var aid = 9L;
         articleFieldRepository.logicallyRecovery(aid);
         articleContentRepository.logicallyRecovery(aid);
-        rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_CREATE,aid);
+        rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_CREATE, aid);
     }
 
     @Test
@@ -50,5 +54,12 @@ public class MqTest {
                 .userActiveType(userActiveType).userId(3L)
                 .sourceId(9L).build();
         rabbitTemplate.convertAndSend("history.user.active", build);
+    }
+
+    @Test
+    public void TEST$() {
+        PointsType reward = PointsType.Reward;
+        UserPointsMessage message = UserPointsMessage.builder().pointsType(reward).point(1.1f).userId(3L).build();
+        rabbitTemplate.convertAndSend(UserPointsMQConstants.QUEUE_DDL_USER_POINTS, message);
     }
 }
