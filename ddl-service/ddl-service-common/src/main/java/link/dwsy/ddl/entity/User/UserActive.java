@@ -31,5 +31,8 @@ public class UserActive extends BaseEntity {
     private Long sourceId;
 
     private String ua;
+
+    private String ipv4;
+
 }
 

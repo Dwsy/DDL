@@ -1,7 +1,8 @@
 package link.dwsy.ddl.controller;
 
+import cn.hutool.core.util.StrUtil;
 import link.dwsy.ddl.XO.RB.UserInfoRB;
-import link.dwsy.ddl.XO.VO.UserInfoAndLevel;
+import link.dwsy.ddl.XO.VO.UserInfoVo;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -11,6 +12,7 @@ import link.dwsy.ddl.repository.User.UserFollowingRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.repository.User.UserTagRepository;
 import link.dwsy.ddl.support.UserSupport;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,15 +28,20 @@ public class UserInfoController {
     private UserSupport userSupport;
     @Resource
     private UserFollowingRepository userFollowingRepository;
-
-
+    @Resource
+    private RedisTemplate<String, String> redisTemplate;
+    @Resource
+    private UserTagRepository userTagRepository;
 
     @GetMapping
     @AuthAnnotation()
-    public UserInfoAndLevel getUserInfo() {
-        Long id = userSupport.getCurrentUser().getId();
-        User user = userRepository.findUserByIdAndDeletedIsFalse(id);
-        return new UserInfoAndLevel(user);
+    public UserInfoVo getUserInfo() {
+        Long userId = userSupport.getCurrentUser().getId();
+        User user = userRepository.findUserByIdAndDeletedIsFalse(userId);
+        if (!StrUtil.isEmpty(redisTemplate.opsForValue().get("checkIn:" + userId))) {
+            return new UserInfoVo(user, true);
+        }
+        return new UserInfoVo(user, false);
     }
 
     @GetMapping("{id}")
@@ -69,10 +76,6 @@ public class UserInfoController {
         userRepository.save(user);
         return true;
     }
-
-
-    @Resource
-    private UserTagRepository userTagRepository;
 
 //    @GetMapping
 //    public String test() {

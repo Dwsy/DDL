@@ -72,21 +72,28 @@ public class UserActiveServiceImpl implements UserActiveService {
     @Resource
     private RedisTemplate<String, String> redisTemplate;
 
+
     @Override
     public String checkIn() {
+        String userAgent = userSupport.getUserAgent();
         Date tomorrowZero = DateUtil.getTomorrowZero();
         Date zero = DateUtil.getZero();
-        Long id = userSupport.getCurrentUser().getId();
-        if (redisTemplate.opsForValue().get("checkIn:" + id) != null) {
-            throw new CodeException("今日已签到");
+        Long userId = userSupport.getCurrentUser().getId();
 
+        if (!StrUtil.isEmpty(redisTemplate.opsForValue().get("checkIn:" + userId))) {
+            throw new CodeException("今日已签到");
         }
         if (userActiveRepository.existsByUserIdIsAndUserActiveTypeAndCreateTimeBetween
-                (id, UserActiveType.Check_In, zero, tomorrowZero)) {
+                (userId, UserActiveType.Check_In, zero, tomorrowZero)) {
             throw new CodeException("今日已签到");
         }
-        userActiveCommonService.ActiveLogUseMQ(UserActiveType.Check_In, null);
-        redisTemplate.opsForValue().set("checkIn:" + id, "true", DateUtil.getRemainSecondsOneDay(), TimeUnit.SECONDS);
+        userActiveRepository.save(UserActive.builder()
+                .userActiveType(UserActiveType.Check_In)
+                .userId(userId)
+                .ipv4(userSupport.getIpv4())
+                .sourceId(null)
+                .ua(userAgent).build());
+        redisTemplate.opsForValue().set("checkIn:" + userId, "true", DateUtil.getRemainSecondsOneDay(), TimeUnit.SECONDS);
         return "签到成功";
     }
 
@@ -320,7 +327,7 @@ public class UserActiveServiceImpl implements UserActiveService {
         }
         if (StrUtil.equals(type, "article")) {
             historyPage = userActiveRepository.findByDeletedFalseAndUserIdAndUserActiveType(userId, UserActiveType.Browse_Article, pageRequest);
-            if (historyPage.getTotalElements()==0) {
+            if (historyPage.getTotalElements() == 0) {
                 return null;
             }
             List<Long> browseArticleIds = historyPage.stream().map(UserActive::getSourceId).collect(Collectors.toList());
@@ -355,7 +362,7 @@ public class UserActiveServiceImpl implements UserActiveService {
         }
         if (StrUtil.equals(type, "question")) {
             historyPage = userActiveRepository.findByDeletedFalseAndUserIdAndUserActiveType(userId, UserActiveType.Browse_QA, pageRequest);
-            if (historyPage.getTotalElements()==0) {
+            if (historyPage.getTotalElements() == 0) {
                 return null;
             }
             List<Long> browseQAIds = historyPage.stream().map(UserActive::getSourceId).collect(Collectors.toList());
@@ -388,7 +395,7 @@ public class UserActiveServiceImpl implements UserActiveService {
         }
         if (StrUtil.equals(type, "infinity")) {
             historyPage = userActiveRepository.findByDeletedFalseAndUserIdAndUserActiveType(userId, UserActiveType.Browse_Infinity, pageRequest);
-            if (historyPage.getTotalElements()==0) {
+            if (historyPage.getTotalElements() == 0) {
                 return null;
             }
             List<Long> browseInfinityIds = historyPage.stream().map(UserActive::getSourceId).collect(Collectors.toList());

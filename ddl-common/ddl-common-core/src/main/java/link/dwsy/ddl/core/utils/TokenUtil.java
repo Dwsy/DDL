@@ -1,5 +1,6 @@
 package link.dwsy.ddl.core.utils;
 
+import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson2.JSON;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -14,12 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+
 @Slf4j
 public class TokenUtil {
 
     private static final String ISSUER = "签发者";
 
-    public static String generateToken(LoginUserInfo loginUserInfo,Date expireDate) throws Exception{
+    public static String generateToken(LoginUserInfo loginUserInfo, Date expireDate) throws Exception {
         return Jwts.builder()
                 // jwt payload --> KV
                 .claim(Constants.JWT_USER_INFO_KEY, new ObjectMapper().writeValueAsString(loginUserInfo))
@@ -32,7 +34,7 @@ public class TokenUtil {
                 .compact();
     }
 
-    public static String generateRefreshToken(Long userId) throws Exception{
+    public static String generateRefreshToken(Long userId) throws Exception {
         Algorithm algorithm = Algorithm.RSA256(RSAUtil.getPublicKey(), RSAUtil.getPrivateKey());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
@@ -46,7 +48,7 @@ public class TokenUtil {
     /**
      * <h2>从 JWT Token 中解析 LoginUserInfo 对象</h2>
      */
-    public static LoginUserInfo parseUserInfoFromToken(String token)  {
+    public static LoginUserInfo parseUserInfoFromToken(String token) {
 
         if (null == token) {
             return null;
@@ -83,5 +85,11 @@ public class TokenUtil {
         }
         return claimsJws;
     }
+
+    public static String getTokenDigest(String token) {
+        return SecureUtil.md5(token + token.substring(10, 20));
+    }
+
+
 
 }

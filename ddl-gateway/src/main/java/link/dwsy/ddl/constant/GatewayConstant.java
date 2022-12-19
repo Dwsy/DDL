@@ -20,6 +20,8 @@ public class GatewayConstant {
 
     public static final String GITHUB_OAUTH = "/auth/github";
 
+    public static final String GET_USER_INFO = "/user/info";
+
     /**
      * 去授权中心拿到登录 token 的 uri 格式化接口
      */
@@ -35,9 +37,9 @@ public class GatewayConstant {
     public static final String AUTHORITY_LOGOUT_URL_FORMAT =
             "http://%s:%s/ddl-authority-center/authority/logut";
 
-    public static final String AUTHORITY_REFRESH_URL_FORMAT =
-            "http://%s:%s/ddl-authority-center/authority/refresh";
+    public static final String AUTHORITY_ACTIVE_URL_FORMAT =
+            "http://%s:%s/ddl-authority-center/authority/active";
 
     public static final String AUTHORITY_GITHUB_OAUTH_URL_FORMAT =
-            "http://%s:%s/ddl-authority-center/authority/github";
+            "http://%s:%s/ddl-authority-center/authority/github?code={0}";
 }

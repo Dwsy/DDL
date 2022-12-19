@@ -13,7 +13,7 @@ import java.util.Date;
  */
 @Getter
 @Setter
-public class UserInfoAndLevel {
+public class UserInfoVo {
 
     private int level;
 
@@ -25,13 +25,16 @@ public class UserInfoAndLevel {
     private Gender gender;
     private Date birth;
 
+    private boolean checkIn;
 
-    public UserInfoAndLevel(User user) {
+
+    public UserInfoVo(User user,boolean checkIn) {
         this.level = user.getLevel();
         this.experience = user.getExperience();
         this.avatar = user.getUserInfo().getAvatar();
         this.sign = user.getUserInfo().getSign();
         this.gender = user.getUserInfo().getGender();
         this.birth = user.getUserInfo().getBirth();
+        this.checkIn = checkIn;
     }
 }
