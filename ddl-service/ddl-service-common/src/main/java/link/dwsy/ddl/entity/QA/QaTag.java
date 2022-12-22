@@ -21,7 +21,7 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
-@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","createTime","deleted","lastModifiedTime"})
+@JsonIgnoreProperties(value = {"handler","hibernateLazyInitializer","createTime","indexPageDisplay","deleted","lastModifiedTime"})
 public class QaTag extends BaseEntity {
 
 
@@ -34,6 +34,7 @@ public class QaTag extends BaseEntity {
     private Integer weight;
 
     //是否在主页显示
+
     @Builder.Default
     private boolean indexPageDisplay = false;
 

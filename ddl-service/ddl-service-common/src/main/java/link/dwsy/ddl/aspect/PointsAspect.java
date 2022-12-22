@@ -2,14 +2,11 @@ package link.dwsy.ddl.aspect;
 
 
 import link.dwsy.ddl.annotation.Points;
-import link.dwsy.ddl.service.Impl.PointsServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 
 @Component
 @Aspect
@@ -26,8 +23,8 @@ public class PointsAspect {
 //    @Resource(name = "stringRedisTemplate")
 //    private StringRedisTemplate redisTemplate;
 
-    @Resource
-    private PointsServiceImpl pointsService;
+//    @Resource
+//    private PointsServiceImpl pointsService;
 
     @Pointcut("@annotation(link.dwsy.ddl.annotation.Points)")
     public void cut() {
@@ -35,6 +32,6 @@ public class PointsAspect {
 
     @After("cut() && @annotation(points)")
     public void dop(Points points) {
-        pointsService.award(points);
+//        pointsService.award(points);
     }
 }

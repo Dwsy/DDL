@@ -5,8 +5,8 @@ import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
 import link.dwsy.ddl.XO.RB.WordEntityRB;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
-import link.dwsy.ddl.entity.ContentChecking.WordEntity;
-import link.dwsy.ddl.repository.ContentChecking.WordRepository;
+import link.dwsy.ddl.entity.WordEntity;
+import link.dwsy.ddl.repositor.WordRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 

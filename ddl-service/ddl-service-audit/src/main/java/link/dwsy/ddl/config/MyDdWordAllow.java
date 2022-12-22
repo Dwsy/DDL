@@ -2,9 +2,9 @@ package link.dwsy.ddl.config;
 
 
 import com.github.houbb.sensitive.word.api.IWordAllow;
-import link.dwsy.ddl.entity.ContentChecking.WordEntity;
-import link.dwsy.ddl.XO.Enum.WordType;
-import link.dwsy.ddl.repository.ContentChecking.WordRepository;
+import link.dwsy.ddl.XO.Enmu.WordType;
+import link.dwsy.ddl.entity.WordEntity;
+import link.dwsy.ddl.repositor.WordRepository;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;

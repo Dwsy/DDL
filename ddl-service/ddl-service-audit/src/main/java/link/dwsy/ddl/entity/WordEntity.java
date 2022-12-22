@@ -1,8 +1,7 @@
-package link.dwsy.ddl.entity.ContentChecking;
+package link.dwsy.ddl.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import link.dwsy.ddl.entity.BaseEntity;
-import link.dwsy.ddl.XO.Enum.WordType;
+import link.dwsy.ddl.XO.Enmu.WordType;
 import lombok.*;
 
 import javax.persistence.Entity;

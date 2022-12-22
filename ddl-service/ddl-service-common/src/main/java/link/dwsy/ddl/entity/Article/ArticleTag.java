@@ -21,7 +21,7 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
-@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "createTime", "deleted", "lastModifiedTime"})
+@JsonIgnoreProperties(value = {"handler", "hibernateLazyInitializer", "createTime", "deleted", "lastModifiedTime","indexPageDisplay"})
 public class ArticleTag extends BaseEntity {
 
 

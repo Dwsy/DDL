@@ -2,14 +2,12 @@ package link.dwsy.ddl.repository;
 
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;
-import link.dwsy.ddl.XO.Projection.DailyData_Id_And_ScoreCount;
 import link.dwsy.ddl.repository.Data.Article.ArticleDailyDataRepository;
+import link.dwsy.ddl.service.RPC.AuditService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-import java.time.LocalDate;
-import java.util.List;
 
 /**
  * @Author Dwsy
@@ -19,6 +17,9 @@ import java.util.List;
 public class TTTEEESSTTTTest {
     @Resource
     private ArticleDailyDataRepository articleDailyDataRepository;
+
+    @Resource
+    private AuditService auditService;
 
     public static void main(String[] args) {
         System.out.println("Hello World!");
@@ -33,17 +34,9 @@ public class TTTEEESSTTTTest {
 
     @Test
     public void test1() {
-//        List<DailyData_Id_And_ScoreCount> daysRank = articleDailyDataRepository.getNDaysRankByTag(LocalDate.now().minusDays(7),"[4]", 10);
-//        for (DailyData_Id_And_ScoreCount articleDailyData : daysRank) {
-//            System.out.println("id" + articleDailyData.getId());
-//            System.out.println("score" + articleDailyData.getScoreCount());
-//        }
-
-        List<DailyData_Id_And_ScoreCount> daysRank1 = articleDailyDataRepository.getNDaysRankByGroup(LocalDate.now().minusDays(7),2, 10);
-        for (DailyData_Id_And_ScoreCount articleDailyData : daysRank1) {
-            System.out.println("id" + articleDailyData.getId());
-            System.out.println("score" + articleDailyData.getScoreCount());
-        }
+        System.out.println(auditService.contains("1"));
+        System.out.println(auditService.contains("nmsl"));
+        System.out.println(auditService.contains("nt"));
     }
 
 }

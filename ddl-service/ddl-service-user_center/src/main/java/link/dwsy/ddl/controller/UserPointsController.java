@@ -61,7 +61,8 @@ public class UserPointsController {
     }
 
     @GetMapping("heatmap/{userId}")
-    public List<HeatmapData> getUserHeatmapData(@PathVariable long userId) {
+    public List<HeatmapData> getUserHeatmapData(@PathVariable long userId,
+                                                @RequestParam(required = false, defaultValue = "0", name = "minusYears") int minusYears) {
         Calendar calendar = Calendar.getInstance();
         if (userId <= 0) {
             return null;
@@ -71,14 +72,14 @@ public class UserPointsController {
 //        calendar.set(Calendar.MINUTE, 0);
 //        calendar.set(Calendar.SECOND, 0);
 //        Date lastYear = calendar.getTime();
-        LocalDate startDate = LocalDate.of(calendar.get(Calendar.YEAR) - 1,calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE) );
-        List<Map<Object,Object>> heatmapDataMapList = userPointsRepository.getHeatmapDataByUserId(userId, startDate, LocalDate.now());
+        LocalDate startDate = LocalDate.of(calendar.get(Calendar.YEAR) - minusYears - 1, calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE));
+        List<Map<Object, Object>> heatmapDataMapList = userPointsRepository.getHeatmapDataByUserId(userId, startDate, LocalDate.now().minusYears(minusYears));
 
 //        System.out.printf(String.valueOf(heatmapDataList.get(0).getCount()));
         List<HeatmapData> list = new ArrayList<>();
         for (Map<Object, Object> data : heatmapDataMapList) {
             int count = ((BigInteger) data.get("count")).intValue();
-            HeatmapData heatmapData = new HeatmapData((Date) data.get("date"),count);
+            HeatmapData heatmapData = new HeatmapData((Date) data.get("date"), count);
             list.add(heatmapData);
         }
         return list;

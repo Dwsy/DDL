@@ -1,7 +1,8 @@
 package link.dwsy.ddl.XO.RB;
 
-import link.dwsy.ddl.entity.ContentChecking.WordEntity;
-import link.dwsy.ddl.XO.Enum.WordType;
+
+import link.dwsy.ddl.XO.Enmu.WordType;
+import link.dwsy.ddl.entity.WordEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

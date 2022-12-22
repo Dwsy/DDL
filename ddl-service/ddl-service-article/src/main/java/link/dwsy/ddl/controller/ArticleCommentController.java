@@ -15,6 +15,7 @@ import link.dwsy.ddl.entity.User.User;
 import link.dwsy.ddl.repository.Article.ArticleCommentRepository;
 import link.dwsy.ddl.repository.Article.ArticleFieldRepository;
 import link.dwsy.ddl.service.Impl.UserActiveCommonServiceImpl;
+import link.dwsy.ddl.service.RPC.AuditService;
 import link.dwsy.ddl.service.impl.ArticleCommentServiceImpl;
 import link.dwsy.ddl.service.impl.ArticleFieldServiceImpl;
 import link.dwsy.ddl.support.UserSupport;
@@ -83,6 +84,8 @@ public class ArticleCommentController {
     private UserSupport userSupport;
     @Resource
     private ArticleCommentRepository articleCommentRepository;
+    @Resource
+    private AuditService auditService;
     @PostMapping()
     public ArticleComment reply(@RequestBody ArticleCommentRB articleCommentRB) {
         long articleFieldId = articleCommentRB.getArticleFieldId();
@@ -91,6 +94,9 @@ public class ArticleCommentController {
         }
         if (!articleFieldRepository.existsByDeletedFalseAndAllowCommentTrueAndId(articleFieldId)) {
             throw new CodeException(CustomerErrorCode.ArticleCommentIsClose);
+        }
+        if (auditService.contains(articleCommentRB.getText())) {
+            throw new CodeException(CustomerErrorCode.SensitiveWordsExistInTheContent);
         }
         User user = new User();
         user.setId(userSupport.getCurrentUser().getId());

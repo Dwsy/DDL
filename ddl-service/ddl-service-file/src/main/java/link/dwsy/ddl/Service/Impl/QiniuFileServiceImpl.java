@@ -1,4 +1,4 @@
-package link.dwsy.ddl.Utils;
+package link.dwsy.ddl.Service.Impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.qiniu.http.Response;
@@ -7,14 +7,15 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
+import link.dwsy.ddl.Service.FileService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
-@Component
-public class QiniuUtils {
+@Service
+public class QiniuFileServiceImpl implements FileService {
 
     @Value("${qiniu.accessKey}")
     private String accessKey;      //公钥
@@ -32,9 +33,22 @@ public class QiniuUtils {
      * @param file 前端传来的图片
      * @return 图片的访问路径
      */
-    public String upload(MultipartFile file) {
+    public String uploadPictureFile(MultipartFile file) {
+        String filename = file.getOriginalFilename();
+        if (filename == null) {
+            return null;
+        }
         // 生成文件名
-        String fileName = getRandomImgName(file.getOriginalFilename());
+        String fileName = getRandomImgName(filename);
+        int dotPos = filename.lastIndexOf(".");
+        if (dotPos < 0) {
+            return null;
+        }
+        String fileExt = filename.substring(dotPos + 1).toLowerCase();
+        // 判断是否是合法的文件后缀
+        if (!isFileAllowedPostfix(fileExt)) {
+            return null;
+        }
         //构造一个带指定 Region 对象的配置类
         Configuration cfg = new Configuration(Region.regionCnEast2());  //根据自己的对象空间的地址选（华东）
         //...其他参数参考类注释
@@ -59,7 +73,10 @@ public class QiniuUtils {
      * @Param: fileName
      * @return: 云服务器fileName
      */
-    public static String getRandomImgName(String fileName) {
+    public  String getRandomImgName(String fileName) {
+        if (fileName == null) {
+            return null;
+        }
         int index = fileName.lastIndexOf(".");
 
         if (fileName.isEmpty() || index == -1) {
