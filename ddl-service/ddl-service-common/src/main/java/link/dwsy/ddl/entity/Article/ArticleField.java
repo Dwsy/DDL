@@ -11,8 +11,9 @@ import link.dwsy.ddl.XO.Enum.ArticleSource;
 import link.dwsy.ddl.entity.BaseEntity;
 import link.dwsy.ddl.entity.User.User;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Proxy;
-import org.springframework.data.annotation.Version;
 
 import javax.persistence.*;
 import java.util.List;
@@ -92,6 +93,7 @@ public class ArticleField extends BaseEntity {
     @JoinTable(name = "article_tag_ref",
             joinColumns = {@JoinColumn(name = "article_field_id")},
             inverseJoinColumns = {@JoinColumn(name = "article_tag_id")})
+    @Fetch(FetchMode.SUBSELECT)
     private List<ArticleTag> articleTags;
 
     @ManyToOne()
