@@ -49,15 +49,16 @@ public class QaQuestionFieldManageController {
 
     @GetMapping("field/list")
     @AuthAnnotation
-    public PageData<QaQuestionField> QuestionList(
+    public PageData<QaQuestionField> questionList(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "ask", name = "state") String state
     ) {
-        if (size < 1)
+        if (size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
 
 
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
@@ -92,13 +93,14 @@ public class QaQuestionFieldManageController {
 
     @GetMapping("field/{id}")
     @AuthAnnotation
-    public QaQuestionField GetQuestionById(
+    public QaQuestionField getQuestionById(
             @PathVariable("id") Long id,
             @RequestParam(required = false, defaultValue = "false", name = "getQuestionComment") boolean getQuestionComment,
             @RequestParam(required = false, defaultValue = "-1", name = "version") int version
     ) {
-        if (id < 1L)
+        if (id < 1L) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         Long userId = userSupport.getCurrentUser().getId();
         Long questionOwnerUserId = qaQuestionFieldRepository.getUserIdByQuestionId(id);
         if (!userId.equals(questionOwnerUserId)) {
@@ -125,14 +127,16 @@ public class QaQuestionFieldManageController {
     @GetMapping(value = "content/{id}", produces = "application/json")
     @AuthAnnotation
 //    @IgnoreResponseAdvice
-    public String GetQuestionContent(
+    public String getQuestionContent(
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "0", name = "type") int type,
             @RequestParam(required = false, defaultValue = "-1", name = "version") int version) {
-        if (id < 0L)
+        if (id < 0L) {
             throw new CodeException(CustomerErrorCode.ParamError);
-        if (type < 0 || type > 2)
+        }
+        if (type < 0 || type > 2) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         Long userId = userSupport.getCurrentUser().getId();
         Long questionOwnerUserId = qaQuestionFieldRepository.getUserIdByQuestionFieldId(id);
         if (!userId.equals(questionOwnerUserId)) {

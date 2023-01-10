@@ -17,7 +17,7 @@ public class QuestionAnswerOrCommentActionRB {
     @NotNull(message = "问题ID不能为空")
     private long questionFieldId;
 
-    private long actionUserId;//
+    private long actionUserId;
 
     private long actionAnswerOrCommentId;
 }

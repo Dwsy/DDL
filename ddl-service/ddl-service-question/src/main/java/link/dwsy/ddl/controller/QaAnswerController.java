@@ -59,8 +59,9 @@ public class QaAnswerController {
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @PathVariable("id") Long qid) {
-        if (qid < 1 || size < 1)
+        if (qid < 1 || size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
 //        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         if (page==1){
@@ -78,8 +79,9 @@ public class QaAnswerController {
             @PathVariable("qid") Long qid,
             @PathVariable("pid") Long pid
     ) {
-        if (qid < 1 || size < 1)
+        if (qid < 1 || size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
 //        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
         PageRequest pageRequest = PRHelper.order(Sort.Direction.ASC, "createTime", page, size);
         return qaAnswerServiceService.getChildAnswerPageByParentId(qid, pid, pageRequest);
@@ -158,8 +160,9 @@ public class QaAnswerController {
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @PathVariable("userId") Long userId) {
-        if (userId < 1 || size < 1)
+        if (userId < 1 || size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         if (!userRepository.existsByDeletedFalseAndId(userId)) {
             throw new CodeException(CustomerErrorCode.UserCancellation);
         }

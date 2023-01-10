@@ -52,8 +52,9 @@ public class ArticleCommentController {
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @PathVariable("id") Long aid) {
-        if (aid < 1 || size < 1)
+        if (aid < 1 || size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
 //        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
         if (page == 1) {
             userActiveCommonService.ActiveLogUseMQ(UserActiveType.Browse_Article, aid);
@@ -71,8 +72,9 @@ public class ArticleCommentController {
             @PathVariable("aid") Long aid,
             @PathVariable("pid") Long pid
     ) {
-        if (aid < 1 || size < 1)
+        if (aid < 1 || size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
 //        articleFieldService.ActiveLog(UserActiveType.Browse_Article, aid);
         PageRequest pageRequest = PRHelper.order(Sort.Direction.ASC, "createTime", page, size);
         return articleCommentService.getChildCommentsByParentId(aid, pid, pageRequest);

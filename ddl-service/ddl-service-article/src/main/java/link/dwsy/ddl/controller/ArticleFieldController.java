@@ -59,8 +59,9 @@ public class ArticleFieldController {
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "0", name = "tagId") long tagId) {
-        if (size < 1)
+        if (size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         if (tagId == 0) {
             return articleContentService.getPageList(pageRequest, ArticleState.published);
@@ -77,8 +78,9 @@ public class ArticleFieldController {
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
 //            @RequestParam(required = false, defaultValue = "0", name = "tagId") long tagId,
             @PathVariable long uid) {
-        if (size < 1)
+        if (size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         if (!userRepository.existsById(uid)) {
             throw new CodeException(CustomerErrorCode.UserNotExist);
         }
@@ -93,11 +95,13 @@ public class ArticleFieldController {
 
     @GetMapping("field/{id}")
     public ArticleField getArticleById(@PathVariable("id") Long id) {
-        if (id < 0L)
+        if (id < 0L) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         ArticleField article = articleContentService.getArticleById(id, ArticleState.published);
-        if (article == null)
+        if (article == null) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
         articleFieldService.view(id);
         return article;
     }
@@ -120,11 +124,13 @@ public class ArticleFieldController {
     public String getArticleContent(
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "0", name = "type") int type) {
-        if (id < 0L)
+        if (id < 0L) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
 
-        if (type < 0 || type > 2)
+        if (type < 0 || type > 2) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         Optional<String> ret = Optional.ofNullable(articleContentService.getContent(id, type));
         if (ret.isPresent()) {
             return ret.get();

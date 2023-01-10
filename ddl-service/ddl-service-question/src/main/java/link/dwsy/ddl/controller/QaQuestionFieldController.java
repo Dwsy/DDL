@@ -50,15 +50,16 @@ public class QaQuestionFieldController {
     private QaQuestionFieldRepository qaQuestionFieldRepository;
 
     @GetMapping("field/list")
-    public PageData<QaQuestionField> QuestionList(
+    public PageData<QaQuestionField> questionList(
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "ask", name = "status") String[] statusStr
     ) {
-        if (size < 1)
+        if (size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
 
         Set<QuestionState> questionStates = new HashSet<>();
 
@@ -84,8 +85,9 @@ public class QaQuestionFieldController {
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "ask", name = "status") String[] statusStr
     ) {
-        if (size < 1)
+        if (size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
 
         Set<QuestionState> questionStates = new HashSet<>();
 
@@ -109,8 +111,9 @@ public class QaQuestionFieldController {
             @PathVariable("id") Long id,
             @RequestParam(required = false, defaultValue = "false", name = "getQuestionComment") boolean getQuestionComment
     ) {
-        if (id < 1L)
+        if (id < 1L) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         QaQuestionField question = qaQuestionFieldService.getQuestionById(id, getQuestionComment);
         if (question == null) {
             throw new CodeException(CustomerErrorCode.QuestionNotFound);
@@ -129,8 +132,9 @@ public class QaQuestionFieldController {
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "ask", name = "state") String state
     ) {
-        if (userId < 1)
+        if (userId < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         if (!userRepository.existsByDeletedFalseAndId(userId)) {
             throw new CodeException(CustomerErrorCode.UserCancellation);
         }
@@ -161,11 +165,13 @@ public class QaQuestionFieldController {
     public String GetArticleContent(
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "0", name = "type") int type) {
-        if (id < 0L)
+        if (id < 0L) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
 
-        if (type < 0 || type > 2)
+        if (type < 0 || type > 2) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         Optional<String> ret = Optional.ofNullable(questionContentService.getContent(id, type));
         if (ret.isPresent()) {
             return ret.get();

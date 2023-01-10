@@ -32,8 +32,9 @@ public class PageDataConverter<FROM, TO> {
         this.content = new ArrayList<>();
         page.getContent().forEach(from -> {
             TO to = c.convert(from);
-            if (to != null)
+            if (to != null) {
                 this.content.add(to);
+            }
         });
     }
     public interface converter<FROM, TO> {

@@ -111,7 +111,8 @@ public class TokenServiceImpl implements TokenService {
                 .atStartOfDay(ZoneId.systemDefault());
         Date expireDate = Date.from(zdt.toInstant());
         String token = TokenUtil.generateToken(loginUserInfo, expireDate);
-        redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_ACTIVE_TIME_KEY + TokenUtil.getTokenDigest(token), String.valueOf(new Date().getTime()),
+        redisTemplate.opsForValue().set(TokenConstants.REDIS_TOKEN_ACTIVE_TIME_KEY + TokenUtil.getTokenDigest(token),
+                String.valueOf(System.currentTimeMillis()),
                 AuthorityConstant.DEFAULT_EXPIRE_DAY, TimeUnit.DAYS);
         redisTemplate.opsForValue()
                 .set(Constants.RE_ACTIVE_TOKEN_KEY + TokenUtil.getTokenDigest(token), "1", 8, TimeUnit.HOURS);
@@ -208,7 +209,7 @@ public class TokenServiceImpl implements TokenService {
             throw new CodeException(CustomerErrorCode.UserTokenExpired);
         }
         String key = TokenConstants.REDIS_TOKEN_ACTIVE_TIME_KEY + TokenUtil.getTokenDigest(token);
-        long nowTime = new Date().getTime();
+        long nowTime = System.currentTimeMillis();
         String lastActiveTimeStr = redisTemplate.opsForValue().get(key);
         Long expire = redisTemplate.getExpire(key);
 

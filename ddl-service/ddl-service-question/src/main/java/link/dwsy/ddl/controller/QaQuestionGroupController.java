@@ -29,14 +29,14 @@ public class QaQuestionGroupController {
     private QaQuestionGroupServiceImpl qaQuestionGroupService;
 
     @GetMapping("list")
-    public List<QaGroup> GetGroupList(
+    public List<QaGroup> getGroupList(
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
         return qaQuestionGroupService.getGroupList(PRHelper.sort(order, properties));
     }
 
     @GetMapping("question/{id}")
-    public PageData<QaQuestionField> GetFieldListByGroupId(
+    public PageData<QaQuestionField> getFieldListByGroupId(
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
@@ -44,8 +44,9 @@ public class QaQuestionGroupController {
             @RequestParam(required = false, defaultValue = "createTime",name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "ask", name = "status") Set<String> statusStr)
     {
-        if (id < 1L || size < 1)
+        if (id < 1L || size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         Set<QuestionState> questionStates = new HashSet<>();
         statusStr.forEach(status -> questionStates.add(QuestionState.valueOf(status.toUpperCase())));
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);

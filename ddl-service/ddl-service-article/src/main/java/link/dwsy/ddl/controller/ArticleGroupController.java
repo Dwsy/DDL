@@ -45,8 +45,9 @@ public class ArticleGroupController {
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
-        if (id < 0L || size < 1)
+        if (id < 0L || size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         return articleGroupService.getFieldListByGroupId(id,pageRequest);
     }

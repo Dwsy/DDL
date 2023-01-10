@@ -135,8 +135,8 @@ public class QaQuestionFieldServiceImpl implements QaQuestionFieldService {
 
     @Override
     public long createQuestion(CreateQuestionRB createQuestionRB) {
-        String title = createQuestionRB.getTitle();
-        title = title.trim().replaceAll("\n", "");
+//        String title = createQuestionRB.getTitle();
+//        title = title.trim().replaceAll("\n", "");
         QuestionState questionState = createQuestionRB.getQuestionState();
         Set<QuestionState> allowState = Set.of(QuestionState.ASK, QuestionState.HIDE, QuestionState.DRAFT);
         if (!allowState.contains(questionState)) {

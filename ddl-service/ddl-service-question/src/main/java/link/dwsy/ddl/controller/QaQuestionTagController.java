@@ -27,7 +27,7 @@ public class QaQuestionTagController {
     private  QaQuestionTagServiceImpl qaQuestionTagService;
 
     @GetMapping("list")
-    public List<QaTag> GetTagList(
+    public List<QaTag> getTagList(
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties) {
 
@@ -43,15 +43,16 @@ public class QaQuestionTagController {
     }
 
     @GetMapping("question/{id}")
-    public PageData<QaQuestionField> GetArticleFieldList(
+    public PageData<QaQuestionField> getArticleFieldList(
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "1", name = "page") int page,
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "ASC", name = "order") String order,
             @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
             @RequestParam(required = false, defaultValue = "ask", name = "status") Set<String> statusStr) {
-        if (id < 1L || size < 1)
+        if (id < 1L || size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         Set<QuestionState> questionStates = statusStr.stream().map(String::toUpperCase).map(QuestionState::valueOf).collect(Collectors.toSet());
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
 

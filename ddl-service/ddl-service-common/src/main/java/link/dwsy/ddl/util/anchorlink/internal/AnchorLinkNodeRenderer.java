@@ -51,19 +51,31 @@ public class AnchorLinkNodeRenderer implements NodeRenderer {
                     }
                 }
 
-                if (options.setName) html.attr("name", id);
-                if (!options.anchorClass.isEmpty()) html.attr("class", options.anchorClass);
+                if (options.setName) {
+                    html.attr("name", id);
+                }
+                if (!options.anchorClass.isEmpty()) {
+                    html.attr("class", options.anchorClass);
+                }
 
                 if (!options.wrapText) {
                     html.withAttr().tag("a");
-                    if (!options.textPrefix.isEmpty()) html.raw(options.textPrefix);
-                    if (!options.textSuffix.isEmpty()) html.raw(options.textSuffix);
+                    if (!options.textPrefix.isEmpty()) {
+                        html.raw(options.textPrefix);
+                    }
+                    if (!options.textSuffix.isEmpty()) {
+                        html.raw(options.textSuffix);
+                    }
                     html.tag("/a");
                 } else {
                     html.withAttr().tag("a", false, false, () -> {
-                        if (!options.textPrefix.isEmpty()) html.raw(options.textPrefix);
+                        if (!options.textPrefix.isEmpty()) {
+                            html.raw(options.textPrefix);
+                        }
                         context.renderChildren(node);
-                        if (!options.textSuffix.isEmpty()) html.raw(options.textSuffix);
+                        if (!options.textSuffix.isEmpty()) {
+                            html.raw(options.textSuffix);
+                        }
                     });
                 }
             } else {

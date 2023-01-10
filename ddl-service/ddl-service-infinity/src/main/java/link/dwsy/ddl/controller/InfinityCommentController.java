@@ -63,8 +63,9 @@ public class InfinityCommentController {
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @PathVariable long id
     ) {
-        if (size < 1)
+        if (size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         PageRequest replyPageRequest = PRHelper.order("ASC", new String[]{"createTime"}, 1, 8);
@@ -118,8 +119,9 @@ public class InfinityCommentController {
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @PathVariable long id
     ) {
-        if (size < 1)
+        if (size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         Page<Infinity> commentReplyPage = infinityRepository
@@ -141,8 +143,9 @@ public class InfinityCommentController {
     @PostMapping()
     @AuthAnnotation
     public Infinity replyInfinity(@Validated @RequestBody ReplyInfinityRB infinityRB) {
-        if (StrUtil.isBlank(infinityRB.getContent()) && infinityRB.getImgUrlList().size() == 0)
+        if (StrUtil.isBlank(infinityRB.getContent()) && infinityRB.getImgUrlList().size() == 0) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         Long userId = userSupport.getCurrentUser().getId();
         long replyId = infinityRB.getReplyId();
         String content = infinityRB.getContent();

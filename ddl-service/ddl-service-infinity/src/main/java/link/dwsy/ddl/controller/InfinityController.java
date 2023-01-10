@@ -84,8 +84,9 @@ public class InfinityController {
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @RequestParam(required = false, defaultValue = "0", name = "clubId") long clubId,
             @RequestParam(required = false, defaultValue = "0", name = "topicId") long topicId) {
-        if (size < 1)
+        if (size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         Page<Infinity> infinityPage = getInfinityPage(clubId, topicId, pageRequest);
 //        for (Infinity infinity : infinityPage) {
@@ -106,8 +107,9 @@ public class InfinityController {
             @RequestParam(required = false, defaultValue = "8", name = "size") int size,
             @PathVariable long id
     ) {
-        if (size < 1)
+        if (size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
 //        Page<Infinity> childComments = infinityRepository

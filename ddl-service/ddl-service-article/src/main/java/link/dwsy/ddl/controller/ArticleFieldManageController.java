@@ -62,8 +62,9 @@ public class ArticleFieldManageController {
             @RequestParam(required = false, defaultValue = "0", name = "tagId") long tagId,
             @RequestParam(required = false, defaultValue = "all", name = "state") ArticleState state
     ) {
-        if (size < 1)
+        if (size < 1) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         PageRequest pageRequest = PRHelper.order(order, properties, page, size);
         LoginUserInfo user = userSupport.getCurrentUser();
         Page<fieldVO> articleList;
@@ -95,8 +96,9 @@ public class ArticleFieldManageController {
     @AuthAnnotation
     public ArticleField getArticleById(@PathVariable("id") Long id,
                                        @RequestParam(required = false, defaultValue = "-1", name = "version") int version) {
-        if (id < 0L)
+        if (id < 0L) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         Long userId = userSupport.getCurrentUser().getId();
         Long articleOwnerUserId = articleFieldRepository.findUserIdById(id);
         if (!userId.equals(articleOwnerUserId)) {
@@ -106,8 +108,9 @@ public class ArticleFieldManageController {
             return articleContentService.getArticleFieldByIdAndVersion(id, version);
         }
         ArticleField article = articleContentService.getArticleById(id, Set.of(ArticleState.published, ArticleState.hide, ArticleState.draft));
-        if (article == null)
+        if (article == null) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
         return article;
     }
 
@@ -122,10 +125,12 @@ public class ArticleFieldManageController {
             @PathVariable(name = "id") Long id,
             @RequestParam(required = false, defaultValue = "0", name = "type") int type,
             @RequestParam(required = false, defaultValue = "-1", name = "version") int version) {
-        if (id < 0L)
+        if (id < 0L) {
             throw new CodeException(CustomerErrorCode.ParamError);
-        if (type < 0 || type > 2)
+        }
+        if (type < 0 || type > 2) {
             throw new CodeException(CustomerErrorCode.ParamError);
+        }
         Long userId = userSupport.getCurrentUser().getId();
         Long articleOwnerUserId = articleFieldRepository.findUserIdById(id);
         if (!userId.equals(articleOwnerUserId)) {
