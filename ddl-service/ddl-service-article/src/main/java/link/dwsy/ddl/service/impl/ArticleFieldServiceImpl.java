@@ -7,15 +7,12 @@ import link.dwsy.ddl.XO.Enum.Article.CodeHighlightStyle;
 import link.dwsy.ddl.XO.Enum.Article.MarkDownTheme;
 import link.dwsy.ddl.XO.Enum.Article.MarkDownThemeDark;
 import link.dwsy.ddl.XO.Enum.InfinityType;
-import link.dwsy.ddl.XO.Enum.User.UserActiveType;
 import link.dwsy.ddl.XO.Message.InfinityMessage;
-import link.dwsy.ddl.XO.Message.UserActiveMessage;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
 import link.dwsy.ddl.constants.article.ArticleRedisKey;
 import link.dwsy.ddl.constants.mq.ArticleSearchMQConstants;
 import link.dwsy.ddl.constants.mq.InfinityMQConstants;
-import link.dwsy.ddl.constants.mq.UserActiveMQConstants;
 import link.dwsy.ddl.constants.task.RedisRecordHashKey;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -174,10 +171,11 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         ArticleContent articleContent = articleContentOptional.get();
         int version = field.getVersion() + 1;
         if (articleState == ArticleState.published || articleState == ArticleState.draft) {
-            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionFieldKey + field.getId(), JSON.toJSONString(field));
-            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionTitleKey + field.getId(), title);
-            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionContentKey + field.getId(), articleContent.getTextMd());
-            redisTemplate.opsForList().rightPush(ArticleRedisKey.ArticleHistoryVersionCreateDateKey + field.getId(), String.valueOf(System.currentTimeMillis()));
+            long fieldId = field.getId();
+            redisTemplate.opsForList().rightPush(ArticleRedisKey.getHistoryVersionFieldKey(fieldId), JSON.toJSONString(field));
+            redisTemplate.opsForList().rightPush(ArticleRedisKey.getHistoryVersionTitleKey(fieldId), title);
+            redisTemplate.opsForList().rightPush(ArticleRedisKey.getHistoryVersionContentKey(fieldId), articleContent.getTextMd());
+            redisTemplate.opsForList().rightPush(ArticleRedisKey.getHistoryVersionCreateDateKey(fieldId), String.valueOf(System.currentTimeMillis()));
         }
 
         articleContent.setTextHtml(html);

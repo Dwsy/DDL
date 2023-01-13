@@ -66,7 +66,6 @@ public class ArticleContentServiceImpl implements ArticleContentService {
     private UserStateService userStateService;
 
 
-
     @Override
     public PageData<fieldVO> getPageList(PageRequest pageRequest, ArticleState articleState) {
         //todo数据填充
@@ -102,7 +101,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
     @Override
     public ArticleField getArticleById(long id, ArticleState articleState) {
 //        LoginUserInfo currentUser = userSupport.getCurrentUser();
-        if (articleFieldRepository.userIsCancellation(id)>0) {
+        if (articleFieldRepository.userIsCancellation(id) > 0) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
         //        if (currentUser != null) {//ssr 没token需要放在前端加载 所有加一个接口
@@ -114,7 +113,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
     @Override
     public ArticleField getArticleById(long id, Collection<ArticleState> articleStates) {
-        if (articleFieldRepository.userIsCancellation(id)>0) {
+        if (articleFieldRepository.userIsCancellation(id) > 0) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
 
@@ -123,7 +122,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
     @Override
     public ArticleField getArticleFieldByIdAndVersion(Long id, Integer version) {
-        String fieldJsonStr = redisTemplate.opsForList().index(ArticleRedisKey.ArticleHistoryVersionFieldKey + id, version);
+        String fieldJsonStr = redisTemplate.opsForList().index(ArticleRedisKey.getHistoryVersionFieldKey(id), version);
         if (fieldJsonStr == null) {
             throw new CodeException(CustomerErrorCode.ArticleVersionNotFound);
         }
@@ -132,7 +131,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
     @Override
     public String getArticleContentByIdAndVersion(Long id, Integer version) {
-        String contentStr = redisTemplate.opsForList().index(ArticleRedisKey.ArticleHistoryVersionContentKey + id, version);
+        String contentStr = redisTemplate.opsForList().index(ArticleRedisKey.getHistoryVersionContentKey(id), version);
         if (contentStr == null) {
             throw new CodeException(CustomerErrorCode.ArticleVersionNotFound);
         }
@@ -171,7 +170,7 @@ public class ArticleContentServiceImpl implements ArticleContentService {
 
     @Override
     public String getContent(long id, int type) {
-        if (articleFieldRepository.userIsCancellation(id)>0) {
+        if (articleFieldRepository.userIsCancellation(id) > 0) {
             throw new CodeException(CustomerErrorCode.ArticleNotFound);
         }
         //todo 权限校验 use 投影
@@ -195,8 +194,8 @@ public class ArticleContentServiceImpl implements ArticleContentService {
             throw new CodeException(CustomerErrorCode.ArticleGroupNotBelongToUser);
         }
 
-        List<String> titleList = redisTemplate.opsForList().range(ArticleRedisKey.ArticleHistoryVersionTitleKey + articleId, 0, -1);
-        List<String> dateList = redisTemplate.opsForList().range(ArticleRedisKey.ArticleHistoryVersionCreateDateKey + articleId, 0, -1);
+        List<String> titleList = redisTemplate.opsForList().range(ArticleRedisKey.getHistoryVersionTitleKey(articleId), 0, -1);
+        List<String> dateList = redisTemplate.opsForList().range(ArticleRedisKey.getHistoryVersionCreateDateKey(articleId), 0, -1);
         if (titleList == null || dateList == null) {
             throw new CodeException(CustomerErrorCode.ArticleVersionNotFound);
         }

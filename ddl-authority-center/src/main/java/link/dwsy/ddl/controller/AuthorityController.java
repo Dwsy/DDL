@@ -75,7 +75,7 @@ public class AuthorityController {
     @PostMapping("active")
     public boolean active(HttpServletRequest request) {
         String tokenHead = request.getHeader(TokenConstants.AUTHENTICATION);
-        return tokenService.active(tokenHead.split(" ")[1]);
+        return tokenService.active(tokenHead);
     }
 
     @PostMapping("logout")
