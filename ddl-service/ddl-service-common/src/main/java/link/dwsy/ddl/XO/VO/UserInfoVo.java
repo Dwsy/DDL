@@ -27,8 +27,12 @@ public class UserInfoVo {
 
     private boolean checkIn;
 
+    private String tagStr;
 
-    public UserInfoVo(User user,boolean checkIn) {
+    private boolean admin;
+
+
+    public UserInfoVo(User user, boolean checkIn, String tagStr) {
         this.level = user.getLevel();
         this.experience = user.getExperience();
         this.avatar = user.getUserInfo().getAvatar();
@@ -36,5 +40,7 @@ public class UserInfoVo {
         this.gender = user.getUserInfo().getGender();
         this.birth = user.getUserInfo().getBirth();
         this.checkIn = checkIn;
+        this.tagStr = tagStr;
+        this.admin = user.isAdmin();
     }
 }

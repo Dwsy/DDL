@@ -8,6 +8,7 @@ import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
 import link.dwsy.ddl.core.domain.LoginUserInfo;
 import link.dwsy.ddl.entity.User.User;
+import link.dwsy.ddl.entity.User.UserTag;
 import link.dwsy.ddl.repository.User.UserFollowingRepository;
 import link.dwsy.ddl.repository.User.UserRepository;
 import link.dwsy.ddl.repository.User.UserTagRepository;
@@ -16,7 +17,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("info")
@@ -38,10 +42,14 @@ public class UserInfoController {
     public UserInfoVo getUserInfo() {
         Long userId = userSupport.getCurrentUser().getId();
         User user = userRepository.findUserByIdAndDeletedIsFalse(userId);
+        ArrayList<Long> userTagIds = userTagRepository.getUserTagIdsById(userId);
+        List<UserTag> tags = userTagRepository.findAllById(userTagIds);
+        String tagstr = tags.stream().map(UserTag::getName).collect(Collectors.joining(" "));
         if (!StrUtil.isEmpty(redisTemplate.opsForValue().get("checkIn:" + userId))) {
-            return new UserInfoVo(user, true);
+            return new UserInfoVo(user, true, tagstr);
         }
-        return new UserInfoVo(user, false);
+
+        return new UserInfoVo(user, false, tagstr);
     }
 
     @GetMapping("{id}")

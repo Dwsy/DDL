@@ -1,9 +1,11 @@
 package link.dwsy.ddl.controller;
 
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
+import link.dwsy.ddl.XO.RB.ArticleAuditingRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
 import link.dwsy.ddl.XO.VO.VersionData;
 import link.dwsy.ddl.XO.VO.fieldVO;
+import link.dwsy.ddl.annotation.Admin;
 import link.dwsy.ddl.annotation.AuthAnnotation;
 import link.dwsy.ddl.core.CustomExceptions.CodeException;
 import link.dwsy.ddl.core.constant.CustomerErrorCode;
@@ -24,7 +26,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @Author Dwsy
@@ -176,10 +181,71 @@ public class ArticleFieldManageController {
         return true;
     }
 
+    @DeleteMapping("admin/{articleId}")
+    @Admin
+    public boolean adminDeleteArticle(@PathVariable Long articleId) {
+        if (articleId == null || articleId < 0) {
+            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+        }
+
+        try {
+            articleFieldService.logicallyDeleted(articleId);
+        } catch (Exception e) {
+            log.info("删除文章{}失败", articleId);
+            return false;
+        }
+        return true;
+    }
+
     @PostMapping("recovery")
     @AuthAnnotation
     public void recoveryArticle(@RequestBody @Validated ArticleRecoveryRB articleRecoveryRB) {
         articleFieldService.logicallyRecovery(articleRecoveryRB);
+    }
+
+
+    @GetMapping("field/admin/list")
+    @Admin
+    public PageData<fieldVO> adminArticleList(
+            @RequestParam(required = false, defaultValue = "DESC", name = "order") String order,
+            @RequestParam(required = false, defaultValue = "createTime", name = "properties") String[] properties,
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page,
+            @RequestParam(required = false, defaultValue = "8", name = "size") int size,
+            @RequestParam(required = false, defaultValue = "0", name = "tagId") long tagId,
+            @RequestParam(required = false, defaultValue = "all", name = "state") ArticleState state
+    ) {
+        if (size < 1)
+            throw new CodeException(CustomerErrorCode.ParamError);
+        PageRequest pageRequest = PRHelper.order(order, properties, page, size);
+        LoginUserInfo user = userSupport.getCurrentUser();
+        Page<fieldVO> articleList;
+        if (state == ArticleState.all) {
+            articleList = articleFieldRepository.
+                    findByDeletedFalseAndArticleStateNot(ArticleState.draft, pageRequest);
+        } else {
+            articleList = articleFieldRepository.
+                    findByDeletedFalseAndArticleState(state, pageRequest);
+        }
+        return new PageData<>(articleList);
+    }
+
+    @GetMapping("field/admin/num")
+    @Admin
+    public Map<ArticleState, Integer> getAdminArticleCountByState() {
+        HashMap<ArticleState, Integer> countByState = new HashMap<>();
+        countByState.put(ArticleState.all, articleFieldRepository.countByDeletedFalseAndArticleStateNot(ArticleState.draft));
+        countByState.put(ArticleState.draft, articleFieldRepository.countByDeletedFalseAndArticleState(ArticleState.draft));
+        countByState.put(ArticleState.published, articleFieldRepository.countByDeletedFalseAndArticleState(ArticleState.published));
+        countByState.put(ArticleState.hide, articleFieldRepository.countByDeletedFalseAndArticleState(ArticleState.hide));
+        countByState.put(ArticleState.auditing, articleFieldRepository.countByDeletedFalseAndArticleState(ArticleState.auditing));
+        countByState.put(ArticleState.rejected, articleFieldRepository.countByDeletedFalseAndArticleState(ArticleState.rejected));
+        return countByState;
+    }
+
+    @PostMapping("admin/auditing")
+    @Admin
+    public void adminAuditing(@RequestBody ArticleAuditingRB articleAuditingRB) {
+        articleFieldService.adminAuditing(articleAuditingRB);
     }
 
 }

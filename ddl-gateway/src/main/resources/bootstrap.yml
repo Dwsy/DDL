@@ -88,6 +88,29 @@ spring:
             - Path=/api/user/**
           filters:
             - StripPrefix=2
+    sentinel:
+      eager: true
+      transport:
+        port: 8720
+        dashboard: localhost:7749
+      datasource:
+        ds1:
+          nacos:
+            server-addr: ${spring.cloud.nacos.discovery.server-addr}
+            namespace: ${spring.cloud.nacos.discovery.namespace}
+            data-id: gateway-flow-rule-sentinel
+            group-id: DEFAULT_GROUP
+            data-type: json
+            rule-type: gw-flow
+        ds2:
+          nacos:
+            server-addr: ${spring.cloud.nacos.discovery.server-addr}
+            namespace: ${spring.cloud.nacos.discovery.namespace}
+            data-id: gateway-flow-rule-api-sentinel
+            group-id: DEFAULT_GROUP
+            data-type: json
+            rule-type: gw-api-group
+
   zipkin:
     sender:
       type: web # 默认是 web
@@ -125,17 +148,17 @@ nacos:
 #        port: 8720
 #        dashboard: 127.0.0.1:7777
 #      datasource:
-        # 通过本地文件方式, 基于服务级别的配置
-        #        dsl.file:
-        #          file: classpath:gateway-flow-rule-sentinel.json
-        #          # 代表服务级别的限流, 一步步点进去看, 文件类型
-        #          ruleType: gw-flow
-        #        # 通过本地文件方式, 细粒度对指定 api 进行配置
-        #        ds2.file:
-        #          file: classpath:gateway-flow-rule-api-sentinel.json
-        #          # 代表 API 分组, 一步步点进去看, 文件类型
-        #          ruleType: gw-api-group
-        # 集成 Nacos
+#        # 通过本地文件方式, 基于服务级别的配置
+#        #        dsl.file:
+#        #          file: classpath:gateway-flow-rule-sentinel.json
+#        #          # 代表服务级别的限流, 一步步点进去看, 文件类型
+#        #          ruleType: gw-flow
+#        #        # 通过本地文件方式, 细粒度对指定 api 进行配置
+#        #        ds2.file:
+#        #          file: classpath:gateway-flow-rule-api-sentinel.json
+#        #          # 代表 API 分组, 一步步点进去看, 文件类型
+#        #          ruleType: gw-api-group
+#        # 集成 Nacos
 #        ds1:
 #          nacos:
 #            server-addr: ${spring.cloud.nacos.discovery.server-addr}
@@ -153,8 +176,7 @@ nacos:
 #            group-id: DEFAULT_GROUP
 #            data-type: json
 #            rule-type: gw-api-group
-
-
+#
 
 
 

@@ -39,6 +39,10 @@ public class User extends BaseEntity {
     @JsonIgnore
     private String password;
 
+
+    @JsonIgnore
+    private boolean isAdmin;
+
     @JsonIgnore
     private String salt;
 

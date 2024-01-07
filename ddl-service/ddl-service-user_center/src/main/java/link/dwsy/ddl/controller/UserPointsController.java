@@ -72,7 +72,7 @@ public class UserPointsController {
 //        calendar.set(Calendar.MINUTE, 0);
 //        calendar.set(Calendar.SECOND, 0);
 //        Date lastYear = calendar.getTime();
-        LocalDate startDate = LocalDate.of(calendar.get(Calendar.YEAR) - minusYears - 1, calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE));
+        LocalDate startDate = LocalDate.of(calendar.get(Calendar.YEAR) - minusYears - 1, calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DATE));
         List<Map<Object, Object>> heatmapDataMapList = userPointsRepository.getHeatmapDataByUserId(userId, startDate, LocalDate.now().minusYears(minusYears));
 
 //        System.out.printf(String.valueOf(heatmapDataList.get(0).getCount()));

@@ -36,7 +36,7 @@ public class PictureController {
 
     @PostMapping("/upload")
     public R<String> upload(@RequestParam("file") MultipartFile file,
-                            @RequestParam("type") int type) throws IOException {
+                            @RequestParam(value = "type",required = false,defaultValue = "1") int type) throws IOException {
         LoginUserInfo currentUser = userSupport.getCurrentUser();
         if (currentUser == null) {
             return R.fail("请先登录");

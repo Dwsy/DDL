@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import link.dwsy.ddl.XO.Enum.Article.ArticleState;
 import link.dwsy.ddl.XO.VO.fieldVO;
-import link.dwsy.ddl.XO.VO.testVo;
 import link.dwsy.ddl.entity.Article.ArticleGroup;
 import link.dwsy.ddl.entity.Article.ArticleTag;
 import link.dwsy.ddl.entity.QA.QaTag;
@@ -59,11 +58,11 @@ public class ArticleTagGroupTest {
         articleTagRepository.findAll().forEach(System.out::println);
     }
 
-    @Test
-    public void ProjectionsTest() {
-        testVo firstById = articleTagRepository.findTopById(1L);
-        System.out.println(firstById.getId());
-    }
+//    @Test
+//    public void ProjectionsTest() {
+//        testVo firstById = articleTagRepository.findTopById(1L);
+//        System.out.println(firstById.getId());
+//    }
 
     @Test
     public void updateTag() {

@@ -116,7 +116,8 @@ public enum CustomerErrorCode {
 
     INFINITY_CLUB_UNFOLLOWED(723, "未关注圈子"),
     GITHUB_OAUTH_ERROR(2000, "GITHUB_OAUTH_ERROR"),
-    SensitiveWordsExistInTheContent(1234, "内容存在敏感词请重新编辑");
+    SensitiveWordsExistInTheContent(1234, "内容存在敏感词请重新编辑"),
+    UserNotAdmin(4001,"权限不足" );
 
 
     private final int code;

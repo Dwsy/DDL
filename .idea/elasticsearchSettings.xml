@@ -5,18 +5,18 @@
       <map>
         <entry key="bcb05e08-25e1-45d8-b7fa-a4f05fe71002">
           <value>
-            <V>
+            <T>
               <option name="authConfigInternal">
-                <T>
+                <R>
                   <option name="authType" value="Basic Auth" />
-                </T>
+                </R>
               </option>
               <option name="credentialsStored" value="true" />
               <option name="id" value="bcb05e08-25e1-45d8-b7fa-a4f05fe71002" />
               <option name="label" value="@localhost" />
               <option name="url" value="https://localhost:9200" />
               <option name="version" value="1" />
-            </V>
+            </T>
           </value>
         </entry>
       </map>

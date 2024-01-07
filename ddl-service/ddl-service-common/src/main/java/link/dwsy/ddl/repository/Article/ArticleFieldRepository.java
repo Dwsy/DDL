@@ -6,7 +6,6 @@ import link.dwsy.ddl.XO.VO.fieldVO;
 import link.dwsy.ddl.entity.Article.ArticleField;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -144,11 +143,20 @@ public interface ArticleFieldRepository extends JpaRepository<ArticleField, Long
 
     Page<fieldVO> findByUser_IdAndArticleStateNotAndDeleted(long id, ArticleState articleState, boolean deleted, Pageable pageable);
 
+    Page<fieldVO> findByDeletedFalseAndArticleStateNot(ArticleState articleState, Pageable pageable);
+    Page<fieldVO> findByDeletedFalseAndArticleState(ArticleState articleState, Pageable pageable);
+
+
+
     Page<fieldVO> findByUser_IdAndArticleStateNotAndArticleTags_IdAndDeleted(long id, ArticleState articleState, long tagId, boolean deleted, Pageable pageable);
 
     int countByDeletedFalseAndUser_IdAndArticleState(long id, ArticleState articleState);
 
     int countByDeletedFalseAndUser_IdAndArticleStateNot(long id, ArticleState articleState);
+
+    int countByDeletedFalseAndArticleState(ArticleState articleState);
+    int countByDeletedFalseAndArticleStateNot(ArticleState articleState);
+
 
 
 

@@ -14,5 +14,6 @@ public interface AuditService {
 
     @PostMapping("/check/contains")
     boolean contains(@RequestParam(name = "text") String text);
+    //审核文本内容
 
 }

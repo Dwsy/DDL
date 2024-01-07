@@ -1,6 +1,5 @@
 package link.dwsy.ddl.repository.Article;
 
-import link.dwsy.ddl.XO.VO.testVo;
 import link.dwsy.ddl.entity.Article.ArticleTag;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,7 +32,7 @@ public interface ArticleTagRepository extends JpaRepository<ArticleTag, Long> {
 //    @Query()
 //    void getFieldListByTagId();
 
-    testVo findTopById(long id);
+//    testVo findTopById(long id);
 
 
 

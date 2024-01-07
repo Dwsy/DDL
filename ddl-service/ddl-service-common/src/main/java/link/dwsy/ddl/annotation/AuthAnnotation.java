@@ -1,7 +1,5 @@
 package link.dwsy.ddl.annotation;
 
-import org.springframework.stereotype.Component;
-
 import java.lang.annotation.*;
 
 /**
@@ -11,7 +9,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
-@Component
 public @interface AuthAnnotation {
     int Level() default 0;
 

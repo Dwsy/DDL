@@ -8,6 +8,7 @@ import link.dwsy.ddl.XO.Enum.Article.MarkDownTheme;
 import link.dwsy.ddl.XO.Enum.Article.MarkDownThemeDark;
 import link.dwsy.ddl.XO.Enum.InfinityType;
 import link.dwsy.ddl.XO.Message.InfinityMessage;
+import link.dwsy.ddl.XO.RB.ArticleAuditingRB;
 import link.dwsy.ddl.XO.RB.ArticleContentRB;
 import link.dwsy.ddl.XO.RB.ArticleRecoveryRB;
 import link.dwsy.ddl.constants.article.ArticleRedisKey;
@@ -233,6 +234,20 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
         articleContentRepository.logicallyDeleted(articleId);
     }
 
+
+    public void adminLogicallyDeleted(Long articleId) {
+//        Long uid = userSupport.getCurrentUser().getId();
+//        if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, uid)) {
+//            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+////        }
+//        Long userId = userSupport.getCurrentUser().getId();
+//        if (!articleFieldRepository.existsByDeletedFalseAndIdAndUser_Id(articleId, userId)) {
+//            throw new CodeException(CustomerErrorCode.ArticleNotFound);
+//        }
+        rabbitTemplate.convertAndSend(ArticleSearchMQConstants.EXCHANGE_DDL_ARTICLE_SEARCH, ArticleSearchMQConstants.RK_DDL_ARTICLE_SEARCH_DELETE, articleId);
+        articleFieldRepository.logicallyDeleted(articleId);
+        articleContentRepository.logicallyDeleted(articleId);
+    }
     @Override
     public void logicallyRecovery(ArticleRecoveryRB articleRecoveryRB) {
         Long uid = userSupport.getCurrentUser().getId();
@@ -257,4 +272,17 @@ public class ArticleFieldServiceImpl implements ArticleFieldService {
     }
 
 
+    public void adminAuditing(ArticleAuditingRB articleAuditingRB) {
+        articleFieldRepository.findById(articleAuditingRB.getArticleId()).ifPresent(articleField -> {
+            if (articleAuditingRB.isPass()) {
+                articleField.setArticleState(ArticleState.published);
+            } else {
+                //审核不通过原因
+                log.info("审核不通过原因:{}", articleAuditingRB.getReason());
+                articleField.setArticleState(ArticleState.rejected);
+            }
+            articleFieldRepository.save(articleField);
+        });
+
+    }
 }

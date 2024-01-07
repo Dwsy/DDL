@@ -16,6 +16,7 @@ import java.util.List;
  * @Date 2022/8/24
  */
 public interface UserRepository extends JpaRepository<User,Long> {
+    boolean existsByIdAndIsAdminTrue(long id);
     List<User> findByDeletedFalseAndIdIn(Collection<Long> ids);
 
     @Query(nativeQuery = true, value = "select level from users where id = ?1 and deleted is false")
